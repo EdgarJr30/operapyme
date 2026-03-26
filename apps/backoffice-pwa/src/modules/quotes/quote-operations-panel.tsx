@@ -432,7 +432,7 @@ function QuoteFormFields({
         </Field>
       </div>
 
-      <div className="rounded-[24px] border border-line/70 bg-paper/70 p-4">
+      <div className="rounded-3xl border border-line/70 bg-paper/70 p-4">
         <p className="text-sm font-semibold text-ink">
           {t("quotes.form.grandTotalLabel")}
         </p>

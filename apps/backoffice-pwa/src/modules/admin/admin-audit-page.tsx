@@ -71,14 +71,14 @@ export function AdminAuditPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="rounded-[24px] border border-line/70 bg-paper/70 p-4">
+            <div className="rounded-3xl border border-line/70 bg-paper/70 p-4">
               <p className="text-xs uppercase tracking-[0.24em] text-ink-muted">
                 {t("admin.audit.requiredRole")}
               </p>
               <p className="mt-2 text-lg font-semibold text-ink">global_admin</p>
             </div>
 
-            <div className="rounded-[24px] border border-line/70 bg-paper/70 p-4">
+            <div className="rounded-3xl border border-line/70 bg-paper/70 p-4">
               <p className="text-xs uppercase tracking-[0.24em] text-ink-muted">
                 {t("admin.audit.requiredPermissions")}
               </p>
@@ -159,7 +159,7 @@ export function AdminAuditPage() {
             {auditEntityKeys.map((entityKey) => (
               <div
                 key={entityKey}
-                className="rounded-[24px] border border-line/70 bg-paper/70 px-4 py-3"
+                className="rounded-3xl border border-line/70 bg-paper/70 px-4 py-3"
               >
                 <p className="text-sm font-semibold text-ink">{entityKey}</p>
                 <p className="mt-1 text-sm leading-6 text-ink-soft">

@@ -53,7 +53,7 @@ export function TenantPaletteSection() {
             <PalettePreview mode="storefront" darkMode={isDarkMode} />
           </div>
 
-          <div className="rounded-[24px] border border-dashed border-line/70 bg-paper/72 p-4">
+          <div className="rounded-3xl border border-dashed border-line/70 bg-paper/72 p-4">
             <p className="text-sm font-semibold text-ink">
               {t("settings.palette.ruleTitle")}
             </p>
@@ -62,7 +62,7 @@ export function TenantPaletteSection() {
             </p>
           </div>
 
-          <div className="rounded-[24px] border border-line/70 bg-paper/72 p-4">
+          <div className="rounded-3xl border border-line/70 bg-paper/72 p-4">
             <p className="text-sm font-semibold text-ink">
               {t("settings.palette.storageTitle")}
             </p>
@@ -192,7 +192,7 @@ function PalettePreview({
       style={scopeStyle}
     >
       <div
-        className="rounded-[24px] border border-white/30 p-4 shadow-panel"
+        className="rounded-3xl border border-white/30 p-4 shadow-panel"
         style={heroStyle}
       >
         <div className="flex items-center gap-2">

@@ -62,7 +62,7 @@ export function AdminErrorsPage() {
             {appErrorSeverityKeys.map((severityKey) => (
               <div
                 key={severityKey}
-                className="rounded-[24px] border border-line/70 bg-paper/70 px-4 py-3"
+                className="rounded-3xl border border-line/70 bg-paper/70 px-4 py-3"
               >
                 <p className="text-sm font-semibold uppercase text-ink">
                   {severityKey}
@@ -131,7 +131,7 @@ export function AdminErrorsPage() {
             {requiredControls.map((controlKey) => (
               <div
                 key={controlKey}
-                className="rounded-[24px] border border-line/70 bg-paper/70 px-4 py-3"
+                className="rounded-3xl border border-line/70 bg-paper/70 px-4 py-3"
               >
                 <p className="text-sm text-ink-soft">{t(controlKey)}</p>
               </div>

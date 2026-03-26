@@ -1,24 +1,24 @@
-import { FormEvent, useRef, useState } from "react";
+import { FormEvent, useRef, useState } from 'react';
 
-import { MailCheck, ShieldCheck } from "lucide-react";
+import { MailCheck, ShieldCheck } from 'lucide-react';
 
-import { useTranslation } from "@operapyme/i18n";
-import { Navigate } from "react-router-dom";
+import { useTranslation } from '@operapyme/i18n';
+import { Navigate } from 'react-router-dom';
 
-import { useBackofficeAuth } from "@/app/auth-provider";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { UnconfiguredPage } from "@/modules/auth/unconfigured-page";
+import { useBackofficeAuth } from '@/app/auth-provider';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { UnconfiguredPage } from '@/modules/auth/unconfigured-page';
 
-type AuthMode = "signin" | "signup";
+type AuthMode = 'signin' | 'signup';
 
 export function AuthPage() {
-  const { t } = useTranslation("backoffice");
+  const { t } = useTranslation('backoffice');
   const { isConfigured, isBootstrapped, signInWithOtp, status } =
     useBackofficeAuth();
   const emailInputRef = useRef<HTMLInputElement>(null);
-  const [email, setEmail] = useState("");
-  const [mode, setMode] = useState<AuthMode>("signin");
+  const [email, setEmail] = useState('');
+  const [mode, setMode] = useState<AuthMode>('signin');
   const [error, setError] = useState<string | null>(null);
   const [emailSent, setEmailSent] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -27,25 +27,25 @@ export function AuthPage() {
     return <UnconfiguredPage />;
   }
 
-  if (status === "signed_in") {
-    return <Navigate to={isBootstrapped ? "/" : "/setup"} replace />;
+  if (status === 'signed_in') {
+    return <Navigate to={isBootstrapped ? '/' : '/setup'} replace />;
   }
 
   const entryContent =
-    mode === "signin"
+    mode === 'signin'
       ? {
-          title: t("auth.entry.signinPanelTitle"),
-          switchLead: t("auth.entry.signinSwitchLead"),
-          switchAction: t("auth.entry.signinSwitchAction"),
-          description: t("auth.entry.signinDescription"),
-          submitLabel: t("auth.form.submit")
+          title: t('auth.entry.signinPanelTitle'),
+          switchLead: t('auth.entry.signinSwitchLead'),
+          switchAction: t('auth.entry.signinSwitchAction'),
+          description: t('auth.entry.signinDescription'),
+          submitLabel: t('auth.form.submit'),
         }
       : {
-          title: t("auth.entry.signupPanelTitle"),
-          switchLead: t("auth.entry.signupSwitchLead"),
-          switchAction: t("auth.entry.signupSwitchAction"),
-          description: t("auth.entry.signupDescription"),
-          submitLabel: t("auth.form.submitFirstTime")
+          title: t('auth.entry.signupPanelTitle'),
+          switchLead: t('auth.entry.signupSwitchLead'),
+          switchAction: t('auth.entry.signupSwitchAction'),
+          description: t('auth.entry.signupDescription'),
+          submitLabel: t('auth.form.submitFirstTime'),
         };
 
   function setAuthMode(nextMode: AuthMode) {
@@ -90,11 +90,11 @@ export function AuthPage() {
                 {entryContent.title}
               </h1>
               <p className="mt-2 text-sm leading-6 text-ink-soft">
-                {entryContent.switchLead}{" "}
+                {entryContent.switchLead}{' '}
                 <button
                   type="button"
                   onClick={() =>
-                    setAuthMode(mode === "signin" ? "signup" : "signin")
+                    setAuthMode(mode === 'signin' ? 'signup' : 'signin')
                   }
                   className="font-semibold text-[#1f2c38] transition hover:text-[#17212b]"
                 >
@@ -113,7 +113,7 @@ export function AuthPage() {
                     htmlFor="auth-email"
                     className="block text-sm font-medium text-ink"
                   >
-                    {t("auth.form.emailLabel")}
+                    {t('auth.form.emailLabel')}
                   </label>
                   <div className="mt-2">
                     <Input
@@ -123,7 +123,7 @@ export function AuthPage() {
                       autoComplete="email"
                       value={email}
                       onChange={(event) => setEmail(event.target.value)}
-                      placeholder={t("auth.form.emailPlaceholder")}
+                      placeholder={t('auth.form.emailPlaceholder')}
                       required
                       className="h-11.5 rounded-md border-line/80 bg-white px-3 py-2"
                     />
@@ -142,10 +142,10 @@ export function AuthPage() {
                       <MailCheck className="mt-0.5 size-4 shrink-0 text-ink" />
                       <div>
                         <p className="text-sm font-semibold text-ink">
-                          {t("auth.form.emailSentTitle")}
+                          {t('auth.form.emailSentTitle')}
                         </p>
                         <p className="mt-1 text-sm leading-6 text-ink-soft">
-                          {t("auth.form.emailSentText", { email })}
+                          {t('auth.form.emailSentText', { email })}
                         </p>
                       </div>
                     </div>
@@ -159,7 +159,7 @@ export function AuthPage() {
                     disabled={isSubmitting}
                   >
                     {isSubmitting
-                      ? t("auth.form.submitting")
+                      ? t('auth.form.submitting')
                       : entryContent.submitLabel}
                   </Button>
                 </div>
@@ -167,19 +167,22 @@ export function AuthPage() {
 
               <div className="mt-10">
                 <div className="relative">
-                  <div aria-hidden="true" className="absolute inset-0 flex items-center">
+                  <div
+                    aria-hidden="true"
+                    className="absolute inset-0 flex items-center"
+                  >
                     <div className="w-full border-t border-line/70" />
                   </div>
                   <div className="relative flex justify-center text-sm font-medium">
                     <span className="bg-white px-6 text-ink">
-                      {t("auth.form.noteTitle")}
+                      {t('auth.form.noteTitle')}
                     </span>
                   </div>
                 </div>
 
                 <div className="mt-6 rounded-xl border border-line/70 bg-white px-4 py-3">
                   <p className="text-sm leading-6 text-ink-soft">
-                    {t("auth.form.noteText")}
+                    {t('auth.form.noteText')}
                   </p>
                 </div>
               </div>
@@ -224,7 +227,7 @@ export function AuthPage() {
                 </div>
               </div>
 
-              <div className="absolute -left-6 bottom-6 w-28 rounded-[24px] border border-line/70 bg-paper/95 p-3 shadow-panel">
+              <div className="absolute -left-6 bottom-6 w-28 rounded-3xl border border-line/70 bg-paper/95 p-3 shadow-panel">
                 <div className="rounded-[14px] bg-butter-200 px-3 py-3" />
                 <div className="mt-3 space-y-2">
                   <div className="h-7 rounded-[14px] bg-sand-strong/75" />
@@ -240,10 +243,10 @@ export function AuthPage() {
 
             <div className="mt-10 text-center">
               <h2 className="text-5xl font-semibold tracking-tight text-ink">
-                {t("auth.hero.title")}
+                {t('auth.hero.title')}
               </h2>
               <p className="mt-4 text-xl text-ink-soft">
-                {t("auth.hero.description")}
+                {t('auth.hero.description')}
               </p>
               <div className="mt-12 flex items-center justify-center gap-2">
                 <span className="h-1.5 w-6 rounded-full bg-[#ab8500]" />

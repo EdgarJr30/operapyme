@@ -74,7 +74,7 @@ export function QuotesPage() {
               {flowSteps.map((step, index) => (
                 <div
                   key={step.titleKey}
-                  className="rounded-[24px] border border-line/70 bg-paper/70 p-4"
+                  className="rounded-3xl border border-line/70 bg-paper/70 p-4"
                 >
                   <div className="mb-3 flex items-center justify-between gap-2">
                     <span className="flex size-8 items-center justify-center rounded-full bg-sage-200 text-xs font-semibold text-ink">
@@ -137,7 +137,7 @@ export function QuotesPage() {
         </CardHeader>
         <CardContent className="space-y-3">
           {!hasTenantContext ? (
-            <div className="rounded-[24px] border border-dashed border-line-strong bg-paper/70 p-5">
+            <div className="rounded-3xl border border-dashed border-line-strong bg-paper/70 p-5">
               <p className="text-sm font-medium text-ink">
                 {t("quotes.list.noTenantTitle")}
               </p>
@@ -146,7 +146,7 @@ export function QuotesPage() {
               </p>
             </div>
           ) : isLoading ? (
-            <div className="rounded-[24px] border border-dashed border-line-strong bg-paper/70 p-5">
+            <div className="rounded-3xl border border-dashed border-line-strong bg-paper/70 p-5">
               <p className="text-sm font-medium text-ink">
                 {t("quotes.list.loadingTitle")}
               </p>
@@ -155,7 +155,7 @@ export function QuotesPage() {
               </p>
             </div>
           ) : isError ? (
-            <div className="rounded-[24px] border border-dashed border-line-strong bg-paper/70 p-5">
+            <div className="rounded-3xl border border-dashed border-line-strong bg-paper/70 p-5">
               <p className="text-sm font-medium text-ink">
                 {t("quotes.list.errorTitle")}
               </p>
@@ -179,7 +179,7 @@ export function QuotesPage() {
               .slice(0, 6)
               .map((quote) => <QuoteCard key={quote.id} quote={quote} t={t} />)
           ) : (
-            <div className="rounded-[24px] border border-dashed border-line-strong bg-paper/70 p-5">
+            <div className="rounded-3xl border border-dashed border-line-strong bg-paper/70 p-5">
               <p className="text-sm font-medium text-ink">
                 {t("quotes.list.emptyTitle")}
               </p>
@@ -202,7 +202,7 @@ function QuoteCard({
   t: ReturnType<typeof useTranslation<"backoffice">>["t"];
 }) {
   return (
-    <div className="rounded-[24px] border border-line/70 bg-paper/70 p-4">
+    <div className="rounded-3xl border border-line/70 bg-paper/70 p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="font-semibold text-ink">{quote.quoteNumber}</p>

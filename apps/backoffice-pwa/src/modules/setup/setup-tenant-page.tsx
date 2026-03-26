@@ -101,7 +101,7 @@ export function SetupTenantPage() {
             </p>
 
             <div className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-[24px] border border-line/70 bg-paper/85 p-4">
+              <div className="rounded-3xl border border-line/70 bg-paper/85 p-4">
                 <p className="text-sm font-semibold text-ink">
                   {t("setup.cardTenantTitle")}
                 </p>
@@ -109,7 +109,7 @@ export function SetupTenantPage() {
                   {t("setup.cardTenantText")}
                 </p>
               </div>
-              <div className="rounded-[24px] border border-line/70 bg-paper/85 p-4">
+              <div className="rounded-3xl border border-line/70 bg-paper/85 p-4">
                 <p className="text-sm font-semibold text-ink">
                   {t("setup.cardRolesTitle")}
                 </p>
@@ -173,7 +173,7 @@ export function SetupTenantPage() {
               </Button>
             </form>
 
-            <div className="rounded-[24px] border border-line/70 bg-paper/70 p-4">
+            <div className="rounded-3xl border border-line/70 bg-paper/70 p-4">
               <div className="flex items-start gap-3">
                 <Building2 className="mt-1 size-4 shrink-0 text-ink" />
                 <div>
@@ -187,7 +187,7 @@ export function SetupTenantPage() {
               </div>
             </div>
 
-            <div className="rounded-[24px] border border-line/70 bg-sand-strong/80 p-4">
+            <div className="rounded-3xl border border-line/70 bg-sand-strong/80 p-4">
               <div className="flex items-start gap-3">
                 <Sparkles className="mt-1 size-4 shrink-0 text-ink" />
                 <div>

@@ -180,7 +180,7 @@ export function AuthCallbackPage() {
           </p>
           {callbackError ? (
             <Link
-              className="inline-flex min-h-[44px] w-full min-w-[44px] items-center justify-center rounded-full bg-brand px-5 py-3 text-sm font-medium text-brand-contrast shadow-soft transition duration-200 ease-out hover:bg-brand-hover active:translate-y-px sm:w-auto"
+              className="inline-flex min-h-11 w-full min-w-11 items-center justify-center rounded-full bg-brand px-5 py-3 text-sm font-medium text-brand-contrast shadow-soft transition duration-200 ease-out hover:bg-brand-hover active:translate-y-px sm:w-auto"
               to="/auth"
             >
               {t("auth.callback.backToAuth")}

@@ -253,7 +253,7 @@ export function LeadIntakeForm() {
               </dl>
             </div>
           ) : (
-            <div className="rounded-[24px] border border-dashed border-line-strong bg-paper/70 p-5">
+            <div className="rounded-3xl border border-dashed border-line-strong bg-paper/70 p-5">
               <p className="text-sm font-medium text-ink">
                 {t("crm.form.previewEmptyTitle")}
               </p>

@@ -70,7 +70,7 @@ export function CrmPage() {
           </CardHeader>
           <CardContent>
             {!hasTenantContext ? (
-              <div className="rounded-[24px] border border-dashed border-line-strong bg-paper/70 p-5">
+              <div className="rounded-3xl border border-dashed border-line-strong bg-paper/70 p-5">
                 <p className="text-sm font-medium text-ink">
                   {t("crm.recent.noTenantTitle")}
                 </p>
@@ -79,7 +79,7 @@ export function CrmPage() {
                 </p>
               </div>
             ) : isLoading ? (
-              <div className="rounded-[24px] border border-dashed border-line-strong bg-paper/70 p-5">
+              <div className="rounded-3xl border border-dashed border-line-strong bg-paper/70 p-5">
                 <p className="text-sm font-medium text-ink">
                   {t("crm.recent.loadingTitle")}
                 </p>
@@ -88,7 +88,7 @@ export function CrmPage() {
                 </p>
               </div>
             ) : isError ? (
-              <div className="rounded-[24px] border border-dashed border-line-strong bg-paper/70 p-5">
+              <div className="rounded-3xl border border-dashed border-line-strong bg-paper/70 p-5">
                 <p className="text-sm font-medium text-ink">
                   {t("crm.recent.errorTitle")}
                 </p>
@@ -114,7 +114,7 @@ export function CrmPage() {
                 ))}
               </div>
             ) : (
-              <div className="rounded-[24px] border border-dashed border-line-strong bg-paper/70 p-5">
+              <div className="rounded-3xl border border-dashed border-line-strong bg-paper/70 p-5">
                 <p className="text-sm font-medium text-ink">
                   {t("crm.recent.emptyTitle")}
                 </p>
@@ -168,7 +168,7 @@ function CustomerCard({
     t("crm.recent.contactPending");
 
   return (
-    <div className="rounded-[24px] border border-line/70 bg-paper/70 p-4">
+    <div className="rounded-3xl border border-line/70 bg-paper/70 p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="font-semibold text-ink">{customer.displayName}</p>

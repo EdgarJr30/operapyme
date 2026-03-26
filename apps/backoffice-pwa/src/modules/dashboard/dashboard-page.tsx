@@ -284,7 +284,7 @@ export function DashboardPage() {
             {modules.map((module) => (
               <div
                 key={module.titleKey}
-                className="rounded-[24px] border border-line/70 bg-paper/70 p-4"
+                className="rounded-3xl border border-line/70 bg-paper/70 p-4"
               >
                 <p className="text-sm font-semibold text-ink">
                   {t(module.titleKey)}
@@ -346,7 +346,7 @@ function CustomerSnapshotCard({
     t("dashboard.livePulse.contactPending");
 
   return (
-    <div className="rounded-[24px] border border-line/70 bg-paper/70 p-4">
+    <div className="rounded-3xl border border-line/70 bg-paper/70 p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="font-semibold text-ink">{customer.displayName}</p>
@@ -372,7 +372,7 @@ function QuoteSnapshotCard({
   t: ReturnType<typeof useTranslation<"backoffice">>["t"];
 }) {
   return (
-    <div className="rounded-[24px] border border-line/70 bg-paper/70 p-4">
+    <div className="rounded-3xl border border-line/70 bg-paper/70 p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="font-semibold text-ink">{quote.quoteNumber}</p>
