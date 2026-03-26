@@ -477,10 +477,13 @@ const backofficeEn = {
   },
   auth: {
     hero: {
-      eyebrow: "Backoffice access",
-      title: "Sign in with a magic link and keep operations under control.",
+      eyebrow: "OperaPyme on the web",
+      title: "Synced across all your devices.",
       description:
-        "Phase 2 now starts operating with real authentication, tenant bootstrap, and guided access before opening the commercial modules.",
+        "Sign in from your phone or your work computer with the same secure access and prepare your tenant from the very first session.",
+      badgeDevice: "Web and PWA",
+      badgeSecurity: "Secure access",
+      badgeSetup: "Guided setup",
       cardRbacTitle: "RBAC from day one",
       cardRbacText:
         "Access is decided by tenant roles and permissions, not by UI visibility.",
@@ -488,11 +491,29 @@ const backofficeEn = {
       cardAuditText:
         "Every sensitive action starts with actor tracking, timestamps, and traceability."
     },
+    entry: {
+      brandLabel: "Operational backoffice",
+      existingLead: "If you already use OperaPyme:",
+      existingCta: "Sign in",
+      firstTimeLead: "If this is your first time with OperaPyme:",
+      firstTimeCta: "Create your account",
+      signinEyebrow: "Existing access",
+      signinTitle: "Get your link and return to operations.",
+      signinDescription:
+        "We will send a magic link to your work email so you can open your workspace with your current permissions.",
+      signupEyebrow: "First session",
+      signupTitle: "Start with your email and create your space.",
+      signupDescription:
+        "We use the same email access flow to activate new accounts and take you to the initial tenant bootstrap.",
+      helper:
+        "The first session also starts through email and then continues with tenant setup."
+    },
     form: {
       title: "Request access",
       emailLabel: "Work email",
       emailPlaceholder: "team@operapyme.com",
       submit: "Send access link",
+      submitFirstTime: "Send link to get started",
       submitting: "Sending access...",
       emailSentTitle: "Check your inbox",
       emailSentText:

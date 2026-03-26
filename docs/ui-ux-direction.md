@@ -36,6 +36,7 @@ La interfaz debe sentirse:
 ## Superficies clave
 
 - dashboard con proximas acciones
+- acceso y auth con layout dividido: contexto visual en un lado, decision primaria en el otro
 - formularios de captura rapida
 - listados con filtros cortos y legibles
 - modulo admin separado del backoffice comercial

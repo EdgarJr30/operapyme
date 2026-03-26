@@ -477,10 +477,13 @@ const backofficeEs = {
   },
   auth: {
     hero: {
-      eyebrow: "Acceso al backoffice",
-      title: "Entra con un enlace magico y mantén la operación bajo control.",
+      eyebrow: "OperaPyme en la web",
+      title: "Sincronizado en todos tus dispositivos.",
       description:
-        "La fase 2 ya empieza a operar con autenticación real, bootstrap de tenant y acceso guiado antes de tocar los módulos comerciales.",
+        "Entra desde tu celular o tu equipo de trabajo con el mismo acceso seguro y prepara tu tenant desde el primer ingreso.",
+      badgeDevice: "Web y PWA",
+      badgeSecurity: "Acceso seguro",
+      badgeSetup: "Setup guiado",
       cardRbacTitle: "RBAC desde el inicio",
       cardRbacText:
         "El acceso se decide por roles y permisos del tenant, no por visibilidad en la UI.",
@@ -488,11 +491,29 @@ const backofficeEs = {
       cardAuditText:
         "Toda acción sensible nace con tracking de actor, timestamps y trazabilidad."
     },
+    entry: {
+      brandLabel: "Backoffice operativo",
+      existingLead: "Si ya usas OperaPyme:",
+      existingCta: "Inicia sesión",
+      firstTimeLead: "Si es tu primera vez en OperaPyme:",
+      firstTimeCta: "Crea tu cuenta",
+      signinEyebrow: "Acceso existente",
+      signinTitle: "Recibe tu enlace y vuelve a tu operación.",
+      signinDescription:
+        "Te enviaremos un magic link a tu correo de trabajo para abrir tu espacio con tus permisos actuales.",
+      signupEyebrow: "Primer ingreso",
+      signupTitle: "Empieza por tu correo y crea tu espacio.",
+      signupDescription:
+        "Usamos el mismo acceso por correo para activar cuentas nuevas y llevarte al bootstrap inicial del tenant.",
+      helper:
+        "El primer ingreso también arranca por correo y luego continúa con el setup del tenant."
+    },
     form: {
       title: "Solicita tu acceso",
       emailLabel: "Correo de trabajo",
       emailPlaceholder: "equipo@operapyme.com",
       submit: "Enviar enlace de acceso",
+      submitFirstTime: "Enviar enlace para empezar",
       submitting: "Enviando acceso...",
       emailSentTitle: "Revisa tu correo",
       emailSentText:

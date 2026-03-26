@@ -52,8 +52,14 @@ describe("auth page", () => {
 
     expect(
       await screen.findByRole("heading", {
-        name: /Entra con un enlace magico/i
+        name: /Sincronizado en todos tus dispositivos/i
       })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Inicia sesión/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Crea tu cuenta/i })
     ).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /Enviar enlace de acceso/i })
