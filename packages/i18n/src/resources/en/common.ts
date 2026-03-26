@@ -39,10 +39,13 @@ const commonEn = {
     catalog: "Catalog",
     quotes: "Quotes",
     admin: "Admin",
-    settings: "Settings"
+    settings: "Settings",
+    errors: "Errors",
+    more: "More"
   },
   shell: {
     badge: "Backoffice PWA foundation",
+    mobileBadge: "Operational shell",
     productName: "OperaPyme",
     title: "Commercial operations platform",
     description:
@@ -54,11 +57,46 @@ const commonEn = {
     workspaceDescription:
       "Mobile-first CRM, quotes, expenses, and reporting.",
     workspaceTenantDescription: "Operating inside {{tenant}}.",
+    tenantLabel: "Active business",
+    tenantFallback: "No active tenant",
+    tenantSwitcherLabel: "Switch business",
+    quickActionsTitle: "Quick actions",
+    quickActionLead: "Capture lead",
+    quickActionQuote: "New quote",
+    sidebarCoreLabel: "Daily operations",
+    sidebarPlatformLabel: "Platform",
     foundationBadge: "Audit-ready",
     rbacBadge: "RBAC + RLS baseline",
     signOut: "Sign out",
+    globalAdmin: "Global admin",
+    tenantOperator: "Tenant operator",
+    emailFallback: "No email available",
     primaryNavigationLabel: "Primary navigation",
-    mobileNavigationLabel: "Mobile navigation"
+    mobileNavigationLabel: "Mobile navigation",
+    mobileMenuLabel: "Open main menu",
+    closeMenuLabel: "Close main menu",
+    breadcrumbsLabel: "Current route",
+    openNotificationsLabel: "Open notifications",
+    profileMenuLabel: "Open user menu",
+    notifications: {
+      title: "Notifications",
+      description: "Useful reminders to operate the backoffice with context.",
+      newBadge: "New",
+      tenantTitle: "Tenant context",
+      tenantDescription:
+        "You are working inside {{tenant}}. Keep this context while creating customers and quotes.",
+      tenantFallback:
+        "We do not see an active tenant yet. Review the context before operating on commercial data.",
+      appearanceTitle: "Appearance synced",
+      appearanceDescription:
+        "The active palette is {{palette}} and stays separate from the user's visual mode.",
+      governanceTitle: "Workspace governance",
+      governanceDescription:
+        "Admin and settings stay outside the main commercial flow to avoid mixing contexts.",
+      governanceAdminTitle: "Administrative access available",
+      governanceAdminDescription:
+        "Your profile can enter the global audit area without mixing it with the tenant's day-to-day operations."
+    }
   },
   states: {
     routeNotFoundEyebrow: "Route not found",

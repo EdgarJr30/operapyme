@@ -29,12 +29,22 @@ El `service role key` no vive aqui.
 - `/auth/callback` confirma sesiones tanto con `code` como con `token_hash` y devuelve al login si el enlace ya no sirve
 - el primer usuario autenticado pasa por `/setup`
 - el shell principal solo abre cuando ya existe membership activa en un tenant
+- el shell principal del backoffice ahora usa sidebar persistente en desktop, navbar superior con breadcrumbs y acciones globales, drawer movil y bottom navigation tipo app
+- el cambio de tenant vive en el shell para mantener el contexto multi-tenant visible en toda la operacion
+- la navegacion movil deja los modulos principales en tabs inferiores y mueve configuracion o admin al menu extendido
 - la auditoria global sigue reservada para `global_admin`
 - `dashboard`, `crm` y `quotes` ya consumen lecturas reales desde Supabase con React Query
 - `crm` y `quotes` ya incluyen formularios reales de create/update sobre `customers` y `quotes`
 - las mutaciones siguen limitadas al tenant activo y dejan auditoria via triggers de base
 - `quotes` ya delega la numeracion y el incremento de version a RPCs de Supabase para evitar inconsistencias por concurrencia
 - el bundle base del backoffice ahora separa vendors por dominio y solo carga los namespaces de i18n que la app realmente necesita
+
+## Shell y navegacion
+
+- desktop: sidebar con modulos core, accesos de plataforma y cambio de tenant visible
+- header: breadcrumbs, notificaciones operativas, toggle de tema y menu de usuario
+- mobile: tab bar inferior para `Inicio`, `CRM`, `Catalogo` y `Cotizaciones`, con el resto en un drawer
+- todo el copy del shell sigue saliendo desde `@operapyme/i18n`
 
 ## Tailwind
 

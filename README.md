@@ -124,6 +124,7 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 - blueprint del producto actualizado al nuevo enfoque
 - Linear alineado con el nuevo nombre temporal
 - scaffold inicial del backoffice en progreso
+- shell operativo del backoffice alineado con sidebar desktop, navbar superior y bottom navigation movil
 - soporte `light` / `dark` / `system` activo en el backoffice
 - baseline de testing y contratos del repo sembrados
 - fundacion Supabase segura sembrada con enfoque RBAC, RLS y auditoria

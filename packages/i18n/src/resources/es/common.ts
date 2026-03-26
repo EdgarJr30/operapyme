@@ -39,10 +39,13 @@ const commonEs = {
     catalog: "Catalogo",
     quotes: "Cotizaciones",
     admin: "Admin",
-    settings: "Configuracion"
+    settings: "Configuracion",
+    errors: "Errores",
+    more: "Mas"
   },
   shell: {
     badge: "Base PWA del backoffice",
+    mobileBadge: "Shell operativo",
     productName: "OperaPyme",
     title: "Plataforma comercial operativa",
     description:
@@ -54,11 +57,46 @@ const commonEs = {
     workspaceDescription:
       "CRM, cotizaciones, gastos y reportes pensados para movil.",
     workspaceTenantDescription: "Operando dentro de {{tenant}}.",
+    tenantLabel: "Negocio activo",
+    tenantFallback: "Sin tenant activo",
+    tenantSwitcherLabel: "Cambiar negocio",
+    quickActionsTitle: "Atajos operativos",
+    quickActionLead: "Capturar lead",
+    quickActionQuote: "Nueva cotizacion",
+    sidebarCoreLabel: "Operacion diaria",
+    sidebarPlatformLabel: "Plataforma",
     foundationBadge: "Audit-ready",
     rbacBadge: "RBAC + RLS base",
     signOut: "Salir",
+    globalAdmin: "Administrador global",
+    tenantOperator: "Operador del tenant",
+    emailFallback: "Sin correo disponible",
     primaryNavigationLabel: "Navegacion principal",
-    mobileNavigationLabel: "Navegacion movil"
+    mobileNavigationLabel: "Navegacion movil",
+    mobileMenuLabel: "Abrir menu principal",
+    closeMenuLabel: "Cerrar menu principal",
+    breadcrumbsLabel: "Ruta actual",
+    openNotificationsLabel: "Abrir notificaciones",
+    profileMenuLabel: "Abrir menu del usuario",
+    notifications: {
+      title: "Notificaciones",
+      description: "Recordatorios utiles para operar el backoffice con contexto.",
+      newBadge: "Nuevo",
+      tenantTitle: "Contexto del tenant",
+      tenantDescription:
+        "Estas trabajando dentro de {{tenant}}. Mantiene este contexto al crear clientes y cotizaciones.",
+      tenantFallback:
+        "Todavia no vemos un tenant activo. Revisa el contexto antes de operar datos comerciales.",
+      appearanceTitle: "Apariencia sincronizada",
+      appearanceDescription:
+        "La paleta activa es {{palette}} y sigue separada del modo visual del usuario.",
+      governanceTitle: "Gobernanza del workspace",
+      governanceDescription:
+        "Admin y configuracion siguen fuera del flujo comercial principal para evitar mezclar contextos.",
+      governanceAdminTitle: "Acceso administrativo visible",
+      governanceAdminDescription:
+        "Tu perfil puede entrar al area de auditoria global sin mezclarla con la operacion diaria del tenant."
+    }
   },
   states: {
     routeNotFoundEyebrow: "Ruta no encontrada",
