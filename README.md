@@ -126,6 +126,9 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 - soporte `light` / `dark` / `system` activo en el backoffice
 - baseline de testing y contratos del repo sembrados
 - fundacion Supabase segura sembrada con enfoque RBAC, RLS y auditoria
+- auth del backoffice sembrado con magic link
+- bootstrap inicial de tenant sembrado con membership `tenant_owner`
+- primeras tablas operativas `customers` y `quotes` sembradas con RLS y auditoria
 - rutas `/admin/*` reservadas para auditoria y errores globales
 
 ### Como correr el proyecto
@@ -138,6 +141,14 @@ npm run dev:backoffice
 npm run test
 npm run verify
 ```
+
+Flujo funcional actual:
+
+1. completar `apps/backoffice-pwa/.env.local`
+2. aplicar migraciones de `supabase/migrations/`
+3. abrir el backoffice
+4. entrar por `/auth`
+5. completar `/setup` si el usuario aun no tiene tenant
 
 Backoffice por defecto:
 

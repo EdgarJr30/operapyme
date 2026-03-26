@@ -57,10 +57,29 @@ Toda tabla publica o expuesta debe definir:
 
 - `current_app_user_id()`
 - `current_platform_role_keys()`
+- `current_tenant_role_keys(target_tenant_id uuid)`
+- `current_tenant_permission_keys(target_tenant_id uuid)`
+- `get_my_access_context()`
+- `create_tenant_with_owner(target_name text, target_slug text)`
 - `has_platform_permission(permission_key text)`
 - `has_tenant_permission(target_tenant_id uuid, permission_key text)`
 - `touch_updated_at()`
 - funciones de auditoria por trigger
+
+## Fase 2 sembrada
+
+La fase 2 ya deja listos estos bloques iniciales:
+
+- acceso por magic link desde Supabase Auth
+- sincronizacion de sesion hacia `app_users`
+- RPC `get_my_access_context()` para hidratar roles, permisos y memberships
+- RPC `create_tenant_with_owner()` para bootstrap inicial del primer tenant
+- tablas `customers` y `quotes` con tracking, RLS y auditoria
+
+## Primeras tablas operativas
+
+- `customers`: base multi-tenant para clientes del CRM
+- `quotes`: base multi-tenant para cotizaciones con version y totales
 
 ## Reglas para operaciones sensibles
 

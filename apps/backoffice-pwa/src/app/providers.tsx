@@ -10,6 +10,7 @@ import {
 } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
+import { BackofficeAuthProvider } from "@/app/auth-provider";
 import { BackofficeThemeProvider } from "@/app/theme-provider";
 
 const queryClient = new QueryClient({
@@ -33,10 +34,15 @@ export function AppProviders({ children, i18n }: AppProvidersProps) {
   return (
     <BackofficeThemeProvider>
       <I18nextProvider i18n={i18n}>
-        <QueryClientProvider client={queryClient}>
-          {children}
-          <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />
-        </QueryClientProvider>
+        <BackofficeAuthProvider>
+          <QueryClientProvider client={queryClient}>
+            {children}
+            <ReactQueryDevtools
+              initialIsOpen={false}
+              buttonPosition="bottom-left"
+            />
+          </QueryClientProvider>
+        </BackofficeAuthProvider>
       </I18nextProvider>
     </BackofficeThemeProvider>
   );

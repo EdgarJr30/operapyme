@@ -22,6 +22,13 @@ VITE_SUPABASE_PUBLISHABLE_KEY=
 
 El `service role key` no vive aqui.
 
+## Acceso y bootstrap
+
+- la entrada de fase 2 vive en `/auth`
+- el primer usuario autenticado pasa por `/setup`
+- el shell principal solo abre cuando ya existe membership activa en un tenant
+- la auditoria global sigue reservada para `global_admin`
+
 ## Tailwind
 
 Esta app usa Tailwind v4 en modo CSS-first.

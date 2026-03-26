@@ -53,8 +53,10 @@ const commonEn = {
     workspaceTitle: "Backoffice workspace",
     workspaceDescription:
       "Mobile-first CRM, quotes, expenses, and reporting.",
+    workspaceTenantDescription: "Operating inside {{tenant}}.",
     foundationBadge: "Audit-ready",
     rbacBadge: "RBAC + RLS baseline",
+    signOut: "Sign out",
     primaryNavigationLabel: "Primary navigation",
     mobileNavigationLabel: "Mobile navigation"
   },

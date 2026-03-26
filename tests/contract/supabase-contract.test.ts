@@ -6,6 +6,9 @@ import path from "node:path";
 const migrationPath = path.resolve(
   "supabase/migrations/202603250001_foundation_security.sql"
 );
+const phaseTwoMigrationPath = path.resolve(
+  "supabase/migrations/202603260001_phase2_auth_bootstrap.sql"
+);
 
 describe("supabase foundation contracts", () => {
   it("creates the required secure foundation tables", () => {
@@ -32,6 +35,25 @@ describe("supabase foundation contracts", () => {
     );
     expect(migration).toContain(
       "create or replace function public.has_tenant_permission"
+    );
+  });
+
+  it("adds bootstrap access context helpers and the first business tables in phase 2", () => {
+    const migration = fs.readFileSync(phaseTwoMigrationPath, "utf8");
+
+    expect(migration).toContain(
+      "create or replace function public.get_my_access_context"
+    );
+    expect(migration).toContain(
+      "create or replace function public.create_tenant_with_owner"
+    );
+    expect(migration).toContain("create table if not exists public.customers");
+    expect(migration).toContain("create table if not exists public.quotes");
+    expect(migration).toContain(
+      "alter table public.customers enable row level security"
+    );
+    expect(migration).toContain(
+      "alter table public.quotes enable row level security"
     );
   });
 });

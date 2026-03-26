@@ -5,12 +5,49 @@ import {
   Route,
   Routes
 } from "react-router-dom";
+import { vi } from "vitest";
 
 import { setupBackofficeI18n } from "@/app/i18n";
 import { AppProviders } from "@/app/providers";
 import { AppShell } from "@/components/layout/app-shell";
 import { AdminAuditPage } from "@/modules/admin/admin-audit-page";
 import { AdminErrorsPage } from "@/modules/admin/admin-errors-page";
+
+vi.mock("@/app/auth-provider", async () => {
+  const actual = await vi.importActual<typeof import("@/app/auth-provider")>(
+    "@/app/auth-provider"
+  );
+
+  return {
+    ...actual,
+    useBackofficeAuth: () => ({
+      accessContext: {
+        appUserId: "user-1",
+        email: "owner@operapyme.com",
+        displayName: "Owner",
+        isGlobalAdmin: true,
+        memberships: [
+          {
+            membershipId: "membership-1",
+            tenantId: "tenant-1",
+            tenantName: "OperaPyme Demo",
+            tenantSlug: "operapyme-demo",
+            status: "active",
+            tenantRoleKeys: ["tenant_owner"]
+          }
+        ],
+        platformRoleKeys: ["global_admin"],
+        platformPermissionKeys: ["audit.read.global", "error.read.global"],
+        tenantPermissionKeys: ["tenant.read"]
+      },
+      activeTenantId: "tenant-1",
+      signOut: vi.fn(),
+      user: {
+        email: "owner@operapyme.com"
+      }
+    })
+  };
+});
 
 function renderRoute(route: string) {
   const i18n = setupBackofficeI18n();

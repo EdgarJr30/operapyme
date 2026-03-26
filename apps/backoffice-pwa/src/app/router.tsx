@@ -1,12 +1,21 @@
-import { Suspense } from "react";
+import { Suspense, type ReactNode } from "react";
 
+import { isGlobalAuditVisible } from "@operapyme/domain";
 import { useTranslation } from "@operapyme/i18n";
 import {
+  Navigate,
+  Outlet,
   createBrowserRouter,
   type RouteObject
 } from "react-router-dom";
 
+import { useBackofficeAuth } from "@/app/auth-provider";
 import { AppShell } from "@/components/layout/app-shell";
+import { AccessDeniedPage } from "@/modules/auth/access-denied-page";
+import { AuthCallbackPage } from "@/modules/auth/auth-callback-page";
+import { AuthPage } from "@/modules/auth/auth-page";
+import { UnconfiguredPage } from "@/modules/auth/unconfigured-page";
+import { SetupTenantPage } from "@/modules/setup/setup-tenant-page";
 
 function NotFoundPage() {
   const { t } = useTranslation("common");
@@ -36,6 +45,72 @@ function RouteLoader() {
       </div>
     </div>
   );
+}
+
+function AuthStatusBoundary({ children }: { children: ReactNode }) {
+  const { isConfigured, status } = useBackofficeAuth();
+
+  if (!isConfigured || status === "unconfigured") {
+    return <UnconfiguredPage />;
+  }
+
+  if (status === "loading") {
+    return <RouteLoader />;
+  }
+
+  return children;
+}
+
+function AuthOnlyRoute() {
+  const { isBootstrapped, status } = useBackofficeAuth();
+
+  return (
+    <AuthStatusBoundary>
+      {status === "signed_in" ? (
+        <Navigate replace to={isBootstrapped ? "/" : "/setup"} />
+      ) : (
+        <AuthPage />
+      )}
+    </AuthStatusBoundary>
+  );
+}
+
+function RequireSignedIn() {
+  const { status } = useBackofficeAuth();
+
+  return (
+    <AuthStatusBoundary>
+      {status === "signed_in" ? <Outlet /> : <Navigate replace to="/auth" />}
+    </AuthStatusBoundary>
+  );
+}
+
+function RequireBootstrappedShell() {
+  const { isBootstrapped, status } = useBackofficeAuth();
+
+  return (
+    <AuthStatusBoundary>
+      {status === "signed_in" ? (
+        isBootstrapped ? (
+          <AppShell />
+        ) : (
+          <Navigate replace to="/setup" />
+        )
+      ) : (
+        <Navigate replace to="/auth" />
+      )}
+    </AuthStatusBoundary>
+  );
+}
+
+function RequireGlobalAdminRoute({ children }: { children: ReactNode }) {
+  const { accessContext } = useBackofficeAuth();
+
+  if (!isGlobalAuditVisible(accessContext)) {
+    return <AccessDeniedPage />;
+  }
+
+  return children;
 }
 
 async function loadDashboardRoute() {
@@ -138,8 +213,26 @@ async function loadAdminErrorsRoute() {
 
 export const appRoutes: RouteObject[] = [
   {
+    path: "/auth",
+    element: <AuthOnlyRoute />
+  },
+  {
+    path: "/auth/callback",
+    element: <AuthCallbackPage />
+  },
+  {
+    path: "/setup",
+    element: <RequireSignedIn />,
+    children: [
+      {
+        index: true,
+        element: <SetupTenantPage />
+      }
+    ]
+  },
+  {
     path: "/",
-    element: <AppShell />,
+    element: <RequireBootstrappedShell />,
     errorElement: <NotFoundPage />,
     children: [
       {
@@ -160,11 +253,39 @@ export const appRoutes: RouteObject[] = [
       },
       {
         path: "admin",
-        lazy: loadAdminAuditRoute
+        lazy: async () => {
+          const route = await loadAdminAuditRoute();
+
+          return {
+            Component: function GuardedAdminAuditRoute() {
+              const Component = route.Component;
+
+              return (
+                <RequireGlobalAdminRoute>
+                  <Component />
+                </RequireGlobalAdminRoute>
+              );
+            }
+          };
+        }
       },
       {
         path: "admin/errors",
-        lazy: loadAdminErrorsRoute
+        lazy: async () => {
+          const route = await loadAdminErrorsRoute();
+
+          return {
+            Component: function GuardedAdminErrorsRoute() {
+              const Component = route.Component;
+
+              return (
+                <RequireGlobalAdminRoute>
+                  <Component />
+                </RequireGlobalAdminRoute>
+              );
+            }
+          };
+        }
       },
       {
         path: "settings",

@@ -63,10 +63,13 @@ Reglas:
 ## Flujo local recomendado
 
 1. Instalar dependencias.
-2. Levantar el backoffice.
-3. Ejecutar `typecheck`.
-4. Ejecutar los tests del alcance tocado.
-5. Ejecutar `verify` antes de cerrar una tarea relevante.
+2. Completar `apps/backoffice-pwa/.env.local`.
+3. Aplicar migraciones de `supabase/migrations/`.
+4. Levantar el backoffice.
+5. Entrar por `/auth` y completar el bootstrap del tenant si es el primer acceso.
+6. Ejecutar `typecheck`.
+7. Ejecutar los tests del alcance tocado.
+8. Ejecutar `verify` antes de cerrar una tarea relevante.
 
 ## Supabase
 
@@ -74,3 +77,5 @@ Reglas:
 - No se reescriben migraciones aplicadas.
 - Toda tabla de negocio nace con RLS y columnas de tracking.
 - Acciones sensibles o masivas deben ir por RPC o Edge Function, no por CRUD cliente directo.
+- El bootstrap inicial del tenant usa `create_tenant_with_owner()`.
+- El frontend hidrata su contexto con `get_my_access_context()`.

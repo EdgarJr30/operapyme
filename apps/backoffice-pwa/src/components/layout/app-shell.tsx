@@ -1,4 +1,5 @@
 import {
+  LogOut,
   Boxes,
   ChartNoAxesCombined,
   FileText,
@@ -7,16 +8,22 @@ import {
   Settings2
 } from "lucide-react";
 
+import {
+  getPrimaryTenantMembership,
+  isGlobalAuditVisible
+} from "@operapyme/domain";
 import { useTranslation } from "@operapyme/i18n";
 import { useTenantTheme } from "@operapyme/ui";
 import { NavLink, Outlet } from "react-router-dom";
 
+import { useBackofficeAuth } from "@/app/auth-provider";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { ThemeToggleButton } from "@/components/layout/theme-toggle-button";
+import { Button } from "@/components/ui/button";
 import { StatusPill } from "@/components/ui/status-pill";
 import { cn } from "@/lib/utils";
 
-const navItems = [
+const baseNavItems = [
   {
     to: "/",
     key: "dashboard",
@@ -52,6 +59,20 @@ const navItems = [
 export function AppShell() {
   const { t } = useTranslation("common");
   const { paletteId } = useTenantTheme();
+  const {
+    accessContext,
+    activeTenantId,
+    signOut,
+    user
+  } = useBackofficeAuth();
+  const activeTenantMembership = getPrimaryTenantMembership(
+    accessContext,
+    activeTenantId
+  );
+  const navItems = baseNavItems.filter((item) =>
+    item.key === "admin" ? isGlobalAuditVisible(accessContext) : true
+  );
+  const mobileGridClass = navItems.length >= 6 ? "grid-cols-6" : "grid-cols-5";
 
   return (
     <div className="min-h-screen">
@@ -119,11 +140,20 @@ export function AppShell() {
                   {t("shell.workspaceTitle")}
                 </p>
                 <p className="text-xs leading-5 text-ink-soft">
-                  {t("shell.workspaceDescription")}
+                  {activeTenantMembership
+                    ? t("shell.workspaceTenantDescription", {
+                        tenant: activeTenantMembership.tenantName
+                      })
+                    : t("shell.workspaceDescription")}
                 </p>
               </div>
 
               <div className="flex items-center gap-3">
+                {activeTenantMembership ? (
+                  <StatusPill tone="neutral">
+                    {activeTenantMembership.tenantSlug}
+                  </StatusPill>
+                ) : null}
                 <ThemeToggleButton />
                 <LanguageSwitcher />
                 <div className="hidden items-center gap-2 sm:flex">
@@ -133,6 +163,21 @@ export function AppShell() {
                   <StatusPill tone="info">{t("shell.foundationBadge")}</StatusPill>
                   <StatusPill tone="neutral">{t("shell.rbacBadge")}</StatusPill>
                 </div>
+                {user?.email ? (
+                  <div className="hidden rounded-full border border-line/70 bg-paper/90 px-3 py-2 text-xs text-ink-soft xl:block">
+                    {user.email}
+                  </div>
+                ) : null}
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => {
+                    void signOut();
+                  }}
+                >
+                  <LogOut className="mr-2 size-4" aria-hidden="true" />
+                  {t("shell.signOut")}
+                </Button>
               </div>
             </div>
           </header>
@@ -149,7 +194,7 @@ export function AppShell() {
         aria-label={t("shell.mobileNavigationLabel")}
         className="fixed inset-x-4 bottom-4 z-30 rounded-full border border-line/70 bg-paper/88 px-3 py-2 shadow-soft backdrop-blur-xl lg:hidden"
       >
-        <div className="grid grid-cols-6 gap-1">
+        <div className={cn("grid gap-1", mobileGridClass)}>
           {navItems.map(({ to, key, icon: Icon }) => (
             <NavLink
               key={to}

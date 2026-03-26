@@ -1,4 +1,12 @@
 export {
+  createEmptyBackofficeAccessContext,
+  getPrimaryTenantMembership,
+  hasBootstrappedTenant,
+  isGlobalAuditVisible,
+  type BackofficeAccessContext,
+  type TenantMembershipAccess
+} from "./access";
+export {
   canAccessGlobalAudit,
   canAccessStressHarness,
   hasPlatformPermission,

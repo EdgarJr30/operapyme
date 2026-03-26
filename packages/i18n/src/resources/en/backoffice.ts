@@ -299,6 +299,88 @@ const backofficeEn = {
       auditLink: "Back to the audit center"
     }
   },
+  auth: {
+    hero: {
+      eyebrow: "Backoffice access",
+      title: "Sign in with a magic link and keep operations under control.",
+      description:
+        "Phase 2 now starts operating with real authentication, tenant bootstrap, and guided access before opening the commercial modules.",
+      cardRbacTitle: "RBAC from day one",
+      cardRbacText:
+        "Access is decided by tenant roles and permissions, not by UI visibility.",
+      cardAuditTitle: "Required auditing",
+      cardAuditText:
+        "Every sensitive action starts with actor tracking, timestamps, and traceability."
+    },
+    form: {
+      title: "Request access",
+      emailLabel: "Work email",
+      emailPlaceholder: "team@operapyme.com",
+      submit: "Send access link",
+      submitting: "Sending access...",
+      emailSentTitle: "Check your inbox",
+      emailSentText:
+        "We sent an access link to {{email}}. If you do not see it, check spam or try again.",
+      noteTitle: "Current access mode",
+      noteText:
+        "At this stage we use email access to accelerate activation and avoid poorly managed temporary credentials."
+    },
+    callback: {
+      eyebrow: "Validating access",
+      title: "We are confirming your session.",
+      description:
+        "If everything works, we will take you either to the initial setup or to your workspace."
+    },
+    unconfigured: {
+      eyebrow: "Supabase pending",
+      title: "The backoffice needs a Supabase connection before opening a session.",
+      description:
+        "This environment still does not have the public variables or MCP alias ready to work with the remote OperaPyme project.",
+      stepsTitle: "What to review",
+      stepAliasTitle: "Correct MCP alias",
+      stepAliasText:
+        "Use `supabase_operapyme` as the canonical alias for this repo.",
+      stepEnvTitle: "Public backoffice variables",
+      stepEnvText:
+        "Complete `apps/backoffice-pwa/.env.local` with the URL and publishable key for the correct project.",
+      stepMigrationsTitle: "Migrations and bootstrap",
+      stepMigrationsText:
+        "Apply the secure migrations and then reload the backoffice to continue with auth."
+    }
+  },
+  setup: {
+    eyebrow: "Initial tenant bootstrap",
+    title: "Create the first operating workspace before opening CRM and quotes.",
+    description:
+      "A first-time authenticated user should end with a real tenant, an active membership, and the tenant owner role.",
+    cardTenantTitle: "Tenant first",
+    cardTenantText:
+      "Everything in OperaPyme starts under a tenant, with `tenant_id`, RLS, and actor tracking.",
+    cardRolesTitle: "Initial owner",
+    cardRolesText:
+      "The first membership starts with the `tenant_owner` role to unlock setup and the next modules.",
+    formTitle: "Create initial tenant",
+    nameLabel: "Business name",
+    namePlaceholder: "OperaPyme Demo North",
+    slugLabel: "Tenant slug",
+    slugPlaceholder: "operapyme-demo-north",
+    slugHint: "Suggested operating URL: {{slug}}",
+    submit: "Create tenant and continue",
+    submitting: "Creating tenant...",
+    noteTitle: "Operating rule",
+    noteText:
+      "Later this flow can become a multi-step wizard, but today it already leaves the membership and base role ready.",
+    nextTitle: "What comes next",
+    nextText:
+      "After bootstrap the backoffice is ready to connect customers, quotes, and real tenant configuration."
+  },
+  accessDenied: {
+    eyebrow: "Restricted access",
+    title: "This surface is not available for your current context.",
+    description:
+      "Global auditing and operational errors are exclusive to the `global_admin` role in this phase.",
+    backHome: "Back to home"
+  },
   settings: {
     header: {
       eyebrow: "System readiness",

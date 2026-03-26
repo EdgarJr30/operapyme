@@ -53,8 +53,10 @@ const commonEs = {
     workspaceTitle: "Espacio de trabajo del backoffice",
     workspaceDescription:
       "CRM, cotizaciones, gastos y reportes pensados para movil.",
+    workspaceTenantDescription: "Operando dentro de {{tenant}}.",
     foundationBadge: "Audit-ready",
     rbacBadge: "RBAC + RLS base",
+    signOut: "Salir",
     primaryNavigationLabel: "Navegacion principal",
     mobileNavigationLabel: "Navegacion movil"
   },

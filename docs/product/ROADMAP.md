@@ -10,6 +10,8 @@
 
 ## Fase 2: Operacion comercial minima
 
+- auth real del backoffice con magic link
+- bootstrap inicial de tenant y membership `tenant_owner`
 - clientes y contactos
 - pipeline CRM simple
 - cotizaciones y proformas
@@ -19,7 +21,7 @@
 
 - reportes clave
 - approvals basicas
-- tenant setup guiado
+- tenant setup guiado completo
 - feature flags por plan
 
 ## Fase 4: Expansiones controladas
