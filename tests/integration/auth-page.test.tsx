@@ -1,6 +1,10 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import {
+  MemoryRouter,
+  Route,
+  Routes
+} from "react-router-dom";
 import { vi } from "vitest";
 
 import { I18nextProvider } from "@operapyme/i18n";
@@ -54,6 +58,30 @@ describe("auth page", () => {
     expect(
       screen.getByRole("button", { name: /Enviar enlace de acceso/i })
     ).toBeInTheDocument();
+  });
+
+  it("redirects signed in users without a bootstrapped tenant to setup", async () => {
+    authMocks.useBackofficeAuth.mockReturnValue({
+      isConfigured: true,
+      isBootstrapped: false,
+      signInWithOtp: vi.fn(),
+      status: "signed_in"
+    });
+
+    const i18n = setupBackofficeI18n();
+
+    render(
+      <I18nextProvider i18n={i18n}>
+        <MemoryRouter initialEntries={["/auth"]}>
+          <Routes>
+            <Route path="/auth" element={<AuthPage />} />
+            <Route path="/setup" element={<div>Setup destination</div>} />
+          </Routes>
+        </MemoryRouter>
+      </I18nextProvider>
+    );
+
+    expect(await screen.findByText("Setup destination")).toBeInTheDocument();
   });
 
   it("falls back to the setup warning when Supabase is not configured", async () => {

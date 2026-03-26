@@ -25,6 +25,7 @@ El `service role key` no vive aqui.
 ## Acceso y bootstrap
 
 - la entrada de fase 2 vive en `/auth`
+- `/auth/callback` confirma sesiones tanto con `code` como con `token_hash` y devuelve al login si el enlace ya no sirve
 - el primer usuario autenticado pasa por `/setup`
 - el shell principal solo abre cuando ya existe membership activa en un tenant
 - la auditoria global sigue reservada para `global_admin`

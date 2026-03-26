@@ -505,7 +505,12 @@ const backofficeEs = {
       eyebrow: "Validando acceso",
       title: "Estamos confirmando tu sesión.",
       description:
-        "Si todo sale bien, te llevaremos al setup inicial o a tu espacio de trabajo."
+        "Si todo sale bien, te llevaremos al setup inicial o a tu espacio de trabajo.",
+      errorMissing:
+        "El enlace de acceso no tiene los datos necesarios o ya fue consumido. Solicita uno nuevo desde el inicio de sesión.",
+      errorUnsupported:
+        "El enlace de acceso usa un formato que este backoffice todavía no puede validar.",
+      backToAuth: "Solicitar otro enlace"
     },
     unconfigured: {
       eyebrow: "Supabase pendiente",

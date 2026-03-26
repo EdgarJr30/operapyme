@@ -1,5 +1,6 @@
 import type { PropsWithChildren } from "react";
 import {
+  useCallback,
   createContext,
   startTransition,
   useContext,
@@ -174,7 +175,7 @@ export function BackofficeAuthProvider({ children }: PropsWithChildren) {
     readStoredTenantId()
   );
 
-  async function refreshAccessContext() {
+  const refreshAccessContext = useCallback(async () => {
     if (!supabase) {
       return;
     }
@@ -192,7 +193,7 @@ export function BackofficeAuthProvider({ children }: PropsWithChildren) {
     startTransition(() => {
       setAccessContext(parseAccessContext(data));
     });
-  }
+  }, []);
 
   useEffect(() => {
     if (!supabase) {
@@ -280,7 +281,7 @@ export function BackofficeAuthProvider({ children }: PropsWithChildren) {
     writeStoredTenantId(activeTenantId);
   }, [accessContext, activeTenantId]);
 
-  async function signInWithOtp(email: string) {
+  const signInWithOtp = useCallback(async (email: string) => {
     if (!supabase) {
       return "Supabase no esta configurado para este entorno.";
     }
@@ -293,9 +294,9 @@ export function BackofficeAuthProvider({ children }: PropsWithChildren) {
     });
 
     return error?.message ?? null;
-  }
+  }, []);
 
-  async function signOut() {
+  const signOut = useCallback(async () => {
     if (!supabase) {
       return;
     }
@@ -305,14 +306,14 @@ export function BackofficeAuthProvider({ children }: PropsWithChildren) {
     if (error) {
       console.error("Failed to sign out from Supabase.", error);
     }
-  }
+  }, []);
 
-  function setActiveTenantId(tenantId: string) {
+  const setActiveTenantId = useCallback((tenantId: string) => {
     startTransition(() => {
       setActiveTenantIdState(tenantId);
     });
     writeStoredTenantId(tenantId);
-  }
+  }, []);
 
   const value = useMemo<BackofficeAuthContextValue>(
     () => ({
@@ -328,7 +329,17 @@ export function BackofficeAuthProvider({ children }: PropsWithChildren) {
       refreshAccessContext,
       setActiveTenantId
     }),
-    [status, session, user, accessContext, activeTenantId]
+    [
+      status,
+      session,
+      user,
+      accessContext,
+      activeTenantId,
+      signInWithOtp,
+      signOut,
+      refreshAccessContext,
+      setActiveTenantId
+    ]
   );
 
   return (

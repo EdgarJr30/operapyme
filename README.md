@@ -153,6 +153,7 @@ Flujo funcional actual:
 3. abrir el backoffice
 4. entrar por `/auth`
 5. completar `/setup` si el usuario aun no tiene tenant
+6. si el callback llega con `code` o con `token_hash` valido, el backoffice confirma la sesion y vuelve a `/auth` cuando el enlace ya no sirve o viene incompleto
 
 Backoffice por defecto:
 

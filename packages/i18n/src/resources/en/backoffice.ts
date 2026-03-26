@@ -505,7 +505,12 @@ const backofficeEn = {
       eyebrow: "Validating access",
       title: "We are confirming your session.",
       description:
-        "If everything works, we will take you either to the initial setup or to your workspace."
+        "If everything works, we will take you either to the initial setup or to your workspace.",
+      errorMissing:
+        "The access link is missing the required data or it was already consumed. Request a fresh one from sign in.",
+      errorUnsupported:
+        "The access link uses a format that this backoffice cannot validate yet.",
+      backToAuth: "Request another link"
     },
     unconfigured: {
       eyebrow: "Supabase pending",

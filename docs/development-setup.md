@@ -67,9 +67,10 @@ Reglas:
 3. Aplicar migraciones de `supabase/migrations/`.
 4. Levantar el backoffice.
 5. Entrar por `/auth` y completar el bootstrap del tenant si es el primer acceso.
-6. Ejecutar `typecheck`.
-7. Ejecutar los tests del alcance tocado.
-8. Ejecutar `verify` antes de cerrar una tarea relevante.
+6. Si el magic link vuelve por `/auth/callback`, el cliente ahora acepta callbacks con `code` o `token_hash` y redirige al login cuando el enlace ya vencio o esta incompleto.
+7. Ejecutar `typecheck`.
+8. Ejecutar los tests del alcance tocado.
+9. Ejecutar `verify` antes de cerrar una tarea relevante.
 
 ## Supabase
 
