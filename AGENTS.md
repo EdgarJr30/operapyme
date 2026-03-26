@@ -52,6 +52,12 @@ Para evitar `RequestTimeoutError`, preferir siempre abrir la pagina exacta por U
 
 El repo sigue siendo la fuente de verdad para codigo, arquitectura formal y reglas operativas persistentes. Notion complementa al repo como espacio visual y de trabajo vivo.
 
+Acceso canonico a Supabase para este repo:
+
+- alias MCP obligatorio para este proyecto: `supabase_operapyme`
+- project ref esperado: `nnycukcepkmuxtyghwbg`
+- no usar el alias generico `supabase` para automatizaciones de este repo salvo verificacion explicita de que apunta al mismo proyecto
+
 ## Reglas no negociables
 
 - Mobile-first siempre.
@@ -106,6 +112,7 @@ El repo sigue siendo la fuente de verdad para codigo, arquitectura formal y regl
 - Cuando resulte mas conveniente para el flujo, se autoriza hacer commits y tambien preparar o crear PRs de forma directa, sin pedir confirmacion previa, informandolo en la salida final.
 - Notion documenta contexto, mapas, diagramas, flujos y decisiones; Linear documenta ejecucion, prioridad, responsable y seguimiento.
 - Cuando una herramienta automatizada necesite entrar a Notion, usar primero la URL canonica de `Saas Opera Pyme` y no la base completa de `MoonCode`.
+- Cuando una herramienta automatizada necesite entrar a Supabase para este repo, usar `supabase_operapyme` como servidor MCP por defecto.
 
 ## Calidad minima de entrega
 

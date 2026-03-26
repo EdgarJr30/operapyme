@@ -43,6 +43,23 @@ Reglas:
 
 Para variables operativas o server-side, usar `supabase/.env.local` tomando como base `supabase/.env.example`.
 
+## MCP de Supabase para este repo
+
+La configuracion global de Codex puede tener varios proyectos de Supabase. Para `OperaPyme`, el alias correcto es:
+
+```toml
+[mcp_servers.supabase_operapyme]
+url = "https://mcp.supabase.com/mcp?project_ref=nnycukcepkmuxtyghwbg&features=docs%2Caccount%2Cdatabase%2Cdebugging%2Cdevelopment%2Cfunctions%2Cbranching%2Cstorage"
+```
+
+Reglas:
+
+- Este repo usa `supabase_operapyme` como alias MCP canonico.
+- El `project_ref` esperado para este repo es `nnycukcepkmuxtyghwbg`.
+- No asumir que el alias generico `supabase` apunta a `OperaPyme`.
+- Despues de editar `~/.codex/config.toml`, recargar Codex o VS Code para que relea la configuracion.
+- Si una automatizacion no sabe que alias usar, debe usar `supabase_operapyme`.
+
 ## Flujo local recomendado
 
 1. Instalar dependencias.

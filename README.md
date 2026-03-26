@@ -168,6 +168,13 @@ VITE_SUPABASE_PUBLISHABLE_KEY=
 
 Para variables backend u operativas de Supabase, usar `supabase/.env.example` como referencia y guardar los secretos reales solo en `supabase/.env.local`.
 
+### Alias MCP de Supabase para este repo
+
+- Alias canonico para `OperaPyme`: `supabase_operapyme`
+- `project_ref` esperado: `nnycukcepkmuxtyghwbg`
+- El alias generico `supabase` puede apuntar a otro proyecto y no debe asumirse como valido para este repo
+- Si se actualiza `~/.codex/config.toml`, conviene recargar Codex o VS Code antes de usar herramientas MCP
+
 ### Testing y verificacion
 
 - `npm run test`: unit + integration + contract
@@ -297,6 +304,13 @@ The current product focus is:
 npm install
 npm run dev:backoffice
 ```
+
+### Supabase MCP alias for this repo
+
+- Canonical alias for `OperaPyme`: `supabase_operapyme`
+- Expected `project_ref`: `nnycukcepkmuxtyghwbg`
+- The generic `supabase` alias may point to a different project and should not be assumed to be valid for this repo
+- If `~/.codex/config.toml` changes, reload Codex or VS Code before using MCP tools again
 
 Manual workspace command:
 
