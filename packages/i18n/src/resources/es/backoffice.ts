@@ -23,20 +23,55 @@ const backofficeEs = {
       securityFoundation: "Fundacion segura con RBAC, RLS y auditoria"
     },
     stats: {
-      timeToFirstQuote: {
-        label: "Tiempo a primera cotizacion",
-        value: "11 min",
-        detail: "Meta para tenants guiados por onboarding"
+      customerCount: {
+        label: "Clientes visibles",
+        detail: "{{count}} clientes disponibles para el tenant activo."
       },
-      mobileUsageGoal: {
-        label: "Objetivo de uso movil",
-        value: "70%",
-        detail: "Flujos core optimizados para equipos en campo"
+      quoteCount: {
+        label: "Cotizaciones registradas",
+        detail: "{{count}} cotizaciones protegidas por RLS en este tenant."
       },
-      conversionSurface: {
-        label: "Superficie de conversion",
-        value: "Catalogo + CRM + Web",
-        detail: "Un modelo de datos, multiples puntos de contacto"
+      openQuoteCount: {
+        label: "Cotizaciones abiertas",
+        detail: "{{count}} cotizaciones en borrador, enviadas o vistas."
+      }
+    },
+    livePulse: {
+      noTenantTitle: "Todavia no hay un tenant activo seleccionado",
+      noTenantDescription:
+        "Completa el bootstrap o vuelve a cargar el contexto antes de pedir datos comerciales.",
+      loadingTitle: "Cargando el pulso comercial",
+      loadingDescription:
+        "Estamos leyendo clientes y cotizaciones reales desde Supabase para este tenant.",
+      errorTitle: "No pudimos cargar el pulso comercial",
+      errorDescription:
+        "La lectura real del tenant fallo por ahora. {{message}}",
+      retryAction: "Reintentar carga",
+      emptyTitle: "Aun no hay actividad comercial cargada",
+      emptyDescription:
+        "Cuando el tenant empiece a registrar clientes y cotizaciones, este dashboard mostrara sus metricas y snapshots reales.",
+      customersTitle: "Clientes recientes",
+      customersDescription:
+        "Lectura directa desde `customers` respetando tenant activo y RLS.",
+      quotesTitle: "Cotizaciones recientes",
+      quotesDescription:
+        "Lectura directa desde `quotes` con visibilidad protegida por permisos.",
+      contactPending: "Contacto pendiente",
+      customerCodeLabel: "Codigo",
+      customerCodePending: "Sin codigo",
+      quoteValueLabel: "Valor actual",
+      customerStatus: {
+        active: "Activo",
+        inactive: "Inactivo",
+        archived: "Archivado"
+      },
+      quoteStatus: {
+        draft: "Borrador",
+        sent: "Enviada",
+        viewed: "Vista",
+        approved: "Aprobada",
+        rejected: "Rechazada",
+        expired: "Expirada"
       }
     },
     operatingModel: {
@@ -115,20 +150,34 @@ const backofficeEs = {
     recent: {
       title: "Snapshots recientes del pipeline",
       description:
-        "Mantener las cards del CRM ligeras en movil y con suficiente detalle para actuar al instante.",
+        "Lectura real de clientes para el tenant activo, manteniendo las cards del CRM ligeras en movil.",
       originLabel: "Origen",
-      techportCompany: "TechPort Systems",
-      techportContact: "Maria Gomez",
-      techportChannel: "WhatsApp",
-      techportStage: "Nuevo",
-      motofixCompany: "MotoFix Lab",
-      motofixContact: "Luis Herrera",
-      motofixChannel: "Sitio web",
-      motofixStage: "Calificado",
-      atlasCompany: "Atlas Heavy Supply",
-      atlasContact: "Carla Nunez",
-      atlasChannel: "Recurrente",
-      atlasStage: "Cotizado"
+      noTenantTitle: "No hay tenant activo para consultar clientes",
+      noTenantDescription:
+        "Primero el usuario debe quedar dentro de un tenant activo antes de leer el CRM.",
+      loadingTitle: "Cargando clientes reales",
+      loadingDescription:
+        "Estamos leyendo el modulo `customers` con el contexto actual del tenant.",
+      errorTitle: "No pudimos cargar los clientes",
+      errorDescription:
+        "La lectura real del CRM fallo por ahora. {{message}}",
+      retryAction: "Reintentar carga",
+      emptyTitle: "Todavia no hay clientes registrados",
+      emptyDescription:
+        "Cuando empieces a crear clientes reales, este panel los mostrara aqui con sus datos base.",
+      contactPending: "Contacto pendiente",
+      customerStatus: {
+        active: "Activo",
+        inactive: "Inactivo",
+        archived: "Archivado"
+      },
+      source: {
+        manual: "Carga manual",
+        website: "Formulario web",
+        whatsapp: "WhatsApp",
+        walkIn: "Visita presencial",
+        repeat: "Cliente recurrente"
+      }
     },
     rules: {
       title: "Reglas UX para vistas CRM",
@@ -248,16 +297,32 @@ const backofficeEs = {
         "Los enlaces publicos y estados de aceptacion deben sentirse simples para el cliente."
     },
     list: {
-      title: "Lista de cotizaciones de ejemplo",
+      title: "Lista de cotizaciones reales",
       description:
-        "Primero cards para movil. Las tablas densas pueden llegar despues en desktop.",
+        "Lectura real desde `quotes` con cards mobile-first y visibilidad protegida por RLS.",
       currentValueLabel: "Valor actual",
-      quote184Customer: "Apex Machine Works",
-      quote184Status: "Pendiente de seguimiento",
-      quote185Customer: "MobileCare Express",
-      quote185Status: "Aprobada",
-      quote186Customer: "Blue Orbit Retail",
-      quote186Status: "Borrador"
+      noTenantTitle: "No hay tenant activo para consultar cotizaciones",
+      noTenantDescription:
+        "El shell necesita un tenant activo antes de leer la operacion comercial.",
+      loadingTitle: "Cargando cotizaciones reales",
+      loadingDescription:
+        "Estamos leyendo el modulo `quotes` con el contexto actual del tenant.",
+      errorTitle: "No pudimos cargar las cotizaciones",
+      errorDescription:
+        "La lectura real de quotes fallo por ahora. {{message}}",
+      retryAction: "Reintentar carga",
+      emptyTitle: "Todavia no hay cotizaciones registradas",
+      emptyDescription:
+        "Las primeras cotizaciones reales apareceran aqui con su estado y valor actual.",
+      customerPending: "Cliente pendiente",
+      status: {
+        draft: "Borrador",
+        sent: "Enviada",
+        viewed: "Vista",
+        approved: "Aprobada",
+        rejected: "Rechazada",
+        expired: "Expirada"
+      }
     }
   },
   admin: {

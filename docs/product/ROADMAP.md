@@ -16,6 +16,7 @@
 - pipeline CRM simple
 - cotizaciones y proformas
 - gastos y deudas
+- lectura real de dashboard, CRM y quotes sobre Supabase antes de ampliar mutaciones
 
 ## Fase 3: Control operativo
 

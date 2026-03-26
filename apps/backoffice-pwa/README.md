@@ -28,6 +28,8 @@ El `service role key` no vive aqui.
 - el primer usuario autenticado pasa por `/setup`
 - el shell principal solo abre cuando ya existe membership activa en un tenant
 - la auditoria global sigue reservada para `global_admin`
+- `dashboard`, `crm` y `quotes` ya consumen lecturas reales desde Supabase con React Query
+- los formularios de mutacion fuerte siguen diferidos a pasos posteriores para evitar CRUD sensible prematuro
 
 ## Tailwind
 

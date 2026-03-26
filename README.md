@@ -130,6 +130,8 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 - auth del backoffice sembrado con magic link
 - bootstrap inicial de tenant sembrado con membership `tenant_owner`
 - primeras tablas operativas `customers` y `quotes` sembradas con RLS y auditoria
+- hardening SQL aplicado para fijar `search_path` y dejar limpio el security advisor base
+- dashboard, CRM y quotes ya leen datos reales de Supabase en modo read-first
 - rutas `/admin/*` reservadas para auditoria y errores globales
 
 ### Como correr el proyecto

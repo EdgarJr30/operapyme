@@ -18,20 +18,26 @@ import {
   CardTitle
 } from "@/components/ui/card";
 import { StatusPill } from "@/components/ui/status-pill";
+import type {
+  CustomerSummary,
+  QuoteStatus,
+  QuoteSummary
+} from "@/lib/supabase/backoffice-data";
+import { useDashboardData } from "@/modules/dashboard/use-dashboard-data";
 
 const stats = [
   {
-    id: "timeToFirstQuote",
+    id: "customerCount" as const,
     icon: Sparkles,
     tone: "success" as const
   },
   {
-    id: "mobileUsageGoal",
+    id: "quoteCount" as const,
     icon: Smartphone,
     tone: "info" as const
   },
   {
-    id: "conversionSurface",
+    id: "openQuoteCount" as const,
     icon: PackageSearch,
     tone: "warning" as const
   }
@@ -67,6 +73,21 @@ const modules = [
 
 export function DashboardPage() {
   const { t } = useTranslation("backoffice");
+  const {
+    data,
+    error,
+    hasTenantContext,
+    isError,
+    isLoading,
+    refetch
+  } = useDashboardData();
+  const isCommercialDataEmpty = Boolean(
+    data &&
+      data.customerCount === 0 &&
+      data.quoteCount === 0 &&
+      data.recentCustomers.length === 0 &&
+      data.recentQuotes.length === 0
+  );
 
   return (
     <div className="space-y-5 lg:space-y-6">
@@ -129,31 +150,129 @@ export function DashboardPage() {
       </section>
 
       <section className="grid gap-4 md:grid-cols-3">
-        {stats.map(({ id, icon: Icon, tone }) => (
-          <Card key={id}>
-            <CardContent className="space-y-4">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex size-12 items-center justify-center rounded-2xl bg-sand-strong">
-                  <Icon className="size-5 text-ink" aria-hidden="true" />
-                </div>
-                <StatusPill tone={tone}>
-                  {t(`dashboard.stats.${id}.label`)}
-                </StatusPill>
-              </div>
-              <div>
-                <p className="text-2xl font-semibold tracking-tight text-ink">
-                  {t(`dashboard.stats.${id}.value`)}
-                </p>
-                <p className="mt-2 text-sm leading-6 text-ink-soft">
-                  {t(`dashboard.stats.${id}.detail`)}
-                </p>
-              </div>
+        {!hasTenantContext ? (
+          <Card className="md:col-span-3">
+            <CardContent className="space-y-3">
+              <p className="text-lg font-semibold text-ink">
+                {t("dashboard.livePulse.noTenantTitle")}
+              </p>
+              <p className="text-sm leading-6 text-ink-soft">
+                {t("dashboard.livePulse.noTenantDescription")}
+              </p>
             </CardContent>
           </Card>
-        ))}
+        ) : isLoading ? (
+          <Card className="md:col-span-3">
+            <CardContent className="space-y-3" aria-live="polite">
+              <p className="text-lg font-semibold text-ink">
+                {t("dashboard.livePulse.loadingTitle")}
+              </p>
+              <p className="text-sm leading-6 text-ink-soft">
+                {t("dashboard.livePulse.loadingDescription")}
+              </p>
+            </CardContent>
+          </Card>
+        ) : isError ? (
+          <Card className="md:col-span-3">
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <p className="text-lg font-semibold text-ink">
+                  {t("dashboard.livePulse.errorTitle")}
+                </p>
+                <p className="text-sm leading-6 text-ink-soft">
+                  {t("dashboard.livePulse.errorDescription", {
+                    message: error instanceof Error ? error.message : ""
+                  })}
+                </p>
+              </div>
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  void refetch();
+                }}
+              >
+                {t("dashboard.livePulse.retryAction")}
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          stats.map(({ id, icon: Icon, tone }) => (
+            <Card key={id}>
+              <CardContent className="space-y-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex size-12 items-center justify-center rounded-2xl bg-sand-strong">
+                    <Icon className="size-5 text-ink" aria-hidden="true" />
+                  </div>
+                  <StatusPill tone={tone}>
+                    {t(`dashboard.stats.${id}.label`)}
+                  </StatusPill>
+                </div>
+                <div>
+                  <p className="text-2xl font-semibold tracking-tight text-ink">
+                    {data?.[id] ?? 0}
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-ink-soft">
+                    {t(`dashboard.stats.${id}.detail`, {
+                      count: data?.[id] ?? 0
+                    })}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        )}
       </section>
 
       <section className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+        {hasTenantContext && !isLoading && !isError ? (
+          isCommercialDataEmpty ? (
+            <Card className="lg:col-span-2">
+              <CardContent className="space-y-3">
+                <p className="text-lg font-semibold text-ink">
+                  {t("dashboard.livePulse.emptyTitle")}
+                </p>
+                <p className="text-sm leading-6 text-ink-soft">
+                  {t("dashboard.livePulse.emptyDescription")}
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <>
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("dashboard.livePulse.customersTitle")}</CardTitle>
+                  <CardDescription>
+                    {t("dashboard.livePulse.customersDescription")}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {data?.recentCustomers.map((customer) => (
+                    <CustomerSnapshotCard
+                      key={customer.id}
+                      customer={customer}
+                      t={t}
+                    />
+                  ))}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("dashboard.livePulse.quotesTitle")}</CardTitle>
+                  <CardDescription>
+                    {t("dashboard.livePulse.quotesDescription")}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {data?.recentQuotes.map((quote) => (
+                    <QuoteSnapshotCard key={quote.id} quote={quote} t={t} />
+                  ))}
+                </CardContent>
+              </Card>
+            </>
+          )
+        ) : null}
+
         <Card>
           <CardHeader>
             <CardTitle>{t("dashboard.operatingModel.title")}</CardTitle>
@@ -211,4 +330,98 @@ export function DashboardPage() {
       </section>
     </div>
   );
+}
+
+function CustomerSnapshotCard({
+  customer,
+  t
+}: {
+  customer: CustomerSummary;
+  t: ReturnType<typeof useTranslation<"backoffice">>["t"];
+}) {
+  const contactValue =
+    customer.email || customer.whatsapp || t("dashboard.livePulse.contactPending");
+
+  return (
+    <div className="rounded-[24px] border border-line/70 bg-paper/70 p-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="font-semibold text-ink">{customer.displayName}</p>
+          <p className="text-sm text-ink-soft">{contactValue}</p>
+        </div>
+        <StatusPill tone={getCustomerTone(customer.status)}>
+          {t(`dashboard.livePulse.customerStatus.${customer.status}`)}
+        </StatusPill>
+      </div>
+      <p className="mt-3 text-sm leading-6 text-ink-soft">
+        {t("dashboard.livePulse.customerCodeLabel")}:{" "}
+        {customer.customerCode ?? t("dashboard.livePulse.customerCodePending")}
+      </p>
+    </div>
+  );
+}
+
+function QuoteSnapshotCard({
+  quote,
+  t
+}: {
+  quote: QuoteSummary;
+  t: ReturnType<typeof useTranslation<"backoffice">>["t"];
+}) {
+  return (
+    <div className="rounded-[24px] border border-line/70 bg-paper/70 p-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="font-semibold text-ink">{quote.quoteNumber}</p>
+          <p className="text-sm text-ink-soft">
+            {quote.customerName || t("dashboard.livePulse.contactPending")}
+          </p>
+        </div>
+        <StatusPill tone={getQuoteTone(quote.status)}>
+          {t(`dashboard.livePulse.quoteStatus.${quote.status}`)}
+        </StatusPill>
+      </div>
+      <p className="mt-3 text-sm leading-6 text-ink-soft">
+        {t("dashboard.livePulse.quoteValueLabel")}:{" "}
+        {formatCurrency(quote.grandTotal, quote.currencyCode)}
+      </p>
+    </div>
+  );
+}
+
+function getCustomerTone(status: CustomerSummary["status"]) {
+  switch (status) {
+    case "active":
+      return "success";
+    case "inactive":
+      return "warning";
+    case "archived":
+      return "neutral";
+  }
+}
+
+function getQuoteTone(status: QuoteStatus) {
+  switch (status) {
+    case "approved":
+      return "success";
+    case "draft":
+    case "sent":
+    case "viewed":
+      return "warning";
+    case "rejected":
+    case "expired":
+      return "neutral";
+  }
+}
+
+function formatCurrency(value: number, currencyCode: string) {
+  try {
+    return new Intl.NumberFormat(undefined, {
+      style: "currency",
+      currency: currencyCode,
+      maximumFractionDigits: 2
+    }).format(value);
+  } catch {
+    return `${currencyCode} ${value.toFixed(2)}`;
+  }
 }

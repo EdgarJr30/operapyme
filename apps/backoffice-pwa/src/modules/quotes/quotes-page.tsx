@@ -2,6 +2,7 @@ import { ArrowRight, FileText, ShieldCheck, Signature } from "lucide-react";
 
 import { useTranslation } from "@operapyme/i18n";
 
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -10,6 +11,8 @@ import {
   CardTitle
 } from "@/components/ui/card";
 import { StatusPill } from "@/components/ui/status-pill";
+import type { QuoteStatus, QuoteSummary } from "@/lib/supabase/backoffice-data";
+import { useQuotesData } from "@/modules/quotes/use-quotes-data";
 
 const flowSteps = [
   {
@@ -30,32 +33,16 @@ const flowSteps = [
   }
 ];
 
-const quoteSamples = [
-  {
-    number: "COT-2026-000184",
-    customerKey: "quotes.list.quote184Customer",
-    statusKey: "quotes.list.quote184Status",
-    tone: "warning" as const,
-    amount: "$12,840"
-  },
-  {
-    number: "COT-2026-000185",
-    customerKey: "quotes.list.quote185Customer",
-    statusKey: "quotes.list.quote185Status",
-    tone: "success" as const,
-    amount: "$1,290"
-  },
-  {
-    number: "COT-2026-000186",
-    customerKey: "quotes.list.quote186Customer",
-    statusKey: "quotes.list.quote186Status",
-    tone: "info" as const,
-    amount: "$4,920"
-  }
-];
-
 export function QuotesPage() {
   const { t } = useTranslation("backoffice");
+  const {
+    data,
+    error,
+    hasTenantContext,
+    isError,
+    isLoading,
+    refetch
+  } = useQuotesData();
 
   return (
     <div className="space-y-5 lg:space-y-6">
@@ -144,25 +131,112 @@ export function QuotesPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
-          {quoteSamples.map((quote) => (
-            <div
-              key={quote.number}
-              className="rounded-[24px] border border-line/70 bg-paper/70 p-4"
-            >
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <p className="font-semibold text-ink">{quote.number}</p>
-                  <p className="text-sm text-ink-soft">{t(quote.customerKey)}</p>
-                </div>
-                <StatusPill tone={quote.tone}>{t(quote.statusKey)}</StatusPill>
-              </div>
-              <p className="mt-3 text-sm leading-6 text-ink-soft">
-                {t("quotes.list.currentValueLabel")}: {quote.amount}
+          {!hasTenantContext ? (
+            <div className="rounded-[24px] border border-dashed border-line-strong bg-paper/70 p-5">
+              <p className="text-sm font-medium text-ink">
+                {t("quotes.list.noTenantTitle")}
+              </p>
+              <p className="mt-2 text-sm leading-6 text-ink-soft">
+                {t("quotes.list.noTenantDescription")}
               </p>
             </div>
-          ))}
+          ) : isLoading ? (
+            <div className="rounded-[24px] border border-dashed border-line-strong bg-paper/70 p-5">
+              <p className="text-sm font-medium text-ink">
+                {t("quotes.list.loadingTitle")}
+              </p>
+              <p className="mt-2 text-sm leading-6 text-ink-soft">
+                {t("quotes.list.loadingDescription")}
+              </p>
+            </div>
+          ) : isError ? (
+            <div className="rounded-[24px] border border-dashed border-line-strong bg-paper/70 p-5">
+              <p className="text-sm font-medium text-ink">
+                {t("quotes.list.errorTitle")}
+              </p>
+              <p className="mt-2 text-sm leading-6 text-ink-soft">
+                {t("quotes.list.errorDescription", {
+                  message: error instanceof Error ? error.message : ""
+                })}
+              </p>
+              <Button
+                className="mt-4"
+                variant="secondary"
+                onClick={() => {
+                  void refetch();
+                }}
+              >
+                {t("quotes.list.retryAction")}
+              </Button>
+            </div>
+          ) : data && data.length > 0 ? (
+            data.map((quote) => <QuoteCard key={quote.id} quote={quote} t={t} />)
+          ) : (
+            <div className="rounded-[24px] border border-dashed border-line-strong bg-paper/70 p-5">
+              <p className="text-sm font-medium text-ink">
+                {t("quotes.list.emptyTitle")}
+              </p>
+              <p className="mt-2 text-sm leading-6 text-ink-soft">
+                {t("quotes.list.emptyDescription")}
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
   );
+}
+
+function QuoteCard({
+  quote,
+  t
+}: {
+  quote: QuoteSummary;
+  t: ReturnType<typeof useTranslation<"backoffice">>["t"];
+}) {
+  return (
+    <div className="rounded-[24px] border border-line/70 bg-paper/70 p-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="font-semibold text-ink">{quote.quoteNumber}</p>
+          <p className="text-sm text-ink-soft">
+            {quote.customerName || t("quotes.list.customerPending")}
+          </p>
+        </div>
+        <StatusPill tone={getQuoteTone(quote.status)}>
+          {t(`quotes.list.status.${quote.status}`)}
+        </StatusPill>
+      </div>
+      <p className="mt-3 text-sm leading-6 text-ink-soft">
+        {t("quotes.list.currentValueLabel")}:{" "}
+        {formatCurrency(quote.grandTotal, quote.currencyCode)}
+      </p>
+    </div>
+  );
+}
+
+function getQuoteTone(status: QuoteStatus) {
+  switch (status) {
+    case "approved":
+      return "success";
+    case "draft":
+    case "sent":
+    case "viewed":
+      return "warning";
+    case "rejected":
+    case "expired":
+      return "neutral";
+  }
+}
+
+function formatCurrency(value: number, currencyCode: string) {
+  try {
+    return new Intl.NumberFormat(undefined, {
+      style: "currency",
+      currency: currencyCode,
+      maximumFractionDigits: 2
+    }).format(value);
+  } catch {
+    return `${currencyCode} ${value.toFixed(2)}`;
+  }
 }

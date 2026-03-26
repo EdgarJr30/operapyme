@@ -2,6 +2,7 @@ import { Clock3, MessageSquareMore, PhoneCall } from "lucide-react";
 
 import { useTranslation } from "@operapyme/i18n";
 
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -10,22 +11,9 @@ import {
   CardTitle
 } from "@/components/ui/card";
 import { StatusPill } from "@/components/ui/status-pill";
+import type { CustomerSummary } from "@/lib/supabase/backoffice-data";
 import { LeadIntakeForm } from "@/modules/crm/lead-intake-form";
-
-const recentLeads = [
-  {
-    id: "techport",
-    tone: "warning" as const
-  },
-  {
-    id: "motofix",
-    tone: "info" as const
-  },
-  {
-    id: "atlas",
-    tone: "success" as const
-  }
-];
+import { useCustomersData } from "@/modules/crm/use-customers-data";
 
 const operatingRules = [
   {
@@ -47,6 +35,14 @@ const operatingRules = [
 
 export function CrmPage() {
   const { t } = useTranslation("backoffice");
+  const {
+    data,
+    error,
+    hasTenantContext,
+    isError,
+    isLoading,
+    refetch
+  } = useCustomersData();
 
   return (
     <div className="space-y-5 lg:space-y-6">
@@ -73,31 +69,60 @@ export function CrmPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {recentLeads.map((lead) => (
-                <div
-                  key={lead.id}
-                  className="rounded-[24px] border border-line/70 bg-paper/70 p-4"
+            {!hasTenantContext ? (
+              <div className="rounded-[24px] border border-dashed border-line-strong bg-paper/70 p-5">
+                <p className="text-sm font-medium text-ink">
+                  {t("crm.recent.noTenantTitle")}
+                </p>
+                <p className="mt-2 text-sm leading-6 text-ink-soft">
+                  {t("crm.recent.noTenantDescription")}
+                </p>
+              </div>
+            ) : isLoading ? (
+              <div className="rounded-[24px] border border-dashed border-line-strong bg-paper/70 p-5">
+                <p className="text-sm font-medium text-ink">
+                  {t("crm.recent.loadingTitle")}
+                </p>
+                <p className="mt-2 text-sm leading-6 text-ink-soft">
+                  {t("crm.recent.loadingDescription")}
+                </p>
+              </div>
+            ) : isError ? (
+              <div className="rounded-[24px] border border-dashed border-line-strong bg-paper/70 p-5">
+                <p className="text-sm font-medium text-ink">
+                  {t("crm.recent.errorTitle")}
+                </p>
+                <p className="mt-2 text-sm leading-6 text-ink-soft">
+                  {t("crm.recent.errorDescription", {
+                    message: error instanceof Error ? error.message : ""
+                  })}
+                </p>
+                <Button
+                  className="mt-4"
+                  variant="secondary"
+                  onClick={() => {
+                    void refetch();
+                  }}
                 >
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div>
-                      <p className="font-semibold text-ink">
-                        {t(`crm.recent.${lead.id}Company`)}
-                      </p>
-                      <p className="text-sm text-ink-soft">
-                        {t(`crm.recent.${lead.id}Contact`)}
-                      </p>
-                    </div>
-                    <StatusPill tone={lead.tone}>
-                      {t(`crm.recent.${lead.id}Stage`)}
-                    </StatusPill>
-                  </div>
-                  <p className="mt-3 text-sm leading-6 text-ink-soft">
-                    {t("crm.recent.originLabel")}: {t(`crm.recent.${lead.id}Channel`)}
-                  </p>
-                </div>
-              ))}
-            </div>
+                  {t("crm.recent.retryAction")}
+                </Button>
+              </div>
+            ) : data && data.length > 0 ? (
+              <div className="space-y-3">
+                {data.map((customer) => (
+                  <CustomerCard key={customer.id} customer={customer} t={t} />
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-[24px] border border-dashed border-line-strong bg-paper/70 p-5">
+                <p className="text-sm font-medium text-ink">
+                  {t("crm.recent.emptyTitle")}
+                </p>
+                <p className="mt-2 text-sm leading-6 text-ink-soft">
+                  {t("crm.recent.emptyDescription")}
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -127,4 +152,58 @@ export function CrmPage() {
       </section>
     </div>
   );
+}
+
+function CustomerCard({
+  customer,
+  t
+}: {
+  customer: CustomerSummary;
+  t: ReturnType<typeof useTranslation<"backoffice">>["t"];
+}) {
+  const contactValue =
+    customer.email || customer.whatsapp || t("crm.recent.contactPending");
+
+  return (
+    <div className="rounded-[24px] border border-line/70 bg-paper/70 p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="font-semibold text-ink">{customer.displayName}</p>
+          <p className="text-sm text-ink-soft">{contactValue}</p>
+        </div>
+        <StatusPill tone={getCustomerTone(customer.status)}>
+          {t(`crm.recent.customerStatus.${customer.status}`)}
+        </StatusPill>
+      </div>
+      <p className="mt-3 text-sm leading-6 text-ink-soft">
+        {t("crm.recent.originLabel")}: {t(getSourceTranslationKey(customer.source))}
+      </p>
+    </div>
+  );
+}
+
+function getCustomerTone(status: CustomerSummary["status"]) {
+  switch (status) {
+    case "active":
+      return "success";
+    case "inactive":
+      return "warning";
+    case "archived":
+      return "neutral";
+  }
+}
+
+function getSourceTranslationKey(source: string) {
+  switch (source) {
+    case "website":
+      return "crm.recent.source.website";
+    case "whatsapp":
+      return "crm.recent.source.whatsapp";
+    case "walk-in":
+      return "crm.recent.source.walkIn";
+    case "repeat":
+      return "crm.recent.source.repeat";
+    default:
+      return "crm.recent.source.manual";
+  }
 }

@@ -23,20 +23,55 @@ const backofficeEn = {
       securityFoundation: "Secure foundation with RBAC, RLS, and auditing"
     },
     stats: {
-      timeToFirstQuote: {
-        label: "Time to first quote",
-        value: "11 min",
-        detail: "Target for guided onboarding tenants"
+      customerCount: {
+        label: "Visible customers",
+        detail: "{{count}} customers currently visible for the active tenant."
       },
-      mobileUsageGoal: {
-        label: "Mobile usage goal",
-        value: "70%",
-        detail: "Core flows optimized for field teams"
+      quoteCount: {
+        label: "Stored quotes",
+        detail: "{{count}} quotes protected by RLS inside this tenant."
       },
-      conversionSurface: {
-        label: "Conversion surface",
-        value: "Catalog + CRM + Web",
-        detail: "One data model, multiple touchpoints"
+      openQuoteCount: {
+        label: "Open quotes",
+        detail: "{{count}} quotes still in draft, sent, or viewed state."
+      }
+    },
+    livePulse: {
+      noTenantTitle: "There is no active tenant selected yet",
+      noTenantDescription:
+        "Complete bootstrap or reload the access context before requesting live commercial data.",
+      loadingTitle: "Loading the commercial pulse",
+      loadingDescription:
+        "We are reading live customers and quotes from Supabase for this tenant.",
+      errorTitle: "We could not load the commercial pulse",
+      errorDescription:
+        "The live tenant read failed for now. {{message}}",
+      retryAction: "Retry load",
+      emptyTitle: "There is no commercial activity yet",
+      emptyDescription:
+        "As soon as the tenant starts creating customers and quotes, this dashboard will show the live metrics and snapshots.",
+      customersTitle: "Recent customers",
+      customersDescription:
+        "Direct read from `customers` while respecting the active tenant and RLS.",
+      quotesTitle: "Recent quotes",
+      quotesDescription:
+        "Direct read from `quotes` with visibility protected by permissions.",
+      contactPending: "Pending contact",
+      customerCodeLabel: "Code",
+      customerCodePending: "No code yet",
+      quoteValueLabel: "Current value",
+      customerStatus: {
+        active: "Active",
+        inactive: "Inactive",
+        archived: "Archived"
+      },
+      quoteStatus: {
+        draft: "Draft",
+        sent: "Sent",
+        viewed: "Viewed",
+        approved: "Approved",
+        rejected: "Rejected",
+        expired: "Expired"
       }
     },
     operatingModel: {
@@ -115,20 +150,34 @@ const backofficeEn = {
     recent: {
       title: "Recent pipeline snapshots",
       description:
-        "Keep CRM cards lightweight on mobile and detailed enough for the sales rep to act immediately.",
+        "Live customer read for the active tenant while keeping CRM cards lightweight on mobile.",
       originLabel: "Origin",
-      techportCompany: "TechPort Systems",
-      techportContact: "Maria Gomez",
-      techportChannel: "WhatsApp",
-      techportStage: "New",
-      motofixCompany: "MotoFix Lab",
-      motofixContact: "Luis Herrera",
-      motofixChannel: "Website",
-      motofixStage: "Qualified",
-      atlasCompany: "Atlas Heavy Supply",
-      atlasContact: "Carla Nunez",
-      atlasChannel: "Repeat",
-      atlasStage: "Quoted"
+      noTenantTitle: "There is no active tenant to read customers from",
+      noTenantDescription:
+        "The user must belong to an active tenant before the CRM can read live data.",
+      loadingTitle: "Loading live customers",
+      loadingDescription:
+        "We are reading the `customers` module with the current tenant context.",
+      errorTitle: "We could not load customers",
+      errorDescription:
+        "The live CRM read failed for now. {{message}}",
+      retryAction: "Retry load",
+      emptyTitle: "There are no customers yet",
+      emptyDescription:
+        "When you start creating real customers, this panel will show them here with their baseline data.",
+      contactPending: "Pending contact",
+      customerStatus: {
+        active: "Active",
+        inactive: "Inactive",
+        archived: "Archived"
+      },
+      source: {
+        manual: "Manual entry",
+        website: "Website form",
+        whatsapp: "WhatsApp",
+        walkIn: "Walk-in",
+        repeat: "Repeat customer"
+      }
     },
     rules: {
       title: "UX rules for CRM views",
@@ -248,16 +297,32 @@ const backofficeEn = {
         "Public quote links and acceptance states should feel simple for the customer too."
     },
     list: {
-      title: "Sample quote list",
+      title: "Live quote list",
       description:
-        "Mobile cards first. Dense tables can come later on desktop.",
+        "Live read from `quotes` with mobile-first cards and RLS-protected visibility.",
       currentValueLabel: "Current value",
-      quote184Customer: "Apex Machine Works",
-      quote184Status: "Awaiting follow-up",
-      quote185Customer: "MobileCare Express",
-      quote185Status: "Approved",
-      quote186Customer: "Blue Orbit Retail",
-      quote186Status: "Draft"
+      noTenantTitle: "There is no active tenant to read quotes from",
+      noTenantDescription:
+        "The shell needs an active tenant before reading commercial activity.",
+      loadingTitle: "Loading live quotes",
+      loadingDescription:
+        "We are reading the `quotes` module with the current tenant context.",
+      errorTitle: "We could not load quotes",
+      errorDescription:
+        "The live quotes read failed for now. {{message}}",
+      retryAction: "Retry load",
+      emptyTitle: "There are no quotes yet",
+      emptyDescription:
+        "The first live quotes will appear here with their state and current value.",
+      customerPending: "Pending customer",
+      status: {
+        draft: "Draft",
+        sent: "Sent",
+        viewed: "Viewed",
+        approved: "Approved",
+        rejected: "Rejected",
+        expired: "Expired"
+      }
     }
   },
   admin: {

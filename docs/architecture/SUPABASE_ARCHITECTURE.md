@@ -75,11 +75,18 @@ La fase 2 ya deja listos estos bloques iniciales:
 - RPC `get_my_access_context()` para hidratar roles, permisos y memberships
 - RPC `create_tenant_with_owner()` para bootstrap inicial del primer tenant
 - tablas `customers` y `quotes` con tracking, RLS y auditoria
+- hardening de funciones SQL con `search_path` fijo para dejar limpia la linteria de seguridad base
+- lectura real del backoffice sobre `customers` y `quotes` usando el tenant activo y RLS
 
 ## Primeras tablas operativas
 
 - `customers`: base multi-tenant para clientes del CRM
 - `quotes`: base multi-tenant para cotizaciones con version y totales
+
+## Estado del security advisor base
+
+- warnings `function_search_path_mutable` corregidos para las funciones sembradas en fundacion y fase 2
+- estado esperado despues del hardening: sin lints de seguridad pendientes en esta base inicial
 
 ## Reglas para operaciones sensibles
 

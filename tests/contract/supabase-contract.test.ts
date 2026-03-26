@@ -9,6 +9,9 @@ const migrationPath = path.resolve(
 const phaseTwoMigrationPath = path.resolve(
   "supabase/migrations/202603260001_phase2_auth_bootstrap.sql"
 );
+const hardeningMigrationPath = path.resolve(
+  "supabase/migrations/202603260002_harden_function_search_paths.sql"
+);
 
 describe("supabase foundation contracts", () => {
   it("creates the required secure foundation tables", () => {
@@ -55,5 +58,18 @@ describe("supabase foundation contracts", () => {
     expect(migration).toContain(
       "alter table public.quotes enable row level security"
     );
+  });
+
+  it("hardens the mutable search_path functions after phase 2", () => {
+    const migration = fs.readFileSync(hardeningMigrationPath, "utf8");
+
+    expect(migration).toContain(
+      "create or replace function public.current_auth_user_id"
+    );
+    expect(migration).toContain(
+      "create or replace function public.current_tenant_permission_keys"
+    );
+    expect(migration).toContain("set search_path = public, auth");
+    expect(migration).toContain("set search_path = public");
   });
 });
