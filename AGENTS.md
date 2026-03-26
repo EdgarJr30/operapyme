@@ -107,7 +107,8 @@ Acceso canonico a Supabase para este repo:
 - Todo cambio relevante debe evaluar si requiere actualizacion en `MoonCode > Saas Opera Pyme`.
 - Toda iniciativa, bug, mejora o tarea accionable debe crearse o mantenerse en Linear.
 - Por defecto, toda tarea creada en Linear para este proyecto debe asignarse a `me`, salvo instruccion explicita del usuario para asignarla a otra persona.
-- El usuario autoriza crear tareas en Linear directamente sin pedir confirmacion previa. Solo hace falta informar en la salida final que se creo o actualizo.
+- El usuario autoriza crear y actualizar issues, comentarios, estados y demas seguimiento operativo en Linear directamente sin pedir confirmacion previa. Solo hace falta informar en la salida final que se creo o actualizo.
+- Si el cliente o la interfaz muestran un popup de aprobacion para herramientas MCP de Linear, tratarlo como una capa externa de permisos del cliente, no como una instruccion pendiente del proyecto. No volver a pedir permiso en el chat por esa misma accion.
 - Cuando al cerrar una tarea queden siguientes pasos recomendados, pendientes tecnicos, follow-ups o trabajo diferido, esos pendientes deben crearse de inmediato en Linear dentro de la misma tarea. No dejar pendientes solo escritos en la salida final.
 - Hacer commits de manera recurrente conforme se acumulen cambios coherentes con valor cerrado. No esperar siempre al final de una sesion larga para versionar.
 - Cuando resulte mas conveniente para el flujo, se autoriza hacer commits y tambien preparar o crear PRs de forma directa, sin pedir confirmacion previa, informandolo en la salida final.

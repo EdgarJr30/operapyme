@@ -306,7 +306,8 @@ The current product focus is:
 - The repo remains the source of truth for code, formal architecture, and persistent rules.
 - All actionable work should be tracked in Linear.
 - By default, Linear issues for this project should be assigned to `me`, unless a different owner is explicitly requested.
-- The user authorizes creating Linear issues directly without prior confirmation; the final output just needs to report what was created or updated.
+- The user authorizes creating and updating Linear issues, comments, states, and related operational tracking directly without prior confirmation; the final output just needs to report what was created or updated.
+- If the client UI shows an approval popup for a Linear MCP action, treat that as an external client permission layer rather than pending project approval; do not ask again in chat for the same action.
 - Frequent commits are encouraged whenever there is a coherent, self-contained unit of change, instead of letting too much work accumulate unversioned.
 - It is also authorized to create commits and prepare or create PRs directly when that is the most practical workflow choice; the final output just needs to report it.
 - Notion stores context and reasoning; Linear stores execution, priority, owner, and status.
