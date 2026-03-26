@@ -1,0 +1,18 @@
+{
+  "name": "operapyme-workspace",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "npm@11.9.0",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:backoffice": "npm run dev --workspace @operapyme/backoffice-pwa --",
+    "build:backoffice": "npm run build --workspace @operapyme/backoffice-pwa",
+    "typecheck:backoffice": "npm run typecheck --workspace @operapyme/backoffice-pwa"
+  }
+}

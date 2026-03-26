@@ -1,0 +1,24 @@
+{
+  "name": "OperaPyme Backoffice",
+  "short_name": "OperaPyme",
+  "description": "Backoffice PWA para cotizaciones, gastos, reportes y operacion comercial de pymes.",
+  "theme_color": "#f7f4ef",
+  "background_color": "#f7f4ef",
+  "display": "standalone",
+  "start_url": "/",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/pwa-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
