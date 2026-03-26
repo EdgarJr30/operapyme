@@ -112,6 +112,7 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 - Todo trabajo accionable debe tener seguimiento en Linear.
 - Por defecto, las tareas de Linear de este proyecto se asignan a `me`, salvo que se indique otro responsable.
 - El usuario autoriza crear tareas en Linear directamente sin pedir confirmacion previa; basta con reportarlo en la salida final.
+- Si al cerrar una tarea quedan siguientes pasos, pendientes tecnicos o follow-ups, tambien deben crearse en Linear dentro de la misma tarea; no se dejan solo mencionados en el cierre.
 - Se recomienda hacer commits frecuentes cuando haya bloques de cambio coherentes y con valor cerrado, en vez de acumular demasiado trabajo sin versionar.
 - Tambien se autoriza hacer commits y preparar o crear PRs directamente cuando sea la opcion mas conveniente para el flujo; basta con reportarlo en la salida final.
 - Notion conserva contexto y criterio; Linear conserva ejecucion, prioridad, responsable y estado.
