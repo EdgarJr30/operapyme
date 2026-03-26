@@ -9,6 +9,26 @@ El monorepo se organiza como una plataforma modular con:
 - backend en Supabase
 - herramientas internas separadas para operaciones de plataforma
 
+## Decision de arquitectura
+
+La arquitectura base del producto es un **monolito modular** dentro del monorepo.
+
+No usaremos microservicios en esta fase.
+
+## Por que
+
+- necesitamos velocidad de iteracion
+- el equipo aun no gana nada real con distribucion temprana
+- RBAC, RLS y auditoria son mas faciles de gobernar con una base unificada
+- el producto todavia esta validando sus bounded contexts reales
+
+## Como se aplica
+
+- una app principal concentra la operacion del tenant
+- los limites de dominio viven en carpetas y contratos, no en procesos separados
+- las herramientas internas viven separadas por superficie, no como microservicios tempranos
+- si un bounded context madura y lo justifica, se podra extraer despues
+
 ## Capas
 
 ### Apps
@@ -44,3 +64,4 @@ El monorepo se organiza como una plataforma modular con:
 - el dominio no depende de componentes visuales
 - el cliente no decide autorizacion
 - cualquier operacion sensible cruza por backend con trazabilidad
+- el monolito se mantiene modular por bounded context y paquetes compartidos

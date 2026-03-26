@@ -54,6 +54,13 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 - Theming: `next-themes` + CSS custom properties + tokens semanticos
 - Testing: Vitest + React Testing Library + Playwright
 
+### Decision de arquitectura
+
+- arquitectura base: monolito modular en monorepo
+- backend: Supabase con enfoque domain-first, RBAC, RLS y auditoria
+- frontend: modulos por dominio con TypeScript funcional, no MVC clasico
+- evitamos microservicios y POO pesada en esta fase
+
 ### Estructura actual
 
 ```text
@@ -235,6 +242,13 @@ The current product focus is:
 - Client-side data: React Query
 - Internationalization: `i18next` + `react-i18next` + `packages/i18n`
 - Theming: `next-themes` + CSS custom properties + semantic tokens
+
+### Architecture decision
+
+- base architecture: modular monolith in a monorepo
+- backend: Supabase with a domain-first, RBAC, RLS, and audit-oriented approach
+- frontend: domain modules with functional TypeScript, not classic MVC
+- we avoid microservices and heavy OOP in this phase
 
 ### Key docs
 

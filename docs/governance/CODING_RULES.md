@@ -6,6 +6,7 @@
 - tipos estrictos
 - funciones y componentes pequenos
 - nombres orientados al dominio, no al rubro de un cliente
+- preferir TypeScript funcional y composable sobre POO pesada
 
 ## Frontend
 
@@ -19,3 +20,4 @@
 - toda accion sensible debe quedar auditada
 - preferir RPC o Edge Functions para procesos masivos
 - RLS y permisos se prueban, no se asumen
+- no forzar MVC clasico sobre React + Supabase si complica el dominio
