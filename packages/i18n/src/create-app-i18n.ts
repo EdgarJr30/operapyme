@@ -8,7 +8,7 @@ import {
   isSupportedLanguage,
   supportedLanguages,
 } from "./config";
-import { bundledResources } from "./resources";
+import { buildBundledResources } from "./resources";
 import type { TranslationNamespace } from "./config";
 
 export interface CreateAppI18nOptions {
@@ -31,6 +31,7 @@ export function createAppI18n({
   languageStorageKey = "operapyme.language"
 }: CreateAppI18nOptions) {
   const instance = createInstance();
+  const resources = buildBundledResources(namespaces);
 
   instance.use(ICU);
   instance.use(LanguageDetector);
@@ -42,7 +43,7 @@ export function createAppI18n({
     ns: [...namespaces],
     defaultNS: "common",
     fallbackNS: "common",
-    resources: bundledResources,
+    resources,
     load: "languageOnly",
     cleanCode: true,
     nonExplicitSupportedLngs: true,

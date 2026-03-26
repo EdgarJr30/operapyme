@@ -32,6 +32,7 @@ El `service role key` no vive aqui.
 - `crm` y `quotes` ya incluyen formularios reales de create/update sobre `customers` y `quotes`
 - las mutaciones siguen limitadas al tenant activo y dejan auditoria via triggers de base
 - `quotes` ya delega la numeracion y el incremento de version a RPCs de Supabase para evitar inconsistencias por concurrencia
+- el bundle base del backoffice ahora separa vendors por dominio y solo carga los namespaces de i18n que la app realmente necesita
 
 ## Tailwind
 

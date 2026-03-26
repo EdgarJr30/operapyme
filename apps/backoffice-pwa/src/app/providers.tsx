@@ -1,4 +1,8 @@
-import type { PropsWithChildren } from "react";
+import {
+  lazy,
+  Suspense,
+  type PropsWithChildren
+} from "react";
 
 import {
   I18nextProvider,
@@ -8,10 +12,17 @@ import {
   QueryClient,
   QueryClientProvider
 } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 import { BackofficeAuthProvider } from "@/app/auth-provider";
 import { BackofficeThemeProvider } from "@/app/theme-provider";
+
+const ReactQueryDevtools = import.meta.env.DEV
+  ? lazy(async () => {
+      const module = await import("@tanstack/react-query-devtools");
+
+      return { default: module.ReactQueryDevtools };
+    })
+  : null;
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -37,10 +48,14 @@ export function AppProviders({ children, i18n }: AppProvidersProps) {
         <BackofficeAuthProvider>
           <QueryClientProvider client={queryClient}>
             {children}
-            <ReactQueryDevtools
-              initialIsOpen={false}
-              buttonPosition="bottom-left"
-            />
+            {ReactQueryDevtools ? (
+              <Suspense fallback={null}>
+                <ReactQueryDevtools
+                  initialIsOpen={false}
+                  buttonPosition="bottom-left"
+                />
+              </Suspense>
+            ) : null}
           </QueryClientProvider>
         </BackofficeAuthProvider>
       </I18nextProvider>
