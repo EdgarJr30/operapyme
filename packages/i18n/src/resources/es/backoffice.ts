@@ -480,10 +480,7 @@ const backofficeEs = {
       eyebrow: "OperaPyme en la web",
       title: "Sincronizado en todos tus dispositivos.",
       description:
-        "Entra desde tu celular o tu equipo de trabajo con el mismo acceso seguro y prepara tu tenant desde el primer ingreso.",
-      badgeDevice: "Web y PWA",
-      badgeSecurity: "Acceso seguro",
-      badgeSetup: "Setup guiado",
+        "Usa OperaPyme en tu celular o en tu PC con la misma experiencia de trabajo.",
       cardRbacTitle: "RBAC desde el inicio",
       cardRbacText:
         "El acceso se decide por roles y permisos del tenant, no por visibilidad en la UI.",
@@ -498,15 +495,14 @@ const backofficeEs = {
       firstTimeLead: "Si es tu primera vez en OperaPyme:",
       firstTimeCta: "Crea tu cuenta",
       signinEyebrow: "Acceso existente",
-      signinTitle: "Recibe tu enlace y vuelve a tu operación.",
+      formTitle: "Ingresa tu correo para continuar",
       signinDescription:
-        "Te enviaremos un magic link a tu correo de trabajo para abrir tu espacio con tus permisos actuales.",
+        "Te enviaremos un enlace de acceso a tu correo de trabajo para entrar a tu cuenta.",
       signupEyebrow: "Primer ingreso",
-      signupTitle: "Empieza por tu correo y crea tu espacio.",
       signupDescription:
-        "Usamos el mismo acceso por correo para activar cuentas nuevas y llevarte al bootstrap inicial del tenant.",
+        "Te enviaremos un enlace para crear tu acceso y empezar a configurar tu espacio.",
       helper:
-        "El primer ingreso también arranca por correo y luego continúa con el setup del tenant."
+        "Usa el correo con el que administras tu negocio para continuar."
     },
     form: {
       title: "Solicita tu acceso",
@@ -520,7 +516,7 @@ const backofficeEs = {
         "Enviamos un enlace de acceso a {{email}}. Si no lo ves, revisa spam o vuelve a intentarlo.",
       noteTitle: "Modo actual de acceso",
       noteText:
-        "En esta etapa usamos acceso por correo para acelerar activación y evitar credenciales temporales mal gestionadas."
+        "Usamos acceso por correo para que entres rapido desde cualquier dispositivo."
     },
     callback: {
       eyebrow: "Validando acceso",

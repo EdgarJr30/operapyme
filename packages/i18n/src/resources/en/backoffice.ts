@@ -480,10 +480,7 @@ const backofficeEn = {
       eyebrow: "OperaPyme on the web",
       title: "Synced across all your devices.",
       description:
-        "Sign in from your phone or your work computer with the same secure access and prepare your tenant from the very first session.",
-      badgeDevice: "Web and PWA",
-      badgeSecurity: "Secure access",
-      badgeSetup: "Guided setup",
+        "Use OperaPyme on your phone or your computer with the same work experience.",
       cardRbacTitle: "RBAC from day one",
       cardRbacText:
         "Access is decided by tenant roles and permissions, not by UI visibility.",
@@ -498,15 +495,14 @@ const backofficeEn = {
       firstTimeLead: "If this is your first time with OperaPyme:",
       firstTimeCta: "Create your account",
       signinEyebrow: "Existing access",
-      signinTitle: "Get your link and return to operations.",
+      formTitle: "Enter your email to continue",
       signinDescription:
-        "We will send a magic link to your work email so you can open your workspace with your current permissions.",
+        "We will send an access link to your work email so you can sign in to your account.",
       signupEyebrow: "First session",
-      signupTitle: "Start with your email and create your space.",
       signupDescription:
-        "We use the same email access flow to activate new accounts and take you to the initial tenant bootstrap.",
+        "We will send a link so you can create your access and start setting up your workspace.",
       helper:
-        "The first session also starts through email and then continues with tenant setup."
+        "Use the email address you run your business with to continue."
     },
     form: {
       title: "Request access",
@@ -520,7 +516,7 @@ const backofficeEn = {
         "We sent an access link to {{email}}. If you do not see it, check spam or try again.",
       noteTitle: "Current access mode",
       noteText:
-        "At this stage we use email access to accelerate activation and avoid poorly managed temporary credentials."
+        "We use email access so you can sign in quickly from any device."
     },
     callback: {
       eyebrow: "Validating access",
