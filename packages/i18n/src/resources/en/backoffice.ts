@@ -19,7 +19,8 @@ const backofficeEn = {
       catalogCrud: "Catalog CRUD with media and visibility",
       crmKanban: "CRM lead capture and Kanban",
       quoteBuilder: "Quote builder with versioning and PDF",
-      websitePublishing: "Public website publishing"
+      websitePublishing: "Public website publishing",
+      securityFoundation: "Secure foundation with RBAC, RLS, and auditing"
     },
     stats: {
       timeToFirstQuote: {
@@ -257,6 +258,45 @@ const backofficeEn = {
       quote185Status: "Approved",
       quote186Customer: "Blue Orbit Retail",
       quote186Status: "Draft"
+    }
+  },
+  admin: {
+    audit: {
+      eyebrow: "Global admin",
+      title: "Audit and traceability center",
+      description:
+        "This surface is reserved for global observability. In phase 1 only the global_admin role will have full access to the live data behind it.",
+      accessTitle: "Access contract",
+      accessDescription:
+        "The UI can reserve the route, but real access still depends on RLS and global permissions.",
+      requiredRole: "Required role",
+      requiredPermissions: "Base global permissions",
+      feedTitle: "Initial audit coverage",
+      feedDescription:
+        "Phase 1 covers functional changes, errors, and auth events.",
+      entitiesTitle: "Entities that must leave a trail",
+      nextTitle: "Next expansion",
+      nextDescription:
+        "Partial access for tenant admins will be evaluated in a later phase.",
+      errorsLink: "Open the error panel",
+      settingsLink: "Review system checkpoints"
+    },
+    errors: {
+      eyebrow: "Errors and observability",
+      title: "Reserved panel for operational errors",
+      description:
+        "This is where visible errors, edge function events, and remediation states will live for the platform.",
+      severityTitle: "Expected severities",
+      severityDescription:
+        "The system should distinguish noise, warning, error, and critical events to prioritize response.",
+      controlsTitle: "Required controls",
+      controlsDescription:
+        "Errors should log actor, tenant, source, and remediation state.",
+      controlActors: "Actor and tenant when applicable",
+      controlSource: "Technical source and severity",
+      controlResolution: "Pending or fixed state",
+      controlStress: "Future relation to the stress harness",
+      auditLink: "Back to the audit center"
     }
   },
   settings: {

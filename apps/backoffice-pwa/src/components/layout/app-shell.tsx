@@ -3,6 +3,7 @@ import {
   ChartNoAxesCombined,
   FileText,
   MessageSquare,
+  ShieldCheck,
   Settings2
 } from "lucide-react";
 
@@ -35,6 +36,11 @@ const navItems = [
     to: "/quotes",
     key: "quotes",
     icon: FileText
+  },
+  {
+    to: "/admin",
+    key: "admin",
+    icon: ShieldCheck
   },
   {
     to: "/settings",
@@ -143,7 +149,7 @@ export function AppShell() {
         aria-label={t("shell.mobileNavigationLabel")}
         className="fixed inset-x-4 bottom-4 z-30 rounded-full border border-line/70 bg-paper/88 px-3 py-2 shadow-soft backdrop-blur-xl lg:hidden"
       >
-        <div className="grid grid-cols-5 gap-1">
+        <div className="grid grid-cols-6 gap-1">
           {navItems.map(({ to, key, icon: Icon }) => (
             <NavLink
               key={to}

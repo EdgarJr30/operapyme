@@ -52,6 +52,7 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 - Datos cliente: React Query
 - Internacionalizacion: `i18next` + `react-i18next` + `packages/i18n`
 - Theming: `next-themes` + CSS custom properties + tokens semanticos
+- Testing: Vitest + React Testing Library + Playwright
 
 ### Estructura actual
 
@@ -66,6 +67,13 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 |  |- i18n/
 |  |- offline/
 |  `- ui/
+|- tools/
+|  `- stress-harness/
+|- tests/
+|  |- unit/
+|  |- integration/
+|  |- contract/
+|  `- e2e/
 |- supabase/
 |  |- functions/
 |  |- migrations/
@@ -79,6 +87,9 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 - [docs/ui-ux-direction.md](./docs/ui-ux-direction.md): direccion visual y reglas de UX mobile-first.
 - [docs/tenant-theming.md](./docs/tenant-theming.md): estrategia de branding por tenant y appearance modes.
 - [docs/development-setup.md](./docs/development-setup.md): instalacion, scripts y flujo local.
+- [docs/architecture/SUPABASE_ARCHITECTURE.md](./docs/architecture/SUPABASE_ARCHITECTURE.md): fundacion segura de backend con RBAC, RLS y auditoria.
+- [docs/domain/AUDIT_MODEL.md](./docs/domain/AUDIT_MODEL.md): modelo de auditoria y observabilidad.
+- [docs/governance/SUPABASE_RULES.md](./docs/governance/SUPABASE_RULES.md): reglas obligatorias para esquema, politicas y operaciones sensibles.
 - [docs/project-naming.md](./docs/project-naming.md): estado del nombre temporal y criterios para un renombre futuro.
 - [docs/treinta-research-rd.md](./docs/treinta-research-rd.md): research de referencia sobre Treinta y los patrones que si conviene tomar.
 - [AGENTS.md](./AGENTS.md): reglas globales del repo.
@@ -104,6 +115,9 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 - Linear alineado con el nuevo nombre temporal
 - scaffold inicial del backoffice en progreso
 - soporte `light` / `dark` / `system` activo en el backoffice
+- baseline de testing y contratos del repo sembrados
+- fundacion Supabase segura sembrada con enfoque RBAC, RLS y auditoria
+- rutas `/admin/*` reservadas para auditoria y errores globales
 
 ### Como correr el proyecto
 
@@ -112,6 +126,8 @@ Cuando las dependencias esten instaladas:
 ```bash
 npm install
 npm run dev:backoffice
+npm run test
+npm run verify
 ```
 
 Backoffice por defecto:
@@ -140,6 +156,19 @@ Usar `apps/backoffice-pwa/.env.example` como base:
 VITE_SUPABASE_URL=
 VITE_SUPABASE_PUBLISHABLE_KEY=
 ```
+
+### Testing y verificacion
+
+- `npm run test`: unit + integration + contract
+- `npm run test:e2e:smoke`: prueba de humo del backoffice
+- `npm run verify`: typecheck + build + tests + smoke e2e
+
+### Fundacion segura
+
+- `RBAC first`, `RLS first` y `audit first` son obligatorios desde la base.
+- Toda tabla expuesta debe nacer con tracking de actor y timestamps.
+- El admin global es la unica superficie con acceso completo a auditoria en fase 1.
+- El `stress-harness` vive como herramienta separada del backoffice y no debe usarse contra produccion por defecto.
 
 ### Internacionalizacion
 
@@ -230,6 +259,7 @@ The current product focus is:
 - It is also authorized to create commits and prepare or create PRs directly when that is the most practical workflow choice; the final output just needs to report it.
 - Notion stores context and reasoning; Linear stores execution, priority, owner, and status.
 - To reduce tool timeouts, prefer opening that exact page instead of the full `MoonCode` database.
+- Security and testing foundations now live in `docs/architecture/SUPABASE_ARCHITECTURE.md`, `docs/domain/AUDIT_MODEL.md`, `docs/governance/SUPABASE_RULES.md`, and `tests/README.md`.
 
 ### Run the project
 

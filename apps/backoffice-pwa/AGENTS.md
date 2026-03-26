@@ -12,6 +12,7 @@
 - React Hook Form + Zod para formularios.
 - Supabase para auth, datos y realtime.
 - Organizar por dominios dentro de `src/modules/*`.
+- Rutas administrativas reservadas bajo `/admin/*` para auditoria global y errores operativos.
 
 ## Reglas de UI
 
@@ -37,6 +38,7 @@
 - Hooks de datos cerca del dominio, no en carpetas globales gigantes.
 - Validacion siempre compartida con Zod cuando haya formulario.
 - No consultar Supabase directo desde componentes visuales complejos; encapsular acceso.
+- No resolver autorizacion real en UI; la UI solo expresa estados de permiso.
 - Evitar props drilling profundo. Elevar o aislar estado.
 
 ## Reglas de producto
@@ -45,6 +47,7 @@
 - Priorizar flujos: captar lead, crear cotizacion, convertir a proforma o factura final interna, registrar gasto, hacer seguimiento.
 - Mostrar contexto de tenant, estado y proximas acciones sin ruido.
 - Las notificaciones deben ayudar a actuar, no solo informar.
+- El modulo admin global esta separado del backoffice comercial y no debe mezclarse con flujos del tenant.
 
 ## Offline y PWA
 

@@ -59,6 +59,8 @@ El repo sigue siendo la fuente de verdad para codigo, arquitectura formal y regl
 - Multi-tenant desde la base.
 - RBAC obligatorio.
 - `tenant_id` + RLS son parte del diseno, no un extra.
+- Auditoria obligatoria para cambios funcionales, errores operativos y eventos de auth.
+- Toda tabla expuesta debe nacer con `created_at`, `updated_at`, `created_by` y `updated_by`.
 - No construir un ERP pesado.
 - No meter POS, inventario o caja en esta fase del producto.
 - La facturacion actual es documental, no fiscal.
@@ -83,6 +85,8 @@ El repo sigue siendo la fuente de verdad para codigo, arquitectura formal y regl
 - `apps/storefront`: reservado para futuras experiencias publicas, formularios o enlaces compartibles.
 - `packages/*`: dominio, UI, configuracion, offline e i18n compartido.
 - `supabase/*`: schema, seeds, edge functions y politicas.
+- `tools/stress-harness`: herramienta interna separada para pruebas masivas controladas.
+- `tests/*`: unit, integration, contract y e2e.
 - `docs/*`: decisiones, research y direccion de producto/diseno.
 
 ## Reglas para cambios
@@ -92,6 +96,8 @@ El repo sigue siendo la fuente de verdad para codigo, arquitectura formal y regl
 - No mezclar logica de dominio con componentes de presentacion.
 - Evitar nombres ligados a un rubro especifico en el core.
 - Todo cambio de datos debe contemplar estados vacios, errores y permisos.
+- No exponer operaciones sensibles o masivas como CRUD cliente directo cuando haya riesgo de abuso.
+- Cualquier cambio de RLS, permisos, auditoria o rate limiting debe traer o actualizar pruebas.
 - Todo cambio relevante debe evaluar si requiere actualizacion en `MoonCode > Saas Opera Pyme`.
 - Toda iniciativa, bug, mejora o tarea accionable debe crearse o mantenerse en Linear.
 - Por defecto, toda tarea creada en Linear para este proyecto debe asignarse a `me`, salvo instruccion explicita del usuario para asignarla a otra persona.

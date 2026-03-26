@@ -42,7 +42,8 @@ const milestones = [
   "dashboard.milestones.catalogCrud",
   "dashboard.milestones.crmKanban",
   "dashboard.milestones.quoteBuilder",
-  "dashboard.milestones.websitePublishing"
+  "dashboard.milestones.websitePublishing",
+  "dashboard.milestones.securityFoundation"
 ];
 
 const modules = [

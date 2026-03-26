@@ -15,6 +15,9 @@ export default defineConfig({
       "@operapyme/i18n": fileURLToPath(
         new URL("../../packages/i18n/src/index.ts", import.meta.url)
       ),
+      "@operapyme/domain": fileURLToPath(
+        new URL("../../packages/domain/src/index.ts", import.meta.url)
+      ),
       "@operapyme/ui": fileURLToPath(
         new URL("../../packages/ui/src/index.ts", import.meta.url)
       )

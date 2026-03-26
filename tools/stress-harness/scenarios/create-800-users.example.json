@@ -1,0 +1,8 @@
+{
+  "scenario": "create-800-users",
+  "targetEnvironment": "development",
+  "concurrency": 40,
+  "totalOperations": 800,
+  "action": "create_user",
+  "notes": "Escenario de ejemplo para validar limites, colas y comportamiento de auth."
+}

@@ -1,24 +1,21 @@
-# AGENTS.md
+# AGENTS.md de `docs/`
 
-## Rol de `docs/*`
+## Mision
 
-Esta carpeta guarda contexto durable para `OperaPyme` y debe evitar que rediscutamos decisiones ya tomadas.
+La carpeta `docs/` concentra las reglas y decisiones duraderas del proyecto.
 
 ## Reglas
 
-- `README.md` en espanol e ingles.
-- Research con fecha concreta y links a fuentes cuando aplique.
-- Decisiones tecnicas o de producto importantes deben quedar documentadas si cambian el rumbo.
-- Escribir docs con foco operativo: que decidimos, por que y que impacto tiene.
-- Mientras no exista marca comercial definitiva, usar `OperaPyme` como nombre temporal de trabajo y mantener el estado en `docs/project-naming.md`.
-- Si una tarea cambia negocio, arquitectura, UX, theming, setup o comportamiento visible, actualizar el doc fuente correspondiente en la misma tarea.
-- Si el cambio altera la comprension general del repo, sincronizar tambien `README.md`.
-- Si el cambio altera reglas operativas o guardrails permanentes, sincronizar tambien el `AGENTS.md` correspondiente.
+- Escribir en espanol first.
+- Mantener contenido orientado a `OperaPyme`, no a productos heredados.
+- Evitar texto generico sin impacto operativo.
+- Si una regla ya vive en `AGENTS.md`, aqui solo se amplia cuando haga falta contexto estable.
+- No dejar referencias a archivos inexistentes.
+- Toda decision de seguridad, RBAC, RLS, auditoria o testing debe quedar trazable en esta carpeta.
 
-## Tipos de documento esperados
+## Criterio editorial
 
-- blueprint de producto
-- direccion UI/UX
-- research competitivo
-- roadmaps o backlog de alto nivel
-- guias de setup
+- Corto, concreto y accionable.
+- Titulos claros por dominio.
+- ASCII por defecto.
+- Si una decision esta diferida, dejarla marcada como fase posterior en vez de insinuar que ya existe.

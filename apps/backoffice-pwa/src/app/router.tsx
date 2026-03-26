@@ -1,7 +1,10 @@
 import { Suspense } from "react";
 
 import { useTranslation } from "@operapyme/i18n";
-import { createBrowserRouter } from "react-router-dom";
+import {
+  createBrowserRouter,
+  type RouteObject
+} from "react-router-dom";
 
 import { AppShell } from "@/components/layout/app-shell";
 
@@ -105,7 +108,35 @@ async function loadSettingsRoute() {
   };
 }
 
-export const router = createBrowserRouter([
+async function loadAdminAuditRoute() {
+  const { AdminAuditPage } = await import("@/modules/admin/admin-audit-page");
+
+  return {
+    Component: function AdminAuditRoute() {
+      return (
+        <Suspense fallback={<RouteLoader />}>
+          <AdminAuditPage />
+        </Suspense>
+      );
+    }
+  };
+}
+
+async function loadAdminErrorsRoute() {
+  const { AdminErrorsPage } = await import("@/modules/admin/admin-errors-page");
+
+  return {
+    Component: function AdminErrorsRoute() {
+      return (
+        <Suspense fallback={<RouteLoader />}>
+          <AdminErrorsPage />
+        </Suspense>
+      );
+    }
+  };
+}
+
+export const appRoutes: RouteObject[] = [
   {
     path: "/",
     element: <AppShell />,
@@ -128,9 +159,21 @@ export const router = createBrowserRouter([
         lazy: loadQuotesRoute
       },
       {
+        path: "admin",
+        lazy: loadAdminAuditRoute
+      },
+      {
+        path: "admin/errors",
+        lazy: loadAdminErrorsRoute
+      },
+      {
         path: "settings",
         lazy: loadSettingsRoute
       }
     ]
   }
-]);
+];
+
+export function createAppRouter() {
+  return createBrowserRouter(appRoutes);
+}

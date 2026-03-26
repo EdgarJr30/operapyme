@@ -4,7 +4,7 @@ import { RouterProvider } from "react-router-dom";
 
 import { setupBackofficeI18n } from "@/app/i18n";
 import { AppProviders } from "@/app/providers";
-import { router } from "@/app/router";
+import { createAppRouter } from "@/app/router";
 
 import "@/app/styles.css";
 
@@ -22,6 +22,7 @@ const root = ReactDOM.createRoot(rootElement);
 
 try {
   const i18n = setupBackofficeI18n();
+  const router = createAppRouter();
 
   root.render(
     <React.StrictMode>

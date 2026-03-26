@@ -38,6 +38,7 @@ const commonEs = {
     crm: "CRM",
     catalog: "Catalogo",
     quotes: "Cotizaciones",
+    admin: "Admin",
     settings: "Configuracion"
   },
   shell: {
@@ -52,8 +53,8 @@ const commonEs = {
     workspaceTitle: "Espacio de trabajo del backoffice",
     workspaceDescription:
       "CRM, cotizaciones, gastos y reportes pensados para movil.",
-    foundationBadge: "Base preparada para offline",
-    rbacBadge: "RBAC en la siguiente fase",
+    foundationBadge: "Audit-ready",
+    rbacBadge: "RBAC + RLS base",
     primaryNavigationLabel: "Navegacion principal",
     mobileNavigationLabel: "Navegacion movil"
   },

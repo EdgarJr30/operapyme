@@ -38,6 +38,7 @@ const commonEn = {
     crm: "CRM",
     catalog: "Catalog",
     quotes: "Quotes",
+    admin: "Admin",
     settings: "Settings"
   },
   shell: {
@@ -52,8 +53,8 @@ const commonEn = {
     workspaceTitle: "Backoffice workspace",
     workspaceDescription:
       "Mobile-first CRM, quotes, expenses, and reporting.",
-    foundationBadge: "Offline-ready foundation",
-    rbacBadge: "RBAC next",
+    foundationBadge: "Audit-ready",
+    rbacBadge: "RBAC + RLS baseline",
     primaryNavigationLabel: "Primary navigation",
     mobileNavigationLabel: "Mobile navigation"
   },

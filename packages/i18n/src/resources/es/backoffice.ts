@@ -19,7 +19,8 @@ const backofficeEs = {
       catalogCrud: "CRUD de catalogo con media y visibilidad",
       crmKanban: "Captura de leads y Kanban de CRM",
       quoteBuilder: "Cotizador con versionado y PDF",
-      websitePublishing: "Publicacion del sitio web"
+      websitePublishing: "Publicacion del sitio web",
+      securityFoundation: "Fundacion segura con RBAC, RLS y auditoria"
     },
     stats: {
       timeToFirstQuote: {
@@ -257,6 +258,45 @@ const backofficeEs = {
       quote185Status: "Aprobada",
       quote186Customer: "Blue Orbit Retail",
       quote186Status: "Borrador"
+    }
+  },
+  admin: {
+    audit: {
+      eyebrow: "Admin global",
+      title: "Centro de auditoria y trazabilidad",
+      description:
+        "Esta superficie queda reservada para observabilidad global. En fase 1 solo el rol global_admin tendra acceso completo a estos datos reales.",
+      accessTitle: "Contrato de acceso",
+      accessDescription:
+        "La UI puede reservar la ruta, pero el acceso real depende de RLS y permisos globales.",
+      requiredRole: "Rol requerido",
+      requiredPermissions: "Permisos globales base",
+      feedTitle: "Cobertura inicial de auditoria",
+      feedDescription:
+        "La fase 1 cubre cambios funcionales, errores y eventos de auth.",
+      entitiesTitle: "Entidades que deben dejar rastro",
+      nextTitle: "Siguiente expansion",
+      nextDescription:
+        "El acceso parcial para admins de tenant se evaluara en una fase posterior.",
+      errorsLink: "Ver panel de errores",
+      settingsLink: "Revisar checkpoints del sistema"
+    },
+    errors: {
+      eyebrow: "Errores y observabilidad",
+      title: "Panel reservado para errores operativos",
+      description:
+        "Aqui viviran los errores visibles, eventos de edge functions y estados de correccion para la plataforma.",
+      severityTitle: "Severidades esperadas",
+      severityDescription:
+        "El sistema debe distinguir ruido, warning, error y eventos criticos para priorizar respuesta.",
+      controlsTitle: "Controles obligatorios",
+      controlsDescription:
+        "Los errores deben registrar actor, tenant, fuente y estado de remediacion.",
+      controlActors: "Actor y tenant cuando aplique",
+      controlSource: "Fuente tecnica y severidad",
+      controlResolution: "Estado pendiente o corregido",
+      controlStress: "Relacion futura con stress-harness",
+      auditLink: "Volver al centro de auditoria"
     }
   },
   settings: {
