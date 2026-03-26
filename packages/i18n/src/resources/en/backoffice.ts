@@ -1,5 +1,32 @@
 const backofficeEn = {
   dashboard: {
+    header: {
+      eyebrow: "Commercial dashboard",
+      title: "Start the day with clear context and visible actions.",
+      description:
+        "The backoffice entry should help you read the tenant pulse, jump quickly into CRM or quoting, and resume work without visual noise."
+    },
+    actions: {
+      newLead: "New lead",
+      newQuote: "New quote"
+    },
+    checklist: {
+      title: "Suggested next block",
+      description:
+        "Use this baseline to keep commercial work short, visible, and easy to resume.",
+      captureLead: "Capture or update the next lead that needs follow-up.",
+      prepareCatalog:
+        "Complete the minimum products or services before sending new quotes.",
+      sendQuote:
+        "Turn one active opportunity into a live quote and review its status.",
+      reviewSettings:
+        "Adjust branding, preferences, and permissions before opening new surfaces."
+    },
+    emptyState: {
+      title: "There is no commercial activity to show yet",
+      description:
+        "As soon as the tenant starts registering customers and quotes, this entry will show the operational summary and latest movement."
+    },
     hero: {
       badgeBlueprint: "Blueprint translated into code",
       badgePastel: "Minimal pastel system active",
@@ -265,59 +292,141 @@ const backofficeEn = {
   catalog: {
     header: {
       eyebrow: "Catalog module",
-      title: "Publishable product system",
+      title: "Tenant commercial catalog",
       description:
-        "The catalog must power internal quoting and the public website without forcing tenants to duplicate content."
+        "Manage live products and services for the active tenant with visibility, pricing, and state ready for quoting."
     },
     search: {
-      title: "Search and filter shell",
+      title: "Search the catalog",
       description:
-        "This is the first pattern for product browsing on mobile and desktop.",
+        "Filter by name, code, category, or description without leaving the main view.",
       placeholder:
-        "Search by product, SKU, compatibility, or category"
+        "Search by item, code, or category"
+    },
+    kind: {
+      product: "Product",
+      service: "Service"
+    },
+    status: {
+      active: "Active",
+      draft: "Draft",
+      archived: "Archived"
     },
     visibility: {
       public: "Public",
       private: "Private"
     },
+    pricingMode: {
+      fixed: "Fixed price",
+      on_request: "On request"
+    },
     pricing: {
-      onRequest: "On request",
-      contactSales: "Contact sales"
+      onRequest: "On request"
     },
-    products: {
-      ruggedTabletKitName: "Rugged tablet kit",
-      ruggedTabletKitCategory: "Computers",
-      screenRepairName: "Screen repair service",
-      screenRepairCategory: "Mobile repairs",
-      hydraulicFilterSetName: "Hydraulic filter set",
-      hydraulicFilterSetCategory: "Heavy equipment"
+    form: {
+      createTitle: "Create live item",
+      createDescription:
+        "This form now writes into `catalog_items` for the active tenant under `catalog.write` permissions.",
+      updateTitle: "Update existing item",
+      updateDescription:
+        "Keep the item name, price, visibility, and status current without leaving the module.",
+      createAction: "Save item",
+      createSubmitting: "Saving item...",
+      updateAction: "Update item",
+      updateSubmitting: "Updating item...",
+      resetAction: "Clear form",
+      createSuccess: "Catalog item created successfully.",
+      createError: "We could not create the item. {{message}}",
+      updateSuccess: "Catalog item updated successfully.",
+      updateError: "We could not update the item. {{message}}",
+      noItemSelected: "Select an item before trying to update it.",
+      recordLabel: "Item to update",
+      noItemsOption: "There are no items yet",
+      noItemsHint:
+        "Create a live item first to unlock the update flow.",
+      itemCodeLabel: "Internal code",
+      itemCodePlaceholder: "CAT-001",
+      nameLabel: "Display name",
+      namePlaceholder: "Preventive maintenance kit",
+      categoryLabel: "Category",
+      categoryPlaceholder: "Technical services",
+      descriptionLabel: "Short description",
+      descriptionPlaceholder:
+        "A short commercial summary so sales understands the offer immediately.",
+      kindLabel: "Type",
+      visibilityLabel: "Visibility",
+      pricingModeLabel: "Pricing mode",
+      currencyCodeLabel: "Currency",
+      currencyCodePlaceholder: "USD",
+      unitPriceLabel: "Base price",
+      unitPricePlaceholder: "1890",
+      statusLabel: "Status",
+      notesLabel: "Operational notes",
+      notesPlaceholder:
+        "Internal clarifications, conditions, or commercial context for the item.",
+      validation: {
+        itemCodeMax: "Keep the code under 40 characters.",
+        nameMin: "Enter the item display name.",
+        nameMax: "Keep the name under 120 characters.",
+        categoryMax: "Keep the category under 80 characters.",
+        descriptionMax: "Keep the description under 240 characters.",
+        currencyCode: "Use a 3-letter currency code.",
+        unitPriceRequired:
+          "Enter a base price or switch the item to on-request pricing.",
+        unitPriceMin: "Base price cannot be negative.",
+        notesMax: "Keep the notes under 500 characters."
+      }
     },
-    vertical: {
-      title: "Vertical-ready, not hardcoded",
+    list: {
+      title: "Live catalog items",
       description:
-        "Support multiple business types with shared structure and a small number of targeted extensions.",
-      computersTitle: "Computers",
-      computersText:
-        "Variants, compatibility, and stock-aware quoting later.",
-      repairsTitle: "Repairs",
-      repairsText:
-        "Services and diagnostics can live beside products without changing the core.",
-      industrialTitle: "Industrial",
-      industrialText:
-        "Technical PDFs, specs, and gated pricing matter more than flashy merchandising."
+        "Live read from `catalog_items` with compact cards and mobile-first focus.",
+      noTenantTitle: "There is no active tenant to read the catalog from",
+      noTenantDescription:
+        "The shell needs an active tenant before it can read live commercial items.",
+      loadingTitle: "Loading live catalog items",
+      loadingDescription:
+        "We are reading `catalog_items` with the current tenant context.",
+      errorTitle: "We could not load the catalog",
+      errorDescription:
+        "The live catalog read failed for now. {{message}}",
+      retryAction: "Retry load",
+      emptyTitle: "There are no items yet",
+      emptyDescription:
+        "The first live products or services will appear here as soon as you start creating them.",
+      searchEmptyTitle: "We could not find anything for this search",
+      searchEmptyDescription:
+        "Try another term or clear the filter to see the full catalog again.",
+      noCode: "No internal code yet",
+      noCategory: "Category pending",
+      noDescription: "No additional description yet."
     },
     rules: {
-      title: "Catalog UX rules",
+      title: "Catalog operating rules",
       description:
-        "These rules should stay true for both backoffice and storefront.",
-      calmCards:
-        "Products, services, and parts should share a calm card pattern.",
-      obviousVisibility:
-        "Visibility and pricing rules must be obvious at a glance.",
-      technicalFiles:
-        "Technical files should feel native to the record, not bolted on.",
-      searchSpeed:
-        "Search should prioritize speed over filter complexity in the MVP."
+        "These rules keep the slice useful for sales without dragging inventory or ERP complexity in.",
+      captureTitle: "Shared capture for products and services",
+      captureText:
+        "The same form should work for both services and products without splitting the core model.",
+      pricingTitle: "Clear price or on-request pricing",
+      pricingText:
+        "Every item should make it obvious whether the price is ready for quoting or still requires manual validation.",
+      visibilityTitle: "Instantly understandable visibility",
+      visibilityText:
+        "The difference between public and private should be obvious to the commercial team."
+    },
+    guidelines: {
+      title: "Next use of this module",
+      description:
+        "This first cut prepares the ground for quotes and proformas without jumping into heavier features.",
+      mobileCapture:
+        "Capture must stay fast on mobile and avoid dense tables or complex drawers.",
+      sharedLanguage:
+        "Products and services share the same operating language, not separate vertical-only structures.",
+      noInventory:
+        "This module does not open stock, inventory, or POS; it stays focused on the commercial catalog.",
+      readyForQuotes:
+        "The natural next step is connecting these items to quotes and proformas."
     }
   },
   quotes: {

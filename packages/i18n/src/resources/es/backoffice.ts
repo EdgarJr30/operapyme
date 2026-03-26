@@ -1,5 +1,32 @@
 const backofficeEs = {
   dashboard: {
+    header: {
+      eyebrow: "Panel comercial",
+      title: "Empieza el dia con contexto claro y acciones visibles.",
+      description:
+        "La entrada del backoffice debe ayudarte a ver el pulso del tenant, saltar rapido a CRM o cotizaciones y retomar trabajo sin ruido visual."
+    },
+    actions: {
+      newLead: "Nuevo lead",
+      newQuote: "Nueva cotizacion"
+    },
+    checklist: {
+      title: "Siguiente bloque sugerido",
+      description:
+        "Usa esta base para mantener la operacion comercial corta, visible y facil de retomar.",
+      captureLead: "Captura o actualiza el siguiente lead que necesita seguimiento.",
+      prepareCatalog:
+        "Completa los productos o servicios minimos antes de emitir nuevas cotizaciones.",
+      sendQuote:
+        "Convierte una oportunidad activa en cotizacion real y revisa su estado.",
+      reviewSettings:
+        "Ajusta branding, preferencias y permisos antes de abrir nuevas superficies."
+    },
+    emptyState: {
+      title: "Aun no hay actividad comercial para mostrar",
+      description:
+        "Cuando el tenant empiece a registrar clientes y cotizaciones, esta entrada mostrara el resumen operativo y los ultimos movimientos."
+    },
     hero: {
       badgeBlueprint: "Blueprint convertido en codigo",
       badgePastel: "Sistema pastel minimo activo",
@@ -265,59 +292,141 @@ const backofficeEs = {
   catalog: {
     header: {
       eyebrow: "Modulo catalogo",
-      title: "Sistema de productos publicable",
+      title: "Catalogo comercial del tenant",
       description:
-        "El catalogo debe alimentar la cotizacion interna y el sitio publico sin obligar al tenant a duplicar contenido."
+        "Gestiona productos y servicios reales del tenant activo con visibilidad, precio y estados listos para cotizacion."
     },
     search: {
-      title: "Base de busqueda y filtros",
+      title: "Buscar en el catalogo",
       description:
-        "Este es el primer patron para navegar productos en movil y desktop.",
+        "Filtra por nombre, codigo, categoria o descripcion sin salir de la vista principal.",
       placeholder:
-        "Buscar por producto, SKU, compatibilidad o categoria"
+        "Buscar por item, codigo o categoria"
+    },
+    kind: {
+      product: "Producto",
+      service: "Servicio"
+    },
+    status: {
+      active: "Activo",
+      draft: "Borrador",
+      archived: "Archivado"
     },
     visibility: {
       public: "Publico",
       private: "Privado"
     },
+    pricingMode: {
+      fixed: "Precio fijo",
+      on_request: "A solicitud"
+    },
     pricing: {
-      onRequest: "A solicitud",
-      contactSales: "Contactar ventas"
+      onRequest: "A solicitud"
     },
-    products: {
-      ruggedTabletKitName: "Kit de tablet rugerizada",
-      ruggedTabletKitCategory: "Computadoras",
-      screenRepairName: "Servicio de reparacion de pantalla",
-      screenRepairCategory: "Reparaciones moviles",
-      hydraulicFilterSetName: "Set de filtros hidraulicos",
-      hydraulicFilterSetCategory: "Maquinaria pesada"
+    form: {
+      createTitle: "Crear item real",
+      createDescription:
+        "Este formulario ya escribe en `catalog_items` para el tenant activo con permisos `catalog.write`.",
+      updateTitle: "Actualizar item existente",
+      updateDescription:
+        "Mantiene nombre, precio, visibilidad y estado del item sin salir del modulo.",
+      createAction: "Guardar item",
+      createSubmitting: "Guardando item...",
+      updateAction: "Actualizar item",
+      updateSubmitting: "Actualizando item...",
+      resetAction: "Limpiar formulario",
+      createSuccess: "Item de catalogo creado correctamente.",
+      createError: "No pudimos crear el item. {{message}}",
+      updateSuccess: "Item de catalogo actualizado correctamente.",
+      updateError: "No pudimos actualizar el item. {{message}}",
+      noItemSelected: "Selecciona un item antes de intentar actualizarlo.",
+      recordLabel: "Item a actualizar",
+      noItemsOption: "No hay items todavia",
+      noItemsHint:
+        "Primero crea un item real para habilitar el flujo de actualizacion.",
+      itemCodeLabel: "Codigo interno",
+      itemCodePlaceholder: "CAT-001",
+      nameLabel: "Nombre visible",
+      namePlaceholder: "Kit de mantenimiento preventivo",
+      categoryLabel: "Categoria",
+      categoryPlaceholder: "Servicios tecnicos",
+      descriptionLabel: "Descripcion corta",
+      descriptionPlaceholder:
+        "Resumen comercial breve para que ventas entienda rapido que se ofrece.",
+      kindLabel: "Tipo",
+      visibilityLabel: "Visibilidad",
+      pricingModeLabel: "Modo de precio",
+      currencyCodeLabel: "Moneda",
+      currencyCodePlaceholder: "USD",
+      unitPriceLabel: "Precio base",
+      unitPricePlaceholder: "1890",
+      statusLabel: "Estado",
+      notesLabel: "Notas operativas",
+      notesPlaceholder:
+        "Aclaraciones internas, condiciones o contexto comercial del item.",
+      validation: {
+        itemCodeMax: "Mantener el codigo por debajo de 40 caracteres.",
+        nameMin: "Ingresa el nombre visible del item.",
+        nameMax: "Mantener el nombre por debajo de 120 caracteres.",
+        categoryMax: "Mantener la categoria por debajo de 80 caracteres.",
+        descriptionMax: "Mantener la descripcion por debajo de 240 caracteres.",
+        currencyCode: "Usa un codigo de moneda de 3 letras.",
+        unitPriceRequired:
+          "Ingresa un precio base o cambia el item a modo a solicitud.",
+        unitPriceMin: "El precio base no puede ser negativo.",
+        notesMax: "Mantener las notas por debajo de 500 caracteres."
+      }
     },
-    vertical: {
-      title: "Listo para verticales, no hardcodeado",
+    list: {
+      title: "Items reales del catalogo",
       description:
-        "Soportar multiples tipos de negocio con estructura compartida y un numero pequeno de extensiones puntuales.",
-      computersTitle: "Computadoras",
-      computersText:
-        "Variantes, compatibilidad y cotizacion con awareness de stock en una fase posterior.",
-      repairsTitle: "Reparaciones",
-      repairsText:
-        "Servicios y diagnosticos pueden convivir con productos sin cambiar el core.",
-      industrialTitle: "Industrial",
-      industrialText:
-        "PDFs tecnicos, fichas y precios restringidos importan mas que merchandising llamativo."
+        "Lectura real desde `catalog_items` con tarjetas compactas y foco mobile-first.",
+      noTenantTitle: "No hay tenant activo para consultar el catalogo",
+      noTenantDescription:
+        "El shell necesita un tenant activo antes de leer items comerciales reales.",
+      loadingTitle: "Cargando items reales del catalogo",
+      loadingDescription:
+        "Estamos leyendo `catalog_items` con el contexto actual del tenant.",
+      errorTitle: "No pudimos cargar el catalogo",
+      errorDescription:
+        "La lectura real del catalogo fallo por ahora. {{message}}",
+      retryAction: "Reintentar carga",
+      emptyTitle: "Todavia no hay items registrados",
+      emptyDescription:
+        "Los primeros productos o servicios reales apareceran aqui cuando empieces a cargarlos.",
+      searchEmptyTitle: "No encontramos coincidencias para esta busqueda",
+      searchEmptyDescription:
+        "Prueba con otro termino o limpia el filtro para volver a ver todo el catalogo.",
+      noCode: "Sin codigo interno",
+      noCategory: "Categoria pendiente",
+      noDescription: "Sin descripcion adicional todavia."
     },
     rules: {
-      title: "Reglas UX de catalogo",
+      title: "Reglas operativas del catalogo",
       description:
-        "Estas reglas deben mantenerse tanto en backoffice como en storefront.",
-      calmCards:
-        "Productos, servicios y repuestos deben compartir un patron de card calmado.",
-      obviousVisibility:
-        "Las reglas de visibilidad y precio deben entenderse de un vistazo.",
-      technicalFiles:
-        "Los archivos tecnicos deben sentirse nativos al registro, no pegados al final.",
-      searchSpeed:
-        "En el MVP la busqueda debe priorizar velocidad sobre complejidad de filtros."
+        "Estas reglas mantienen el slice util para ventas sin meter complejidad de inventario o ERP.",
+      captureTitle: "Captura comun para producto o servicio",
+      captureText:
+        "El mismo formulario debe servir para servicios y productos sin bifurcar el core.",
+      pricingTitle: "Precio claro o a solicitud",
+      pricingText:
+        "Cada item debe dejar obvio si el precio esta listo para cotizar o si requiere validacion manual.",
+      visibilityTitle: "Visibilidad entendible al instante",
+      visibilityText:
+        "La diferencia entre publico y privado debe entenderse rapido para el equipo comercial."
+    },
+    guidelines: {
+      title: "Siguiente uso del modulo",
+      description:
+        "Este primer corte prepara el terreno para quotes y proformas sin saltar a features pesadas.",
+      mobileCapture:
+        "La captura debe ser rapida en movil y no depender de tablas densas o drawers complejos.",
+      sharedLanguage:
+        "Productos y servicios comparten lenguaje operativo, no estructuras separadas por vertical.",
+      noInventory:
+        "Este modulo no abre inventario, stock ni POS; solo catalogo comercial util para vender.",
+      readyForQuotes:
+        "La siguiente evolucion natural es conectar estos items a cotizaciones y proformas."
     }
   },
   quotes: {

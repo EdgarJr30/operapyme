@@ -41,9 +41,9 @@ El `service role key` no vive aqui.
 
 ## Shell y navegacion
 
-- desktop: sidebar con modulos core, accesos de plataforma y cambio de tenant visible
-- header: breadcrumbs, notificaciones operativas, toggle de tema y menu de usuario
-- mobile: tab bar inferior para `Inicio`, `CRM`, `Catalogo` y `Cotizaciones`, con el resto en un drawer
+- desktop: sidebar utilitario con grupos de modulos, cambio de tenant visible y acceso rapido a cerrar sesion
+- header: breadcrumbs, busqueda corta, notificaciones operativas, toggle de tema y menu de usuario
+- mobile: tab bar inferior para `Inicio`, `CRM` y `Cotizaciones`, con el resto en un drawer
 - todo el copy del shell sigue saliendo desde `@operapyme/i18n`
 
 ## Tailwind

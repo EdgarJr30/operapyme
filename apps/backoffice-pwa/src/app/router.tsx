@@ -20,7 +20,7 @@ function NotFoundPage() {
   const { t } = useTranslation("common");
 
   return (
-    <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 rounded-[28px] border border-line/70 bg-paper/90 p-8 text-center shadow-panel">
+    <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 rounded-3xl border border-line/70 bg-paper p-8 text-center shadow-panel">
       <p className="text-sm font-medium uppercase tracking-[0.24em] text-ink-muted">
         {t("states.routeNotFoundEyebrow")}
       </p>
@@ -39,7 +39,7 @@ function RouteLoader() {
 
   return (
     <div className="flex min-h-[40vh] items-center justify-center">
-      <div className="rounded-full border border-line/70 bg-paper/80 px-4 py-2 text-sm text-ink-soft shadow-panel">
+      <div className="rounded-xl border border-line/70 bg-paper px-4 py-2 text-sm text-ink-soft shadow-panel">
         {t("states.loadingModule")}
       </div>
     </div>

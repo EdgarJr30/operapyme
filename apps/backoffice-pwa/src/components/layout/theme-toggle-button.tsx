@@ -65,7 +65,7 @@ export function ThemeToggleButton() {
       )}
       onClick={() => setTheme(nextTheme)}
       className={cn(
-        "inline-flex size-11 min-w-11 items-center justify-center rounded-full border border-line/70 bg-paper/85 text-ink shadow-panel transition hover:bg-sand-strong/80 disabled:cursor-not-allowed disabled:opacity-60"
+        "inline-flex size-10 min-w-10 items-center justify-center rounded-xl border border-line/70 bg-paper text-ink shadow-panel transition hover:bg-sand/70 disabled:cursor-not-allowed disabled:opacity-60"
       )}
     >
       <Icon className="size-4" aria-hidden="true" />

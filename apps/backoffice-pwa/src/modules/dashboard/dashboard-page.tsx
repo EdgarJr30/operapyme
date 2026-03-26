@@ -1,23 +1,20 @@
+import type { ReactNode } from "react";
+
 import {
-  Bot,
-  ClipboardList,
-  PackageSearch,
-  Smartphone,
-  Sparkles,
-  TrendingUp
+  ArrowUpRight,
+  CircleAlert,
+  FileText,
+  Package2,
+  RefreshCw,
+  UsersRound
 } from "lucide-react";
 
 import { useTranslation } from "@operapyme/i18n";
+import { NavLink } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle
-} from "@/components/ui/card";
 import { StatusPill } from "@/components/ui/status-pill";
+import { cn } from "@/lib/utils";
 import type {
   CustomerSummary,
   QuoteStatus,
@@ -25,50 +22,29 @@ import type {
 } from "@/lib/supabase/backoffice-data";
 import { useDashboardData } from "@/modules/dashboard/use-dashboard-data";
 
-const stats = [
+const statCards = [
   {
     id: "customerCount" as const,
-    icon: Sparkles,
-    tone: "success" as const
+    icon: UsersRound,
+    iconClassName: "bg-sky-200/70 text-ink"
   },
   {
     id: "quoteCount" as const,
-    icon: Smartphone,
-    tone: "info" as const
+    icon: FileText,
+    iconClassName: "bg-sage-200/70 text-ink"
   },
   {
     id: "openQuoteCount" as const,
-    icon: PackageSearch,
-    tone: "warning" as const
+    icon: Package2,
+    iconClassName: "bg-peach-200/70 text-ink"
   }
 ];
 
-const milestones = [
-  "dashboard.milestones.setupWizard",
-  "dashboard.milestones.catalogCrud",
-  "dashboard.milestones.crmKanban",
-  "dashboard.milestones.quoteBuilder",
-  "dashboard.milestones.websitePublishing",
-  "dashboard.milestones.securityFoundation"
-];
-
-const modules = [
-  {
-    titleKey: "dashboard.operatingModel.catalogTitle",
-    textKey: "dashboard.operatingModel.catalogText"
-  },
-  {
-    titleKey: "dashboard.operatingModel.crmTitle",
-    textKey: "dashboard.operatingModel.crmText"
-  },
-  {
-    titleKey: "dashboard.operatingModel.quotesTitle",
-    textKey: "dashboard.operatingModel.quotesText"
-  },
-  {
-    titleKey: "dashboard.operatingModel.aiTitle",
-    textKey: "dashboard.operatingModel.aiText"
-  }
+const checklistItems = [
+  "dashboard.checklist.captureLead",
+  "dashboard.checklist.prepareCatalog",
+  "dashboard.checklist.sendQuote",
+  "dashboard.checklist.reviewSettings"
 ];
 
 export function DashboardPage() {
@@ -90,125 +66,96 @@ export function DashboardPage() {
   );
 
   return (
-    <div className="space-y-5 lg:space-y-6">
-      <section className="grid gap-4 xl:grid-cols-[1.35fr_0.95fr]">
-        <Card className="overflow-hidden">
-          <CardContent className="space-y-6">
-            <div className="flex flex-wrap items-center gap-2">
-              <StatusPill tone="success">
-                {t("dashboard.hero.badgeBlueprint")}
-              </StatusPill>
-              <StatusPill tone="info">{t("dashboard.hero.badgePastel")}</StatusPill>
-            </div>
-
-            <div className="space-y-4">
-              <p className="text-xs uppercase tracking-[0.24em] text-ink-muted">
-                {t("dashboard.hero.eyebrow")}
-              </p>
-              <h1 className="max-w-2xl text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
-                {t("dashboard.hero.title")}
+    <div className="space-y-6">
+      <section className="rounded-3xl border border-line/70 bg-linear-to-r from-sky-200/55 via-paper to-paper p-5 shadow-panel sm:p-6">
+        <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+          <div className="max-w-3xl space-y-3">
+            <span className="inline-flex min-h-9 items-center rounded-full border border-line/70 bg-paper/85 px-3 text-xs font-semibold uppercase tracking-[0.18em] text-ink-muted">
+              {t("dashboard.header.eyebrow")}
+            </span>
+            <div className="space-y-2">
+              <h1 className="text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
+                {t("dashboard.header.title")}
               </h1>
               <p className="max-w-2xl text-sm leading-7 text-ink-soft sm:text-base">
-                {t("dashboard.hero.description")}
+                {t("dashboard.header.description")}
               </p>
             </div>
+          </div>
 
-            <div className="flex flex-wrap gap-3">
-              <Button size="lg">{t("dashboard.hero.primaryAction")}</Button>
-              <Button size="lg" variant="secondary">
-                {t("dashboard.hero.secondaryAction")}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>{t("dashboard.milestones.title")}</CardTitle>
-            <CardDescription>
-              {t("dashboard.milestones.description")}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ol className="space-y-3">
-              {milestones.map((item, index) => (
-                <li
-                  key={item}
-                  className="flex items-start gap-3 rounded-2xl border border-line/70 bg-paper/70 px-4 py-3"
-                >
-                  <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full bg-sage-200/90 text-xs font-semibold text-ink">
-                    {index + 1}
-                  </span>
-                  <span className="text-sm leading-6 text-ink-soft">
-                    {t(item)}
-                  </span>
-                </li>
-              ))}
-            </ol>
-          </CardContent>
-        </Card>
+          <div className="flex flex-wrap gap-3">
+            <NavLink
+              to="/crm"
+              className="inline-flex min-h-11 items-center justify-center rounded-xl border border-line-strong bg-paper/95 px-5 text-sm font-medium text-ink shadow-panel transition hover:bg-sand/70"
+            >
+              {t("dashboard.actions.newLead")}
+            </NavLink>
+            <NavLink
+              to="/quotes"
+              className="inline-flex min-h-11 items-center justify-center rounded-xl bg-brand px-5 text-sm font-medium text-brand-contrast shadow-soft transition hover:bg-brand-hover"
+            >
+              {t("dashboard.actions.newQuote")}
+            </NavLink>
+          </div>
+        </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-3">
-        {!hasTenantContext ? (
-          <Card className="md:col-span-3">
-            <CardContent className="space-y-3">
-              <p className="text-lg font-semibold text-ink">
-                {t("dashboard.livePulse.noTenantTitle")}
-              </p>
-              <p className="text-sm leading-6 text-ink-soft">
-                {t("dashboard.livePulse.noTenantDescription")}
-              </p>
-            </CardContent>
-          </Card>
-        ) : isLoading ? (
-          <Card className="md:col-span-3">
-            <CardContent className="space-y-3" aria-live="polite">
-              <p className="text-lg font-semibold text-ink">
-                {t("dashboard.livePulse.loadingTitle")}
-              </p>
-              <p className="text-sm leading-6 text-ink-soft">
-                {t("dashboard.livePulse.loadingDescription")}
-              </p>
-            </CardContent>
-          </Card>
-        ) : isError ? (
-          <Card className="md:col-span-3">
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <p className="text-lg font-semibold text-ink">
-                  {t("dashboard.livePulse.errorTitle")}
-                </p>
-                <p className="text-sm leading-6 text-ink-soft">
-                  {t("dashboard.livePulse.errorDescription", {
-                    message: error instanceof Error ? error.message : ""
-                  })}
-                </p>
-              </div>
-              <Button
-                variant="secondary"
-                onClick={() => {
-                  void refetch();
-                }}
+      <section className="grid gap-4 xl:grid-cols-[minmax(0,1.5fr)_320px]">
+        <div className="grid gap-4 md:grid-cols-3">
+          {!hasTenantContext ? (
+            <InlineStatePanel
+              title={t("dashboard.livePulse.noTenantTitle")}
+              description={t("dashboard.livePulse.noTenantDescription")}
+              className="md:col-span-3"
+            />
+          ) : isLoading ? (
+            <InlineStatePanel
+              title={t("dashboard.livePulse.loadingTitle")}
+              description={t("dashboard.livePulse.loadingDescription")}
+              className="md:col-span-3"
+            />
+          ) : isError ? (
+            <InlineStatePanel
+              title={t("dashboard.livePulse.errorTitle")}
+              description={t("dashboard.livePulse.errorDescription", {
+                message: error instanceof Error ? error.message : ""
+              })}
+              className="md:col-span-3"
+              action={
+                <Button
+                  variant="secondary"
+                  className="rounded-xl"
+                  onClick={() => {
+                    void refetch();
+                  }}
+                >
+                  <RefreshCw className="mr-2 size-4" aria-hidden="true" />
+                  {t("dashboard.livePulse.retryAction")}
+                </Button>
+              }
+            />
+          ) : (
+            statCards.map(({ id, icon: Icon, iconClassName }) => (
+              <div
+                key={id}
+                className="rounded-3xl border border-line/70 bg-paper p-5 shadow-panel"
               >
-                {t("dashboard.livePulse.retryAction")}
-              </Button>
-            </CardContent>
-          </Card>
-        ) : (
-          stats.map(({ id, icon: Icon, tone }) => (
-            <Card key={id}>
-              <CardContent className="space-y-4">
                 <div className="flex items-start justify-between gap-3">
-                  <div className="flex size-12 items-center justify-center rounded-2xl bg-sand-strong">
-                    <Icon className="size-5 text-ink" aria-hidden="true" />
-                  </div>
-                  <StatusPill tone={tone}>
+                  <span
+                    className={cn(
+                      "flex size-12 items-center justify-center rounded-2xl",
+                      iconClassName
+                    )}
+                  >
+                    <Icon className="size-5" aria-hidden="true" />
+                  </span>
+                  <StatusPill tone={getStatTone(id)}>
                     {t(`dashboard.stats.${id}.label`)}
                   </StatusPill>
                 </div>
-                <div>
-                  <p className="text-2xl font-semibold tracking-tight text-ink">
+
+                <div className="mt-5">
+                  <p className="text-3xl font-semibold tracking-tight text-ink">
                     {data?.[id] ?? 0}
                   </p>
                   <p className="mt-2 text-sm leading-6 text-ink-soft">
@@ -217,118 +164,156 @@ export function DashboardPage() {
                     })}
                   </p>
                 </div>
-              </CardContent>
-            </Card>
-          ))
-        )}
-      </section>
-
-      <section className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
-        {hasTenantContext && !isLoading && !isError ? (
-          isCommercialDataEmpty ? (
-            <Card className="lg:col-span-2">
-              <CardContent className="space-y-3">
-                <p className="text-lg font-semibold text-ink">
-                  {t("dashboard.livePulse.emptyTitle")}
-                </p>
-                <p className="text-sm leading-6 text-ink-soft">
-                  {t("dashboard.livePulse.emptyDescription")}
-                </p>
-              </CardContent>
-            </Card>
-          ) : (
-            <>
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t("dashboard.livePulse.customersTitle")}</CardTitle>
-                  <CardDescription>
-                    {t("dashboard.livePulse.customersDescription")}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {data?.recentCustomers.map((customer) => (
-                    <CustomerSnapshotCard
-                      key={customer.id}
-                      customer={customer}
-                      t={t}
-                    />
-                  ))}
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t("dashboard.livePulse.quotesTitle")}</CardTitle>
-                  <CardDescription>
-                    {t("dashboard.livePulse.quotesDescription")}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {data?.recentQuotes.map((quote) => (
-                    <QuoteSnapshotCard key={quote.id} quote={quote} t={t} />
-                  ))}
-                </CardContent>
-              </Card>
-            </>
-          )
-        ) : null}
-
-        <Card>
-          <CardHeader>
-            <CardTitle>{t("dashboard.operatingModel.title")}</CardTitle>
-            <CardDescription>
-              {t("dashboard.operatingModel.description")}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-3 sm:grid-cols-2">
-            {modules.map((module) => (
-              <div
-                key={module.titleKey}
-                className="rounded-3xl border border-line/70 bg-paper/70 p-4"
-              >
-                <p className="text-sm font-semibold text-ink">
-                  {t(module.titleKey)}
-                </p>
-                <p className="mt-2 text-sm leading-6 text-ink-soft">
-                  {t(module.textKey)}
-                </p>
               </div>
-            ))}
-          </CardContent>
-        </Card>
+            ))
+          )}
+        </div>
 
-        <Card className="bg-linear-to-br from-paper via-paper to-sky-200/60">
-          <CardHeader>
-            <CardTitle>{t("dashboard.uxWhy.title")}</CardTitle>
-            <CardDescription>
-              {t("dashboard.uxWhy.description")}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-4">
-              <li className="flex items-start gap-3">
-                <TrendingUp className="mt-1 size-4 shrink-0 text-ink" />
-                <p className="text-sm leading-6 text-ink-soft">
-                  {t("dashboard.uxWhy.learnFaster")}
-                </p>
+        <div className="rounded-3xl border border-line/70 bg-paper p-5 shadow-panel">
+          <div className="space-y-1">
+            <p className="text-sm font-semibold text-ink">
+              {t("dashboard.checklist.title")}
+            </p>
+            <p className="text-sm leading-6 text-ink-soft">
+              {t("dashboard.checklist.description")}
+            </p>
+          </div>
+
+          <ol className="mt-4 space-y-3">
+            {checklistItems.map((item, index) => (
+              <li
+                key={item}
+                className="flex items-start gap-3 rounded-2xl border border-line/70 bg-sand/45 px-4 py-3"
+              >
+                <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full bg-paper text-xs font-semibold text-ink shadow-panel">
+                  {index + 1}
+                </span>
+                <span className="text-sm leading-6 text-ink-soft">{t(item)}</span>
               </li>
-              <li className="flex items-start gap-3">
-                <ClipboardList className="mt-1 size-4 shrink-0 text-ink" />
-                <p className="text-sm leading-6 text-ink-soft">
-                  {t("dashboard.uxWhy.formQuality")}
-                </p>
-              </li>
-              <li className="flex items-start gap-3">
-                <Bot className="mt-1 size-4 shrink-0 text-ink" />
-                <p className="text-sm leading-6 text-ink-soft">
-                  {t("dashboard.uxWhy.aiFocus")}
-                </p>
-              </li>
-            </ul>
-          </CardContent>
-        </Card>
+            ))}
+          </ol>
+        </div>
       </section>
+
+      {hasTenantContext && !isLoading && !isError ? (
+        isCommercialDataEmpty ? (
+          <EmptyStatePanel />
+        ) : (
+          <section className="grid gap-4 xl:grid-cols-2">
+            <div className="rounded-3xl border border-line/70 bg-paper p-5 shadow-panel">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-lg font-semibold text-ink">
+                    {t("dashboard.livePulse.customersTitle")}
+                  </p>
+                  <p className="mt-1 text-sm leading-6 text-ink-soft">
+                    {t("dashboard.livePulse.customersDescription")}
+                  </p>
+                </div>
+                <UsersRound className="size-5 text-ink-muted" aria-hidden="true" />
+              </div>
+
+              <div className="mt-5 space-y-3">
+                {data?.recentCustomers.map((customer) => (
+                  <CustomerSnapshotCard
+                    key={customer.id}
+                    customer={customer}
+                    t={t}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-line/70 bg-paper p-5 shadow-panel">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-lg font-semibold text-ink">
+                    {t("dashboard.livePulse.quotesTitle")}
+                  </p>
+                  <p className="mt-1 text-sm leading-6 text-ink-soft">
+                    {t("dashboard.livePulse.quotesDescription")}
+                  </p>
+                </div>
+                <FileText className="size-5 text-ink-muted" aria-hidden="true" />
+              </div>
+
+              <div className="mt-5 space-y-3">
+                {data?.recentQuotes.map((quote) => (
+                  <QuoteSnapshotCard key={quote.id} quote={quote} t={t} />
+                ))}
+              </div>
+            </div>
+          </section>
+        )
+      ) : null}
     </div>
+  );
+}
+
+function InlineStatePanel({
+  action,
+  className,
+  description,
+  title
+}: {
+  action?: ReactNode;
+  className?: string;
+  description: string;
+  title: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "rounded-3xl border border-line/70 bg-paper p-5 shadow-panel",
+        className
+      )}
+    >
+      <div className="flex items-start gap-3">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-peach-200/60 text-ink">
+          <CircleAlert className="size-5" aria-hidden="true" />
+        </span>
+        <div className="space-y-2">
+          <p className="text-lg font-semibold text-ink">{title}</p>
+          <p className="text-sm leading-6 text-ink-soft">{description}</p>
+          {action ? <div className="pt-1">{action}</div> : null}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EmptyStatePanel() {
+  const { t } = useTranslation("backoffice");
+
+  return (
+    <section className="rounded-3xl border border-line/70 bg-paper p-8 shadow-panel">
+      <div className="mx-auto flex max-w-2xl flex-col items-center text-center">
+        <span className="flex size-16 items-center justify-center rounded-full bg-sky-200/60 text-ink">
+          <Package2 className="size-7" aria-hidden="true" />
+        </span>
+        <h2 className="mt-5 text-2xl font-semibold tracking-tight text-ink">
+          {t("dashboard.emptyState.title")}
+        </h2>
+        <p className="mt-3 text-sm leading-7 text-ink-soft sm:text-base">
+          {t("dashboard.emptyState.description")}
+        </p>
+
+        <div className="mt-6 flex flex-wrap justify-center gap-3">
+          <NavLink
+            to="/crm"
+            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-line-strong bg-paper px-5 text-sm font-medium text-ink shadow-panel transition hover:bg-sand/70"
+          >
+            {t("dashboard.actions.newLead")}
+          </NavLink>
+          <NavLink
+            to="/quotes"
+            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-brand px-5 text-sm font-medium text-brand-contrast shadow-soft transition hover:bg-brand-hover"
+          >
+            {t("dashboard.actions.newQuote")}
+          </NavLink>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -346,9 +331,9 @@ function CustomerSnapshotCard({
     t("dashboard.livePulse.contactPending");
 
   return (
-    <div className="rounded-3xl border border-line/70 bg-paper/70 p-4">
+    <div className="rounded-2xl border border-line/70 bg-sand/40 p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
+        <div className="space-y-1">
           <p className="font-semibold text-ink">{customer.displayName}</p>
           <p className="text-sm text-ink-soft">{contactValue}</p>
         </div>
@@ -372,9 +357,9 @@ function QuoteSnapshotCard({
   t: ReturnType<typeof useTranslation<"backoffice">>["t"];
 }) {
   return (
-    <div className="rounded-3xl border border-line/70 bg-paper/70 p-4">
+    <div className="rounded-2xl border border-line/70 bg-sand/40 p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
+        <div className="space-y-1">
           <p className="font-semibold text-ink">{quote.quoteNumber}</p>
           <p className="text-sm text-ink-soft">
             {quote.customerName || t("dashboard.livePulse.contactPending")}
@@ -384,10 +369,13 @@ function QuoteSnapshotCard({
           {t(`dashboard.livePulse.quoteStatus.${quote.status}`)}
         </StatusPill>
       </div>
-      <p className="mt-3 text-sm leading-6 text-ink-soft">
-        {t("dashboard.livePulse.quoteValueLabel")}:{" "}
-        {formatCurrency(quote.grandTotal, quote.currencyCode)}
-      </p>
+      <div className="mt-3 flex items-center justify-between gap-3">
+        <p className="text-sm leading-6 text-ink-soft">
+          {t("dashboard.livePulse.quoteValueLabel")}:{" "}
+          {formatCurrency(quote.grandTotal, quote.currencyCode)}
+        </p>
+        <ArrowUpRight className="size-4 text-ink-muted" aria-hidden="true" />
+      </div>
     </div>
   );
 }
@@ -414,6 +402,17 @@ function getQuoteTone(status: QuoteStatus) {
     case "rejected":
     case "expired":
       return "neutral";
+  }
+}
+
+function getStatTone(id: (typeof statCards)[number]["id"]) {
+  switch (id) {
+    case "customerCount":
+      return "info";
+    case "quoteCount":
+      return "success";
+    case "openQuoteCount":
+      return "warning";
   }
 }
 
