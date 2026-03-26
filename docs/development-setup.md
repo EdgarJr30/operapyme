@@ -41,6 +41,8 @@ Reglas:
 - Nunca colocar secretos reales en variables `VITE_*`.
 - Todo secreto operativo va en Supabase, CI o infraestructura.
 
+Para variables operativas o server-side, usar `supabase/.env.local` tomando como base `supabase/.env.example`.
+
 ## Flujo local recomendado
 
 1. Instalar dependencias.

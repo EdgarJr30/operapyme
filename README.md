@@ -66,7 +66,9 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 ```text
 .
 |- apps/
+|  |- README.md
 |  |- backoffice-pwa/
+|  |  |- README.md
 |  `- storefront/
 |- packages/
 |  |- config/
@@ -164,6 +166,8 @@ VITE_SUPABASE_URL=
 VITE_SUPABASE_PUBLISHABLE_KEY=
 ```
 
+Para variables backend u operativas de Supabase, usar `supabase/.env.example` como referencia y guardar los secretos reales solo en `supabase/.env.local`.
+
 ### Testing y verificacion
 
 - `npm run test`: unit + integration + contract
@@ -189,6 +193,18 @@ VITE_SUPABASE_PUBLISHABLE_KEY=
 - La preferencia de apariencia se persiste por dispositivo.
 - La apariencia personal y el branding por tenant son capas distintas.
 - La estrategia de paletas curadas por tenant vive en [docs/tenant-theming.md](./docs/tenant-theming.md).
+
+### Donde vive la app React real
+
+La raiz del repo es un monorepo, no una app React unica.
+
+La app real vive en `apps/backoffice-pwa/`, donde estan:
+
+- `src/`
+- `public/`
+- `package.json`
+- `vite.config.ts`
+- `.env.example`
 
 ## English
 
