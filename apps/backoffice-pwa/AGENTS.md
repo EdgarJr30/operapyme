@@ -40,6 +40,7 @@
 - No consultar Supabase directo desde componentes visuales complejos; encapsular acceso.
 - No resolver autorizacion real en UI; la UI solo expresa estados de permiso.
 - Evitar props drilling profundo. Elevar o aislar estado.
+- En Tailwind, preferir siempre la clase canonica del framework cuando ya exista una equivalente; evitar utilidades arbitrarias como `h-[46px]`, `max-w-[32rem]` o `[background-size:18px_18px]` si Tailwind ya ofrece `h-11.5`, `max-w-lg` o `bg-size-[18px_18px]`.
 
 ## Reglas de producto
 

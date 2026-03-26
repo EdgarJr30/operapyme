@@ -125,7 +125,7 @@ export function AuthPage() {
                       onChange={(event) => setEmail(event.target.value)}
                       placeholder={t("auth.form.emailPlaceholder")}
                       required
-                      className="h-[46px] rounded-md border-line/80 bg-white px-3 py-2"
+                      className="h-11.5 rounded-md border-line/80 bg-white px-3 py-2"
                     />
                   </div>
                 </div>
@@ -189,10 +189,10 @@ export function AuthPage() {
 
         <div className="relative hidden w-0 flex-1 overflow-hidden lg:block">
           <div className="absolute inset-0 bg-linear-to-br from-butter-200/85 via-butter-200/35 to-paper" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(234,199,74,0.22)_1px,transparent_1.5px)] [background-size:18px_18px] opacity-65" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(234,199,74,0.22)_1px,transparent_1.5px)] bg-size-[18px_18px] opacity-65" />
 
           <div className="absolute inset-0 flex flex-col items-center justify-center px-10">
-            <div className="relative w-full max-w-[32rem]">
+            <div className="relative w-full max-w-lg">
               <div className="rounded-[22px] border border-paper/60 bg-paper/95 p-4 shadow-soft">
                 <div className="flex items-center gap-2 border-b border-line/60 pb-3">
                   <span className="size-2.5 rounded-full bg-peach-300" />
