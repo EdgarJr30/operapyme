@@ -80,7 +80,6 @@ export function QuoteOperationsPanel({
 
     updateForm.reset({
       customerId: selectedQuote.customerId,
-      quoteNumber: selectedQuote.quoteNumber,
       title: selectedQuote.title,
       status: selectedQuote.status,
       currencyCode: selectedQuote.currencyCode,
@@ -96,8 +95,10 @@ export function QuoteOperationsPanel({
     setCreateFeedback(null);
 
     try {
-      await createQuoteMutation.mutateAsync(values);
-      setCreateFeedback(t("quotes.form.createSuccess"));
+      const createdQuote = await createQuoteMutation.mutateAsync(values);
+      setCreateFeedback(
+        t("quotes.form.createSuccess", { quoteNumber: createdQuote.quoteNumber })
+      );
       createForm.reset(buildCreateDefaults(customers));
     } catch (error) {
       setCreateFeedback(
@@ -156,6 +157,7 @@ export function QuoteOperationsPanel({
                 customers={customers}
                 form={createForm}
                 idPrefix="create"
+                quoteNumber={null}
               />
 
               {createFeedback ? (
@@ -239,6 +241,7 @@ export function QuoteOperationsPanel({
                 customers={customers}
                 form={updateForm}
                 idPrefix="update"
+                quoteNumber={selectedQuote?.quoteNumber ?? null}
               />
 
               {selectedQuote ? (
@@ -275,11 +278,13 @@ export function QuoteOperationsPanel({
 function QuoteFormFields({
   customers,
   form,
-  idPrefix
+  idPrefix,
+  quoteNumber
 }: {
   customers: CustomerSummary[];
   form: UseFormReturn<QuoteFormValues>;
   idPrefix: string;
+  quoteNumber?: string | null;
 }) {
   const { t } = useTranslation("backoffice");
   const {
@@ -312,14 +317,19 @@ function QuoteFormFields({
 
         <Field
           label={t("quotes.form.quoteNumberLabel")}
-          error={errors.quoteNumber?.message}
           htmlFor={`${idPrefix}-quote-number`}
         >
           <Input
             id={`${idPrefix}-quote-number`}
-            placeholder={t("quotes.form.quoteNumberPlaceholder")}
-            {...register("quoteNumber")}
+            value={
+              quoteNumber && quoteNumber.trim().length > 0
+                ? quoteNumber
+                : t("quotes.form.generatedNumberPlaceholder")
+            }
+            readOnly
+            disabled
           />
+          <p className="text-sm text-ink-soft">{t("quotes.form.generatedNumberHint")}</p>
         </Field>
       </div>
 
@@ -449,7 +459,6 @@ function QuoteFormFields({
 function buildCreateDefaults(customers: CustomerSummary[]): QuoteFormValues {
   return {
     customerId: customers[0]?.id ?? "",
-    quoteNumber: generateDraftQuoteNumber(),
     title: "",
     status: "draft",
     currencyCode: "USD",
@@ -464,7 +473,6 @@ function buildCreateDefaults(customers: CustomerSummary[]): QuoteFormValues {
 function buildEmptyQuoteDefaults(): QuoteFormValues {
   return {
     customerId: "",
-    quoteNumber: "",
     title: "",
     status: "draft",
     currencyCode: "USD",
@@ -474,14 +482,6 @@ function buildEmptyQuoteDefaults(): QuoteFormValues {
     validUntil: "",
     notes: ""
   };
-}
-
-function generateDraftQuoteNumber() {
-  const now = new Date();
-  const year = now.getUTCFullYear();
-  const seed = String(now.getTime()).slice(-6);
-
-  return `COT-${year}-${seed}`;
 }
 
 function formatCurrency(value: number, currencyCode: string) {

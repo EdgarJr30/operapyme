@@ -365,7 +365,7 @@ const backofficeEn = {
       updateAction: "Update quote",
       updateSubmitting: "Updating quote...",
       resetAction: "Clear form",
-      createSuccess: "Quote created successfully.",
+      createSuccess: "Quote created successfully as {{quoteNumber}}.",
       createError: "We could not create the quote. {{message}}",
       updateSuccess: "Quote updated successfully.",
       updateError: "We could not update the quote. {{message}}",
@@ -380,7 +380,9 @@ const backofficeEn = {
       customerLabel: "Customer",
       customerPlaceholder: "Select a customer",
       quoteNumberLabel: "Quote number",
-      quoteNumberPlaceholder: "COT-2026-000210",
+      generatedNumberPlaceholder: "Assigned automatically after save",
+      generatedNumberHint:
+        "Numbering now lives in Supabase and is assigned automatically to keep consistency and auditability.",
       titleLabel: "Title",
       titlePlaceholder: "Equipment and support proposal",
       statusLabel: "Status",
@@ -396,8 +398,6 @@ const backofficeEn = {
         "Commercial terms, delivery conditions, or internal clarifications.",
       validation: {
         customerRequired: "Select a customer before saving.",
-        quoteNumberMin: "Enter a valid quote number.",
-        quoteNumberMax: "Keep the number under 40 characters.",
         titleMin: "Enter a title for the quote.",
         titleMax: "Keep the title under 160 characters.",
         currencyCode: "Use a 3-letter currency code.",

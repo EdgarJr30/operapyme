@@ -130,7 +130,6 @@ export interface UpdateCustomerInput {
 export interface CreateQuoteInput {
   tenantId: string;
   customerId: string;
-  quoteNumber: string;
   title: string;
   status: QuoteStatus;
   currencyCode: string;
@@ -308,14 +307,6 @@ function normalizeOptionalValue(value: string | null | undefined) {
   return nextValue ? nextValue : null;
 }
 
-function calculateGrandTotal(input: {
-  subtotal: number;
-  discountTotal: number;
-  taxTotal: number;
-}) {
-  return Number((input.subtotal - input.discountTotal + input.taxTotal).toFixed(2));
-}
-
 export async function createCustomer(input: CreateCustomerInput) {
   const client = requireSupabaseClient();
   const payload = {
@@ -383,32 +374,34 @@ export async function updateCustomer(input: UpdateCustomerInput) {
 
 export async function createQuote(input: CreateQuoteInput) {
   const client = requireSupabaseClient();
-  const grandTotal = calculateGrandTotal(input);
-  const payload = {
-    tenant_id: input.tenantId,
-    customer_id: input.customerId,
-    quote_number: input.quoteNumber.trim(),
-    title: input.title.trim(),
-    status: input.status,
-    currency_code: input.currencyCode.trim().toUpperCase(),
-    subtotal: input.subtotal,
-    discount_total: input.discountTotal,
-    tax_total: input.taxTotal,
-    grand_total: grandTotal,
-    notes: normalizeOptionalValue(input.notes),
-    valid_until: normalizeOptionalValue(input.validUntil)
-  };
-
-  const { data, error } = await client
-    .from("quotes")
-    .insert(payload)
-    .select(
-      "id, customer_id, quote_number, title, currency_code, subtotal, discount_total, tax_total, grand_total, status, version, valid_until, notes, updated_at, customer:customers!quotes_customer_id_fkey(display_name)"
-    )
-    .single();
+  const { data: quoteId, error } = await client.rpc("create_quote", {
+    target_tenant_id: input.tenantId,
+    target_customer_id: input.customerId,
+    target_title: input.title.trim(),
+    target_status: input.status,
+    target_currency_code: input.currencyCode.trim().toUpperCase(),
+    target_subtotal: input.subtotal,
+    target_discount_total: input.discountTotal,
+    target_tax_total: input.taxTotal,
+    target_valid_until: normalizeOptionalValue(input.validUntil),
+    target_notes: normalizeOptionalValue(input.notes)
+  });
 
   if (error) {
     throw new Error(error.message);
+  }
+
+  const { data, error: fetchError } = await client
+    .from("quotes")
+    .select(
+      "id, customer_id, quote_number, title, currency_code, subtotal, discount_total, tax_total, grand_total, status, version, valid_until, notes, updated_at, customer:customers!quotes_customer_id_fkey(display_name)"
+    )
+    .eq("tenant_id", input.tenantId)
+    .eq("id", quoteId)
+    .single();
+
+  if (fetchError) {
+    throw new Error(fetchError.message);
   }
 
   return mapQuote(data as RawQuoteRow);
@@ -416,34 +409,36 @@ export async function createQuote(input: CreateQuoteInput) {
 
 export async function updateQuote(input: UpdateQuoteInput) {
   const client = requireSupabaseClient();
-  const grandTotal = calculateGrandTotal(input);
-  const payload = {
-    customer_id: input.customerId,
-    quote_number: input.quoteNumber.trim(),
-    title: input.title.trim(),
-    status: input.status,
-    currency_code: input.currencyCode.trim().toUpperCase(),
-    subtotal: input.subtotal,
-    discount_total: input.discountTotal,
-    tax_total: input.taxTotal,
-    grand_total: grandTotal,
-    notes: normalizeOptionalValue(input.notes),
-    valid_until: normalizeOptionalValue(input.validUntil),
-    version: input.version + 1
-  };
-
-  const { data, error } = await client
-    .from("quotes")
-    .update(payload)
-    .eq("tenant_id", input.tenantId)
-    .eq("id", input.quoteId)
-    .select(
-      "id, customer_id, quote_number, title, currency_code, subtotal, discount_total, tax_total, grand_total, status, version, valid_until, notes, updated_at, customer:customers!quotes_customer_id_fkey(display_name)"
-    )
-    .single();
+  const { data: quoteId, error } = await client.rpc("update_quote", {
+    target_tenant_id: input.tenantId,
+    target_quote_id: input.quoteId,
+    expected_version: input.version,
+    target_customer_id: input.customerId,
+    target_title: input.title.trim(),
+    target_status: input.status,
+    target_currency_code: input.currencyCode.trim().toUpperCase(),
+    target_subtotal: input.subtotal,
+    target_discount_total: input.discountTotal,
+    target_tax_total: input.taxTotal,
+    target_valid_until: normalizeOptionalValue(input.validUntil),
+    target_notes: normalizeOptionalValue(input.notes)
+  });
 
   if (error) {
     throw new Error(error.message);
+  }
+
+  const { data, error: fetchError } = await client
+    .from("quotes")
+    .select(
+      "id, customer_id, quote_number, title, currency_code, subtotal, discount_total, tax_total, grand_total, status, version, valid_until, notes, updated_at, customer:customers!quotes_customer_id_fkey(display_name)"
+    )
+    .eq("tenant_id", input.tenantId)
+    .eq("id", quoteId)
+    .single();
+
+  if (fetchError) {
+    throw new Error(fetchError.message);
   }
 
   return mapQuote(data as RawQuoteRow);

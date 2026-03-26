@@ -31,6 +31,7 @@ El `service role key` no vive aqui.
 - `dashboard`, `crm` y `quotes` ya consumen lecturas reales desde Supabase con React Query
 - `crm` y `quotes` ya incluyen formularios reales de create/update sobre `customers` y `quotes`
 - las mutaciones siguen limitadas al tenant activo y dejan auditoria via triggers de base
+- `quotes` ya delega la numeracion y el incremento de version a RPCs de Supabase para evitar inconsistencias por concurrencia
 
 ## Tailwind
 

@@ -365,7 +365,7 @@ const backofficeEs = {
       updateAction: "Actualizar cotizacion",
       updateSubmitting: "Actualizando cotizacion...",
       resetAction: "Limpiar formulario",
-      createSuccess: "Cotizacion creada correctamente.",
+      createSuccess: "Cotizacion creada correctamente como {{quoteNumber}}.",
       createError: "No pudimos crear la cotizacion. {{message}}",
       updateSuccess: "Cotizacion actualizada correctamente.",
       updateError: "No pudimos actualizar la cotizacion. {{message}}",
@@ -380,7 +380,9 @@ const backofficeEs = {
       customerLabel: "Cliente",
       customerPlaceholder: "Selecciona un cliente",
       quoteNumberLabel: "Numero de cotizacion",
-      quoteNumberPlaceholder: "COT-2026-000210",
+      generatedNumberPlaceholder: "Se asignara automaticamente al guardar",
+      generatedNumberHint:
+        "La numeracion vive en Supabase y se asigna automaticamente para mantener consistencia y auditoria.",
       titleLabel: "Titulo",
       titlePlaceholder: "Propuesta de equipos y soporte",
       statusLabel: "Estado",
@@ -396,8 +398,6 @@ const backofficeEs = {
         "Terminos comerciales, condiciones de entrega o aclaraciones internas.",
       validation: {
         customerRequired: "Selecciona un cliente antes de guardar.",
-        quoteNumberMin: "Ingresa un numero de cotizacion valido.",
-        quoteNumberMax: "Mantener el numero por debajo de 40 caracteres.",
         titleMin: "Ingresa un titulo para la cotizacion.",
         titleMax: "Mantener el titulo por debajo de 160 caracteres.",
         currencyCode: "Usa un codigo de moneda de 3 letras.",

@@ -15,6 +15,12 @@ const hardeningMigrationPath = path.resolve(
 const customerContactMigrationPath = path.resolve(
   "supabase/migrations/202603260003_add_customer_contact_name.sql"
 );
+const quoteNumberingMigrationPath = path.resolve(
+  "supabase/migrations/202603260004_quote_numbering_in_db.sql"
+);
+const quoteNumberPolicyMigrationPath = path.resolve(
+  "supabase/migrations/202603260005_quote_number_sequences_policy.sql"
+);
 
 describe("supabase foundation contracts", () => {
   it("creates the required secure foundation tables", () => {
@@ -81,5 +87,32 @@ describe("supabase foundation contracts", () => {
 
     expect(migration).toContain("alter table public.customers");
     expect(migration).toContain("add column if not exists contact_name text");
+  });
+
+  it("moves quote numbering and versioning control to database functions", () => {
+    const migration = fs.readFileSync(quoteNumberingMigrationPath, "utf8");
+
+    expect(migration).toContain(
+      "create table if not exists public.quote_number_sequences"
+    );
+    expect(migration).toContain(
+      "create or replace function public.allocate_quote_number"
+    );
+    expect(migration).toContain(
+      "create or replace function public.create_quote"
+    );
+    expect(migration).toContain(
+      "create or replace function public.update_quote"
+    );
+    expect(migration).toContain("version = public.quotes.version + 1");
+  });
+
+  it("keeps the internal quote counter table behind an explicit policy", () => {
+    const migration = fs.readFileSync(quoteNumberPolicyMigrationPath, "utf8");
+
+    expect(migration).toContain(
+      "create policy \"quote_number_sequences_select_global_admin\""
+    );
+    expect(migration).toContain("using (public.is_global_admin())");
   });
 });

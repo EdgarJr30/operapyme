@@ -14,10 +14,6 @@ export const quoteStatusValues = [
 export function createQuoteFormSchema(t: TFunction<"backoffice">) {
   return z.object({
     customerId: z.string().min(1, t("quotes.form.validation.customerRequired")),
-    quoteNumber: z
-      .string()
-      .min(4, t("quotes.form.validation.quoteNumberMin"))
-      .max(40, t("quotes.form.validation.quoteNumberMax")),
     title: z
       .string()
       .min(2, t("quotes.form.validation.titleMin"))

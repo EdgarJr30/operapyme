@@ -100,9 +100,13 @@ describe("quote operations panel", () => {
         subtotal: 1500
       })
     );
+
+    expect(
+      mutationState.createQuoteMutation.mutateAsync.mock.calls[0][0]
+    ).not.toHaveProperty("quoteNumber");
   });
 
-  it("submits a live quote update mutation with version bump input", async () => {
+  it("submits a live quote update mutation with expected version input", async () => {
     const mutationState = buildMutationState();
     quoteMutationMocks.useQuoteMutations.mockReturnValue(mutationState);
     const user = userEvent.setup();
@@ -121,5 +125,9 @@ describe("quote operations panel", () => {
         title: "Propuesta Northline actualizada"
       })
     );
+
+    expect(
+      mutationState.updateQuoteMutation.mutateAsync.mock.calls[0][0]
+    ).not.toHaveProperty("quoteNumber");
   });
 });

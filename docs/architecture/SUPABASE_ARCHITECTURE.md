@@ -78,12 +78,14 @@ La fase 2 ya deja listos estos bloques iniciales:
 - hardening de funciones SQL con `search_path` fijo para dejar limpia la linteria de seguridad base
 - lectura real del backoffice sobre `customers` y `quotes` usando el tenant activo y RLS
 - mutaciones reales de `customers` y `quotes` desde el backoffice usando el tenant activo y las mismas politicas RLS
+- numeracion y versionado de `quotes` trasladados a funciones SQL para mantener consistencia y seguridad bajo concurrencia
 
 ## Primeras tablas operativas
 
 - `customers`: base multi-tenant para clientes del CRM
 - `customers.contact_name`: contacto principal para los flujos comerciales del CRM
 - `quotes`: base multi-tenant para cotizaciones con version y totales
+- `quote_number_sequences`: contador interno por tenant y anio para generar numeros `COT-YYYY-######`
 
 ## Estado del security advisor base
 
