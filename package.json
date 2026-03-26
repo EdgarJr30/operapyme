@@ -11,6 +11,9 @@
     "packages/*",
     "tools/*"
   ],
+  "overrides": {
+    "picomatch": "4.0.4"
+  },
   "scripts": {
     "dev:backoffice": "npm run dev --workspace @operapyme/backoffice-pwa --",
     "build:backoffice": "npm run build --workspace @operapyme/backoffice-pwa",
@@ -29,6 +32,6 @@
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
     "jsdom": "^26.1.0",
-    "vitest": "^2.1.9"
+    "vitest": "^4.1.2"
   }
 }
