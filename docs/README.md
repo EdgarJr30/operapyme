@@ -52,6 +52,7 @@ Esta carpeta contiene la documentacion canonica en Markdown para `OperaPyme`.
 
 - `docs/AGENTS.md`
 - `docs/development-setup.md`
+- `docs/notion-information-architecture.md`
 - `docs/project-naming.md`
 - `docs/saas-blueprint.md`
 - `docs/tenant-theming.md`
