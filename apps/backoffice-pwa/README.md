@@ -25,7 +25,7 @@ El `service role key` no vive aqui.
 ## Acceso y bootstrap
 
 - la entrada de fase 2 vive en `/auth`
-- `/auth` usa un layout split editorial con CTA separados para acceso existente y primer ingreso; el formulario de correo se revela despues de elegir el camino
+- `/auth` usa un layout split editorial con un panel de auth fijo y cambio entre acceso existente y primer ingreso desde el mismo panel
 - `/auth/callback` confirma sesiones tanto con `code` como con `token_hash` y devuelve al login si el enlace ya no sirve
 - el primer usuario autenticado pasa por `/setup`
 - el shell principal solo abre cuando ya existe membership activa en un tenant

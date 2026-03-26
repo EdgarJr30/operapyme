@@ -1,5 +1,5 @@
 import React from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import {
   MemoryRouter,
   Route,
@@ -56,19 +56,13 @@ describe("auth page", () => {
       })
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /Inicia sesión/i })
+      screen.getByRole("heading", { name: /Inicia sesión en tu cuenta/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Enviar enlace de acceso/i })
     ).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /Crea tu cuenta/i })
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByRole("button", { name: /Enviar enlace de acceso/i })
-    ).not.toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole("button", { name: /Inicia sesión/i }));
-
-    expect(
-      screen.getByRole("button", { name: /Enviar enlace de acceso/i })
     ).toBeInTheDocument();
   });
 

@@ -495,10 +495,16 @@ const backofficeEn = {
       firstTimeLead: "If this is your first time with OperaPyme:",
       firstTimeCta: "Create your account",
       signinEyebrow: "Existing access",
+      signinPanelTitle: "Sign in to your account",
+      signinSwitchLead: "Do not have access yet?",
+      signinSwitchAction: "Create your account",
       formTitle: "Enter your email to continue",
       signinDescription:
         "We will send an access link to your work email so you can sign in to your account.",
       signupEyebrow: "First session",
+      signupPanelTitle: "Create your account",
+      signupSwitchLead: "Already have access?",
+      signupSwitchAction: "Sign in",
       signupDescription:
         "We will send a link so you can create your access and start setting up your workspace.",
       helper:
