@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/card";
 import { StatusPill } from "@/components/ui/status-pill";
 import type { QuoteStatus, QuoteSummary } from "@/lib/supabase/backoffice-data";
+import { useCustomersData } from "@/modules/crm/use-customers-data";
+import { QuoteOperationsPanel } from "@/modules/quotes/quote-operations-panel";
 import { useQuotesData } from "@/modules/quotes/use-quotes-data";
 
 const flowSteps = [
@@ -43,6 +45,7 @@ export function QuotesPage() {
     isLoading,
     refetch
   } = useQuotesData();
+  const { data: customers = [] } = useCustomersData();
 
   return (
     <div className="space-y-5 lg:space-y-6">
@@ -123,6 +126,8 @@ export function QuotesPage() {
         </Card>
       </section>
 
+      <QuoteOperationsPanel customers={customers} quotes={data ?? []} />
+
       <Card>
         <CardHeader>
           <CardTitle>{t("quotes.list.title")}</CardTitle>
@@ -170,7 +175,9 @@ export function QuotesPage() {
               </Button>
             </div>
           ) : data && data.length > 0 ? (
-            data.map((quote) => <QuoteCard key={quote.id} quote={quote} t={t} />)
+            data
+              .slice(0, 6)
+              .map((quote) => <QuoteCard key={quote.id} quote={quote} t={t} />)
           ) : (
             <div className="rounded-[24px] border border-dashed border-line-strong bg-paper/70 p-5">
               <p className="text-sm font-medium text-ink">

@@ -340,7 +340,10 @@ function CustomerSnapshotCard({
   t: ReturnType<typeof useTranslation<"backoffice">>["t"];
 }) {
   const contactValue =
-    customer.email || customer.whatsapp || t("dashboard.livePulse.contactPending");
+    customer.contactName ||
+    customer.email ||
+    customer.whatsapp ||
+    t("dashboard.livePulse.contactPending");
 
   return (
     <div className="rounded-[24px] border border-line/70 bg-paper/70 p-4">

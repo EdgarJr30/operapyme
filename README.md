@@ -132,6 +132,7 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 - primeras tablas operativas `customers` y `quotes` sembradas con RLS y auditoria
 - hardening SQL aplicado para fijar `search_path` y dejar limpio el security advisor base
 - dashboard, CRM y quotes ya leen datos reales de Supabase en modo read-first
+- CRM y quotes ya pueden crear y actualizar registros reales dentro del tenant activo
 - rutas `/admin/*` reservadas para auditoria y errores globales
 
 ### Como correr el proyecto

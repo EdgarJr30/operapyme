@@ -79,8 +79,13 @@ describe("dashboard page", () => {
             id: "customer-1",
             customerCode: "CLI-001",
             displayName: "Northline Industrial",
+            contactName: "Andrea Castillo",
+            legalName: null,
             email: "sales@northline.test",
             whatsapp: null,
+            phone: null,
+            documentId: null,
+            notes: null,
             source: "manual",
             status: "active",
             updatedAt: "2026-03-26T00:00:00.000Z"
@@ -89,12 +94,19 @@ describe("dashboard page", () => {
         recentQuotes: [
           {
             id: "quote-1",
+            customerId: "customer-1",
             quoteNumber: "COT-2026-000210",
             title: "Propuesta Northline",
             customerName: "Northline Industrial",
             currencyCode: "USD",
+            subtotal: 12000,
+            discountTotal: 200,
+            taxTotal: 1040,
             grandTotal: 12840,
             status: "sent",
+            version: 1,
+            validUntil: null,
+            notes: null,
             updatedAt: "2026-03-26T00:00:00.000Z"
           }
         ]

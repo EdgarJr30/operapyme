@@ -12,6 +12,9 @@ const phaseTwoMigrationPath = path.resolve(
 const hardeningMigrationPath = path.resolve(
   "supabase/migrations/202603260002_harden_function_search_paths.sql"
 );
+const customerContactMigrationPath = path.resolve(
+  "supabase/migrations/202603260003_add_customer_contact_name.sql"
+);
 
 describe("supabase foundation contracts", () => {
   it("creates the required secure foundation tables", () => {
@@ -71,5 +74,12 @@ describe("supabase foundation contracts", () => {
     );
     expect(migration).toContain("set search_path = public, auth");
     expect(migration).toContain("set search_path = public");
+  });
+
+  it("extends customers with contact_name for crm capture flows", () => {
+    const migration = fs.readFileSync(customerContactMigrationPath, "utf8");
+
+    expect(migration).toContain("alter table public.customers");
+    expect(migration).toContain("add column if not exists contact_name text");
   });
 });

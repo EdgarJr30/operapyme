@@ -193,6 +193,63 @@ const backofficeEs = {
       responseTimeText:
         "Buena UX aqui no es algo cosmetico. Impacta de forma directa la velocidad de cotizacion y la conversion."
     },
+    customerForm: {
+      createTitle: "Crear cliente real",
+      createDescription:
+        "Este formulario ya escribe en `customers` usando el tenant activo y las politicas RLS.",
+      updateTitle: "Actualizar cliente existente",
+      updateDescription:
+        "Usa esta superficie para mantener datos operativos reales sin salir del modulo CRM.",
+      createAction: "Guardar cliente",
+      createSubmitting: "Guardando cliente...",
+      updateAction: "Actualizar cliente",
+      updateSubmitting: "Actualizando cliente...",
+      resetAction: "Limpiar formulario",
+      createSuccess: "Cliente creado correctamente.",
+      createError: "No pudimos crear el cliente. {{message}}",
+      updateSuccess: "Cliente actualizado correctamente.",
+      updateError: "No pudimos actualizar el cliente. {{message}}",
+      noCustomerSelected: "Selecciona un cliente antes de intentar actualizarlo.",
+      recordLabel: "Cliente a actualizar",
+      noCustomersOption: "No hay clientes todavia",
+      noCustomersHint:
+        "Primero crea un cliente real para habilitar el flujo de actualizacion.",
+      customerCodeLabel: "Codigo interno",
+      customerCodePlaceholder: "CLI-001",
+      displayNameLabel: "Nombre visible",
+      displayNamePlaceholder: "Northline Industrial",
+      contactNameLabel: "Contacto principal",
+      contactNamePlaceholder: "Andrea Castillo",
+      legalNameLabel: "Nombre legal",
+      legalNamePlaceholder: "Northline Industrial SRL",
+      emailLabel: "Correo",
+      emailPlaceholder: "andrea@northline.test",
+      whatsappLabel: "WhatsApp",
+      whatsappPlaceholder: "+1 809 555 0186",
+      phoneLabel: "Telefono alterno",
+      phonePlaceholder: "+1 809 555 0140",
+      documentIdLabel: "Documento o RNC",
+      documentIdPlaceholder: "101-5555555-1",
+      sourceLabel: "Origen",
+      statusLabel: "Estado",
+      notesLabel: "Notas operativas",
+      notesPlaceholder:
+        "Contexto comercial, necesidades recurrentes o detalles relevantes para seguimiento.",
+      validation: {
+        customerCodeMax: "Mantener el codigo por debajo de 40 caracteres.",
+        displayNameMin: "Ingresa el nombre visible del cliente.",
+        displayNameMax: "Mantener el nombre visible por debajo de 120 caracteres.",
+        contactNameMin: "Ingresa el contacto principal.",
+        contactNameMax: "Mantener el contacto por debajo de 120 caracteres.",
+        legalNameMax: "Mantener el nombre legal por debajo de 160 caracteres.",
+        email: "Ingresa un correo valido o deja el campo vacio.",
+        emailMax: "Mantener el correo por debajo de 120 caracteres.",
+        whatsappMax: "Mantener el WhatsApp por debajo de 30 caracteres.",
+        phoneMax: "Mantener el telefono por debajo de 30 caracteres.",
+        documentIdMax: "Mantener el documento por debajo de 60 caracteres.",
+        notesMax: "Mantener las notas por debajo de 500 caracteres."
+      }
+    },
     validation: {
       companyMin: "Ingresa el nombre de la empresa o negocio.",
       companyMax: "Mantener el nombre de la empresa por debajo de 120 caracteres.",
@@ -295,6 +352,60 @@ const backofficeEs = {
         "Versionado, numeracion y visibilidad de aprobaciones son no negociables.",
       publicLinks:
         "Los enlaces publicos y estados de aceptacion deben sentirse simples para el cliente."
+    },
+    form: {
+      createTitle: "Crear cotizacion real",
+      createDescription:
+        "Esta superficie ya crea borradores reales en `quotes` y refresca el dashboard al guardar.",
+      updateTitle: "Actualizar cotizacion existente",
+      updateDescription:
+        "Edita una cotizacion real del tenant activo sin romper el contexto protegido por RLS.",
+      createAction: "Guardar cotizacion",
+      createSubmitting: "Guardando cotizacion...",
+      updateAction: "Actualizar cotizacion",
+      updateSubmitting: "Actualizando cotizacion...",
+      resetAction: "Limpiar formulario",
+      createSuccess: "Cotizacion creada correctamente.",
+      createError: "No pudimos crear la cotizacion. {{message}}",
+      updateSuccess: "Cotizacion actualizada correctamente.",
+      updateError: "No pudimos actualizar la cotizacion. {{message}}",
+      noQuoteSelected: "Selecciona una cotizacion antes de intentar actualizarla.",
+      needCustomerHint:
+        "Necesitas al menos un cliente real antes de emitir una cotizacion operativa.",
+      recordLabel: "Cotizacion a actualizar",
+      noQuotesOption: "No hay cotizaciones todavia",
+      noQuotesHint:
+        "Crea una cotizacion real para habilitar el flujo de actualizacion.",
+      versionHint: "La siguiente actualizacion incrementara la version desde v{{version}}.",
+      customerLabel: "Cliente",
+      customerPlaceholder: "Selecciona un cliente",
+      quoteNumberLabel: "Numero de cotizacion",
+      quoteNumberPlaceholder: "COT-2026-000210",
+      titleLabel: "Titulo",
+      titlePlaceholder: "Propuesta de equipos y soporte",
+      statusLabel: "Estado",
+      currencyCodeLabel: "Moneda",
+      currencyCodePlaceholder: "USD",
+      validUntilLabel: "Valida hasta",
+      subtotalLabel: "Subtotal",
+      discountTotalLabel: "Descuento",
+      taxTotalLabel: "Impuestos",
+      grandTotalLabel: "Total calculado",
+      notesLabel: "Notas",
+      notesPlaceholder:
+        "Terminos comerciales, condiciones de entrega o aclaraciones internas.",
+      validation: {
+        customerRequired: "Selecciona un cliente antes de guardar.",
+        quoteNumberMin: "Ingresa un numero de cotizacion valido.",
+        quoteNumberMax: "Mantener el numero por debajo de 40 caracteres.",
+        titleMin: "Ingresa un titulo para la cotizacion.",
+        titleMax: "Mantener el titulo por debajo de 160 caracteres.",
+        currencyCode: "Usa un codigo de moneda de 3 letras.",
+        subtotal: "El subtotal no puede ser negativo.",
+        discountTotal: "El descuento no puede ser negativo.",
+        taxTotal: "Los impuestos no pueden ser negativos.",
+        notesMax: "Mantener las notas por debajo de 500 caracteres."
+      }
     },
     list: {
       title: "Lista de cotizaciones reales",

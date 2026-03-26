@@ -8,11 +8,20 @@ import { setupBackofficeI18n } from "@/app/i18n";
 import { QuotesPage } from "@/modules/quotes/quotes-page";
 
 const quotesMocks = vi.hoisted(() => ({
-  useQuotesData: vi.fn()
+  useQuotesData: vi.fn(),
+  useCustomersData: vi.fn()
 }));
 
 vi.mock("@/modules/quotes/use-quotes-data", () => ({
   useQuotesData: quotesMocks.useQuotesData
+}));
+
+vi.mock("@/modules/crm/use-customers-data", () => ({
+  useCustomersData: quotesMocks.useCustomersData
+}));
+
+vi.mock("@/modules/quotes/quote-operations-panel", () => ({
+  QuoteOperationsPanel: () => <div>Quote operations stub</div>
 }));
 
 function renderPage() {
@@ -35,6 +44,14 @@ describe("quotes page", () => {
       isLoading: false,
       refetch: vi.fn()
     });
+    quotesMocks.useCustomersData.mockReturnValue({
+      data: [],
+      error: null,
+      hasTenantContext: true,
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn()
+    });
 
     renderPage();
 
@@ -45,6 +62,14 @@ describe("quotes page", () => {
 
   it("shows an empty state when the tenant still has no quotes", async () => {
     quotesMocks.useQuotesData.mockReturnValue({
+      data: [],
+      error: null,
+      hasTenantContext: true,
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn()
+    });
+    quotesMocks.useCustomersData.mockReturnValue({
       data: [],
       error: null,
       hasTenantContext: true,
@@ -71,6 +96,30 @@ describe("quotes page", () => {
           currencyCode: "USD",
           grandTotal: 12840,
           status: "sent",
+          updatedAt: "2026-03-26T00:00:00.000Z"
+        }
+      ],
+      error: null,
+      hasTenantContext: true,
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn()
+    });
+    quotesMocks.useCustomersData.mockReturnValue({
+      data: [
+        {
+          id: "customer-1",
+          customerCode: "CLI-001",
+          displayName: "Northline Industrial",
+          contactName: "Andrea Castillo",
+          legalName: null,
+          email: "sales@northline.test",
+          whatsapp: null,
+          phone: null,
+          documentId: null,
+          notes: null,
+          source: "manual",
+          status: "active",
           updatedAt: "2026-03-26T00:00:00.000Z"
         }
       ],

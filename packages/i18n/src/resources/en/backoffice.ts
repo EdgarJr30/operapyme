@@ -193,6 +193,63 @@ const backofficeEn = {
       responseTimeText:
         "Good UX here is not cosmetic. It directly affects quote speed and conversion."
     },
+    customerForm: {
+      createTitle: "Create live customer",
+      createDescription:
+        "This form now writes into `customers` using the active tenant and RLS policies.",
+      updateTitle: "Update existing customer",
+      updateDescription:
+        "Use this surface to keep live operational data current without leaving the CRM module.",
+      createAction: "Save customer",
+      createSubmitting: "Saving customer...",
+      updateAction: "Update customer",
+      updateSubmitting: "Updating customer...",
+      resetAction: "Clear form",
+      createSuccess: "Customer created successfully.",
+      createError: "We could not create the customer. {{message}}",
+      updateSuccess: "Customer updated successfully.",
+      updateError: "We could not update the customer. {{message}}",
+      noCustomerSelected: "Select a customer before trying to update it.",
+      recordLabel: "Customer to update",
+      noCustomersOption: "There are no customers yet",
+      noCustomersHint:
+        "Create a live customer first to unlock the update flow.",
+      customerCodeLabel: "Internal code",
+      customerCodePlaceholder: "CLI-001",
+      displayNameLabel: "Display name",
+      displayNamePlaceholder: "Northline Industrial",
+      contactNameLabel: "Primary contact",
+      contactNamePlaceholder: "Andrea Castillo",
+      legalNameLabel: "Legal name",
+      legalNamePlaceholder: "Northline Industrial LLC",
+      emailLabel: "Email",
+      emailPlaceholder: "andrea@northline.test",
+      whatsappLabel: "WhatsApp",
+      whatsappPlaceholder: "+1 809 555 0186",
+      phoneLabel: "Alternate phone",
+      phonePlaceholder: "+1 809 555 0140",
+      documentIdLabel: "Document or tax id",
+      documentIdPlaceholder: "101-5555555-1",
+      sourceLabel: "Source",
+      statusLabel: "Status",
+      notesLabel: "Operational notes",
+      notesPlaceholder:
+        "Commercial context, recurring needs, or important follow-up details.",
+      validation: {
+        customerCodeMax: "Keep the code under 40 characters.",
+        displayNameMin: "Enter the customer display name.",
+        displayNameMax: "Keep the display name under 120 characters.",
+        contactNameMin: "Enter the primary contact.",
+        contactNameMax: "Keep the contact under 120 characters.",
+        legalNameMax: "Keep the legal name under 160 characters.",
+        email: "Enter a valid email or leave the field empty.",
+        emailMax: "Keep the email under 120 characters.",
+        whatsappMax: "Keep the WhatsApp number under 30 characters.",
+        phoneMax: "Keep the phone number under 30 characters.",
+        documentIdMax: "Keep the document under 60 characters.",
+        notesMax: "Keep the notes under 500 characters."
+      }
+    },
     validation: {
       companyMin: "Enter the company or business name.",
       companyMax: "Keep the company name under 120 characters.",
@@ -295,6 +352,60 @@ const backofficeEn = {
         "Versioning, numbering, and approval visibility are non-negotiable.",
       publicLinks:
         "Public quote links and acceptance states should feel simple for the customer too."
+    },
+    form: {
+      createTitle: "Create live quote",
+      createDescription:
+        "This surface now creates live rows in `quotes` and refreshes the dashboard after save.",
+      updateTitle: "Update existing quote",
+      updateDescription:
+        "Edit a live quote for the active tenant while keeping the RLS-protected context intact.",
+      createAction: "Save quote",
+      createSubmitting: "Saving quote...",
+      updateAction: "Update quote",
+      updateSubmitting: "Updating quote...",
+      resetAction: "Clear form",
+      createSuccess: "Quote created successfully.",
+      createError: "We could not create the quote. {{message}}",
+      updateSuccess: "Quote updated successfully.",
+      updateError: "We could not update the quote. {{message}}",
+      noQuoteSelected: "Select a quote before trying to update it.",
+      needCustomerHint:
+        "You need at least one live customer before creating an operational quote.",
+      recordLabel: "Quote to update",
+      noQuotesOption: "There are no quotes yet",
+      noQuotesHint:
+        "Create a live quote first to unlock the update flow.",
+      versionHint: "The next update will bump the version from v{{version}}.",
+      customerLabel: "Customer",
+      customerPlaceholder: "Select a customer",
+      quoteNumberLabel: "Quote number",
+      quoteNumberPlaceholder: "COT-2026-000210",
+      titleLabel: "Title",
+      titlePlaceholder: "Equipment and support proposal",
+      statusLabel: "Status",
+      currencyCodeLabel: "Currency",
+      currencyCodePlaceholder: "USD",
+      validUntilLabel: "Valid until",
+      subtotalLabel: "Subtotal",
+      discountTotalLabel: "Discount",
+      taxTotalLabel: "Tax",
+      grandTotalLabel: "Calculated total",
+      notesLabel: "Notes",
+      notesPlaceholder:
+        "Commercial terms, delivery conditions, or internal clarifications.",
+      validation: {
+        customerRequired: "Select a customer before saving.",
+        quoteNumberMin: "Enter a valid quote number.",
+        quoteNumberMax: "Keep the number under 40 characters.",
+        titleMin: "Enter a title for the quote.",
+        titleMax: "Keep the title under 160 characters.",
+        currencyCode: "Use a 3-letter currency code.",
+        subtotal: "Subtotal cannot be negative.",
+        discountTotal: "Discount cannot be negative.",
+        taxTotal: "Tax cannot be negative.",
+        notesMax: "Keep the notes under 500 characters."
+      }
     },
     list: {
       title: "Live quote list",

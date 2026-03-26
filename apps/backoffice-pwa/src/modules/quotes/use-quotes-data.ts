@@ -8,7 +8,7 @@ export function useQuotesData() {
 
   const query = useQuery({
     queryKey: ["quotes", activeTenantId],
-    queryFn: () => listQuotesForTenant(activeTenantId ?? "", 6),
+    queryFn: () => listQuotesForTenant(activeTenantId ?? "", 25),
     enabled: Boolean(
       isConfigured && status === "signed_in" && activeTenantId
     )

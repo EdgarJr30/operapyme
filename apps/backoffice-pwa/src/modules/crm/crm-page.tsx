@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/card";
 import { StatusPill } from "@/components/ui/status-pill";
 import type { CustomerSummary } from "@/lib/supabase/backoffice-data";
-import { LeadIntakeForm } from "@/modules/crm/lead-intake-form";
+import { CustomerOperationsPanel } from "@/modules/crm/customer-operations-panel";
 import { useCustomersData } from "@/modules/crm/use-customers-data";
 
 const operatingRules = [
@@ -58,7 +58,7 @@ export function CrmPage() {
         </p>
       </section>
 
-      <LeadIntakeForm />
+      <CustomerOperationsPanel customers={data ?? []} />
 
       <section className="grid gap-4 lg:grid-cols-[1fr_1fr]">
         <Card>
@@ -109,7 +109,7 @@ export function CrmPage() {
               </div>
             ) : data && data.length > 0 ? (
               <div className="space-y-3">
-                {data.map((customer) => (
+                {data.slice(0, 6).map((customer) => (
                   <CustomerCard key={customer.id} customer={customer} t={t} />
                 ))}
               </div>
@@ -162,7 +162,10 @@ function CustomerCard({
   t: ReturnType<typeof useTranslation<"backoffice">>["t"];
 }) {
   const contactValue =
-    customer.email || customer.whatsapp || t("crm.recent.contactPending");
+    customer.contactName ||
+    customer.email ||
+    customer.whatsapp ||
+    t("crm.recent.contactPending");
 
   return (
     <div className="rounded-[24px] border border-line/70 bg-paper/70 p-4">

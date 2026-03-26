@@ -8,7 +8,7 @@ export function useCustomersData() {
 
   const query = useQuery({
     queryKey: ["customers", activeTenantId],
-    queryFn: () => listCustomersForTenant(activeTenantId ?? "", 6),
+    queryFn: () => listCustomersForTenant(activeTenantId ?? "", 25),
     enabled: Boolean(
       isConfigured && status === "signed_in" && activeTenantId
     )
@@ -19,4 +19,3 @@ export function useCustomersData() {
     hasTenantContext: Boolean(activeTenantId)
   };
 }
-

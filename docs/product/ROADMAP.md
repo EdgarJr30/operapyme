@@ -17,6 +17,7 @@
 - cotizaciones y proformas
 - gastos y deudas
 - lectura real de dashboard, CRM y quotes sobre Supabase antes de ampliar mutaciones
+- create/update real de `customers` y `quotes` ya sembrado en el backoffice
 
 ## Fase 3: Control operativo
 

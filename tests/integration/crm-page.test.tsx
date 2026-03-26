@@ -15,8 +15,8 @@ vi.mock("@/modules/crm/use-customers-data", () => ({
   useCustomersData: crmMocks.useCustomersData
 }));
 
-vi.mock("@/modules/crm/lead-intake-form", () => ({
-  LeadIntakeForm: () => <div>Lead intake stub</div>
+vi.mock("@/modules/crm/customer-operations-panel", () => ({
+  CustomerOperationsPanel: () => <div>Customer operations stub</div>
 }));
 
 function renderPage() {
@@ -71,8 +71,13 @@ describe("crm page", () => {
           id: "customer-1",
           customerCode: "CLI-001",
           displayName: "Northline Industrial",
+          contactName: "Andrea Castillo",
+          legalName: null,
           email: "sales@northline.test",
           whatsapp: null,
+          phone: null,
+          documentId: null,
+          notes: null,
           source: "manual",
           status: "active",
           updatedAt: "2026-03-26T00:00:00.000Z"
