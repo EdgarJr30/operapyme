@@ -13,10 +13,13 @@ vi.mock("@/lib/supabase/client", () => ({
 }));
 
 import {
+  createCatalogItem,
   createCustomer,
   createQuote,
   getDashboardSnapshot,
+  listCatalogItemsForTenant,
   listCustomersForTenant,
+  updateCatalogItem,
   updateQuote
 } from "@/lib/supabase/backoffice-data";
 
@@ -89,6 +92,54 @@ describe("backoffice data access", () => {
         notes: "Cliente clave",
         source: "manual",
         status: "active",
+        updatedAt: "2026-03-26T00:00:00.000Z"
+      }
+    ]);
+  });
+
+  it("maps live catalog items for the active tenant", async () => {
+    const catalogQuery = createThenableBuilder({
+      data: [
+        {
+          id: "item-1",
+          item_code: "CAT-001",
+          name: "Kit de mantenimiento preventivo",
+          description: "Visita y repuestos base",
+          category: "Servicios tecnicos",
+          kind: "service",
+          visibility: "private",
+          pricing_mode: "on_request",
+          currency_code: "USD",
+          unit_price: null,
+          status: "active",
+          notes: "Incluye visita inicial",
+          updated_at: "2026-03-26T00:00:00.000Z"
+        }
+      ],
+      error: null
+    });
+
+    supabaseMocks.from.mockReturnValueOnce(catalogQuery);
+
+    const items = await listCatalogItemsForTenant("tenant-1", 10);
+
+    expect(supabaseMocks.from).toHaveBeenCalledWith("catalog_items");
+    expect(catalogQuery.eq).toHaveBeenCalledWith("tenant_id", "tenant-1");
+    expect(catalogQuery.limit).toHaveBeenCalledWith(10);
+    expect(items).toEqual([
+      {
+        id: "item-1",
+        itemCode: "CAT-001",
+        name: "Kit de mantenimiento preventivo",
+        description: "Visita y repuestos base",
+        category: "Servicios tecnicos",
+        kind: "service",
+        visibility: "private",
+        pricingMode: "on_request",
+        currencyCode: "USD",
+        unitPrice: null,
+        status: "active",
+        notes: "Incluye visita inicial",
         updatedAt: "2026-03-26T00:00:00.000Z"
       }
     ]);
@@ -248,6 +299,114 @@ describe("backoffice data access", () => {
       status: "active",
       notes: null
     });
+  });
+
+  it("normalizes catalog optional fields before inserting them", async () => {
+    const catalogInsertQuery = createThenableBuilder({
+      data: {
+        id: "item-1",
+        item_code: null,
+        name: "Kit de mantenimiento preventivo",
+        description: null,
+        category: null,
+        kind: "service",
+        visibility: "private",
+        pricing_mode: "on_request",
+        currency_code: "USD",
+        unit_price: null,
+        status: "active",
+        notes: null,
+        updated_at: "2026-03-26T00:00:00.000Z"
+      },
+      error: null
+    });
+
+    supabaseMocks.from.mockReturnValueOnce(catalogInsertQuery);
+
+    await createCatalogItem({
+      tenantId: "tenant-1",
+      itemCode: "   ",
+      name: "  Kit de mantenimiento preventivo  ",
+      description: " ",
+      category: "",
+      kind: "service",
+      visibility: "private",
+      pricingMode: "on_request",
+      currencyCode: " usd ",
+      unitPrice: 1890,
+      status: "active",
+      notes: ""
+    });
+
+    expect(catalogInsertQuery.insert).toHaveBeenCalledWith({
+      tenant_id: "tenant-1",
+      item_code: null,
+      name: "Kit de mantenimiento preventivo",
+      description: null,
+      category: null,
+      kind: "service",
+      visibility: "private",
+      pricing_mode: "on_request",
+      currency_code: "USD",
+      unit_price: null,
+      status: "active",
+      notes: null
+    });
+  });
+
+  it("updates catalog items with normalized payloads", async () => {
+    const catalogUpdateQuery = createThenableBuilder({
+      data: {
+        id: "item-1",
+        item_code: "CAT-001",
+        name: "Kit enterprise",
+        description: "Cobertura extendida",
+        category: "Servicios tecnicos",
+        kind: "service",
+        visibility: "public",
+        pricing_mode: "fixed",
+        currency_code: "USD",
+        unit_price: "2490.00",
+        status: "draft",
+        notes: null,
+        updated_at: "2026-03-26T00:00:00.000Z"
+      },
+      error: null
+    });
+
+    supabaseMocks.from.mockReturnValueOnce(catalogUpdateQuery);
+
+    await updateCatalogItem({
+      tenantId: "tenant-1",
+      itemId: "item-1",
+      itemCode: " CAT-001 ",
+      name: "  Kit enterprise  ",
+      description: "  Cobertura extendida ",
+      category: " Servicios tecnicos ",
+      kind: "service",
+      visibility: "public",
+      pricingMode: "fixed",
+      currencyCode: " usd ",
+      unitPrice: 2490,
+      status: "draft",
+      notes: " "
+    });
+
+    expect(catalogUpdateQuery.update).toHaveBeenCalledWith({
+      item_code: "CAT-001",
+      name: "Kit enterprise",
+      description: "Cobertura extendida",
+      category: "Servicios tecnicos",
+      kind: "service",
+      visibility: "public",
+      pricing_mode: "fixed",
+      currency_code: "USD",
+      unit_price: 2490,
+      status: "draft",
+      notes: null
+    });
+    expect(catalogUpdateQuery.eq).toHaveBeenNthCalledWith(1, "tenant_id", "tenant-1");
+    expect(catalogUpdateQuery.eq).toHaveBeenNthCalledWith(2, "id", "item-1");
   });
 
   it("creates quotes through the database RPC and fetches the persisted record", async () => {

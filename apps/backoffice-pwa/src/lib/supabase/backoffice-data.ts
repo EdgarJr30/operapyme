@@ -3,6 +3,10 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase/client";
 
 export type CustomerStatus = "active" | "inactive" | "archived";
+export type CatalogItemStatus = "active" | "draft" | "archived";
+export type CatalogItemKind = "product" | "service";
+export type CatalogItemVisibility = "public" | "private";
+export type CatalogItemPricingMode = "fixed" | "on_request";
 export type QuoteStatus =
   | "draft"
   | "sent"
@@ -24,6 +28,22 @@ export interface CustomerSummary {
   notes: string | null;
   source: string;
   status: CustomerStatus;
+  updatedAt: string;
+}
+
+export interface CatalogItemSummary {
+  id: string;
+  itemCode: string | null;
+  name: string;
+  description: string | null;
+  category: string | null;
+  kind: CatalogItemKind;
+  visibility: CatalogItemVisibility;
+  pricingMode: CatalogItemPricingMode;
+  currencyCode: string;
+  unitPrice: number | null;
+  status: CatalogItemStatus;
+  notes: string | null;
   updatedAt: string;
 }
 
@@ -96,6 +116,22 @@ interface RawQuoteRow {
   customer: RawQuoteCustomer | RawQuoteCustomer[] | null;
 }
 
+interface RawCatalogItemRow {
+  id: string;
+  item_code: string | null;
+  name: string;
+  description: string | null;
+  category: string | null;
+  kind: CatalogItemKind;
+  visibility: CatalogItemVisibility;
+  pricing_mode: CatalogItemPricingMode;
+  currency_code: string;
+  unit_price: number | string | null;
+  status: CatalogItemStatus;
+  notes: string | null;
+  updated_at: string;
+}
+
 export interface CreateCustomerInput {
   tenantId: string;
   customerCode?: string | null;
@@ -125,6 +161,25 @@ export interface UpdateCustomerInput {
   source: string;
   status: CustomerStatus;
   notes?: string | null;
+}
+
+export interface CreateCatalogItemInput {
+  tenantId: string;
+  itemCode?: string | null;
+  name: string;
+  description?: string | null;
+  category?: string | null;
+  kind: CatalogItemKind;
+  visibility: CatalogItemVisibility;
+  pricingMode: CatalogItemPricingMode;
+  currencyCode: string;
+  unitPrice?: number | null;
+  status: CatalogItemStatus;
+  notes?: string | null;
+}
+
+export interface UpdateCatalogItemInput extends CreateCatalogItemInput {
+  itemId: string;
 }
 
 export interface CreateQuoteInput {
@@ -183,6 +238,24 @@ function mapCustomer(row: RawCustomerRow): CustomerSummary {
   };
 }
 
+function mapCatalogItem(row: RawCatalogItemRow): CatalogItemSummary {
+  return {
+    id: row.id,
+    itemCode: row.item_code,
+    name: row.name,
+    description: row.description,
+    category: row.category,
+    kind: row.kind,
+    visibility: row.visibility,
+    pricingMode: row.pricing_mode,
+    currencyCode: row.currency_code,
+    unitPrice: row.unit_price === null ? null : Number(row.unit_price),
+    status: row.status,
+    notes: row.notes,
+    updatedAt: row.updated_at
+  };
+}
+
 function mapQuote(row: RawQuoteRow): QuoteSummary {
   return {
     id: row.id,
@@ -222,6 +295,27 @@ export async function listCustomersForTenant(
   }
 
   return ((data ?? []) as RawCustomerRow[]).map(mapCustomer);
+}
+
+export async function listCatalogItemsForTenant(
+  tenantId: string,
+  limit = 25
+): Promise<CatalogItemSummary[]> {
+  const client = requireSupabaseClient();
+  const { data, error } = await client
+    .from("catalog_items")
+    .select(
+      "id, item_code, name, description, category, kind, visibility, pricing_mode, currency_code, unit_price, status, notes, updated_at"
+    )
+    .eq("tenant_id", tenantId)
+    .order("updated_at", { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return ((data ?? []) as RawCatalogItemRow[]).map(mapCatalogItem);
 }
 
 export async function listQuotesForTenant(
@@ -307,6 +401,17 @@ function normalizeOptionalValue(value: string | null | undefined) {
   return nextValue ? nextValue : null;
 }
 
+function normalizeCatalogPrice(
+  pricingMode: CatalogItemPricingMode,
+  unitPrice: number | null | undefined
+) {
+  if (pricingMode === "on_request") {
+    return null;
+  }
+
+  return typeof unitPrice === "number" ? unitPrice : 0;
+}
+
 export async function createCustomer(input: CreateCustomerInput) {
   const client = requireSupabaseClient();
   const payload = {
@@ -337,6 +442,38 @@ export async function createCustomer(input: CreateCustomerInput) {
   }
 
   return mapCustomer(data as RawCustomerRow);
+}
+
+export async function createCatalogItem(input: CreateCatalogItemInput) {
+  const client = requireSupabaseClient();
+  const payload = {
+    tenant_id: input.tenantId,
+    item_code: normalizeOptionalValue(input.itemCode),
+    name: input.name.trim(),
+    description: normalizeOptionalValue(input.description),
+    category: normalizeOptionalValue(input.category),
+    kind: input.kind,
+    visibility: input.visibility,
+    pricing_mode: input.pricingMode,
+    currency_code: input.currencyCode.trim().toUpperCase(),
+    unit_price: normalizeCatalogPrice(input.pricingMode, input.unitPrice),
+    status: input.status,
+    notes: normalizeOptionalValue(input.notes)
+  };
+
+  const { data, error } = await client
+    .from("catalog_items")
+    .insert(payload)
+    .select(
+      "id, item_code, name, description, category, kind, visibility, pricing_mode, currency_code, unit_price, status, notes, updated_at"
+    )
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return mapCatalogItem(data as RawCatalogItemRow);
 }
 
 export async function updateCustomer(input: UpdateCustomerInput) {
@@ -370,6 +507,39 @@ export async function updateCustomer(input: UpdateCustomerInput) {
   }
 
   return mapCustomer(data as RawCustomerRow);
+}
+
+export async function updateCatalogItem(input: UpdateCatalogItemInput) {
+  const client = requireSupabaseClient();
+  const payload = {
+    item_code: normalizeOptionalValue(input.itemCode),
+    name: input.name.trim(),
+    description: normalizeOptionalValue(input.description),
+    category: normalizeOptionalValue(input.category),
+    kind: input.kind,
+    visibility: input.visibility,
+    pricing_mode: input.pricingMode,
+    currency_code: input.currencyCode.trim().toUpperCase(),
+    unit_price: normalizeCatalogPrice(input.pricingMode, input.unitPrice),
+    status: input.status,
+    notes: normalizeOptionalValue(input.notes)
+  };
+
+  const { data, error } = await client
+    .from("catalog_items")
+    .update(payload)
+    .eq("tenant_id", input.tenantId)
+    .eq("id", input.itemId)
+    .select(
+      "id, item_code, name, description, category, kind, visibility, pricing_mode, currency_code, unit_price, status, notes, updated_at"
+    )
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return mapCatalogItem(data as RawCatalogItemRow);
 }
 
 export async function createQuote(input: CreateQuoteInput) {

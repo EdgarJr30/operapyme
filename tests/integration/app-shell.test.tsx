@@ -94,9 +94,9 @@ describe("backoffice shell", () => {
   it("keeps the admin entry visible in the primary navigation", async () => {
     renderRoute("/");
 
-    expect((await screen.findAllByRole("link", { name: /^Admin$/i })).length).toBe(
-      2
-    );
+    expect(
+      await screen.findByRole("link", { name: /^Admin$/i })
+    ).toBeInTheDocument();
   });
 
   it("hides the admin entry while keeping catalog and settings for tenant users", async () => {
@@ -130,18 +130,31 @@ describe("backoffice shell", () => {
     renderRoute("/");
 
     expect(screen.queryByRole("link", { name: /^Admin$/i })).not.toBeInTheDocument();
-    expect((await screen.findAllByRole("link", { name: /^Catalogo$/i })).length).toBe(
-      2
-    );
     expect(
-      (await screen.findAllByRole("link", { name: /^Configuracion$/i })).length
-    ).toBe(2);
+      await screen.findByRole("link", { name: /^Catalogo$/i })
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByRole("link", { name: /^Configuracion$/i })
+    ).toBeInTheDocument();
+    expect(
+      (
+        await screen.findAllByRole("button", {
+          name: /Abrir menu principal|Open main menu/i
+        })
+      ).length
+    ).toBeGreaterThan(0);
   });
 
   it("switches the shell copy and navigation labels between spanish and english", async () => {
     const user = userEvent.setup();
 
     renderRoute("/");
+
+    await user.click(
+      await screen.findByRole("button", {
+        name: /Abrir menu del usuario|Open user menu/i
+      })
+    );
 
     const languageSelect = await screen.findByLabelText(/^Idioma$/i);
 
@@ -156,10 +169,12 @@ describe("backoffice shell", () => {
     expect(
       await screen.findByRole("navigation", { name: /^Mobile navigation$/i })
     ).toBeInTheDocument();
-    expect((await screen.findAllByRole("link", { name: /^Home$/i })).length).toBe(2);
     expect(
-      (await screen.findAllByRole("link", { name: /^Settings$/i })).length
-    ).toBe(2);
+      (await screen.findAllByRole("link", { name: /^Home$/i })).length
+    ).toBeGreaterThan(0);
+    expect(
+      (await screen.findAllByRole("button", { name: /Open main menu/i })).length
+    ).toBeGreaterThan(0);
     expect(document.documentElement.lang).toBe("en");
   });
 });

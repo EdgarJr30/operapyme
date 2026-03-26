@@ -131,9 +131,10 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 - auth del backoffice sembrado con magic link
 - bootstrap inicial de tenant sembrado con membership `tenant_owner`
 - primeras tablas operativas `customers` y `quotes` sembradas con RLS y auditoria
+- tabla operativa `catalog_items` sembrada con RLS, auditoria y reglas base de precios por tenant
 - hardening SQL aplicado para fijar `search_path` y dejar limpio el security advisor base
-- dashboard, CRM y quotes ya leen datos reales de Supabase en modo read-first
-- CRM y quotes ya pueden crear y actualizar registros reales dentro del tenant activo
+- dashboard, CRM, catalogo y quotes ya leen datos reales de Supabase en modo read-first
+- CRM, catalogo y quotes ya pueden crear y actualizar registros reales dentro del tenant activo
 - rutas `/admin/*` reservadas para auditoria y errores globales
 
 ### Como correr el proyecto
@@ -155,6 +156,13 @@ Flujo funcional actual:
 4. entrar por `/auth`
 5. completar `/setup` si el usuario aun no tiene tenant
 6. si el callback llega con `code` o con `token_hash` valido, el backoffice confirma la sesion y vuelve a `/auth` cuando el enlace ya no sirve o viene incompleto
+
+Modulos operativos activos hoy:
+
+- `dashboard`: snapshot comercial con datos reales del tenant
+- `crm`: clientes reales con create/update
+- `catalog`: items comerciales reales con create/update, visibilidad, pricing mode y estados base
+- `quotes`: cotizaciones reales con numeracion y versionado delegados a Supabase
 
 Backoffice por defecto:
 
@@ -203,6 +211,7 @@ Para variables backend u operativas de Supabase, usar `supabase/.env.example` co
 - `RBAC first`, `RLS first` y `audit first` son obligatorios desde la base.
 - Toda tabla expuesta debe nacer con tracking de actor y timestamps.
 - El admin global es la unica superficie con acceso completo a auditoria en fase 1.
+- `catalog_items` sigue deliberadamente fuera de inventario y stock; en esta fase solo modela oferta comercial reusable para cotizaciones.
 - El `stress-harness` vive como herramienta separada del backoffice y no debe usarse contra produccion por defecto.
 
 ### Internacionalizacion

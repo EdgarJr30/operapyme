@@ -33,9 +33,10 @@ El `service role key` no vive aqui.
 - el cambio de tenant vive en el shell para mantener el contexto multi-tenant visible en toda la operacion
 - la navegacion movil deja los modulos principales en tabs inferiores y mueve configuracion o admin al menu extendido
 - la auditoria global sigue reservada para `global_admin`
-- `dashboard`, `crm` y `quotes` ya consumen lecturas reales desde Supabase con React Query
-- `crm` y `quotes` ya incluyen formularios reales de create/update sobre `customers` y `quotes`
+- `dashboard`, `crm`, `catalog` y `quotes` ya consumen lecturas reales desde Supabase con React Query
+- `crm`, `catalog` y `quotes` ya incluyen formularios reales de create/update sobre `customers`, `catalog_items` y `quotes`
 - las mutaciones siguen limitadas al tenant activo y dejan auditoria via triggers de base
+- `catalog` ya modela oferta comercial reusable con `product` o `service`, visibilidad `public/private`, pricing `fixed/on_request` y estados `active/draft/archived`
 - `quotes` ya delega la numeracion y el incremento de version a RPCs de Supabase para evitar inconsistencias por concurrencia
 - el bundle base del backoffice ahora separa vendors por dominio y solo carga los namespaces de i18n que la app realmente necesita
 
@@ -44,6 +45,7 @@ El `service role key` no vive aqui.
 - desktop: sidebar utilitario con grupos de modulos, cambio de tenant visible y acceso rapido a cerrar sesion
 - header: breadcrumbs, busqueda corta, notificaciones operativas, toggle de tema y menu de usuario
 - mobile: tab bar inferior para `Inicio`, `CRM` y `Cotizaciones`, con el resto en un drawer
+- `Catalogo` vive en el menu extendido para priorizar captura y seguimiento comercial rapido en movil
 - todo el copy del shell sigue saliendo desde `@operapyme/i18n`
 
 ## Tailwind

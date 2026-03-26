@@ -21,6 +21,9 @@ const quoteNumberingMigrationPath = path.resolve(
 const quoteNumberPolicyMigrationPath = path.resolve(
   "supabase/migrations/202603260005_quote_number_sequences_policy.sql"
 );
+const catalogItemsMigrationPath = path.resolve(
+  "supabase/migrations/202603260006_catalog_items.sql"
+);
 
 describe("supabase foundation contracts", () => {
   it("creates the required secure foundation tables", () => {
@@ -114,5 +117,24 @@ describe("supabase foundation contracts", () => {
       "create policy \"quote_number_sequences_select_global_admin\""
     );
     expect(migration).toContain("using (public.is_global_admin())");
+  });
+
+  it("creates catalog_items with audit triggers and tenant-scoped RLS", () => {
+    const migration = fs.readFileSync(catalogItemsMigrationPath, "utf8");
+
+    expect(migration).toContain("create table if not exists public.catalog_items");
+    expect(migration).toContain(
+      "create trigger catalog_items_touch_tracking_columns"
+    );
+    expect(migration).toContain("execute function public.write_audit_log()");
+    expect(migration).toContain(
+      "alter table public.catalog_items enable row level security"
+    );
+    expect(migration).toContain(
+      "create policy \"catalog_items_select_tenant_readers\""
+    );
+    expect(migration).toContain(
+      "public.has_tenant_permission(public.catalog_items.tenant_id, 'catalog.write')"
+    );
   });
 });

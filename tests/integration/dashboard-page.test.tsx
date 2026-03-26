@@ -1,5 +1,6 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { vi } from "vitest";
 
 import { I18nextProvider } from "@operapyme/i18n";
@@ -19,9 +20,11 @@ function renderPage() {
   const i18n = setupBackofficeI18n();
 
   return render(
-    <I18nextProvider i18n={i18n}>
-      <DashboardPage />
-    </I18nextProvider>
+    <MemoryRouter>
+      <I18nextProvider i18n={i18n}>
+        <DashboardPage />
+      </I18nextProvider>
+    </MemoryRouter>
   );
 }
 
@@ -80,7 +83,7 @@ describe("dashboard page", () => {
     renderPage();
 
     expect(
-      await screen.findByText(/Aun no hay actividad comercial cargada/i)
+      await screen.findByText(/Aun no hay actividad comercial para mostrar/i)
     ).toBeInTheDocument();
   });
 
