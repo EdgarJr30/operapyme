@@ -60,6 +60,31 @@ describe("quotes page", () => {
     ).toBeInTheDocument();
   });
 
+  it("shows the tenant guard state when there is no active tenant", async () => {
+    quotesMocks.useQuotesData.mockReturnValue({
+      data: [],
+      error: null,
+      hasTenantContext: false,
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn()
+    });
+    quotesMocks.useCustomersData.mockReturnValue({
+      data: [],
+      error: null,
+      hasTenantContext: false,
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn()
+    });
+
+    renderPage();
+
+    expect(
+      await screen.findByText(/No hay tenant activo para consultar cotizaciones/i)
+    ).toBeInTheDocument();
+  });
+
   it("shows an empty state when the tenant still has no quotes", async () => {
     quotesMocks.useQuotesData.mockReturnValue({
       data: [],

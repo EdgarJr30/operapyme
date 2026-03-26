@@ -1,6 +1,5 @@
 import { Suspense, type ReactNode } from "react";
 
-import { isGlobalAuditVisible } from "@operapyme/domain";
 import { useTranslation } from "@operapyme/i18n";
 import {
   Navigate,
@@ -10,8 +9,8 @@ import {
 } from "react-router-dom";
 
 import { useBackofficeAuth } from "@/app/auth-provider";
+import { RequireGlobalAdmin } from "@/components/guards/require-global-admin";
 import { AppShell } from "@/components/layout/app-shell";
-import { AccessDeniedPage } from "@/modules/auth/access-denied-page";
 import { AuthCallbackPage } from "@/modules/auth/auth-callback-page";
 import { AuthPage } from "@/modules/auth/auth-page";
 import { UnconfiguredPage } from "@/modules/auth/unconfigured-page";
@@ -101,16 +100,6 @@ function RequireBootstrappedShell() {
       )}
     </AuthStatusBoundary>
   );
-}
-
-function RequireGlobalAdminRoute({ children }: { children: ReactNode }) {
-  const { accessContext } = useBackofficeAuth();
-
-  if (!isGlobalAuditVisible(accessContext)) {
-    return <AccessDeniedPage />;
-  }
-
-  return children;
 }
 
 async function loadDashboardRoute() {
@@ -261,9 +250,9 @@ export const appRoutes: RouteObject[] = [
               const Component = route.Component;
 
               return (
-                <RequireGlobalAdminRoute>
+                <RequireGlobalAdmin>
                   <Component />
-                </RequireGlobalAdminRoute>
+                </RequireGlobalAdmin>
               );
             }
           };
@@ -279,9 +268,9 @@ export const appRoutes: RouteObject[] = [
               const Component = route.Component;
 
               return (
-                <RequireGlobalAdminRoute>
+                <RequireGlobalAdmin>
                   <Component />
-                </RequireGlobalAdminRoute>
+                </RequireGlobalAdmin>
               );
             }
           };

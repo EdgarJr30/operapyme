@@ -47,6 +47,23 @@ describe("crm page", () => {
     ).toBeInTheDocument();
   });
 
+  it("shows the tenant guard state when there is no active tenant", async () => {
+    crmMocks.useCustomersData.mockReturnValue({
+      data: [],
+      error: null,
+      hasTenantContext: false,
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn()
+    });
+
+    renderPage();
+
+    expect(
+      await screen.findByText(/No hay tenant activo para consultar clientes/i)
+    ).toBeInTheDocument();
+  });
+
   it("shows an empty state when the tenant still has no customers", async () => {
     crmMocks.useCustomersData.mockReturnValue({
       data: [],

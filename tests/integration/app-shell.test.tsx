@@ -13,6 +13,10 @@ import { AppShell } from "@/components/layout/app-shell";
 import { AdminAuditPage } from "@/modules/admin/admin-audit-page";
 import { AdminErrorsPage } from "@/modules/admin/admin-errors-page";
 
+const authMocks = vi.hoisted(() => ({
+  useBackofficeAuth: vi.fn()
+}));
+
 vi.mock("@/app/auth-provider", async () => {
   const actual = await vi.importActual<typeof import("@/app/auth-provider")>(
     "@/app/auth-provider"
@@ -20,7 +24,32 @@ vi.mock("@/app/auth-provider", async () => {
 
   return {
     ...actual,
-    useBackofficeAuth: () => ({
+    useBackofficeAuth: authMocks.useBackofficeAuth
+  };
+});
+
+function renderRoute(route: string) {
+  const i18n = setupBackofficeI18n();
+
+  return render(
+    <AppProviders i18n={i18n}>
+      <MemoryRouter initialEntries={[route]}>
+        <Routes>
+          <Route path="/" element={<AppShell />}>
+            <Route index element={<div>Dashboard stub</div>} />
+            <Route path="admin" element={<AdminAuditPage />} />
+            <Route path="admin/errors" element={<AdminErrorsPage />} />
+            <Route path="settings" element={<div>Settings stub</div>} />
+          </Route>
+        </Routes>
+      </MemoryRouter>
+    </AppProviders>
+  );
+}
+
+describe("backoffice shell", () => {
+  beforeEach(() => {
+    authMocks.useBackofficeAuth.mockReturnValue({
       accessContext: {
         appUserId: "user-1",
         email: "owner@operapyme.com",
@@ -45,30 +74,9 @@ vi.mock("@/app/auth-provider", async () => {
       user: {
         email: "owner@operapyme.com"
       }
-    })
-  };
-});
+    });
+  });
 
-function renderRoute(route: string) {
-  const i18n = setupBackofficeI18n();
-
-  return render(
-    <AppProviders i18n={i18n}>
-      <MemoryRouter initialEntries={[route]}>
-        <Routes>
-          <Route path="/" element={<AppShell />}>
-            <Route index element={<div>Dashboard stub</div>} />
-            <Route path="admin" element={<AdminAuditPage />} />
-            <Route path="admin/errors" element={<AdminErrorsPage />} />
-            <Route path="settings" element={<div>Settings stub</div>} />
-          </Route>
-        </Routes>
-      </MemoryRouter>
-    </AppProviders>
-  );
-}
-
-describe("backoffice shell", () => {
   it("renders the new admin route and its reserved content", async () => {
     renderRoute("/admin");
 
@@ -86,5 +94,44 @@ describe("backoffice shell", () => {
     expect((await screen.findAllByRole("link", { name: /^Admin$/i })).length).toBe(
       2
     );
+  });
+
+  it("hides the admin entry while keeping catalog and settings for tenant users", async () => {
+    authMocks.useBackofficeAuth.mockReturnValue({
+      accessContext: {
+        appUserId: "user-2",
+        email: "seller@operapyme.com",
+        displayName: "Seller",
+        isGlobalAdmin: false,
+        memberships: [
+          {
+            membershipId: "membership-2",
+            tenantId: "tenant-1",
+            tenantName: "OperaPyme Demo",
+            tenantSlug: "operapyme-demo",
+            status: "active",
+            tenantRoleKeys: ["sales_rep"]
+          }
+        ],
+        platformRoleKeys: [],
+        platformPermissionKeys: [],
+        tenantPermissionKeys: ["tenant.read", "crm.read", "quote.read"]
+      },
+      activeTenantId: "tenant-1",
+      signOut: vi.fn(),
+      user: {
+        email: "seller@operapyme.com"
+      }
+    });
+
+    renderRoute("/");
+
+    expect(screen.queryByRole("link", { name: /^Admin$/i })).not.toBeInTheDocument();
+    expect((await screen.findAllByRole("link", { name: /^Catalogo$/i })).length).toBe(
+      2
+    );
+    expect(
+      (await screen.findAllByRole("link", { name: /^Configuracion$/i })).length
+    ).toBe(2);
   });
 });

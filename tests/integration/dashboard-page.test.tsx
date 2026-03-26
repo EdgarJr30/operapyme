@@ -43,6 +43,23 @@ describe("dashboard page", () => {
     ).toBeInTheDocument();
   });
 
+  it("shows the tenant guard state when there is no active tenant context", async () => {
+    dashboardMocks.useDashboardData.mockReturnValue({
+      data: undefined,
+      error: null,
+      hasTenantContext: false,
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn()
+    });
+
+    renderPage();
+
+    expect(
+      await screen.findByText(/Todavia no hay un tenant activo seleccionado/i)
+    ).toBeInTheDocument();
+  });
+
   it("shows an empty state when the tenant still has no customers or quotes", async () => {
     dashboardMocks.useDashboardData.mockReturnValue({
       data: {
