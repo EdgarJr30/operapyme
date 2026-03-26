@@ -92,6 +92,8 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 - Todo trabajo accionable debe tener seguimiento en Linear.
 - Por defecto, las tareas de Linear de este proyecto se asignan a `me`, salvo que se indique otro responsable.
 - El usuario autoriza crear tareas en Linear directamente sin pedir confirmacion previa; basta con reportarlo en la salida final.
+- Se recomienda hacer commits frecuentes cuando haya bloques de cambio coherentes y con valor cerrado, en vez de acumular demasiado trabajo sin versionar.
+- Tambien se autoriza hacer commits y preparar o crear PRs directamente cuando sea la opcion mas conveniente para el flujo; basta con reportarlo en la salida final.
 - Notion conserva contexto y criterio; Linear conserva ejecucion, prioridad, responsable y estado.
 - Para evitar timeouts en herramientas, conviene abrir esa pagina exacta y no la base completa de `MoonCode`.
 
@@ -224,6 +226,8 @@ The current product focus is:
 - All actionable work should be tracked in Linear.
 - By default, Linear issues for this project should be assigned to `me`, unless a different owner is explicitly requested.
 - The user authorizes creating Linear issues directly without prior confirmation; the final output just needs to report what was created or updated.
+- Frequent commits are encouraged whenever there is a coherent, self-contained unit of change, instead of letting too much work accumulate unversioned.
+- It is also authorized to create commits and prepare or create PRs directly when that is the most practical workflow choice; the final output just needs to report it.
 - Notion stores context and reasoning; Linear stores execution, priority, owner, and status.
 - To reduce tool timeouts, prefer opening that exact page instead of the full `MoonCode` database.
 

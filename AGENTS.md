@@ -96,6 +96,8 @@ El repo sigue siendo la fuente de verdad para codigo, arquitectura formal y regl
 - Toda iniciativa, bug, mejora o tarea accionable debe crearse o mantenerse en Linear.
 - Por defecto, toda tarea creada en Linear para este proyecto debe asignarse a `me`, salvo instruccion explicita del usuario para asignarla a otra persona.
 - El usuario autoriza crear tareas en Linear directamente sin pedir confirmacion previa. Solo hace falta informar en la salida final que se creo o actualizo.
+- Hacer commits de manera recurrente conforme se acumulen cambios coherentes con valor cerrado. No esperar siempre al final de una sesion larga para versionar.
+- Cuando resulte mas conveniente para el flujo, se autoriza hacer commits y tambien preparar o crear PRs de forma directa, sin pedir confirmacion previa, informandolo en la salida final.
 - Notion documenta contexto, mapas, diagramas, flujos y decisiones; Linear documenta ejecucion, prioridad, responsable y seguimiento.
 - Cuando una herramienta automatizada necesite entrar a Notion, usar primero la URL canonica de `Saas Opera Pyme` y no la base completa de `MoonCode`.
 
