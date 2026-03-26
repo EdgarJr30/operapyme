@@ -1,5 +1,6 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import {
   MemoryRouter,
   Route,
@@ -49,6 +50,8 @@ function renderRoute(route: string) {
 
 describe("backoffice shell", () => {
   beforeEach(() => {
+    window.localStorage.clear();
+
     authMocks.useBackofficeAuth.mockReturnValue({
       accessContext: {
         appUserId: "user-1",
@@ -133,5 +136,30 @@ describe("backoffice shell", () => {
     expect(
       (await screen.findAllByRole("link", { name: /^Configuracion$/i })).length
     ).toBe(2);
+  });
+
+  it("switches the shell copy and navigation labels between spanish and english", async () => {
+    const user = userEvent.setup();
+
+    renderRoute("/");
+
+    const languageSelect = await screen.findByLabelText(/^Idioma$/i);
+
+    expect(
+      await screen.findByRole("navigation", { name: /^Navegacion movil$/i })
+    ).toBeInTheDocument();
+    expect(document.documentElement.lang).toBe("es");
+
+    await user.selectOptions(languageSelect, "en");
+
+    expect(await screen.findByLabelText(/^Language$/i)).toBeInTheDocument();
+    expect(
+      await screen.findByRole("navigation", { name: /^Mobile navigation$/i })
+    ).toBeInTheDocument();
+    expect((await screen.findAllByRole("link", { name: /^Home$/i })).length).toBe(2);
+    expect(
+      (await screen.findAllByRole("link", { name: /^Settings$/i })).length
+    ).toBe(2);
+    expect(document.documentElement.lang).toBe("en");
   });
 });

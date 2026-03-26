@@ -43,3 +43,4 @@ Esta app usa Tailwind v4 en modo CSS-first.
 - plugin en `vite.config.ts`
 - import base en `src/app/styles.css`
 - tema compartido en `../../packages/ui/src/theme/theme.css`
+- usar utilidades canónicas de Tailwind cuando existan equivalentes; no dejar clases arbitrarias como `h-[46px]`, `max-w-[32rem]`, `rounded-[24px]` o `[background-size:18px_18px]` si el framework ya ofrece `h-11.5`, `max-w-lg`, `rounded-3xl` o `bg-size-[18px_18px]`

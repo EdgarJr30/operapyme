@@ -40,7 +40,10 @@
 - No consultar Supabase directo desde componentes visuales complejos; encapsular acceso.
 - No resolver autorizacion real en UI; la UI solo expresa estados de permiso.
 - Evitar props drilling profundo. Elevar o aislar estado.
-- En Tailwind, preferir siempre la clase canonica del framework cuando ya exista una equivalente; evitar utilidades arbitrarias como `h-[46px]`, `max-w-[32rem]` o `[background-size:18px_18px]` si Tailwind ya ofrece `h-11.5`, `max-w-lg` o `bg-size-[18px_18px]`.
+- En Tailwind, preferir siempre la clase canonica del framework cuando ya exista una equivalente.
+- Evitar utilidades arbitrarias de tamano, radio, ancho o propiedades inline cuando Tailwind ya tenga una clase estandar.
+- Antes de dejar una clase como `h-[46px]`, `max-w-[32rem]`, `rounded-[24px]` o `[background-size:18px_18px]`, comprobar si existe una forma canonica como `h-11.5`, `max-w-lg`, `rounded-3xl` o `bg-size-[18px_18px]`.
+- Si el editor sugiere `suggestCanonicalClasses`, tomarlo como correccion esperada y no como warning opcional.
 
 ## Reglas de producto
 

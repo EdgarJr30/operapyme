@@ -100,6 +100,10 @@ Acceso canonico a Supabase para este repo:
 - No agregar dependencias si el problema ya se resuelve con el stack actual.
 - Mantener ASCII por defecto al editar archivos.
 - No mezclar logica de dominio con componentes de presentacion.
+- Cuando se use Tailwind, preferir siempre utilidades canónicas del framework si ya existe una equivalente.
+- No introducir utilidades arbitrarias solo por costumbre si Tailwind ya ofrece la clase estandar.
+- Ejemplos que deben evitarse cuando exista alternativa canónica: `h-[46px]`, `max-w-[32rem]`, `rounded-[24px]`, `[background-size:18px_18px]`.
+- Ejemplos preferidos: `h-11.5`, `max-w-lg`, `rounded-3xl`, `bg-size-[18px_18px]`.
 - Evitar nombres ligados a un rubro especifico en el core.
 - Todo cambio de datos debe contemplar estados vacios, errores y permisos.
 - No exponer operaciones sensibles o masivas como CRUD cliente directo cuando haya riesgo de abuso.

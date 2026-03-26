@@ -3,14 +3,13 @@ import ReactDOM from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
 
 import { setupBackofficeI18n } from "@/app/i18n";
+import { registerBackofficeServiceWorker } from "@/app/pwa";
 import { AppProviders } from "@/app/providers";
 import { createAppRouter } from "@/app/router";
 
 import "@/app/styles.css";
 
-if ("serviceWorker" in navigator && import.meta.env.PROD) {
-  void navigator.serviceWorker.register("/sw.js");
-}
+registerBackofficeServiceWorker();
 
 const rootElement = document.getElementById("root");
 
