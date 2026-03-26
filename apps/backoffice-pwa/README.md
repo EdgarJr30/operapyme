@@ -10,6 +10,7 @@ Esta es la app React real de `OperaPyme`.
 - `src/components/`: componentes reutilizables de app
 - `public/`: assets publicos
 - `.env.example`: variables publicas del frontend
+- `motion` (`motion.dev`): estandar unico para animaciones y transiciones de interfaz
 
 ## Variables de entorno
 
@@ -30,6 +31,7 @@ El `service role key` no vive aqui.
 - el primer usuario autenticado pasa por `/setup`
 - el shell principal solo abre cuando ya existe membership activa en un tenant
 - el shell principal del backoffice ahora usa sidebar persistente en desktop, navbar superior con breadcrumbs y acciones globales, drawer movil y bottom navigation tipo app
+- el shell usa `motion.dev` para transiciones de pagina, drawer movil, panel de notificaciones y menu de usuario
 - el cambio de tenant vive en el shell para mantener el contexto multi-tenant visible en toda la operacion
 - la navegacion movil deja los modulos principales en tabs inferiores y mueve configuracion o admin al menu extendido
 - la auditoria global sigue reservada para `global_admin`

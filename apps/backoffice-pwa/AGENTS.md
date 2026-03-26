@@ -26,6 +26,8 @@
 - No convertir dark mode en la identidad visual por defecto ni en un dashboard oscuro saturado.
 - No usar morado generico como color principal.
 - Usar la direccion visual definida en `docs/ui-ux-direction.md`.
+- Toda animacion, transicion de entrada o salida, drawer, popover o apertura/cierre de modal debe implementarse con `motion.dev` (`motion`).
+- Respetar `prefers-reduced-motion` con la configuracion global de Motion y evitar animaciones decorativas que ralenticen tareas operativas.
 - El idioma por defecto del backoffice es espanol.
 - Todo texto visible debe salir de `@operapyme/i18n` con claves `es` y `en`.
 - Si una vista nueva requiere cambio de idioma, persistir la preferencia del usuario sin romper el fallback a espanol.

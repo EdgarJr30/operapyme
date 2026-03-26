@@ -75,6 +75,7 @@ Acceso canonico a Supabase para este repo:
 - Toda UI nueva debe salir con soporte `es` y `en` desde `packages/i18n`, no con strings hardcodeados en componentes.
 - La apariencia visual se divide en dos capas: modo de usuario o dispositivo (`light`, `dark`, `system`) y branding por tenant con paletas curadas.
 - Todo cambio visual debe apoyarse en tokens semanticos y mantener contraste, calma visual e identidad consistente.
+- El estandar de animacion del producto es `motion.dev` (`motion`). No introducir otra libreria de animacion para transiciones, overlays, drawers, modales o microinteracciones sin una decision documentada.
 
 ## Filosofia de producto
 
@@ -145,6 +146,7 @@ Una entrega esta incompleta si no incluye:
 - Si el cambio agrega, endurece o cambia reglas operativas del equipo o de Codex, actualizar este `AGENTS.md`.
 - Si el cambio afecta solo a una app, actualizar tambien su `apps/*/AGENTS.md`.
 - Si el cambio afecta direccion visual, branding o apariencia, actualizar `docs/ui-ux-direction.md` y `docs/tenant-theming.md` cuando corresponda.
+- Si el cambio fija o modifica reglas permanentes de animacion o interaccion, actualizar tambien `AGENTS.md` y el `apps/*/AGENTS.md` afectado en la misma tarea.
 - Si el cambio afecta arquitectura, alcance del producto o modulos core, actualizar `docs/saas-blueprint.md`.
 - Si una tarea introduce o cambia flujos, mapas, diagramas, decisiones de producto o contexto operativo util para el equipo, actualizar tambien Notion en `MoonCode > Saas Opera Pyme` dentro de la misma tarea.
 - Si una tarea requiere seguimiento accionable, crear o actualizar su tarea correspondiente en Linear dentro de la misma tarea.

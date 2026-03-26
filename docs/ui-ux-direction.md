@@ -33,6 +33,13 @@ La interfaz debe sentirse:
 - en movil, priorizar navegacion inferior y contenido por bloques
 - en desktop, usar sidebar solo cuando aporte orientacion real
 
+## Movimiento
+
+- usar `motion.dev` (`motion`) como estandar unico para animaciones y transiciones de interfaz
+- respetar `prefers-reduced-motion` y reducir movimiento decorativo en flujos operativos
+- usar animaciones cortas y funcionales para drawers, popovers, overlays y transiciones de pagina
+- evitar rebotes exagerados, delays largos o microinteracciones que ralenticen la captura y el seguimiento
+
 ## Shell del backoffice
 
 - el shell principal debe dar contexto antes que decoracion

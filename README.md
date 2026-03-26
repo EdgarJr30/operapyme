@@ -50,6 +50,7 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 - Backend: Supabase
 - Formularios: React Hook Form + Zod
 - Datos cliente: React Query
+- Animacion UI: `motion.dev` (`motion`)
 - Internacionalizacion: `i18next` + `react-i18next` + `packages/i18n`
 - Theming: `next-themes` + CSS custom properties + tokens semanticos
 - Testing: Vitest + React Testing Library + Playwright

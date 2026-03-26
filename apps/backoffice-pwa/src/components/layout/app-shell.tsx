@@ -23,11 +23,21 @@ import {
   isGlobalAuditVisible
 } from "@operapyme/domain";
 import { useTranslation } from "@operapyme/i18n";
+import {
+  AnimatePresence,
+  motion
+} from "motion/react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 
 import { useBackofficeAuth } from "@/app/auth-provider";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { ThemeToggleButton } from "@/components/layout/theme-toggle-button";
+import {
+  fadeOverlayVariants,
+  pageTransitionVariants,
+  popoverVariants,
+  slideOverVariants
+} from "@/lib/motion";
 import { Select } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
@@ -466,37 +476,49 @@ export function AppShell() {
 
   return (
     <div className="min-h-screen bg-sand/40">
-      {isSidebarOpen ? (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <button
-            type="button"
-            className="absolute inset-0 bg-ink/35"
-            onClick={() => setIsSidebarOpen(false)}
-            aria-label={t("shell.closeMenuLabel")}
-          />
-          <div className="relative h-full w-full max-w-xs shadow-soft">
-            <button
+      <AnimatePresence>
+        {isSidebarOpen ? (
+          <div className="fixed inset-0 z-50 lg:hidden">
+            <motion.button
               type="button"
+              className="absolute inset-0 bg-ink/35"
               onClick={() => setIsSidebarOpen(false)}
-              className="absolute right-3 top-3 z-10 inline-flex size-10 items-center justify-center rounded-xl border border-line/70 bg-paper text-ink shadow-panel"
               aria-label={t("shell.closeMenuLabel")}
-            >
-              <X className="size-5" aria-hidden="true" />
-            </button>
-            <SidebarContent
-              sections={sections}
-              activeTenantId={activeTenantMembership?.tenantId ?? ""}
-              activeTenantName={activeTenantName}
-              businessRoleLabel={businessRoleLabel}
-              memberships={memberships}
-              onTenantChange={setActiveTenantId}
-              onNavigate={() => setIsSidebarOpen(false)}
-              onSignOut={handleSignOut}
-              t={t}
+              variants={fadeOverlayVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
             />
+            <motion.div
+              className="relative h-full w-full max-w-xs shadow-soft"
+              variants={slideOverVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              <button
+                type="button"
+                onClick={() => setIsSidebarOpen(false)}
+                className="absolute right-3 top-3 z-10 inline-flex size-10 items-center justify-center rounded-xl border border-line/70 bg-paper text-ink shadow-panel"
+                aria-label={t("shell.closeMenuLabel")}
+              >
+                <X className="size-5" aria-hidden="true" />
+              </button>
+              <SidebarContent
+                sections={sections}
+                activeTenantId={activeTenantMembership?.tenantId ?? ""}
+                activeTenantName={activeTenantName}
+                businessRoleLabel={businessRoleLabel}
+                memberships={memberships}
+                onTenantChange={setActiveTenantId}
+                onNavigate={() => setIsSidebarOpen(false)}
+                onSignOut={handleSignOut}
+                t={t}
+              />
+            </motion.div>
           </div>
-        </div>
-      ) : null}
+        ) : null}
+      </AnimatePresence>
 
       <div className="flex min-h-screen">
         <aside className="hidden w-72 shrink-0 border-r border-line/70 bg-paper lg:block">
@@ -576,34 +598,42 @@ export function AppShell() {
                     </span>
                   </button>
 
-                  {isNotificationsOpen ? (
-                    <div className="absolute right-0 top-full mt-3 w-80 rounded-2xl border border-line/70 bg-paper p-4 shadow-soft">
-                      <div className="space-y-1">
-                        <p className="text-sm font-semibold text-ink">
-                          {t("shell.notifications.title")}
-                        </p>
-                        <p className="text-xs leading-5 text-ink-soft">
-                          {t("shell.notifications.description")}
-                        </p>
-                      </div>
+                  <AnimatePresence>
+                    {isNotificationsOpen ? (
+                      <motion.div
+                        className="absolute right-0 top-full mt-3 w-80 rounded-2xl border border-line/70 bg-paper p-4 shadow-soft"
+                        variants={popoverVariants}
+                        initial="initial"
+                        animate="animate"
+                        exit="exit"
+                      >
+                        <div className="space-y-1">
+                          <p className="text-sm font-semibold text-ink">
+                            {t("shell.notifications.title")}
+                          </p>
+                          <p className="text-xs leading-5 text-ink-soft">
+                            {t("shell.notifications.description")}
+                          </p>
+                        </div>
 
-                      <div className="mt-4 space-y-3">
-                        {notificationItems.map((item) => (
-                          <div
-                            key={item.id}
-                            className="rounded-xl border border-line/70 bg-sand/40 p-3"
-                          >
-                            <p className="text-sm font-semibold text-ink">
-                              {item.title}
-                            </p>
-                            <p className="mt-1 text-sm leading-6 text-ink-soft">
-                              {item.description}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ) : null}
+                        <div className="mt-4 space-y-3">
+                          {notificationItems.map((item) => (
+                            <div
+                              key={item.id}
+                              className="rounded-xl border border-line/70 bg-sand/40 p-3"
+                            >
+                              <p className="text-sm font-semibold text-ink">
+                                {item.title}
+                              </p>
+                              <p className="mt-1 text-sm leading-6 text-ink-soft">
+                                {item.description}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </motion.div>
+                    ) : null}
+                  </AnimatePresence>
                 </div>
 
                 <ThemeToggleButton />
@@ -630,34 +660,42 @@ export function AppShell() {
                     <ChevronDown className="hidden size-4 text-ink-muted sm:block" />
                   </button>
 
-                  {isUserMenuOpen ? (
-                    <div className="absolute right-0 top-full mt-3 w-72 rounded-2xl border border-line/70 bg-paper p-4 shadow-soft">
-                      <div className="rounded-xl border border-line/70 bg-sand/40 p-4">
-                        <p className="truncate text-sm font-semibold text-ink">
-                          {userLabel}
-                        </p>
-                        <p className="mt-1 truncate text-xs text-ink-soft">
-                          {user?.email ?? t("shell.emailFallback")}
-                        </p>
-                        <p className="mt-2 text-xs font-medium uppercase tracking-[0.18em] text-ink-muted">
-                          {businessRoleLabel}
-                        </p>
-                      </div>
-
-                      <div className="mt-4">
-                        <LanguageSwitcher />
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={handleSignOut}
-                        className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-line-strong bg-paper px-4 text-sm font-medium text-ink shadow-panel transition hover:bg-sand/70"
+                  <AnimatePresence>
+                    {isUserMenuOpen ? (
+                      <motion.div
+                        className="absolute right-0 top-full mt-3 w-72 rounded-2xl border border-line/70 bg-paper p-4 shadow-soft"
+                        variants={popoverVariants}
+                        initial="initial"
+                        animate="animate"
+                        exit="exit"
                       >
-                        <LogOut className="size-4" aria-hidden="true" />
-                        <span>{t("shell.signOut")}</span>
-                      </button>
-                    </div>
-                  ) : null}
+                        <div className="rounded-xl border border-line/70 bg-sand/40 p-4">
+                          <p className="truncate text-sm font-semibold text-ink">
+                            {userLabel}
+                          </p>
+                          <p className="mt-1 truncate text-xs text-ink-soft">
+                            {user?.email ?? t("shell.emailFallback")}
+                          </p>
+                          <p className="mt-2 text-xs font-medium uppercase tracking-[0.18em] text-ink-muted">
+                            {businessRoleLabel}
+                          </p>
+                        </div>
+
+                        <div className="mt-4">
+                          <LanguageSwitcher />
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={handleSignOut}
+                          className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-line-strong bg-paper px-4 text-sm font-medium text-ink shadow-panel transition hover:bg-sand/70"
+                        >
+                          <LogOut className="size-4" aria-hidden="true" />
+                          <span>{t("shell.signOut")}</span>
+                        </button>
+                      </motion.div>
+                    ) : null}
+                  </AnimatePresence>
                 </div>
               </div>
             </div>
@@ -665,7 +703,17 @@ export function AppShell() {
 
           <main className="flex-1 px-4 pb-24 pt-6 sm:px-6 lg:px-8 lg:pb-8">
             <div className="mx-auto w-full max-w-screen-2xl">
-              <Outlet />
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={location.pathname}
+                  variants={pageTransitionVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                >
+                  <Outlet />
+                </motion.div>
+              </AnimatePresence>
             </div>
           </main>
         </div>
