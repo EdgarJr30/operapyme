@@ -16,6 +16,7 @@ import { MotionConfig } from "motion/react";
 
 import { BackofficeAuthProvider } from "@/app/auth-provider";
 import { BackofficeThemeProvider } from "@/app/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
 
 const ReactQueryDevtools = import.meta.env.DEV
   ? lazy(async () => {
@@ -50,6 +51,7 @@ export function AppProviders({ children, i18n }: AppProvidersProps) {
           <BackofficeAuthProvider>
             <QueryClientProvider client={queryClient}>
               {children}
+              <Toaster />
               {ReactQueryDevtools ? (
                 <Suspense fallback={null}>
                   <ReactQueryDevtools

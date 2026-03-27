@@ -73,6 +73,8 @@ const commonEs = {
     foundationBadge: "Audit-ready",
     rbacBadge: "RBAC + RLS base",
     signOut: "Salir",
+    signOutSuccess: "Sesion cerrada correctamente.",
+    signOutError: "No pudimos cerrar la sesion. {message}",
     globalAdmin: "Administrador global",
     tenantOperator: "Operador del tenant",
     emailFallback: "Sin correo disponible",

@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 import { useTranslation } from "@operapyme/i18n";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -51,8 +52,6 @@ export function CustomerOperationsPanel({
     useCustomerMutations();
   const customerFormSchema = createCustomerFormSchema(t);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>("");
-  const [createFeedback, setCreateFeedback] = useState<string | null>(null);
-  const [updateFeedback, setUpdateFeedback] = useState<string | null>(null);
 
   const createForm = useForm<CustomerFormValues>({
     resolver: zodResolver(customerFormSchema),
@@ -97,14 +96,12 @@ export function CustomerOperationsPanel({
   }, [selectedCustomer, updateForm]);
 
   async function onCreate(values: CustomerFormValues) {
-    setCreateFeedback(null);
-
     try {
       await createCustomerMutation.mutateAsync(values);
-      setCreateFeedback(t("crm.customerForm.createSuccess"));
+      toast.success(t("crm.customerForm.createSuccess"));
       createForm.reset(createDefaultValues);
     } catch (error) {
-      setCreateFeedback(
+      toast.error(
         t("crm.customerForm.createError", {
           message: error instanceof Error ? error.message : ""
         })
@@ -114,20 +111,18 @@ export function CustomerOperationsPanel({
 
   async function onUpdate(values: CustomerFormValues) {
     if (!selectedCustomer) {
-      setUpdateFeedback(t("crm.customerForm.noCustomerSelected"));
+      toast.error(t("crm.customerForm.noCustomerSelected"));
       return;
     }
-
-    setUpdateFeedback(null);
 
     try {
       await updateCustomerMutation.mutateAsync({
         customerId: selectedCustomer.id,
         ...values
       });
-      setUpdateFeedback(t("crm.customerForm.updateSuccess"));
+      toast.success(t("crm.customerForm.updateSuccess"));
     } catch (error) {
-      setUpdateFeedback(
+      toast.error(
         t("crm.customerForm.updateError", {
           message: error instanceof Error ? error.message : ""
         })
@@ -150,15 +145,7 @@ export function CustomerOperationsPanel({
             onSubmit={createForm.handleSubmit(onCreate)}
             noValidate
           >
-              <CustomerFormFields form={createForm} idPrefix="create" />
-
-            {createFeedback ? (
-              <FeedbackBanner
-                tone={createCustomerMutation.isError ? "error" : "success"}
-              >
-                {createFeedback}
-              </FeedbackBanner>
-            ) : null}
+            <CustomerFormFields form={createForm} idPrefix="create" />
 
             <div className="flex flex-wrap gap-3 pt-2">
               <Button
@@ -176,7 +163,6 @@ export function CustomerOperationsPanel({
                 variant="secondary"
                 onClick={() => {
                   createForm.reset(createDefaultValues);
-                  setCreateFeedback(null);
                 }}
               >
                 {t("crm.customerForm.resetAction")}
@@ -206,7 +192,6 @@ export function CustomerOperationsPanel({
               value={selectedCustomerId}
               onChange={(event) => {
                 setSelectedCustomerId(event.target.value);
-                setUpdateFeedback(null);
               }}
             >
               {customers.length === 0 ? (
@@ -232,14 +217,6 @@ export function CustomerOperationsPanel({
               noValidate
             >
               <CustomerFormFields form={updateForm} idPrefix="update" />
-
-              {updateFeedback ? (
-                <FeedbackBanner
-                  tone={updateCustomerMutation.isError ? "error" : "success"}
-                >
-                  {updateFeedback}
-                </FeedbackBanner>
-              ) : null}
 
               <Button
                 type="submit"

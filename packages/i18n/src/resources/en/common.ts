@@ -73,6 +73,8 @@ const commonEn = {
     foundationBadge: "Audit-ready",
     rbacBadge: "RBAC + RLS baseline",
     signOut: "Sign out",
+    signOutSuccess: "Signed out successfully.",
+    signOutError: "We could not sign you out. {message}",
     globalAdmin: "Global admin",
     tenantOperator: "Tenant operator",
     emailFallback: "No email available",

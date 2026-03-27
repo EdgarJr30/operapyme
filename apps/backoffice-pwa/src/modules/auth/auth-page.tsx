@@ -1,9 +1,10 @@
 import { FormEvent, useRef, useState } from 'react';
 
-import { MailCheck, ShieldCheck } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 
 import { useTranslation } from '@operapyme/i18n';
 import { Navigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 import { useBackofficeAuth } from '@/app/auth-provider';
 import { Button } from '@/components/ui/button';
@@ -19,8 +20,6 @@ export function AuthPage() {
   const emailInputRef = useRef<HTMLInputElement>(null);
   const [email, setEmail] = useState('');
   const [mode, setMode] = useState<AuthMode>('signin');
-  const [error, setError] = useState<string | null>(null);
-  const [emailSent, setEmailSent] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isConfigured) {
@@ -50,8 +49,6 @@ export function AuthPage() {
 
   function setAuthMode(nextMode: AuthMode) {
     setMode(nextMode);
-    setError(null);
-    setEmailSent(false);
     requestAnimationFrame(() => {
       emailInputRef.current?.focus();
     });
@@ -60,19 +57,19 @@ export function AuthPage() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSubmitting(true);
-    setError(null);
-    setEmailSent(false);
 
     const nextError = await signInWithOtp(email.trim());
 
     setIsSubmitting(false);
 
     if (nextError) {
-      setError(nextError);
+      toast.error(t('auth.form.emailSendError', { message: nextError }));
       return;
     }
 
-    setEmailSent(true);
+    toast.success(t('auth.form.emailSentTitle'), {
+      description: t('auth.form.emailSentText', { email: email.trim() }),
+    });
   }
 
   return (
@@ -129,28 +126,6 @@ export function AuthPage() {
                     />
                   </div>
                 </div>
-
-                {error ? (
-                  <p className="rounded-xl border border-rose-300/80 bg-rose-100/80 px-4 py-3 text-sm text-rose-900">
-                    {error}
-                  </p>
-                ) : null}
-
-                {emailSent ? (
-                  <div className="rounded-xl border border-line/70 bg-sage-200/25 p-4">
-                    <div className="flex items-start gap-3">
-                      <MailCheck className="mt-0.5 size-4 shrink-0 text-ink" />
-                      <div>
-                        <p className="text-sm font-semibold text-ink">
-                          {t('auth.form.emailSentTitle')}
-                        </p>
-                        <p className="mt-1 text-sm leading-6 text-ink-soft">
-                          {t('auth.form.emailSentText', { email })}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ) : null}
 
                 <div>
                   <Button

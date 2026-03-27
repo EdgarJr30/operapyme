@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 
 import { useTranslation } from "@operapyme/i18n";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 import { useBackofficeAuth } from "@/app/auth-provider";
 import { Button } from "@/components/ui/button";
@@ -24,7 +25,6 @@ export function SetupTenantPage() {
   const navigate = useNavigate();
   const { isBootstrapped, isConfigured, refreshAccessContext, status } =
     useBackofficeAuth();
-  const [submitError, setSubmitError] = useState<string | null>(null);
   const [slugTouched, setSlugTouched] = useState(false);
 
   const {
@@ -64,10 +64,8 @@ export function SetupTenantPage() {
   }
 
   async function onSubmit(values: TenantSetupFormValues) {
-    setSubmitError(null);
-
     if (!supabase) {
-      setSubmitError("Supabase no esta configurado para este entorno.");
+      toast.error(t("setup.unavailableError"));
       return;
     }
 
@@ -77,11 +75,14 @@ export function SetupTenantPage() {
     });
 
     if (error) {
-      setSubmitError(error.message);
+      toast.error(t("setup.submitError", { message: error.message }));
       return;
     }
 
     await refreshAccessContext();
+    toast.success(t("setup.successTitle"), {
+      description: t("setup.successDescription")
+    });
     navigate("/", { replace: true });
   }
 
@@ -161,12 +162,6 @@ export function SetupTenantPage() {
                   </p>
                 ) : null}
               </div>
-
-              {submitError ? (
-                <p className="rounded-2xl border border-rose-300/80 bg-rose-100/80 px-4 py-3 text-sm text-rose-900">
-                  {submitError}
-                </p>
-              ) : null}
 
               <Button className="w-full" size="lg" type="submit" disabled={isSubmitting}>
                 {isSubmitting ? t("setup.submitting") : t("setup.submit")}

@@ -19,6 +19,7 @@ La interfaz debe sentirse:
 - formularios largos resueltos por pasos cortos o subrutas operativas, no como una sola pantalla gigante
 - estados vacios utiles, no decorativos
 - errores accionables
+- feedback transitorio de acciones por toast global; mensajes inline solo cuando el estado deba permanecer visible en el bloque
 - jerarquia visual consistente entre mobile y desktop
 
 ## Reglas visuales

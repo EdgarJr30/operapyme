@@ -46,9 +46,7 @@ describe("crm page", () => {
 
     renderPage();
 
-    expect(
-      await screen.findByText(/Cargando clientes reales/i)
-    ).toBeInTheDocument();
+    expect(await screen.findAllByText(/Cargando clientes reales/i)).toHaveLength(2);
   });
 
   it("shows the tenant guard state when there is no active tenant", async () => {
@@ -64,8 +62,8 @@ describe("crm page", () => {
     renderPage();
 
     expect(
-      await screen.findByText(/No hay tenant activo para consultar clientes/i)
-    ).toBeInTheDocument();
+      await screen.findAllByText(/No hay tenant activo para consultar clientes/i)
+    ).toHaveLength(2);
   });
 
   it("shows an empty state when the tenant still has no customers", async () => {

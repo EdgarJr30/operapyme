@@ -44,7 +44,7 @@ interface BackofficeAuthContextValue {
   isBootstrapped: boolean;
   isConfigured: boolean;
   signInWithOtp: (email: string) => Promise<string | null>;
-  signOut: () => Promise<void>;
+  signOut: () => Promise<string | null>;
   refreshAccessContext: () => Promise<void>;
   setActiveTenantId: (tenantId: string) => void;
 }
@@ -298,14 +298,17 @@ export function BackofficeAuthProvider({ children }: PropsWithChildren) {
 
   const signOut = useCallback(async () => {
     if (!supabase) {
-      return;
+      return "Supabase no esta configurado para este entorno.";
     }
 
     const { error } = await supabase.auth.signOut();
 
     if (error) {
       console.error("Failed to sign out from Supabase.", error);
+      return error.message;
     }
+
+    return null;
   }, []);
 
   const setActiveTenantId = useCallback((tenantId: string) => {

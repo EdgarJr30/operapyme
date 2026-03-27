@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 import { useTranslation } from "@operapyme/i18n";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -53,8 +54,6 @@ export function CatalogOperationsPanel({
     useCatalogMutations();
   const catalogItemFormSchema = createCatalogItemFormSchema(t);
   const [selectedItemId, setSelectedItemId] = useState<string>("");
-  const [createFeedback, setCreateFeedback] = useState<string | null>(null);
-  const [updateFeedback, setUpdateFeedback] = useState<string | null>(null);
 
   const createForm = useForm<CatalogItemFormValues>({
     resolver: zodResolver(catalogItemFormSchema),
@@ -116,14 +115,12 @@ export function CatalogOperationsPanel({
   }, [updateForm, updatePricingMode]);
 
   async function onCreate(values: CatalogItemFormValues) {
-    setCreateFeedback(null);
-
     try {
       await createCatalogItemMutation.mutateAsync(values);
-      setCreateFeedback(t("catalog.form.createSuccess"));
+      toast.success(t("catalog.form.createSuccess"));
       createForm.reset(createDefaultValues);
     } catch (error) {
-      setCreateFeedback(
+      toast.error(
         t("catalog.form.createError", {
           message: error instanceof Error ? error.message : ""
         })
@@ -133,20 +130,18 @@ export function CatalogOperationsPanel({
 
   async function onUpdate(values: CatalogItemFormValues) {
     if (!selectedItem) {
-      setUpdateFeedback(t("catalog.form.noItemSelected"));
+      toast.error(t("catalog.form.noItemSelected"));
       return;
     }
-
-    setUpdateFeedback(null);
 
     try {
       await updateCatalogItemMutation.mutateAsync({
         itemId: selectedItem.id,
         ...values
       });
-      setUpdateFeedback(t("catalog.form.updateSuccess"));
+      toast.success(t("catalog.form.updateSuccess"));
     } catch (error) {
-      setUpdateFeedback(
+      toast.error(
         t("catalog.form.updateError", {
           message: error instanceof Error ? error.message : ""
         })
@@ -175,14 +170,6 @@ export function CatalogOperationsPanel({
               pricingMode={createPricingMode}
             />
 
-            {createFeedback ? (
-              <FeedbackBanner
-                tone={createCatalogItemMutation.isError ? "error" : "success"}
-              >
-                {createFeedback}
-              </FeedbackBanner>
-            ) : null}
-
             <div className="flex flex-wrap gap-3 pt-2">
               <Button
                 type="submit"
@@ -199,7 +186,6 @@ export function CatalogOperationsPanel({
                 variant="secondary"
                 onClick={() => {
                   createForm.reset(createDefaultValues);
-                  setCreateFeedback(null);
                 }}
               >
                 {t("catalog.form.resetAction")}
@@ -229,7 +215,6 @@ export function CatalogOperationsPanel({
               value={selectedItemId}
               onChange={(event) => {
                 setSelectedItemId(event.target.value);
-                setUpdateFeedback(null);
               }}
             >
               {items.length === 0 ? (
@@ -259,14 +244,6 @@ export function CatalogOperationsPanel({
                 idPrefix="update"
                 pricingMode={updatePricingMode}
               />
-
-              {updateFeedback ? (
-                <FeedbackBanner
-                  tone={updateCatalogItemMutation.isError ? "error" : "success"}
-                >
-                  {updateFeedback}
-                </FeedbackBanner>
-              ) : null}
 
               <Button
                 type="submit"

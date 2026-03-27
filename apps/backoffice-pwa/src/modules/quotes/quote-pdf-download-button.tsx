@@ -6,24 +6,26 @@ import { pdf } from "@react-pdf/renderer";
 import { getPrimaryTenantMembership } from "@operapyme/domain";
 import { useTranslation } from "@operapyme/i18n";
 import { useTenantTheme } from "@operapyme/ui";
+import { toast } from "sonner";
 
 import { useBackofficeAuth } from "@/app/auth-provider";
-import { Button } from "@/components/ui/button";
+import { Button, type ButtonProps } from "@/components/ui/button";
 import { getQuoteDetail } from "@/lib/supabase/backoffice-data";
 import { QuotePdfDocument } from "@/modules/quotes/quote-pdf-document";
 
 export function QuotePdfDownloadButton({
   quoteId,
-  quoteNumber
+  quoteNumber,
+  variant = "secondary"
 }: {
   quoteId: string;
   quoteNumber: string;
+  variant?: ButtonProps["variant"];
 }) {
   const { t } = useTranslation("backoffice");
   const { accessContext, activeTenantId } = useBackofficeAuth();
   const { palette } = useTenantTheme();
   const [isGenerating, setIsGenerating] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const activeTenantName = useMemo(() => {
     const membership = getPrimaryTenantMembership(accessContext, activeTenantId);
@@ -38,12 +40,11 @@ export function QuotePdfDownloadButton({
 
   async function handleDownload() {
     if (!activeTenantId) {
-      setErrorMessage(t("quotes.pdf.noTenantError"));
+      toast.error(t("quotes.pdf.noTenantError"));
       return;
     }
 
     setIsGenerating(true);
-    setErrorMessage(null);
 
     try {
       const quote = await getQuoteDetail(activeTenantId, quoteId);
@@ -58,8 +59,9 @@ export function QuotePdfDownloadButton({
       ).toBlob();
 
       downloadBlob(blob, `${quoteNumber}.pdf`);
+      toast.success(t("quotes.pdf.downloadSuccess"));
     } catch (error) {
-      setErrorMessage(
+      toast.error(
         t("quotes.pdf.downloadError", {
           message: error instanceof Error ? error.message : ""
         })
@@ -70,24 +72,19 @@ export function QuotePdfDownloadButton({
   }
 
   return (
-    <div className="space-y-2">
-      <Button
-        type="button"
-        variant="secondary"
-        onClick={() => {
-          void handleDownload();
-        }}
-        disabled={isGenerating}
-      >
-        <Download className="size-4" aria-hidden="true" />
-        {isGenerating
-          ? t("quotes.pdf.generatingAction")
-          : t("quotes.pdf.downloadAction")}
-      </Button>
-      {errorMessage ? (
-        <p className="text-sm text-peach-400">{errorMessage}</p>
-      ) : null}
-    </div>
+    <Button
+      type="button"
+      variant={variant}
+      onClick={() => {
+        void handleDownload();
+      }}
+      disabled={isGenerating}
+    >
+      <Download className="size-4" aria-hidden="true" />
+      {isGenerating
+        ? t("quotes.pdf.generatingAction")
+        : t("quotes.pdf.downloadAction")}
+    </Button>
   );
 }
 

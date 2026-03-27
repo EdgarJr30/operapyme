@@ -33,6 +33,7 @@ import {
   motion
 } from "motion/react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { toast } from "sonner";
 
 import { useBackofficeAuth } from "@/app/auth-provider";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
@@ -699,8 +700,15 @@ export function AppShell() {
     );
   }, [isDesktopSidebarCollapsed]);
 
-  const handleSignOut = () => {
-    void signOut();
+  const handleSignOut = async () => {
+    const errorMessage = await signOut();
+
+    if (errorMessage) {
+      toast.error(t("shell.signOutError", { message: errorMessage }));
+      return;
+    }
+
+    toast.success(t("shell.signOutSuccess"));
   };
 
   const shellLayoutStyle = {

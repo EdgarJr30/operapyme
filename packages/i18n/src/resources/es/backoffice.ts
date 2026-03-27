@@ -740,6 +740,7 @@ const backofficeEs = {
     pdf: {
       downloadAction: "Descargar PDF",
       generatingAction: "Generando PDF...",
+      downloadSuccess: "El PDF de la cotizacion se esta descargando.",
       downloadError: "No pudimos generar el PDF. {message}",
       noTenantError: "Necesitas un tenant activo para generar el PDF."
     }
@@ -825,6 +826,7 @@ const backofficeEs = {
       submit: "Enviar enlace de acceso",
       submitFirstTime: "Enviar enlace para empezar",
       submitting: "Enviando acceso...",
+      emailSendError: "No pudimos enviar el enlace de acceso. {message}",
       emailSentTitle: "Revisa tu correo",
       emailSentText:
         "Enviamos un enlace de acceso a {email}. Si no lo ves, revisa spam o vuelve a intentarlo.",
@@ -879,6 +881,11 @@ const backofficeEs = {
     slugHint: "URL operativa sugerida: {slug}",
     submit: "Crear tenant y continuar",
     submitting: "Creando tenant...",
+    unavailableError: "Supabase no esta configurado para este entorno.",
+    submitError: "No pudimos crear el tenant inicial. {message}",
+    successTitle: "Tenant inicial creado.",
+    successDescription:
+      "Tu espacio operativo ya esta listo para abrir CRM, catalogo y cotizaciones.",
     noteTitle: "Regla de operación",
     noteText:
       "Más adelante este flujo podrá vivir como wizard multi paso, pero hoy ya deja la membresía y el rol base listos.",

@@ -2,6 +2,7 @@ import { type ReactNode, useEffect, useMemo, useState } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm, type UseFormReturn } from "react-hook-form";
+import { toast } from "sonner";
 
 import { useTranslation } from "@operapyme/i18n";
 
@@ -63,7 +64,6 @@ export function QuoteCreateWorkspace({
   const { t } = useTranslation("backoffice");
   const { createQuoteMutation } = useQuoteMutations();
   const quoteFormSchema = createQuoteFormSchema(t);
-  const [feedback, setFeedback] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState<QuoteFormStepKey>("recipient");
 
   const form = useForm<QuoteFormValues>({
@@ -72,17 +72,15 @@ export function QuoteCreateWorkspace({
   });
 
   async function onSubmit(values: QuoteFormValues) {
-    setFeedback(null);
-
     try {
       const createdQuote = await createQuoteMutation.mutateAsync(toQuotePayload(values));
-      setFeedback(
+      toast.success(
         t("quotes.form.createSuccess", { quoteNumber: createdQuote.quoteNumber })
       );
       form.reset(buildCreateDefaults(customers, leads));
       setCurrentStep("recipient");
     } catch (error) {
-      setFeedback(
+      toast.error(
         t("quotes.form.createError", {
           message: error instanceof Error ? error.message : ""
         })
@@ -100,38 +98,28 @@ export function QuoteCreateWorkspace({
       onStepChange={setCurrentStep}
       summaryLabel={t("quotes.form.newDraftLabel")}
       footer={
-        <>
-          {feedback ? (
-            <FeedbackBanner
-              tone={createQuoteMutation.isError ? "error" : "success"}
-            >
-              {feedback}
-            </FeedbackBanner>
-          ) : null}
-          <div className="flex flex-wrap gap-3">
-            <Button
-              type="button"
-              size="lg"
-              variant="secondary"
-              onClick={() => {
-                form.reset(buildCreateDefaults(customers, leads));
-                setFeedback(null);
-                setCurrentStep("recipient");
-              }}
-            >
-              {t("quotes.form.resetAction")}
-            </Button>
-            <Button
-              type="submit"
-              size="lg"
-              disabled={createQuoteMutation.isPending}
-            >
-              {createQuoteMutation.isPending
-                ? t("quotes.form.createSubmitting")
-                : t("quotes.form.createAction")}
-            </Button>
-          </div>
-        </>
+        <div className="flex flex-wrap gap-3">
+          <Button
+            type="button"
+            size="lg"
+            variant="secondary"
+            onClick={() => {
+              form.reset(buildCreateDefaults(customers, leads));
+              setCurrentStep("recipient");
+            }}
+          >
+            {t("quotes.form.resetAction")}
+          </Button>
+          <Button
+            type="submit"
+            size="lg"
+            disabled={createQuoteMutation.isPending}
+          >
+            {createQuoteMutation.isPending
+              ? t("quotes.form.createSubmitting")
+              : t("quotes.form.createAction")}
+          </Button>
+        </div>
       }
       onSubmit={form.handleSubmit(onSubmit)}
     >
@@ -158,7 +146,6 @@ export function QuoteManageWorkspace({
   const { updateQuoteMutation } = useQuoteMutations();
   const quoteFormSchema = createQuoteFormSchema(t);
   const [selectedQuoteId, setSelectedQuoteId] = useState<string>("");
-  const [feedback, setFeedback] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState<QuoteFormStepKey>("recipient");
 
   const form = useForm<QuoteFormValues>({
@@ -210,11 +197,9 @@ export function QuoteManageWorkspace({
 
   async function onSubmit(values: QuoteFormValues) {
     if (!selectedQuoteDetail) {
-      setFeedback(t("quotes.form.noQuoteSelected"));
+      toast.error(t("quotes.form.noQuoteSelected"));
       return;
     }
-
-    setFeedback(null);
 
     try {
       await updateQuoteMutation.mutateAsync({
@@ -222,9 +207,9 @@ export function QuoteManageWorkspace({
         version: selectedQuoteDetail.version,
         ...toQuotePayload(values)
       });
-      setFeedback(t("quotes.form.updateSuccess"));
+      toast.success(t("quotes.form.updateSuccess"));
     } catch (error) {
-      setFeedback(
+      toast.error(
         t("quotes.form.updateError", {
           message: error instanceof Error ? error.message : ""
         })
@@ -269,7 +254,6 @@ export function QuoteManageWorkspace({
               value={selectedQuoteId}
               onChange={(event) => {
                 setSelectedQuoteId(event.target.value);
-                setFeedback(null);
                 setCurrentStep("recipient");
               }}
             >
@@ -287,7 +271,6 @@ export function QuoteManageWorkspace({
               type="button"
               onClick={() => {
                 setSelectedQuoteId(quote.id);
-                setFeedback(null);
                 setCurrentStep("recipient");
               }}
               className={cn(
@@ -349,26 +332,17 @@ export function QuoteManageWorkspace({
             ) : null
           }
           footer={
-            <>
-              {feedback ? (
-                <FeedbackBanner
-                  tone={updateQuoteMutation.isError ? "error" : "success"}
-                >
-                  {feedback}
-                </FeedbackBanner>
-              ) : null}
-              <div className="flex justify-end">
-                <Button
-                  type="submit"
-                  size="lg"
-                  disabled={updateQuoteMutation.isPending || !selectedQuoteDetail}
-                >
-                  {updateQuoteMutation.isPending
-                    ? t("quotes.form.updateSubmitting")
-                    : t("quotes.form.updateAction")}
-                </Button>
-              </div>
-            </>
+            <div className="flex justify-end">
+              <Button
+                type="submit"
+                size="lg"
+                disabled={updateQuoteMutation.isPending || !selectedQuoteDetail}
+              >
+                {updateQuoteMutation.isPending
+                  ? t("quotes.form.updateSubmitting")
+                  : t("quotes.form.updateAction")}
+              </Button>
+            </div>
           }
           onSubmit={form.handleSubmit(onSubmit)}
         >

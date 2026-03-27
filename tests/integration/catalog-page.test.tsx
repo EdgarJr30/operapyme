@@ -44,8 +44,8 @@ describe("catalog page", () => {
     renderPage();
 
     expect(
-      await screen.findByText(/Cargando items reales del catalogo/i)
-    ).toBeInTheDocument();
+      await screen.findAllByText(/Cargando items reales del catalogo/i)
+    ).toHaveLength(2);
   });
 
   it("shows the tenant guard state when there is no active tenant", async () => {
@@ -61,8 +61,8 @@ describe("catalog page", () => {
     renderPage();
 
     expect(
-      await screen.findByText(/No hay tenant activo para consultar el catalogo/i)
-    ).toBeInTheDocument();
+      await screen.findAllByText(/No hay tenant activo para consultar el catalogo/i)
+    ).toHaveLength(2);
   });
 
   it("shows an empty state when the tenant still has no catalog items", async () => {

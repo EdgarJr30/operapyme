@@ -36,6 +36,7 @@
 - Si una vista nueva requiere cambio de idioma, persistir la preferencia del usuario sin romper el fallback a espanol.
 - Soportar `light`, `dark` y `system` sin romper la misma jerarquia visual ni convertir dark mode en una interfaz neon o gamer.
 - Consumir tokens semanticos de superficie, borde, texto y acento; evitar hardcodear `white`, `black` o colores por cliente en componentes de app.
+- El feedback transitorio de acciones debe usar el toaster global con `sonner`; no duplicarlo con banners inline salvo que el estado necesite persistir en pantalla.
 
 ## Reglas de codigo
 

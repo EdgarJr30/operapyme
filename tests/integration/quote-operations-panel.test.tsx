@@ -6,7 +6,10 @@ import { vi } from "vitest";
 import { I18nextProvider } from "@operapyme/i18n";
 
 import { setupBackofficeI18n } from "@/app/i18n";
-import { QuoteOperationsPanel } from "@/modules/quotes/quote-operations-panel";
+import {
+  QuoteCreateWorkspace,
+  QuoteManageWorkspace
+} from "@/modules/quotes/quote-operations-panel";
 
 const quoteMutationMocks = vi.hoisted(() => ({
   useQuoteMutations: vi.fn(),
@@ -39,89 +42,101 @@ function buildMutationState() {
   };
 }
 
-function renderPanel() {
+const quotePanelProps = {
+  customers: [
+    {
+      id: "customer-1",
+      customerCode: "CLI-001",
+      displayName: "Northline Industrial",
+      contactName: "Andrea Castillo",
+      legalName: null,
+      email: "sales@northline.test",
+      whatsapp: null,
+      phone: null,
+      documentId: null,
+      notes: null,
+      source: "manual",
+      status: "active",
+      updatedAt: "2026-03-26T00:00:00.000Z"
+    }
+  ],
+  leads: [
+    {
+      id: "lead-1",
+      leadCode: "LEA-001",
+      displayName: "Northline Prospect",
+      contactName: "Andrea Castillo",
+      email: "sales@northline.test",
+      whatsapp: null,
+      phone: null,
+      source: "whatsapp",
+      status: "new",
+      needSummary: "Mantenimiento preventivo",
+      notes: null,
+      updatedAt: "2026-03-26T00:00:00.000Z"
+    }
+  ],
+  catalogItems: [
+    {
+      id: "item-1",
+      itemCode: "CAT-001",
+      name: "Mantenimiento preventivo",
+      description: "Visita tecnica trimestral",
+      category: "Servicios",
+      kind: "service",
+      visibility: "private",
+      pricingMode: "fixed",
+      currencyCode: "USD",
+      unitPrice: 1500,
+      status: "active",
+      notes: null,
+      updatedAt: "2026-03-26T00:00:00.000Z"
+    }
+  ],
+  quotes: [
+    {
+      id: "quote-1",
+      customerId: "customer-1",
+      leadId: null,
+      recipientKind: "customer",
+      recipientDisplayName: "Northline Industrial",
+      recipientContactName: "Andrea Castillo",
+      recipientEmail: "sales@northline.test",
+      recipientWhatsApp: null,
+      recipientPhone: null,
+      quoteNumber: "COT-2026-000210",
+      title: "Propuesta Northline",
+      currencyCode: "USD",
+      subtotal: 1000,
+      discountTotal: 100,
+      taxTotal: 180,
+      grandTotal: 1080,
+      status: "draft",
+      version: 1,
+      validUntil: "2026-04-10",
+      notes: "Notas iniciales",
+      createdAt: "2026-03-25T00:00:00.000Z",
+      updatedAt: "2026-03-26T00:00:00.000Z"
+    }
+  ]
+};
+
+function renderCreatePanel() {
   const i18n = setupBackofficeI18n();
 
   return render(
     <I18nextProvider i18n={i18n}>
-      <QuoteOperationsPanel
-        customers={[
-          {
-            id: "customer-1",
-            customerCode: "CLI-001",
-            displayName: "Northline Industrial",
-            contactName: "Andrea Castillo",
-            legalName: null,
-            email: "sales@northline.test",
-            whatsapp: null,
-            phone: null,
-            documentId: null,
-            notes: null,
-            source: "manual",
-            status: "active",
-            updatedAt: "2026-03-26T00:00:00.000Z"
-          }
-        ]}
-        leads={[
-          {
-            id: "lead-1",
-            leadCode: "LEA-001",
-            displayName: "Northline Prospect",
-            contactName: "Andrea Castillo",
-            email: "sales@northline.test",
-            whatsapp: null,
-            phone: null,
-            source: "whatsapp",
-            status: "new",
-            needSummary: "Mantenimiento preventivo",
-            notes: null,
-            updatedAt: "2026-03-26T00:00:00.000Z"
-          }
-        ]}
-        catalogItems={[
-          {
-            id: "item-1",
-            itemCode: "CAT-001",
-            name: "Mantenimiento preventivo",
-            description: "Visita tecnica trimestral",
-            category: "Servicios",
-            kind: "service",
-            visibility: "private",
-            pricingMode: "fixed",
-            currencyCode: "USD",
-            unitPrice: 1500,
-            status: "active",
-            notes: null,
-            updatedAt: "2026-03-26T00:00:00.000Z"
-          }
-        ]}
-        quotes={[
-          {
-            id: "quote-1",
-            customerId: "customer-1",
-            leadId: null,
-            recipientKind: "customer",
-            recipientDisplayName: "Northline Industrial",
-            recipientContactName: "Andrea Castillo",
-            recipientEmail: "sales@northline.test",
-            recipientWhatsApp: null,
-            recipientPhone: null,
-            quoteNumber: "COT-2026-000210",
-            title: "Propuesta Northline",
-            currencyCode: "USD",
-            subtotal: 1000,
-            discountTotal: 100,
-            taxTotal: 180,
-            grandTotal: 1080,
-            status: "draft",
-            version: 1,
-            validUntil: "2026-04-10",
-            notes: "Notas iniciales",
-            createdAt: "2026-03-25T00:00:00.000Z",
-            updatedAt: "2026-03-26T00:00:00.000Z"
-          }
-        ]}
-      />
+      <QuoteCreateWorkspace {...quotePanelProps} />
+    </I18nextProvider>
+  );
+}
+
+function renderManagePanel() {
+  const i18n = setupBackofficeI18n();
+
+  return render(
+    <I18nextProvider i18n={i18n}>
+      <QuoteManageWorkspace {...quotePanelProps} />
     </I18nextProvider>
   );
 }
@@ -177,18 +192,15 @@ describe("quote operations panel", () => {
     });
     const user = userEvent.setup();
 
-    renderPanel();
+    renderCreatePanel();
 
-    await user.type(
-      screen.getAllByLabelText(/Titulo/i)[0],
-      "Propuesta de soporte"
-    );
-    await user.type(
-      screen.getAllByLabelText(/Nombre del servicio o producto/i)[0],
-      "Soporte premium"
-    );
-    await user.clear(screen.getAllByLabelText(/Precio unitario/i)[0]);
-    await user.type(screen.getAllByLabelText(/Precio unitario/i)[0], "1500");
+    await user.click(screen.getByRole("button", { name: /Documento/i }));
+
+    await user.type(screen.getByLabelText(/Titulo/i), "Propuesta de soporte");
+    await user.click(screen.getByRole("button", { name: /Lineas/i }));
+    await user.type(screen.getByLabelText(/Nombre del servicio o producto/i), "Soporte premium");
+    await user.clear(screen.getByLabelText(/Precio unitario/i));
+    await user.type(screen.getByLabelText(/Precio unitario/i), "1500");
     await user.click(screen.getByRole("button", { name: /Guardar cotizacion/i }));
 
     expect(mutationState.createQuoteMutation.mutateAsync).toHaveBeenCalledWith(
@@ -261,9 +273,11 @@ describe("quote operations panel", () => {
     });
     const user = userEvent.setup();
 
-    renderPanel();
+    renderManagePanel();
 
-    const updateTitleInput = screen.getAllByLabelText(/Titulo/i)[1];
+    await user.click(screen.getByRole("button", { name: /Documento/i }));
+
+    const updateTitleInput = screen.getByLabelText(/Titulo/i);
     await user.clear(updateTitleInput);
     await user.type(updateTitleInput, "Propuesta Northline actualizada");
     await user.click(screen.getByRole("button", { name: /Actualizar cotizacion/i }));

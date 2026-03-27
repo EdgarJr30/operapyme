@@ -83,7 +83,7 @@ describe("dashboard page", () => {
     renderPage();
 
     expect(
-      await screen.findByText(/Aun no hay actividad comercial para mostrar/i)
+      await screen.findByText(/Todavia no hay movimiento comercial/i)
     ).toBeInTheDocument();
   });
 
@@ -151,7 +151,7 @@ describe("dashboard page", () => {
       (await screen.findAllByText(/Northline Industrial/i)).length
     ).toBeGreaterThan(0);
     expect(screen.getByText(/COT-2026-000210/i)).toBeInTheDocument();
-    expect(screen.getByText(/Clientes visibles/i)).toBeInTheDocument();
+    expect(screen.getByText(/Clientes recientes/i)).toBeInTheDocument();
     expect(screen.getAllByText(/^5$/).length).toBeGreaterThan(0);
   });
 });

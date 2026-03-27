@@ -740,6 +740,7 @@ const backofficeEn = {
     pdf: {
       downloadAction: "Download PDF",
       generatingAction: "Generating PDF...",
+      downloadSuccess: "The quote PDF is downloading now.",
       downloadError: "We could not generate the PDF. {message}",
       noTenantError: "You need an active tenant before generating the PDF."
     }
@@ -825,6 +826,7 @@ const backofficeEn = {
       submit: "Send access link",
       submitFirstTime: "Send link to get started",
       submitting: "Sending access...",
+      emailSendError: "We could not send the access link. {message}",
       emailSentTitle: "Check your inbox",
       emailSentText:
         "We sent an access link to {email}. If you do not see it, check spam or try again.",
@@ -879,6 +881,11 @@ const backofficeEn = {
     slugHint: "Suggested operating URL: {slug}",
     submit: "Create tenant and continue",
     submitting: "Creating tenant...",
+    unavailableError: "Supabase is not configured for this environment.",
+    submitError: "We could not create the initial tenant. {message}",
+    successTitle: "Initial tenant created.",
+    successDescription:
+      "Your operating workspace is now ready for CRM, catalog, and quotes.",
     noteTitle: "Operating rule",
     noteText:
       "Later this flow can become a multi-step wizard, but today it already leaves the membership and base role ready.",

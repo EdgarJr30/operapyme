@@ -79,6 +79,7 @@ Acceso canonico a Supabase para este repo:
 - Todo cambio visual debe apoyarse en tokens semanticos y mantener contraste, calma visual e identidad consistente.
 - El estandar de animacion del producto es `motion.dev` (`motion`). No introducir otra libreria de animacion para transiciones, overlays, drawers, modales o microinteracciones sin una decision documentada.
 - Las pantallas runtime del backoffice no deben mostrar copy de scaffold, blueprint, reglas internas o explicaciones tecnicas; deben abrir con resumen operativo, acciones y estados reales del modulo.
+- El feedback transitorio de acciones del backoffice debe salir por toast global con `sonner`; reservar mensajes inline para estados estructurales, vacios, cargas o errores persistentes del contexto.
 
 ## Filosofia de producto
 

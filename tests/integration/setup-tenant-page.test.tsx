@@ -10,6 +10,7 @@ import {
   Route,
   Routes
 } from "react-router-dom";
+import { toast } from "sonner";
 import { vi } from "vitest";
 
 import { I18nextProvider } from "@operapyme/i18n";
@@ -122,8 +123,10 @@ describe("setup tenant page", () => {
       screen.getByRole("button", { name: /Crear tenant y continuar/i })
     );
 
-    expect(
-      await screen.findByText(/El slug ya existe/i)
-    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(toast.error).toHaveBeenCalledWith(
+        expect.stringContaining("El slug ya existe")
+      );
+    });
   });
 });

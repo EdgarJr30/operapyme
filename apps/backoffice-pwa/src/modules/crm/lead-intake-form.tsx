@@ -3,6 +3,7 @@ import { type ReactNode, useState } from "react";
 import { useTranslation } from "@operapyme/i18n";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -40,7 +41,6 @@ export function LeadIntakeForm() {
   const [submittedLead, setSubmittedLead] = useState<LeadIntakeValues | null>(
     null
   );
-  const [createFeedback, setCreateFeedback] = useState<string | null>(null);
 
   const leadIntakeSchema = createLeadIntakeSchema(t);
 
@@ -65,8 +65,6 @@ export function LeadIntakeForm() {
       : null;
 
   const onSubmit = async (values: LeadIntakeValues) => {
-    setCreateFeedback(null);
-
     try {
       await createLeadMutation.mutateAsync({
         displayName: values.company,
@@ -78,10 +76,10 @@ export function LeadIntakeForm() {
         needSummary: values.needSummary
       });
       setSubmittedLead(values);
-      setCreateFeedback(t("crm.form.createSuccess"));
+      toast.success(t("crm.form.createSuccess"));
       reset(defaultValues);
     } catch (error) {
-      setCreateFeedback(
+      toast.error(
         t("crm.form.createError", {
           message: error instanceof Error ? error.message : ""
         })
@@ -91,7 +89,6 @@ export function LeadIntakeForm() {
 
   const handleClear = () => {
     setSubmittedLead(null);
-    setCreateFeedback(null);
     reset(defaultValues);
   };
 
@@ -218,14 +215,6 @@ export function LeadIntakeForm() {
 
             {!activeTenantId ? (
               <FormBanner tone="neutral">{t("crm.form.noTenantHint")}</FormBanner>
-            ) : null}
-
-            {createFeedback ? (
-              <FormBanner
-                tone={createLeadMutation.isError ? "error" : "success"}
-              >
-                {createFeedback}
-              </FormBanner>
             ) : null}
 
             <div className="flex flex-wrap gap-3 pt-2">
