@@ -1,16 +1,25 @@
-import { Check, LayoutDashboard, Store, SwatchBook } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+
+import { Check, LayoutDashboard, RotateCcw, Store, SwatchBook } from "lucide-react";
 
 import { useTranslation } from "@operapyme/i18n";
 import {
   buildThemeHeroStyle,
   buildThemeScopeStyle,
+  defaultCustomThemePaletteSeeds,
   formatContrastRatio,
   getContrastRatio,
   meetsAaContrast,
-  useTenantTheme
+  pickBestContrastColor,
+  useTenantTheme,
+  type ThemePaletteDefinition,
+  type ThemePaletteSeedColors,
+  type ThemePaletteSelectionId
 } from "@operapyme/ui";
 import { useTheme } from "next-themes";
+import { toast } from "sonner";
 
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -78,80 +87,273 @@ export function TenantPaletteSection() {
   );
 }
 
-function PaletteSelectionGrid() {
+export function CompactTenantPaletteSelector() {
   const { t } = useTranslation("backoffice");
-  const { paletteId, palettes, setPaletteId } = useTenantTheme();
 
   return (
-    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
-      {palettes.map((palette) => {
-        const contrastRatio = getContrastRatio(
-          palette.colors.ink,
-          palette.colors.primary400
-        );
-        const isSelected = palette.id === paletteId;
+    <div className="space-y-3 rounded-3xl border border-line/70 bg-paper/76 p-4">
+      <div className="space-y-1">
+        <p className="text-sm font-semibold text-ink">
+          {t("setup.paletteTitle")}
+        </p>
+        <p className="text-sm leading-6 text-ink-soft">
+          {t("setup.paletteDescription")}
+        </p>
+      </div>
+      <PaletteSelectionGrid compact />
+    </div>
+  );
+}
+
+function PaletteSelectionGrid({ compact = false }: { compact?: boolean }) {
+  const { t } = useTranslation("backoffice");
+  const {
+    paletteId,
+    palettes,
+    customPalette,
+    setPaletteId,
+    setCustomPalette,
+    resetCustomPalette
+  } = useTenantTheme();
+  const [customDraft, setCustomDraft] = useState<ThemePaletteSeedColors>(
+    customPalette.seeds
+  );
+  const customToastTimeoutRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    setCustomDraft(customPalette.seeds);
+  }, [customPalette.seeds]);
+
+  useEffect(() => {
+    return () => {
+      if (customToastTimeoutRef.current) {
+        window.clearTimeout(customToastTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const customContrastRatio = getContrastRatio(
+    pickBestContrastColor(customPalette.colors.primary400),
+    customPalette.colors.primary400
+  );
+
+  const items: Array<{
+    id: ThemePaletteSelectionId;
+    palette: ThemePaletteDefinition;
+    contrastRatio: number;
+  }> = [
+    ...palettes.map((palette) => ({
+      id: palette.id,
+      palette,
+      contrastRatio: getContrastRatio(
+        pickBestContrastColor(palette.colors.primary400),
+        palette.colors.primary400
+      )
+    })),
+    {
+      id: "custom",
+      palette: customPalette,
+      contrastRatio: customContrastRatio
+    }
+  ];
+
+  function showPaletteToast(nextPaletteId: ThemePaletteSelectionId) {
+    toast.success(t("settings.palette.toastTitle"), {
+      description: t("settings.palette.toastDescription", {
+        palette: t(`theme.palettes.${nextPaletteId}.name`, { ns: "common" })
+      })
+    });
+  }
+
+  function scheduleCustomPaletteToast(nextDraft: ThemePaletteSeedColors) {
+    if (customToastTimeoutRef.current) {
+      window.clearTimeout(customToastTimeoutRef.current);
+    }
+
+    customToastTimeoutRef.current = window.setTimeout(() => {
+      setCustomPalette(nextDraft);
+      showPaletteToast("custom");
+      customToastTimeoutRef.current = null;
+    }, 320);
+  }
+
+  return (
+    <div className={cn("grid gap-3", compact ? "sm:grid-cols-2" : "sm:grid-cols-2 xl:grid-cols-1")}>
+      {items.map(({ id, palette, contrastRatio }) => {
+        const isSelected = id === paletteId;
+        const isCustom = id === "custom";
 
         return (
-          <button
-            key={palette.id}
-            type="button"
-            aria-pressed={isSelected}
-            onClick={() => setPaletteId(palette.id)}
+          <div
+            key={id}
             className={cn(
-              "rounded-[26px] border p-4 text-left transition",
+              "rounded-3xl border p-4 transition",
               isSelected
                 ? "border-brand bg-paper/92 shadow-panel"
-                : "border-line/70 bg-paper/72 hover:border-brand/45 hover:bg-paper/88"
+                : "border-line/70 bg-paper/72"
             )}
           >
-            <div className="flex items-start justify-between gap-3">
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <p className="text-sm font-semibold text-ink">
-                    {t(`theme.palettes.${palette.id}.name`, { ns: "common" })}
+            <button
+              type="button"
+              aria-pressed={isSelected}
+              onClick={() => {
+                if (id !== paletteId) {
+                  setPaletteId(id);
+                  showPaletteToast(id);
+                }
+              }}
+              className="w-full text-left"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-semibold text-ink">
+                      {t(`theme.palettes.${id}.name`, { ns: "common" })}
+                    </p>
+                    {isSelected ? (
+                      <span className="flex size-5 items-center justify-center rounded-full bg-brand text-brand-contrast">
+                        <Check className="size-3" aria-hidden="true" />
+                      </span>
+                    ) : null}
+                  </div>
+                  <p className="text-sm leading-6 text-ink-soft">
+                    {t(`theme.palettes.${id}.description`, {
+                      ns: "common"
+                    })}
                   </p>
-                  {isSelected ? (
-                    <span className="flex size-5 items-center justify-center rounded-full bg-brand text-brand-contrast">
-                      <Check className="size-3" aria-hidden="true" />
-                    </span>
-                  ) : null}
                 </div>
-                <p className="text-sm leading-6 text-ink-soft">
-                  {t(`theme.palettes.${palette.id}.description`, {
-                    ns: "common"
-                  })}
-                </p>
+
+                <StatusPill tone={isSelected ? "success" : "neutral"}>
+                  {isSelected
+                    ? t("settings.palette.active")
+                    : t("settings.palette.apply")}
+                </StatusPill>
               </div>
 
-              <StatusPill tone={isSelected ? "success" : "neutral"}>
-                {isSelected
-                  ? t("settings.palette.active")
-                  : t("settings.palette.apply")}
-              </StatusPill>
-            </div>
+              <div className="mt-4 flex items-center gap-2">
+                <PaletteSwatch color={palette.colors.primary400} />
+                <PaletteSwatch color={palette.colors.secondary400} />
+                <PaletteSwatch color={palette.colors.tertiary400} />
+                <PaletteSwatch color={palette.colors.paper} bordered />
+              </div>
 
-            <div className="mt-4 flex items-center gap-2">
-              <PaletteSwatch color={palette.colors.primary400} />
-              <PaletteSwatch color={palette.colors.secondary400} />
-              <PaletteSwatch color={palette.colors.tertiary400} />
-              <PaletteSwatch color={palette.colors.paper} bordered />
-            </div>
+              <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-ink-soft">
+                <span className="rounded-full bg-sand-strong px-3 py-1 font-medium text-ink">
+                  {t("settings.palette.contrastLabel")}{" "}
+                  {formatContrastRatio(contrastRatio)}
+                </span>
+                <span className="rounded-full bg-paper px-3 py-1">
+                  {meetsAaContrast(contrastRatio)
+                    ? t("theme.aaReady", { ns: "common" })
+                    : t("settings.palette.reviewLabel")}
+                </span>
+                {isCustom ? (
+                  <span className="rounded-full bg-paper px-3 py-1">
+                    {t("settings.palette.customBadge")}
+                  </span>
+                ) : null}
+              </div>
+            </button>
 
-            <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-ink-soft">
-              <span className="rounded-full bg-sand-strong px-3 py-1 font-medium text-ink">
-                {t("settings.palette.contrastLabel")}{" "}
-                {formatContrastRatio(contrastRatio)}
-              </span>
-              <span className="rounded-full bg-paper px-3 py-1">
-                {meetsAaContrast(contrastRatio)
-                  ? t("theme.aaReady", { ns: "common" })
-                  : t("settings.palette.reviewLabel")}
-              </span>
-            </div>
-          </button>
+            {isCustom && isSelected ? (
+              <div className="mt-4 space-y-4 border-t border-line/70 pt-4">
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <ColorSeedField
+                    label={t("settings.palette.custom.paperLabel")}
+                    value={customDraft.paper}
+                    onChange={(value) => {
+                      const nextDraft = { ...customDraft, paper: value };
+                      setCustomDraft(nextDraft);
+                      scheduleCustomPaletteToast(nextDraft);
+                    }}
+                  />
+                  <ColorSeedField
+                    label={t("settings.palette.custom.primaryLabel")}
+                    value={customDraft.primary}
+                    onChange={(value) => {
+                      const nextDraft = { ...customDraft, primary: value };
+                      setCustomDraft(nextDraft);
+                      scheduleCustomPaletteToast(nextDraft);
+                    }}
+                  />
+                  <ColorSeedField
+                    label={t("settings.palette.custom.secondaryLabel")}
+                    value={customDraft.secondary}
+                    onChange={(value) => {
+                      const nextDraft = { ...customDraft, secondary: value };
+                      setCustomDraft(nextDraft);
+                      scheduleCustomPaletteToast(nextDraft);
+                    }}
+                  />
+                  <ColorSeedField
+                    label={t("settings.palette.custom.tertiaryLabel")}
+                    value={customDraft.tertiary}
+                    onChange={(value) => {
+                      const nextDraft = { ...customDraft, tertiary: value };
+                      setCustomDraft(nextDraft);
+                      scheduleCustomPaletteToast(nextDraft);
+                    }}
+                  />
+                </div>
+
+                <div className="rounded-3xl border border-line/70 bg-sand/70 p-4">
+                  <p className="text-sm font-semibold text-ink">
+                    {t("settings.palette.custom.helperTitle")}
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-ink-soft">
+                    {t("settings.palette.custom.helperText")}
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => {
+                      if (customToastTimeoutRef.current) {
+                        window.clearTimeout(customToastTimeoutRef.current);
+                        customToastTimeoutRef.current = null;
+                      }
+                      setCustomDraft(defaultCustomThemePaletteSeeds);
+                      resetCustomPalette();
+                      showPaletteToast("custom");
+                    }}
+                  >
+                    <RotateCcw className="size-4" aria-hidden="true" />
+                    {t("settings.palette.custom.reset")}
+                  </Button>
+                </div>
+              </div>
+            ) : null}
+          </div>
         );
       })}
     </div>
+  );
+}
+
+function ColorSeedField({
+  label,
+  value,
+  onChange
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <label className="space-y-2">
+      <span className="text-sm font-medium text-ink">{label}</span>
+      <div className="flex items-center gap-3 rounded-2xl border border-line/70 bg-paper/82 px-3 py-2">
+        <input
+          type="color"
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          className="h-11 w-12 cursor-pointer rounded-xl border border-line/70 bg-transparent p-1"
+        />
+        <code className="text-sm font-semibold uppercase text-ink">{value}</code>
+      </div>
+    </label>
   );
 }
 
@@ -182,15 +384,12 @@ function PalettePreview({
   darkMode: boolean;
 }) {
   const { t } = useTranslation("backoffice");
-  const { paletteId } = useTenantTheme();
-  const scopeStyle = buildThemeScopeStyle(paletteId, mode, darkMode);
-  const heroStyle = buildThemeHeroStyle(paletteId, mode, darkMode);
+  const { activePalette } = useTenantTheme();
+  const scopeStyle = buildThemeScopeStyle(activePalette, mode, darkMode);
+  const heroStyle = buildThemeHeroStyle(activePalette, mode, darkMode);
 
   return (
-    <div
-      className="rounded-[28px] border p-4 shadow-panel"
-      style={scopeStyle}
-    >
+    <div className="rounded-[28px] border p-4 shadow-panel" style={scopeStyle}>
       <div
         className="rounded-3xl border border-white/30 p-4 shadow-panel"
         style={heroStyle}

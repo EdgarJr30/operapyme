@@ -1,6 +1,14 @@
 import type { CSSProperties } from "react";
 
-import { getThemePalette, type ThemeAppMode, type ThemePalette, type ThemePaletteId } from "./palettes";
+import { pickBestContrastColor } from "./contrast";
+import {
+  resolveThemePalette,
+  type CustomThemePalette,
+  type ThemeAppMode,
+  type ThemePaletteDefinition,
+  type ThemePaletteSeedColors,
+  type ThemePaletteSelectionId
+} from "./palettes";
 
 function normalizeHex(hex: string) {
   const value = hex.replace("#", "").trim();
@@ -47,7 +55,28 @@ function withAlpha(hex: string, alpha: number) {
   return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
 }
 
-function buildLightAppBackground(palette: ThemePalette, appMode: ThemeAppMode) {
+function resolvePaletteDefinition(
+  paletteSource: ThemePaletteSelectionId | ThemePaletteDefinition,
+  customPaletteSeeds?: ThemePaletteSeedColors | null
+) {
+  if (typeof paletteSource === "string") {
+    return resolveThemePalette(paletteSource, customPaletteSeeds);
+  }
+
+  return paletteSource;
+}
+
+function isCustomThemePalette(
+  palette: ThemePaletteDefinition
+): palette is CustomThemePalette {
+  return palette.id === "custom";
+}
+
+function buildLightAppBackground(palette: ThemePaletteDefinition, appMode: ThemeAppMode) {
+  if (isCustomThemePalette(palette)) {
+    return palette.colors.paper;
+  }
+
   if (appMode === "storefront") {
     return [
       `linear-gradient(180deg, ${withAlpha(palette.colors.paper, 0.92)}, ${withAlpha(
@@ -87,7 +116,39 @@ function buildLightAppBackground(palette: ThemePalette, appMode: ThemeAppMode) {
   ].join(", ");
 }
 
-function buildDarkThemePalette(palette: ThemePalette) {
+function buildDarkThemePalette(palette: ThemePaletteDefinition) {
+  if (isCustomThemePalette(palette)) {
+    const darkPaper = "#121212";
+    const darkSand = "#171717";
+    const darkSandStrong = "#1f1f1f";
+    const darkLine = "#303030";
+    const darkLineStrong = "#404040";
+    const primaryAccent = mixHex(darkPaper, palette.seeds.primary, 0.7);
+    const secondaryAccent = mixHex(darkPaper, palette.seeds.secondary, 0.62);
+    const tertiaryAccent = mixHex(darkPaper, palette.seeds.tertiary, 0.64);
+
+    return {
+      paper: darkPaper,
+      sand: darkSand,
+      sandStrong: darkSandStrong,
+      line: darkLine,
+      lineStrong: darkLineStrong,
+      ink: "#f5f2ed",
+      inkSoft: "#dbd3ca",
+      inkMuted: "#a89d93",
+      primary200: mixHex(darkPaper, palette.seeds.primary, 0.18),
+      primary300: mixHex(darkPaper, palette.seeds.primary, 0.34),
+      primary400: primaryAccent,
+      secondary200: mixHex(darkPaper, palette.seeds.secondary, 0.16),
+      secondary300: mixHex(darkPaper, palette.seeds.secondary, 0.3),
+      secondary400: secondaryAccent,
+      tertiary200: mixHex(darkPaper, palette.seeds.tertiary, 0.16),
+      tertiary300: mixHex(darkPaper, palette.seeds.tertiary, 0.3),
+      tertiary400: tertiaryAccent,
+      highlight200: mixHex(primaryAccent, tertiaryAccent, 0.5)
+    };
+  }
+
   const darkPaper = mixHex("#1b1815", palette.colors.primary200, 0.08);
   const darkSand = mixHex("#12100e", palette.colors.secondary200, 0.06);
   const darkSandStrong = mixHex("#27221d", palette.colors.primary300, 0.1);
@@ -116,7 +177,15 @@ function buildDarkThemePalette(palette: ThemePalette) {
   };
 }
 
-function buildDarkAppBackground(palette: ReturnType<typeof buildDarkThemePalette>, appMode: ThemeAppMode) {
+function buildDarkAppBackground(
+  palette: ReturnType<typeof buildDarkThemePalette>,
+  appMode: ThemeAppMode,
+  flatMode = false
+) {
+  if (flatMode) {
+    return palette.sand;
+  }
+
   if (appMode === "storefront") {
     return [
       `linear-gradient(180deg, ${withAlpha(palette.paper, 0.94)}, ${withAlpha(
@@ -162,8 +231,16 @@ function buildHeroBackground(
   tertiary: string,
   paper: string,
   appMode: ThemeAppMode,
-  darkMode: boolean
+  darkMode: boolean,
+  flatMode = false
 ) {
+  if (flatMode) {
+    return `linear-gradient(135deg, ${withAlpha(primary, 0.34)}, ${withAlpha(
+      paper,
+      0.96
+    )} 46%, ${withAlpha(secondary, 0.24)})`;
+  }
+
   if (appMode === "storefront") {
     return `linear-gradient(135deg, ${withAlpha(secondary, darkMode ? 0.44 : 0.86)}, ${withAlpha(
       paper,
@@ -177,12 +254,72 @@ function buildHeroBackground(
   )} 42%, ${withAlpha(secondary, darkMode ? 0.38 : 0.84)})`;
 }
 
-export function buildTenantThemeVariables(
-  paletteId: ThemePaletteId,
-  appMode: ThemeAppMode
+function buildSidebarVariables(
+  palette: ThemePaletteDefinition,
+  darkPalette: ReturnType<typeof buildDarkThemePalette>
 ) {
-  const palette = getThemePalette(paletteId);
+  if (isCustomThemePalette(palette)) {
+    return {
+      "--vf-light-sidebar-surface": palette.seeds.primary,
+      "--vf-light-sidebar-elevated": palette.seeds.secondary,
+      "--vf-light-sidebar-border": palette.seeds.secondary,
+      "--vf-light-sidebar-text": pickBestContrastColor(palette.seeds.primary),
+      "--vf-light-sidebar-muted": pickBestContrastColor(palette.seeds.secondary),
+      "--vf-light-sidebar-accent": palette.seeds.tertiary,
+      "--vf-light-sidebar-accent-hover": palette.seeds.tertiary,
+      "--vf-light-sidebar-accent-contrast": pickBestContrastColor(palette.seeds.tertiary),
+      "--vf-dark-sidebar-surface": "#151515",
+      "--vf-dark-sidebar-elevated": "#1d1d1d",
+      "--vf-dark-sidebar-border": "#303030",
+      "--vf-dark-sidebar-text": "#f5f2ed",
+      "--vf-dark-sidebar-muted": "#b9ada1",
+      "--vf-dark-sidebar-accent": darkPalette.primary400,
+      "--vf-dark-sidebar-accent-hover": mixHex("#151515", darkPalette.primary400, 0.78),
+      "--vf-dark-sidebar-accent-contrast": pickBestContrastColor(darkPalette.primary400)
+    } as const;
+  }
+
+  const lightSidebarSurface = mixHex("#111217", palette.colors.primary400, 0.26);
+  const lightSidebarElevated = mixHex(lightSidebarSurface, palette.colors.secondary400, 0.18);
+  const lightSidebarAccent = mixHex(palette.colors.primary400, palette.colors.secondary400, 0.18);
+  const darkSidebarSurface = mixHex("#0a0d12", darkPalette.primary300, 0.22);
+  const darkSidebarElevated = mixHex(darkSidebarSurface, darkPalette.secondary300, 0.2);
+  const darkSidebarAccent = mixHex(darkPalette.primary400, darkPalette.secondary400, 0.18);
+
+  return {
+    "--vf-light-sidebar-surface": lightSidebarSurface,
+    "--vf-light-sidebar-elevated": lightSidebarElevated,
+    "--vf-light-sidebar-border": mixHex(lightSidebarSurface, "#ffffff", 0.12),
+    "--vf-light-sidebar-text": "#f7f3ee",
+    "--vf-light-sidebar-muted": mixHex("#d7d0c8", palette.colors.secondary300, 0.2),
+    "--vf-light-sidebar-accent": lightSidebarAccent,
+    "--vf-light-sidebar-accent-hover": mixHex(lightSidebarAccent, "#ffffff", 0.1),
+    "--vf-light-sidebar-accent-contrast": pickBestContrastColor(lightSidebarAccent),
+    "--vf-dark-sidebar-surface": darkSidebarSurface,
+    "--vf-dark-sidebar-elevated": darkSidebarElevated,
+    "--vf-dark-sidebar-border": mixHex(darkSidebarSurface, "#ffffff", 0.1),
+    "--vf-dark-sidebar-text": "#f6f1ea",
+    "--vf-dark-sidebar-muted": mixHex("#bdb3a6", darkPalette.secondary300, 0.22),
+    "--vf-dark-sidebar-accent": darkSidebarAccent,
+    "--vf-dark-sidebar-accent-hover": mixHex(darkSidebarAccent, "#ffffff", 0.12),
+    "--vf-dark-sidebar-accent-contrast": pickBestContrastColor(darkSidebarAccent)
+  } as const;
+}
+
+export function buildTenantThemeVariables(
+  paletteSource: ThemePaletteSelectionId | ThemePaletteDefinition,
+  appMode: ThemeAppMode,
+  customPaletteSeeds?: ThemePaletteSeedColors | null
+) {
+  const palette = resolvePaletteDefinition(paletteSource, customPaletteSeeds);
   const darkPalette = buildDarkThemePalette(palette);
+  const sidebarVariables = buildSidebarVariables(palette, darkPalette);
+  const lightBrand = isCustomThemePalette(palette)
+    ? palette.seeds.primary
+    : palette.colors.primary400;
+  const darkBrand = isCustomThemePalette(palette)
+    ? darkPalette.primary400
+    : darkPalette.primary400;
 
   return {
     "--vf-light-paper": palette.colors.paper,
@@ -203,10 +340,14 @@ export function buildTenantThemeVariables(
     "--vf-light-tertiary-300": palette.colors.tertiary300,
     "--vf-light-tertiary-400": palette.colors.tertiary400,
     "--vf-light-highlight-200": palette.colors.highlight200,
-    "--vf-light-brand": palette.colors.primary400,
-    "--vf-light-brand-hover": mixHex(palette.colors.primary400, palette.colors.ink, 0.14),
-    "--vf-light-brand-soft": palette.colors.primary200,
-    "--vf-light-brand-contrast": palette.colors.ink,
+    "--vf-light-brand": lightBrand,
+    "--vf-light-brand-hover": isCustomThemePalette(palette)
+      ? lightBrand
+      : mixHex(lightBrand, palette.colors.ink, 0.14),
+    "--vf-light-brand-soft": isCustomThemePalette(palette)
+      ? palette.seeds.primary
+      : palette.colors.primary200,
+    "--vf-light-brand-contrast": pickBestContrastColor(lightBrand),
     "--vf-light-app-background": buildLightAppBackground(palette, appMode),
     "--vf-light-hero-background": buildHeroBackground(
       palette.colors.primary200,
@@ -214,7 +355,8 @@ export function buildTenantThemeVariables(
       palette.colors.tertiary200,
       palette.colors.paper,
       appMode,
-      false
+      false,
+      isCustomThemePalette(palette)
     ),
     "--vf-dark-paper": darkPalette.paper,
     "--vf-dark-sand": darkPalette.sand,
@@ -234,19 +376,29 @@ export function buildTenantThemeVariables(
     "--vf-dark-tertiary-300": darkPalette.tertiary300,
     "--vf-dark-tertiary-400": darkPalette.tertiary400,
     "--vf-dark-highlight-200": darkPalette.highlight200,
-    "--vf-dark-brand": darkPalette.primary400,
-    "--vf-dark-brand-hover": mixHex(darkPalette.primary400, darkPalette.ink, 0.12),
-    "--vf-dark-brand-soft": darkPalette.primary200,
-    "--vf-dark-brand-contrast": darkPalette.ink,
-    "--vf-dark-app-background": buildDarkAppBackground(darkPalette, appMode),
+    "--vf-dark-brand": darkBrand,
+    "--vf-dark-brand-hover": isCustomThemePalette(palette)
+      ? darkBrand
+      : mixHex(darkBrand, darkPalette.ink, 0.12),
+    "--vf-dark-brand-soft": isCustomThemePalette(palette)
+      ? darkBrand
+      : darkPalette.primary200,
+    "--vf-dark-brand-contrast": pickBestContrastColor(darkBrand),
+    "--vf-dark-app-background": buildDarkAppBackground(
+      darkPalette,
+      appMode,
+      isCustomThemePalette(palette)
+    ),
     "--vf-dark-hero-background": buildHeroBackground(
       darkPalette.primary300,
       darkPalette.secondary300,
       darkPalette.tertiary300,
       darkPalette.paper,
       appMode,
-      true
+      true,
+      isCustomThemePalette(palette)
     ),
+    ...sidebarVariables,
     "--vf-shadow-soft": "0 24px 80px -42px rgba(63, 43, 24, 0.28)",
     "--vf-shadow-panel": "0 18px 45px -34px rgba(43, 24, 7, 0.22)",
     "--vf-shadow-soft-dark": "0 24px 80px -46px rgba(0, 0, 0, 0.72)",
@@ -256,25 +408,28 @@ export function buildTenantThemeVariables(
 
 export function applyTenantTheme(
   root: HTMLElement,
-  paletteId: ThemePaletteId,
-  appMode: ThemeAppMode
+  paletteSource: ThemePaletteSelectionId | ThemePaletteDefinition,
+  appMode: ThemeAppMode,
+  customPaletteSeeds?: ThemePaletteSeedColors | null
 ) {
-  const variables = buildTenantThemeVariables(paletteId, appMode);
+  const palette = resolvePaletteDefinition(paletteSource, customPaletteSeeds);
+  const variables = buildTenantThemeVariables(palette, appMode);
 
   Object.entries(variables).forEach(([name, value]) => {
     root.style.setProperty(name, value);
   });
 
-  root.dataset.operapymePalette = paletteId;
+  root.dataset.operapymePalette = palette.id;
   root.dataset.operapymeApp = appMode;
 }
 
 export function buildThemePreviewStyle(
-  paletteId: ThemePaletteId,
+  paletteSource: ThemePaletteSelectionId | ThemePaletteDefinition,
   appMode: ThemeAppMode,
-  darkMode = false
+  darkMode = false,
+  customPaletteSeeds?: ThemePaletteSeedColors | null
 ): CSSProperties {
-  const variables = buildTenantThemeVariables(paletteId, appMode);
+  const variables = buildTenantThemeVariables(paletteSource, appMode, customPaletteSeeds);
 
   return {
     background: darkMode
@@ -288,11 +443,12 @@ export function buildThemePreviewStyle(
 }
 
 export function buildThemeScopeStyle(
-  paletteId: ThemePaletteId,
+  paletteSource: ThemePaletteSelectionId | ThemePaletteDefinition,
   appMode: ThemeAppMode,
-  darkMode = false
+  darkMode = false,
+  customPaletteSeeds?: ThemePaletteSeedColors | null
 ): CSSProperties {
-  const variables = buildTenantThemeVariables(paletteId, appMode);
+  const variables = buildTenantThemeVariables(paletteSource, appMode, customPaletteSeeds);
   const scopeStyle: CSSProperties & Record<string, string> = {
     "--vf-active-paper": darkMode
       ? variables["--vf-dark-paper"]
@@ -360,6 +516,30 @@ export function buildThemeScopeStyle(
     "--vf-active-brand-contrast": darkMode
       ? variables["--vf-dark-brand-contrast"]
       : variables["--vf-light-brand-contrast"],
+    "--vf-active-sidebar-surface": darkMode
+      ? variables["--vf-dark-sidebar-surface"]
+      : variables["--vf-light-sidebar-surface"],
+    "--vf-active-sidebar-elevated": darkMode
+      ? variables["--vf-dark-sidebar-elevated"]
+      : variables["--vf-light-sidebar-elevated"],
+    "--vf-active-sidebar-border": darkMode
+      ? variables["--vf-dark-sidebar-border"]
+      : variables["--vf-light-sidebar-border"],
+    "--vf-active-sidebar-text": darkMode
+      ? variables["--vf-dark-sidebar-text"]
+      : variables["--vf-light-sidebar-text"],
+    "--vf-active-sidebar-muted": darkMode
+      ? variables["--vf-dark-sidebar-muted"]
+      : variables["--vf-light-sidebar-muted"],
+    "--vf-active-sidebar-accent": darkMode
+      ? variables["--vf-dark-sidebar-accent"]
+      : variables["--vf-light-sidebar-accent"],
+    "--vf-active-sidebar-accent-hover": darkMode
+      ? variables["--vf-dark-sidebar-accent-hover"]
+      : variables["--vf-light-sidebar-accent-hover"],
+    "--vf-active-sidebar-accent-contrast": darkMode
+      ? variables["--vf-dark-sidebar-accent-contrast"]
+      : variables["--vf-light-sidebar-accent-contrast"],
     "--vf-active-app-background": darkMode
       ? variables["--vf-dark-app-background"]
       : variables["--vf-light-app-background"],
@@ -382,11 +562,12 @@ export function buildThemeScopeStyle(
 }
 
 export function buildThemeHeroStyle(
-  paletteId: ThemePaletteId,
+  paletteSource: ThemePaletteSelectionId | ThemePaletteDefinition,
   appMode: ThemeAppMode,
-  darkMode = false
+  darkMode = false,
+  customPaletteSeeds?: ThemePaletteSeedColors | null
 ): CSSProperties {
-  const variables = buildTenantThemeVariables(paletteId, appMode);
+  const variables = buildTenantThemeVariables(paletteSource, appMode, customPaletteSeeds);
 
   return {
     background: darkMode

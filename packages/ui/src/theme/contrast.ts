@@ -50,3 +50,14 @@ export function formatContrastRatio(ratio: number) {
 export function meetsAaContrast(ratio: number, largeText = false) {
   return ratio >= (largeText ? 3 : 4.5);
 }
+
+export function pickBestContrastColor(
+  background: string,
+  darkCandidate = "#201914",
+  lightCandidate = "#ffffff"
+) {
+  const darkRatio = getContrastRatio(darkCandidate, background);
+  const lightRatio = getContrastRatio(lightCandidate, background);
+
+  return darkRatio >= lightRatio ? darkCandidate : lightCandidate;
+}

@@ -16,6 +16,7 @@ import { vi } from "vitest";
 import { I18nextProvider } from "@operapyme/i18n";
 
 import { setupBackofficeI18n } from "@/app/i18n";
+import { BackofficeThemeProvider } from "@/app/theme-provider";
 import { SetupTenantPage } from "@/modules/setup/setup-tenant-page";
 
 const authMocks = vi.hoisted(() => ({
@@ -48,12 +49,14 @@ function renderRoute() {
 
   return render(
     <I18nextProvider i18n={i18n}>
-      <MemoryRouter initialEntries={["/setup"]}>
-        <Routes>
-          <Route path="/setup" element={<SetupTenantPage />} />
-          <Route path="/" element={<div>Dashboard destination</div>} />
-        </Routes>
-      </MemoryRouter>
+      <BackofficeThemeProvider>
+        <MemoryRouter initialEntries={["/setup"]}>
+          <Routes>
+            <Route path="/setup" element={<SetupTenantPage />} />
+            <Route path="/" element={<div>Dashboard destination</div>} />
+          </Routes>
+        </MemoryRouter>
+      </BackofficeThemeProvider>
     </I18nextProvider>
   );
 }

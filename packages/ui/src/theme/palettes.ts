@@ -1,6 +1,15 @@
-export type ThemePaletteId = "sage" | "lagoon" | "terracotta" | "graphite";
+export type ThemePaletteId = "linen" | "mist" | "clay" | "dusk";
+
+export type ThemePaletteSelectionId = ThemePaletteId | "custom";
 
 export type ThemeAppMode = "backoffice" | "storefront";
+
+export interface ThemePaletteSeedColors {
+  paper: string;
+  primary: string;
+  secondary: string;
+  tertiary: string;
+}
 
 export interface ThemePaletteColors {
   paper: string;
@@ -28,99 +37,199 @@ export interface ThemePalette {
   colors: ThemePaletteColors;
 }
 
-export const defaultThemePaletteId: ThemePaletteId = "sage";
+export interface CustomThemePalette {
+  id: "custom";
+  colors: ThemePaletteColors;
+  seeds: ThemePaletteSeedColors;
+}
+
+export type ThemePaletteDefinition = ThemePalette | CustomThemePalette;
+
+function normalizeHex(hex: string) {
+  const value = hex.replace("#", "").trim();
+
+  if (!/^[0-9a-f]{3}$|^[0-9a-f]{6}$/i.test(value)) {
+    return null;
+  }
+
+  if (value.length === 3) {
+    return value
+      .split("")
+      .map((character) => `${character}${character}`)
+      .join("");
+  }
+
+  return value.toLowerCase();
+}
+
+function ensureHex(hex: string, fallback: string) {
+  const normalized = normalizeHex(hex);
+
+  if (!normalized) {
+    return fallback;
+  }
+
+  return `#${normalized}`;
+}
+
+function hexToRgb(hex: string) {
+  const value = normalizeHex(hex);
+
+  if (!value) {
+    return { red: 0, green: 0, blue: 0 };
+  }
+
+  return {
+    red: Number.parseInt(value.slice(0, 2), 16),
+    green: Number.parseInt(value.slice(2, 4), 16),
+    blue: Number.parseInt(value.slice(4, 6), 16)
+  };
+}
+
+function mixHex(base: string, blend: string, weight = 0.5) {
+  const clampedWeight = Math.max(0, Math.min(1, weight));
+  const baseRgb = hexToRgb(base);
+  const blendRgb = hexToRgb(blend);
+
+  const red = Math.round(baseRgb.red * (1 - clampedWeight) + blendRgb.red * clampedWeight);
+  const green = Math.round(
+    baseRgb.green * (1 - clampedWeight) + blendRgb.green * clampedWeight
+  );
+  const blue = Math.round(baseRgb.blue * (1 - clampedWeight) + blendRgb.blue * clampedWeight);
+
+  return `#${[red, green, blue]
+    .map((channel) => channel.toString(16).padStart(2, "0"))
+    .join("")}`;
+}
+
+function buildDerivedPaletteColors(seeds: ThemePaletteSeedColors): ThemePaletteColors {
+  const paper = ensureHex(seeds.paper, "#fffaf4");
+  const primary = ensureHex(seeds.primary, "#7f927a");
+  const secondary = ensureHex(seeds.secondary, "#8ea6b8");
+  const tertiary = ensureHex(seeds.tertiary, "#c7907d");
+
+  return {
+    paper,
+    sand: paper,
+    sandStrong: paper,
+    line: secondary,
+    lineStrong: secondary,
+    ink: mixHex("#171311", primary, 0.08),
+    inkSoft: mixHex("#47403a", primary, 0.12),
+    inkMuted: mixHex("#706860", primary, 0.12),
+    primary200: primary,
+    primary300: primary,
+    primary400: primary,
+    secondary200: secondary,
+    secondary300: secondary,
+    secondary400: secondary,
+    tertiary200: tertiary,
+    tertiary300: tertiary,
+    tertiary400: tertiary,
+    highlight200: mixHex(primary, tertiary, 0.5)
+  };
+}
+
+export const defaultThemePaletteId: ThemePaletteId = "linen";
+
+export const defaultCustomThemePaletteSeeds: ThemePaletteSeedColors = {
+  paper: "#fff8f3",
+  primary: "#8aa08f",
+  secondary: "#97abc2",
+  tertiary: "#c58f7f"
+};
 
 export const tenantThemePalettes = [
   {
-    id: "sage",
-    colors: {
-      paper: "#fffdf9",
-      sand: "#f7f4ef",
-      sandStrong: "#f0ebe4",
-      line: "#d8d1c8",
-      lineStrong: "#c7beb3",
-      ink: "#201c17",
-      inkSoft: "#554f49",
-      inkMuted: "#7c746c",
-      primary200: "#cfe3d8",
-      primary300: "#b7d4c5",
-      primary400: "#99c3b0",
-      secondary200: "#d6e4f3",
-      secondary300: "#c2d7ec",
-      secondary400: "#a9c4e5",
-      tertiary200: "#f0d7c7",
-      tertiary300: "#e8c5b0",
-      tertiary400: "#ddb299",
-      highlight200: "#f2e5ba"
-    }
-  },
-  {
-    id: "lagoon",
-    colors: {
-      paper: "#fbfdff",
-      sand: "#f0f6fa",
-      sandStrong: "#e4edf3",
-      line: "#cad7e0",
-      lineStrong: "#b8c6d0",
-      ink: "#17232b",
-      inkSoft: "#465764",
-      inkMuted: "#6d7f8c",
-      primary200: "#cde7e2",
-      primary300: "#add8cf",
-      primary400: "#84c2b5",
-      secondary200: "#d9e7f7",
-      secondary300: "#bfd7f1",
-      secondary400: "#97bee6",
-      tertiary200: "#f3d8d1",
-      tertiary300: "#ebbbb1",
-      tertiary400: "#d99b8f",
-      highlight200: "#f4e7b9"
-    }
-  },
-  {
-    id: "terracotta",
+    id: "linen",
     colors: {
       paper: "#fffaf6",
-      sand: "#f8efe8",
-      sandStrong: "#efe2d7",
+      sand: "#f6eee8",
+      sandStrong: "#eee1d7",
       line: "#d9c9bd",
-      lineStrong: "#c7b4a6",
-      ink: "#241913",
-      inkSoft: "#5d4a41",
-      inkMuted: "#847065",
-      primary200: "#f0d8ce",
-      primary300: "#e6bfb0",
-      primary400: "#d59b82",
-      secondary200: "#e2ead8",
-      secondary300: "#ccdcb9",
-      secondary400: "#acc08e",
-      tertiary200: "#dbe6f4",
-      tertiary300: "#bfd4eb",
-      tertiary400: "#97b7dc",
-      highlight200: "#f5dfb1"
+      lineStrong: "#c7b5a7",
+      ink: "#201914",
+      inkSoft: "#574b42",
+      inkMuted: "#7d6f66",
+      primary200: "#d9e4d8",
+      primary300: "#c3d4c2",
+      primary400: "#9fb59e",
+      secondary200: "#dce5ee",
+      secondary300: "#c6d5e3",
+      secondary400: "#a6bace",
+      tertiary200: "#efd8d0",
+      tertiary300: "#e3c0b7",
+      tertiary400: "#cda091",
+      highlight200: "#eadfbf"
     }
   },
   {
-    id: "graphite",
+    id: "mist",
     colors: {
-      paper: "#fcfbfa",
-      sand: "#f1eeea",
-      sandStrong: "#e6e0d9",
-      line: "#cdc5bc",
-      lineStrong: "#b8aea2",
-      ink: "#1d1a18",
-      inkSoft: "#504943",
-      inkMuted: "#766d65",
-      primary200: "#d7dee3",
-      primary300: "#bcc8d1",
-      primary400: "#97a9b7",
-      secondary200: "#dde8f1",
-      secondary300: "#c6d8e6",
-      secondary400: "#a8bfd3",
-      tertiary200: "#f0dad4",
-      tertiary300: "#e2beb4",
-      tertiary400: "#ca9a8d",
-      highlight200: "#ede1b8"
+      paper: "#fcfbf8",
+      sand: "#f1f0eb",
+      sandStrong: "#e7e4dc",
+      line: "#d2d0c6",
+      lineStrong: "#bbb8ae",
+      ink: "#191b1d",
+      inkSoft: "#47505a",
+      inkMuted: "#707884",
+      primary200: "#d8e0dc",
+      primary300: "#becbc5",
+      primary400: "#97aaa4",
+      secondary200: "#d9e3ec",
+      secondary300: "#c4d3df",
+      secondary400: "#a3b7c8",
+      tertiary200: "#e8ddd2",
+      tertiary300: "#d7c6b8",
+      tertiary400: "#bda493",
+      highlight200: "#e4e4cb"
+    }
+  },
+  {
+    id: "clay",
+    colors: {
+      paper: "#fffbf8",
+      sand: "#f7efe8",
+      sandStrong: "#efdfd4",
+      line: "#dbc9bc",
+      lineStrong: "#c9b3a3",
+      ink: "#241813",
+      inkSoft: "#5f4740",
+      inkMuted: "#866b63",
+      primary200: "#efd9d2",
+      primary300: "#e2c0b4",
+      primary400: "#c99b8d",
+      secondary200: "#dbe5dc",
+      secondary300: "#c4d4c3",
+      secondary400: "#9fb39f",
+      tertiary200: "#e0e5f1",
+      tertiary300: "#c6d1e6",
+      tertiary400: "#9fb0d0",
+      highlight200: "#efdfbe"
+    }
+  },
+  {
+    id: "dusk",
+    colors: {
+      paper: "#fbfaf8",
+      sand: "#f2efec",
+      sandStrong: "#e8e1dc",
+      line: "#d2cac2",
+      lineStrong: "#bcb2a9",
+      ink: "#18171b",
+      inkSoft: "#494655",
+      inkMuted: "#6f6a7c",
+      primary200: "#ddd8e7",
+      primary300: "#cbc2db",
+      primary400: "#aba0c2",
+      secondary200: "#d8e3e8",
+      secondary300: "#c0d1d7",
+      secondary400: "#9fb6be",
+      tertiary200: "#eadbd5",
+      tertiary300: "#dcc1b6",
+      tertiary400: "#c2a08e",
+      highlight200: "#e7dfc8"
     }
   }
 ] as const satisfies readonly ThemePalette[];
@@ -131,8 +240,59 @@ export function isThemePaletteId(
   return tenantThemePalettes.some((palette) => palette.id === value);
 }
 
+export function isThemePaletteSelectionId(
+  value: string | null | undefined
+): value is ThemePaletteSelectionId {
+  return value === "custom" || isThemePaletteId(value);
+}
+
+export function isThemePaletteSeedColors(
+  value: unknown
+): value is ThemePaletteSeedColors {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const candidate = value as Record<string, unknown>;
+
+  return (
+    typeof normalizeHex(String(candidate.paper ?? "")) === "string" &&
+    typeof normalizeHex(String(candidate.primary ?? "")) === "string" &&
+    typeof normalizeHex(String(candidate.secondary ?? "")) === "string" &&
+    typeof normalizeHex(String(candidate.tertiary ?? "")) === "string"
+  );
+}
+
+export function createCustomThemePalette(
+  seeds: ThemePaletteSeedColors = defaultCustomThemePaletteSeeds
+): CustomThemePalette {
+  const normalizedSeeds = {
+    paper: ensureHex(seeds.paper, defaultCustomThemePaletteSeeds.paper),
+    primary: ensureHex(seeds.primary, defaultCustomThemePaletteSeeds.primary),
+    secondary: ensureHex(seeds.secondary, defaultCustomThemePaletteSeeds.secondary),
+    tertiary: ensureHex(seeds.tertiary, defaultCustomThemePaletteSeeds.tertiary)
+  };
+
+  return {
+    id: "custom",
+    seeds: normalizedSeeds,
+    colors: buildDerivedPaletteColors(normalizedSeeds)
+  };
+}
+
 export function getThemePalette(paletteId: ThemePaletteId) {
   const palette = tenantThemePalettes.find((item) => item.id === paletteId);
 
   return palette ?? tenantThemePalettes[0];
+}
+
+export function resolveThemePalette(
+  paletteId: ThemePaletteSelectionId,
+  customPaletteSeeds?: ThemePaletteSeedColors | null
+): ThemePaletteDefinition {
+  if (paletteId === "custom") {
+    return createCustomThemePalette(customPaletteSeeds ?? defaultCustomThemePaletteSeeds);
+  }
+
+  return getThemePalette(paletteId);
 }

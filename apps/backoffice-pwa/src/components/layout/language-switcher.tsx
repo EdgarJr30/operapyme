@@ -9,8 +9,13 @@ import {
 } from "@operapyme/i18n";
 
 import { Select } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
-export function LanguageSwitcher() {
+interface LanguageSwitcherProps {
+  className?: string;
+}
+
+export function LanguageSwitcher({ className }: LanguageSwitcherProps) {
   const { i18n, t } = useTranslation("common");
   const [isPending, startTransition] = useTransition();
 
@@ -19,17 +24,17 @@ export function LanguageSwitcher() {
     : defaultLanguage;
 
   return (
-    <div className="flex items-center gap-2">
+    <div className={cn("space-y-2", className)}>
       <label
         htmlFor="language-switcher"
-        className="text-xs font-medium uppercase tracking-[0.18em] text-ink-muted"
+        className="block text-[11px] font-semibold uppercase tracking-[0.22em] text-ink-muted"
       >
         {t("language.label")}
       </label>
       <Select
         id="language-switcher"
         value={activeLanguage}
-        className="w-32"
+        className="w-full min-w-0 rounded-2xl border-line-strong bg-paper px-4 shadow-none"
         disabled={isPending}
         onChange={(event) => {
           const nextLanguage = event.target.value;

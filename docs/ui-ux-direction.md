@@ -27,6 +27,7 @@ La interfaz debe sentirse:
 - evitar dashboards oscuros saturados o visualmente ruidosos
 - evitar morado generico como identidad por defecto
 - usar degradados suaves y superficies con contraste controlado
+- preferir paletas pastel refinadas, desaturadas y profesionales antes que acentos chillones o demasiado infantiles
 - no esconder informacion critica tras hover o tooltips exclusivos de desktop
 
 ## Reglas de experiencia
