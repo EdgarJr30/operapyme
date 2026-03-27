@@ -1,4 +1,4 @@
-import { Suspense, type ReactNode } from "react";
+import { Suspense, lazy, type ReactNode } from "react";
 
 import { useTranslation } from "@operapyme/i18n";
 import {
@@ -10,11 +10,43 @@ import {
 
 import { useBackofficeAuth } from "@/app/auth-provider";
 import { RequireGlobalAdmin } from "@/components/guards/require-global-admin";
-import { AppShell } from "@/components/layout/app-shell";
-import { AuthCallbackPage } from "@/modules/auth/auth-callback-page";
-import { AuthPage } from "@/modules/auth/auth-page";
-import { UnconfiguredPage } from "@/modules/auth/unconfigured-page";
-import { SetupTenantPage } from "@/modules/setup/setup-tenant-page";
+import { AppLoadingScreen } from "@/components/layout/app-loading-screen";
+
+const AuthCallbackPage = lazy(async () => {
+  const module = await import("@/modules/auth/auth-callback-page");
+
+  return { default: module.AuthCallbackPage };
+});
+
+const AuthPage = lazy(async () => {
+  const module = await import("@/modules/auth/auth-page");
+
+  return { default: module.AuthPage };
+});
+
+const UnconfiguredPage = lazy(async () => {
+  const module = await import("@/modules/auth/unconfigured-page");
+
+  return { default: module.UnconfiguredPage };
+});
+
+const SetupTenantPage = lazy(async () => {
+  const module = await import("@/modules/setup/setup-tenant-page");
+
+  return { default: module.SetupTenantPage };
+});
+
+const BackofficeDataProvider = lazy(async () => {
+  const module = await import("@/app/backoffice-data-provider");
+
+  return { default: module.BackofficeDataProvider };
+});
+
+const AppShell = lazy(async () => {
+  const module = await import("@/components/layout/app-shell");
+
+  return { default: module.AppShell };
+});
 
 function NotFoundPage() {
   const { t } = useTranslation("common");
@@ -35,26 +67,26 @@ function NotFoundPage() {
 }
 
 function RouteLoader() {
-  const { t } = useTranslation("common");
-
-  return (
-    <div className="flex min-h-[40vh] items-center justify-center">
-      <div className="rounded-xl border border-line/70 bg-paper px-4 py-2 text-sm text-ink-soft shadow-panel">
-        {t("states.loadingModule")}
-      </div>
-    </div>
-  );
+  return <AppLoadingScreen variant="module" />;
 }
 
 function AuthStatusBoundary({ children }: { children: ReactNode }) {
-  const { isConfigured, status } = useBackofficeAuth();
+  const { isAccessContextLoading, isConfigured, status } = useBackofficeAuth();
 
   if (!isConfigured || status === "unconfigured") {
-    return <UnconfiguredPage />;
+    return (
+      <Suspense fallback={<AppLoadingScreen variant="workspace" />}>
+        <UnconfiguredPage />
+      </Suspense>
+    );
   }
 
   if (status === "loading") {
-    return <RouteLoader />;
+    return <AppLoadingScreen variant="workspace" />;
+  }
+
+  if (status === "signed_in" && isAccessContextLoading) {
+    return <AppLoadingScreen variant="workspace" />;
   }
 
   return children;
@@ -68,7 +100,9 @@ function AuthOnlyRoute() {
       {status === "signed_in" ? (
         <Navigate replace to={isBootstrapped ? "/" : "/setup"} />
       ) : (
-        <AuthPage />
+        <Suspense fallback={<AppLoadingScreen variant="workspace" />}>
+          <AuthPage />
+        </Suspense>
       )}
     </AuthStatusBoundary>
   );
@@ -91,7 +125,11 @@ function RequireBootstrappedShell() {
     <AuthStatusBoundary>
       {status === "signed_in" ? (
         isBootstrapped ? (
-          <AppShell />
+          <Suspense fallback={<AppLoadingScreen variant="workspace" />}>
+            <BackofficeDataProvider>
+              <AppShell />
+            </BackofficeDataProvider>
+          </Suspense>
         ) : (
           <Navigate replace to="/setup" />
         )
@@ -186,6 +224,20 @@ async function loadQuotesManageRoute() {
   };
 }
 
+async function loadLearningRoute() {
+  const { LearningPage } = await import("@/modules/learning/learning-page");
+
+  return {
+    Component: function LearningRoute() {
+      return (
+        <Suspense fallback={<RouteLoader />}>
+          <LearningPage />
+        </Suspense>
+      );
+    }
+  };
+}
+
 async function loadSettingsRoute() {
   const { SettingsPage } = await import("@/modules/settings/settings-page");
 
@@ -235,7 +287,11 @@ export const appRoutes: RouteObject[] = [
   },
   {
     path: "/auth/callback",
-    element: <AuthCallbackPage />
+    element: (
+      <Suspense fallback={<AppLoadingScreen variant="workspace" />}>
+        <AuthCallbackPage />
+      </Suspense>
+    )
   },
   {
     path: "/setup",
@@ -243,7 +299,11 @@ export const appRoutes: RouteObject[] = [
     children: [
       {
         index: true,
-        element: <SetupTenantPage />
+        element: (
+          <Suspense fallback={<AppLoadingScreen variant="workspace" />}>
+            <SetupTenantPage />
+          </Suspense>
+        )
       }
     ]
   },
@@ -275,6 +335,10 @@ export const appRoutes: RouteObject[] = [
       {
         path: "quotes/manage",
         lazy: loadQuotesManageRoute
+      },
+      {
+        path: "learning",
+        lazy: loadLearningRoute
       },
       {
         path: "admin",

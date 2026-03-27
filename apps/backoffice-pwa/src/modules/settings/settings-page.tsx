@@ -31,10 +31,10 @@ export function SettingsPage() {
         <p className="text-xs uppercase tracking-[0.24em] text-ink-muted">
           {t("settings.header.eyebrow")}
         </p>
-        <h1 className="text-3xl font-semibold tracking-tight text-ink">
+        <h1 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
           {t("settings.header.title")}
         </h1>
-        <p className="max-w-3xl text-sm leading-7 text-ink-soft">
+        <p className="max-w-3xl text-sm leading-6 text-ink-soft">
           {t("settings.header.description")}
         </p>
       </section>
@@ -61,7 +61,7 @@ export function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-linear-to-br from-paper via-paper to-sky-200/50">
+        <Card className="bg-paper">
           <CardHeader>
             <CardTitle>{t("settings.checklist.title")}</CardTitle>
             <CardDescription>
@@ -89,7 +89,7 @@ export function SettingsPage() {
       </section>
 
       <section>
-        <Card className="bg-linear-to-br from-paper via-paper to-sage-200/45">
+        <Card className="bg-paper">
           <CardHeader>
             <CardTitle>{t("settings.theme.title")}</CardTitle>
             <CardDescription>

@@ -195,7 +195,7 @@ export function CatalogOperationsPanel({
         </CardContent>
       </Card>
 
-      <Card className="bg-linear-to-br from-paper via-paper to-peach-200/55">
+      <Card className="bg-paper">
         <CardHeader>
           <CardTitle>{t("catalog.form.updateTitle")}</CardTitle>
           <CardDescription>

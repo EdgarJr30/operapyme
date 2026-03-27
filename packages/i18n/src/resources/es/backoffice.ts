@@ -129,6 +129,70 @@ const backofficeEs = {
         "La IA debe enfocarse en acelerar lo comercial, no en meter gimmicks."
     }
   },
+  learning: {
+    header: {
+      eyebrow: "Aprendizaje",
+      title: "Guias rapidas para avanzar con seguridad",
+      description:
+        "Encuentra aqui el paso a paso esencial para usar OperaPyme con mas claridad y menos dudas."
+    },
+    principles: {
+      title: "Que encontraras aqui",
+      description:
+        "Este espacio reune ayudas cortas y practicas para que las pantallas de trabajo se mantengan simples y enfocadas.",
+      runtimeTitle: "Menos friccion al trabajar",
+      runtimeText:
+        "Pantallas como crear cotizacion ahora se concentran en completar la tarea, no en explicarla de mas.",
+      guidesTitle: "Pasos claros",
+      guidesText:
+        "Cada guia resume el orden recomendado para resolver una tarea sin perder tiempo buscando por donde empezar.",
+      supportTitle: "Acceso directo",
+      supportText:
+        "Entra al area correcta desde aqui y completa la accion real cuando ya tengas claro el siguiente paso."
+    },
+    guides: {
+      quotesFast: {
+        eyebrow: "Cotizaciones",
+        title: "Crear una cotizacion en pocos pasos",
+        description:
+          "Ideal para emitir una propuesta sin detener el ritmo comercial.",
+        stepOne: "Elige cliente, lead o lead rapido segun el contexto.",
+        stepTwo: "Completa titulo, estado, moneda y vigencia solo si aplican.",
+        stepThree: "Agrega al menos una linea con cantidad y precio, luego guarda.",
+        action: "Ir a nueva cotizacion"
+      },
+      quotesManage: {
+        eyebrow: "Seguimiento",
+        title: "Retomar una cotizacion existente",
+        description:
+          "Usa esta guia para ajustar, actualizar o cerrar documentos ya creados.",
+        stepOne: "Entra a gestionar cotizaciones y elige el documento correcto.",
+        stepTwo: "Corrige receptor, documento o lineas segun el caso.",
+        stepThree: "Guarda cambios y valida el total antes de compartir.",
+        action: "Ir a gestionar cotizaciones"
+      },
+      crmLead: {
+        eyebrow: "CRM",
+        title: "Capturar un lead y prepararlo para cotizar",
+        description:
+          "Cuando todavia no existe un receptor claro en cartera, este es el mejor punto de partida.",
+        stepOne: "Registra empresa, contacto y canal principal.",
+        stepTwo: "Resume la necesidad comercial en una frase util.",
+        stepThree: "Luego pasa a cotizaciones cuando ya tengas claro que vas a ofrecer.",
+        action: "Ir a CRM"
+      },
+      catalog: {
+        eyebrow: "Catalogo",
+        title: "Preparar items antes de cotizar",
+        description:
+          "Te ayuda a cotizar mas rapido cuando vendes productos o servicios recurrentes.",
+        stepOne: "Crea productos o servicios con nombre claro y categoria.",
+        stepTwo: "Define si el precio es fijo o bajo solicitud.",
+        stepThree: "Usa esos items luego dentro de las lineas de una cotizacion.",
+        action: "Ir a catalogo"
+      }
+    }
+  },
   crm: {
     header: {
       eyebrow: "Modulo CRM",
@@ -489,6 +553,37 @@ const backofficeEs = {
       manageDescription:
         "Retoma documentos existentes, ajusta lineas y conserva contexto antes de enviarlos."
     },
+    createPage: {
+      directEntryDescription:
+        "Empieza directo: clientes {customers}, leads {leads}, items {catalogItems}. Completa lo necesario y guarda.",
+      customerCount: "Clientes listos",
+      customerCountHint: "Usalos si ya sabes a quien vas a cotizar.",
+      leadCount: "Leads listos",
+      leadCountHint: "Retoma prospectos existentes sin salir del flujo.",
+      catalogCount: "Items listos",
+      catalogCountHint: "Acelera el detalle comercial con catalogo reusable.",
+      focusTitle: "Lo esencial para salir rapido",
+      focusDescription:
+        "El flujo ahora te lleva primero por lo minimo necesario y deja el resto visible solo cuando aporta.",
+      focusRecipientTitle: "1. Define el receptor",
+      focusRecipientDescription:
+        "Escoge cliente, lead o lead rapido y completa solo los canales utiles.",
+      focusDocumentTitle: "2. Ajusta el documento",
+      focusDocumentDescription:
+        "Titulo, estado, moneda y vigencia quedan juntos para decidir sin ruido.",
+      focusItemsTitle: "3. Arma la propuesta",
+      focusItemsDescription:
+        "Completa lineas, revisa total y guarda sin perder contexto.",
+      fastTrackTitle: "Atajo recomendado",
+      fastTrackDescription:
+        "Si solo necesitas cotizar ya, entra por lead rapido y completa en este orden.",
+      fastTrackLead:
+        "Escribe empresa o referencia y al menos un canal de contacto claro.",
+      fastTrackPrice:
+        "Agrega una linea con nombre, cantidad y precio para calcular el total.",
+      fastTrackSave:
+        "Guarda la cotizacion y decide despues si ese receptor pasa a CRM."
+    },
     landing: {
       createCardTitle: "Crear una nueva cotizacion",
       createCardDescription: "Empieza con un flujo corto y enfocado por pasos.",
@@ -559,8 +654,13 @@ const backofficeEs = {
       pendingSummaryValue: "Pendiente",
       validationSummaryTitle: "Estado del formulario",
       validationSummaryReady: "Todo luce listo para guardar o actualizar.",
+      validationSummaryReadyTitle: "Listo para guardar",
+      validationSummaryReadyDescription:
+        "Ya no quedan bloqueos visibles en este formulario.",
       validationSummaryPending:
         "Todavia quedan campos por revisar antes de cerrar la cotizacion.",
+      validationSummaryPendingDetailed:
+        "Hay {count} alertas por revisar antes de cerrar la cotizacion.",
       reviewChecklistTitle: "Revision final",
       reviewChecklistRecipient: "Confirma el receptor y los canales visibles en el documento.",
       reviewChecklistDocument: "Verifica fecha de validez, estado y narrativa comercial.",
@@ -593,6 +693,8 @@ const backofficeEs = {
       resetAction: "Limpiar formulario",
       createSuccess: "Cotizacion creada correctamente como {quoteNumber}.",
       createError: "No pudimos crear la cotizacion. {message}",
+      validationToast:
+        "Revisa {label}. Todavia quedan {count} alertas por resolver.",
       updateSuccess: "Cotizacion actualizada correctamente.",
       updateError: "No pudimos actualizar la cotizacion. {message}",
       noQuoteSelected: "Selecciona una cotizacion antes de intentar actualizarla.",
@@ -610,17 +712,40 @@ const backofficeEs = {
         lead: "Lead existente",
         ad_hoc: "Lead rapido"
       },
+      recipientKindDescriptions: {
+        customer: "Usa un cliente ya creado y trae sus datos al documento.",
+        lead: "Retoma un lead existente sin capturarlo de nuevo.",
+        ad_hoc: "Cotiza ahora y decide despues si pasa a CRM."
+      },
+      recipientSelectorTitle: "Como quieres arrancar esta cotizacion",
+      recipientSelectorDescription:
+        "Elige el camino que te deje cotizar con menos pasos para este caso.",
       customerLabel: "Cliente",
       customerPlaceholder: "Selecciona un cliente",
+      customerSelectedHint:
+        "Al elegir un cliente, sus datos se completan en el documento y puedes ajustarlos si hace falta.",
       noCustomersHint:
         "Aun no hay clientes reales. Puedes usar lead existente o lead rapido mientras tanto.",
       leadLabel: "Lead",
       leadPlaceholder: "Selecciona un lead",
+      leadSelectedHint:
+        "Al elegir un lead, sus datos se traen al documento para que no tengas que repetirlos.",
       noLeadsHint:
         "Aun no hay leads persistidos. Puedes capturarlos desde CRM o cotizar como lead rapido.",
       quickRecipientTitle: "Cotizacion rapida sin guardar lead",
       quickRecipientDescription:
         "Usa este modo cuando necesites cotizar de inmediato y decidir despues si ese receptor pasa a CRM.",
+      centralFocusTitle: "Enfoque de este paso",
+      centralFocusByStep: {
+        recipient:
+          "Deja claro para quien es la cotizacion y por donde conviene responderle.",
+        document:
+          "Ajusta el titulo, la moneda y la vigencia para que el documento salga limpio.",
+        items:
+          "Completa una propuesta entendible, con lineas claras y total confiable.",
+        review:
+          "Haz una ultima pasada por notas, bloqueos y total antes de guardar."
+      },
       quoteNumberLabel: "Numero de cotizacion",
       generatedNumberPlaceholder: "Se asignara automaticamente al guardar",
       generatedNumberHint:
@@ -889,6 +1014,9 @@ const backofficeEs = {
     noteTitle: "Regla de operación",
     noteText:
       "Más adelante este flujo podrá vivir como wizard multi paso, pero hoy ya deja la membresía y el rol base listos.",
+    paletteTitle: "Identidad visual inicial",
+    paletteDescription:
+      "Puedes salir con una paleta curada o crear una propia desde cuatro colores base. Luego la ajustas con más calma en configuración.",
     nextTitle: "Lo siguiente",
     nextText:
       "Después del bootstrap el backoffice queda listo para conectar clientes, cotizaciones y configuración real por tenant."
@@ -936,15 +1064,15 @@ const backofficeEs = {
     palette: {
       title: "Paleta visual del tenant",
       description:
-        "Elige una paleta curada para que backoffice y storefront compartan la misma marca sin perder legibilidad ni consistencia.",
+        "Elige una paleta curada o arma una propia para que backoffice y storefront compartan una marca elegante sin perder legibilidad ni consistencia.",
       sharedBadge: "Una marca, dos apps",
       previewBadge: "Preview en vivo",
-      ruleTitle: "Por que empezamos por presets y no por un color picker libre",
+      ruleTitle: "Por que combinamos presets curados y una personalizacion simple",
       ruleText:
-        "Las paletas vienen curadas para mantener contraste, velocidad de setup y consistencia visual en multiples modulos y pantallas.",
+        "Las paletas base ya nacen equilibradas y la paleta propia solo pide cuatro colores semilla para mantener contraste, velocidad de setup y consistencia visual.",
       storageTitle: "Persistencia actual",
       storageText:
-        "En este scaffold la seleccion se guarda localmente para iterar rapido. El siguiente paso real es persistir `palette_id` por tenant en Supabase y usar cache local solo como optimizacion.",
+        "En este scaffold la seleccion y la paleta propia se guardan localmente para iterar rapido. El siguiente paso real es persistir `palette_id` y las semillas de branding por tenant en Supabase.",
       backofficeTitle: "Backoffice operativo",
       backofficeDescription:
         "Mas estructura, mas densidad util y un fondo contenido para trabajo diario.",
@@ -959,7 +1087,20 @@ const backofficeEs = {
       apply: "Aplicar paleta",
       active: "Paleta activa",
       contrastLabel: "Contraste CTA",
-      reviewLabel: "Revisar contraste"
+      reviewLabel: "Revisar contraste",
+      toastTitle: "Paleta actualizada",
+      toastDescription: "La identidad visual activa ahora usa {palette}.",
+      customBadge: "Editable",
+      custom: {
+        paperLabel: "Base clara",
+        primaryLabel: "Color principal",
+        secondaryLabel: "Color secundario",
+        tertiaryLabel: "Color de apoyo",
+        helperTitle: "Como funciona la paleta propia",
+        helperText:
+          "Estos cuatro colores generan superficies, bordes, fondos y estados para mantener una identidad profesional sin abrir un editor avanzado.",
+        reset: "Restaurar base"
+      }
     },
     principles: {
       rbacTitle: "RBAC antes del polish",

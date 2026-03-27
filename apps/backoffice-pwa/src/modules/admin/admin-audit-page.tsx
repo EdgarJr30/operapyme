@@ -36,14 +36,14 @@ export function AdminAuditPage() {
               <StatusPill tone="info">global_admin</StatusPill>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               <p className="text-xs uppercase tracking-[0.24em] text-ink-muted">
                 {t("admin.audit.eyebrow")}
               </p>
-              <h1 className="max-w-2xl text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
+              <h1 className="max-w-2xl text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
                 {t("admin.audit.title")}
               </h1>
-              <p className="max-w-2xl text-sm leading-7 text-ink-soft sm:text-base">
+              <p className="max-w-2xl text-sm leading-6 text-ink-soft">
                 {t("admin.audit.description")}
               </p>
             </div>
@@ -75,7 +75,7 @@ export function AdminAuditPage() {
               <p className="text-xs uppercase tracking-[0.24em] text-ink-muted">
                 {t("admin.audit.requiredRole")}
               </p>
-              <p className="mt-2 text-lg font-semibold text-ink">global_admin</p>
+              <p className="mt-2 text-base font-semibold text-ink sm:text-lg">global_admin</p>
             </div>
 
             <div className="rounded-3xl border border-line/70 bg-paper/70 p-4">
@@ -170,7 +170,7 @@ export function AdminAuditPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-linear-to-br from-paper via-paper to-sky-200/60">
+        <Card className="bg-paper">
           <CardHeader>
             <CardTitle>auth_event_logs</CardTitle>
             <CardDescription>

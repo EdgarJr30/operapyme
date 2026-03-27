@@ -518,6 +518,101 @@ describe("backoffice data access", () => {
     );
   });
 
+  it("sends fast lead quotes without linked customer or lead ids", async () => {
+    const quoteFetchQuery = createThenableBuilder({
+      data: {
+        id: "quote-2",
+        customer_id: null,
+        lead_id: null,
+        recipient_kind: "ad_hoc",
+        recipient_display_name: "Urgent Prospect",
+        recipient_contact_name: "Ana Perez",
+        recipient_email: "ana@test.dev",
+        recipient_whatsapp: null,
+        recipient_phone: null,
+        quote_number: "COT-2026-000002",
+        title: "Cotizacion express",
+        currency_code: "USD",
+        subtotal: "950.00",
+        discount_total: "0.00",
+        tax_total: "0.00",
+        grand_total: "950.00",
+        status: "draft",
+        version: 1,
+        valid_until: null,
+        notes: null,
+        created_at: "2026-03-25T00:00:00.000Z",
+        updated_at: "2026-03-26T00:00:00.000Z",
+        line_items: []
+      },
+      error: null
+    });
+
+    supabaseMocks.rpc.mockResolvedValueOnce({
+      data: "quote-2",
+      error: null
+    });
+    supabaseMocks.from.mockReturnValueOnce(quoteFetchQuery);
+
+    await createQuote({
+      tenantId: "tenant-1",
+      recipientKind: "ad_hoc",
+      customerId: "customer-1",
+      leadId: "lead-1",
+      recipientDisplayName: "Urgent Prospect",
+      recipientContactName: "Ana Perez",
+      recipientEmail: "ana@test.dev",
+      recipientWhatsApp: "",
+      recipientPhone: "",
+      title: " Cotizacion express ",
+      status: "draft",
+      currencyCode: "usd",
+      validUntil: "",
+      notes: "",
+      lineItems: [
+        {
+          catalogItemId: null,
+          itemName: "Paquete express",
+          itemDescription: "",
+          quantity: 1,
+          unitLabel: "servicio",
+          unitPrice: 950,
+          discountTotal: 0,
+          taxTotal: 0
+        }
+      ]
+    });
+
+    expect(supabaseMocks.rpc).toHaveBeenCalledWith("create_quote", {
+      target_tenant_id: "tenant-1",
+      target_title: "Cotizacion express",
+      target_status: "draft",
+      target_currency_code: "USD",
+      target_recipient_kind: "ad_hoc",
+      target_line_items: [
+        {
+          catalogItemId: null,
+          itemName: "Paquete express",
+          itemDescription: null,
+          quantity: 1,
+          unitLabel: "servicio",
+          unitPrice: 950,
+          discountTotal: 0,
+          taxTotal: 0
+        }
+      ],
+      target_customer_id: null,
+      target_lead_id: null,
+      target_recipient_display_name: "Urgent Prospect",
+      target_recipient_contact_name: "Ana Perez",
+      target_recipient_email: "ana@test.dev",
+      target_recipient_whatsapp: null,
+      target_recipient_phone: null,
+      target_valid_until: null,
+      target_notes: null
+    });
+  });
+
   it("forwards expected_version to update_quote and returns the incremented version", async () => {
     const quoteFetchQuery = createThenableBuilder({
       data: {

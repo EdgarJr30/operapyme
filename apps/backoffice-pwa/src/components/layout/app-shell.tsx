@@ -8,6 +8,7 @@ import {
 
 import {
   Bell,
+  BookOpenText,
   ChevronLeft,
   ChevronDown,
   ChevronRight,
@@ -30,9 +31,10 @@ import {
 import { useTranslation } from "@operapyme/i18n";
 import {
   AnimatePresence,
+  MotionConfig,
   motion
 } from "motion/react";
-import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 import { useBackofficeAuth } from "@/app/auth-provider";
@@ -55,6 +57,7 @@ type ShellNavItemKey =
   | "quotesOverview"
   | "quotesNew"
   | "quotesManage"
+  | "learning"
   | "admin"
   | "settings";
 
@@ -77,8 +80,8 @@ interface RouteMeta {
 
 const SIDEBAR_COLLAPSED_STORAGE_KEY =
   "operapyme:backoffice-sidebar-collapsed:v1";
-const DESKTOP_SIDEBAR_EXPANDED_WIDTH = 288;
-const DESKTOP_SIDEBAR_COLLAPSED_WIDTH = 96;
+const DESKTOP_SIDEBAR_EXPANDED_WIDTH = 272;
+const DESKTOP_SIDEBAR_COLLAPSED_WIDTH = 88;
 
 const businessNavItems: ShellNavItem[] = [
   {
@@ -121,6 +124,11 @@ const businessNavItems: ShellNavItem[] = [
 ];
 
 const platformNavItems: ShellNavItem[] = [
+  {
+    to: "/learning",
+    key: "learning",
+    icon: BookOpenText
+  },
   {
     to: "/settings",
     key: "settings",
@@ -205,6 +213,13 @@ function getRouteMeta(pathname: string): RouteMeta {
     return {
       labelKey: "navigation.quotes",
       descriptionKey: "shell.pageDescriptions.quotes"
+    };
+  }
+
+  if (pathname.startsWith("/learning")) {
+    return {
+      labelKey: "navigation.learning",
+      descriptionKey: "shell.pageDescriptions.learning"
     };
   }
 
@@ -296,6 +311,31 @@ function getRoleLabel(
   return t("shell.tenantOperator");
 }
 
+function getInitialNavGroups(items: SidebarSection[], pathname: string) {
+  return items.reduce<Record<string, boolean>>((accumulator, section) => {
+    section.items.forEach((item) => {
+      if (!item.children?.length) {
+        return;
+      }
+
+      accumulator[item.key] = item.children.some(
+        (child) =>
+          pathname === child.to || pathname.startsWith(`${child.to}/`)
+      );
+    });
+
+    return accumulator;
+  }, {});
+}
+
+function isItemPathActive(pathname: string, to: string) {
+  if (to === "/") {
+    return pathname === "/";
+  }
+
+  return pathname === to || pathname.startsWith(`${to}/`);
+}
+
 function SidebarContent({
   sections,
   activeTenantId,
@@ -326,36 +366,44 @@ function SidebarContent({
   t: (key: string) => string;
 }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const isDesktop = mode === "desktop";
   const showCollapsedLabels = isDesktop && isCollapsed;
   const showTenantSwitcher = memberships.length > 1 && !showCollapsedLabels;
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() =>
+    getInitialNavGroups(sections, location.pathname)
+  );
   const footerYear = new Date().getFullYear();
   const footerLegalLabel = t("shell.sidebarFooterLegal")
     .replace("{year}", String(footerYear))
     .replace("{tenant}", activeTenantName);
 
+  useEffect(() => {
+    setOpenGroups(getInitialNavGroups(sections, location.pathname));
+  }, [location.pathname, sections]);
+
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden bg-sidebar-surface text-sidebar-text">
-      <div className="border-b border-sidebar-border px-4 py-4">
+      <div className="border-b border-sidebar-border px-3 py-3.5">
         <div
           className={cn(
             "flex items-center",
             showCollapsedLabels ? "justify-center" : "gap-3"
           )}
         >
-          <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-sidebar-border bg-sidebar-elevated shadow-panel">
+          <div className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-sidebar-border bg-sidebar-elevated shadow-panel">
             <img
               src="/pwa-icon.svg"
               alt={t("shell.productName")}
-              className="size-7"
+              className="size-6"
             />
           </div>
           {!showCollapsedLabels ? (
             <div className="min-w-0 flex-1">
-              <p className="truncate text-lg leading-6 font-semibold tracking-tight text-sidebar-text">
+              <p className="truncate text-base leading-6 font-semibold tracking-tight text-sidebar-text">
                 {t("shell.productName")}
               </p>
-              <p className="mt-0.5 truncate text-sm leading-6 text-sidebar-muted">
+              <p className="mt-0.5 truncate text-xs leading-5 text-sidebar-muted">
                 {activeTenantName}
               </p>
             </div>
@@ -363,7 +411,7 @@ function SidebarContent({
           <button
             type="button"
             onClick={onToggleSidebar}
-            className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl border border-sidebar-border bg-sidebar-elevated text-sidebar-text transition hover:border-sidebar-muted hover:bg-sidebar-border"
+            className="inline-flex size-9 shrink-0 items-center justify-center rounded-xl border border-sidebar-border bg-sidebar-elevated text-sidebar-text transition hover:border-sidebar-muted hover:bg-sidebar-border"
             aria-label={
               isDesktop
                 ? isCollapsed
@@ -399,14 +447,14 @@ function SidebarContent({
           <>
             <label
               htmlFor="tenant-switcher-sidebar"
-              className="mt-4 block text-xs font-semibold uppercase tracking-[0.18em] text-sidebar-muted"
+              className="mt-3 block text-[11px] font-semibold uppercase tracking-[0.18em] text-sidebar-muted"
             >
               {t("shell.tenantLabel")}
             </label>
             <Select
               id="tenant-switcher-sidebar"
               value={activeTenantId}
-              className="mt-2 h-10 rounded-xl border-sidebar-border bg-sidebar-elevated text-sm text-sidebar-text"
+              className="mt-2 h-9 rounded-xl border-sidebar-border bg-sidebar-elevated text-sm text-sidebar-text"
               onChange={(event) => onTenantChange(event.target.value)}
             >
               {memberships.map((membership) => (
@@ -422,7 +470,7 @@ function SidebarContent({
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <nav
           aria-label={t("shell.primaryNavigationLabel")}
-          className="flex-1 px-3 py-4"
+          className="flex-1 px-2.5 py-3"
         >
           {sections.map((section, sectionIndex) => (
             <div
@@ -430,86 +478,171 @@ function SidebarContent({
               className={cn(
                 sectionIndex === 0
                   ? ""
-                  : "mt-4 border-t border-sidebar-border pt-4"
+                  : "mt-3 border-t border-sidebar-border pt-3"
               )}
             >
               <div className="space-y-1">
                 {section.items.map(({ children, to, key, icon: Icon }) => {
                   const isGroupActive =
                     children?.some((child) =>
-                      location.pathname === child.to ||
-                      location.pathname.startsWith(`${child.to}/`)
+                      isItemPathActive(location.pathname, child.to)
                     ) ?? false;
                   const showChildren =
                     Boolean(children?.length) &&
                     !showCollapsedLabels &&
-                    (isGroupActive || mode === "mobile");
+                    openGroups[key];
 
                   return (
                     <div key={to} className="space-y-1">
-                      <NavLink
-                        to={to}
-                        end={to === "/"}
-                        onClick={onNavigate}
-                        className={({ isActive }) =>
-                          cn(
-                            "group relative flex min-h-12 items-center rounded-xl text-[16px] font-medium transition",
+                      {children?.length ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!isGroupActive) {
+                              setOpenGroups((currentValue) => ({
+                                ...currentValue,
+                                [key]: true
+                              }));
+                              onNavigate();
+                              navigate(to);
+                              return;
+                            }
+
+                            setOpenGroups((currentValue) => ({
+                              ...currentValue,
+                              [key]: !currentValue[key]
+                            }));
+                          }}
+                          className={cn(
+                            "group relative flex min-h-11 w-full items-center rounded-xl text-sm font-medium transition",
                             showCollapsedLabels
                               ? "justify-center px-2"
                               : "gap-3 px-3",
-                            isActive || isGroupActive
-                              ? "bg-sidebar-accent text-sidebar-accent-contrast"
+                            isGroupActive || openGroups[key]
+                              ? "bg-sidebar-accent text-sidebar-accent-contrast shadow-soft"
                               : "text-sidebar-text hover:bg-sidebar-elevated hover:text-sidebar-text"
-                          )
-                        }
-                        aria-label={t(`navigation.${key}`)}
-                        title={showCollapsedLabels ? t(`navigation.${key}`) : undefined}
-                      >
-                        <span
-                          className={cn(
-                            "flex size-10 shrink-0 items-center justify-center rounded-lg transition",
-                            showCollapsedLabels ? "" : "group-hover:bg-sidebar-border/55"
                           )}
+                          aria-label={t(`navigation.${key}`)}
+                          aria-expanded={openGroups[key]}
+                          aria-controls={`sidebar-group-${key}`}
+                          title={showCollapsedLabels ? t(`navigation.${key}`) : undefined}
                         >
-                          <Icon className="size-4.5" aria-hidden="true" />
-                        </span>
-                        {!showCollapsedLabels ? (
-                          <>
+                          <span
+                            className={cn(
+                              "flex size-9 shrink-0 items-center justify-center rounded-lg transition",
+                              showCollapsedLabels
+                                ? ""
+                                : isGroupActive || openGroups[key]
+                                  ? "bg-white/12"
+                                  : "group-hover:bg-sidebar-border/55"
+                            )}
+                          >
+                            <Icon className="size-4.5" aria-hidden="true" />
+                          </span>
+                          {!showCollapsedLabels ? (
+                            <>
+                              <span className="truncate">{t(`navigation.${key}`)}</span>
+                              <motion.span
+                                className="ml-auto flex size-6 items-center justify-center rounded-full bg-white/10"
+                                animate={{ rotate: openGroups[key] ? 180 : 0 }}
+                                transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                              >
+                                <ChevronDown
+                                  className="size-4 opacity-90"
+                                  aria-hidden="true"
+                                />
+                              </motion.span>
+                            </>
+                          ) : (
+                            <span className="sr-only">{t(`navigation.${key}`)}</span>
+                          )}
+                        </button>
+                      ) : (
+                        <NavLink
+                          to={to}
+                          end={to === "/"}
+                          onClick={onNavigate}
+                          className={({ isActive }) =>
+                            cn(
+                              "group relative flex min-h-11 items-center rounded-xl text-sm font-medium transition",
+                              showCollapsedLabels
+                                ? "justify-center px-2"
+                                : "gap-3 px-3",
+                              isActive
+                                ? "bg-sidebar-accent text-sidebar-accent-contrast"
+                                : "text-sidebar-text hover:bg-sidebar-elevated hover:text-sidebar-text"
+                            )
+                          }
+                          aria-label={t(`navigation.${key}`)}
+                          title={showCollapsedLabels ? t(`navigation.${key}`) : undefined}
+                        >
+                          <span
+                            className={cn(
+                              "flex size-9 shrink-0 items-center justify-center rounded-lg transition",
+                              showCollapsedLabels ? "" : "group-hover:bg-sidebar-border/55"
+                            )}
+                          >
+                            <Icon className="size-4.5" aria-hidden="true" />
+                          </span>
+                          {!showCollapsedLabels ? (
                             <span className="truncate">{t(`navigation.${key}`)}</span>
-                            {children?.length ? (
-                              <ChevronDown
-                                className="ml-auto size-4 opacity-70"
-                                aria-hidden="true"
-                              />
-                            ) : null}
-                          </>
-                        ) : (
-                          <span className="sr-only">{t(`navigation.${key}`)}</span>
-                        )}
-                      </NavLink>
+                          ) : (
+                            <span className="sr-only">{t(`navigation.${key}`)}</span>
+                          )}
+                        </NavLink>
+                      )}
 
-                      {showChildren ? (
-                        <div className="space-y-1 pl-4">
-                          {children?.map((child) => (
-                            <NavLink
-                              key={child.to}
-                              to={child.to}
-                              end
-                              onClick={onNavigate}
-                              className={({ isActive }) =>
-                                cn(
-                                  "flex min-h-10 items-center rounded-xl px-3 text-sm font-medium transition",
-                                  isActive
-                                    ? "bg-sidebar-elevated text-sidebar-text"
-                                    : "text-sidebar-muted hover:bg-sidebar-elevated hover:text-sidebar-text"
-                                )
-                              }
+                      <AnimatePresence initial={false}>
+                        {showChildren ? (
+                          <motion.div
+                            id={`sidebar-group-${key}`}
+                            className="overflow-hidden"
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+                          >
+                            <motion.div
+                              className="relative ml-4 mt-1 space-y-1 pl-3.5"
+                              initial={{ y: -6 }}
+                              animate={{ y: 0 }}
+                              exit={{ y: -6 }}
+                              transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
                             >
-                              <span>{t(`navigation.${child.key}`)}</span>
-                            </NavLink>
-                          ))}
-                        </div>
-                      ) : null}
+                              <span className="absolute bottom-2 left-0 top-2 w-px rounded-full bg-sidebar-border" />
+                              {children?.map((child, childIndex) => (
+                                <motion.div
+                                  key={child.to}
+                                  initial={{ opacity: 0, x: -6 }}
+                                  animate={{ opacity: 1, x: 0 }}
+                                  exit={{ opacity: 0, x: -6 }}
+                                  transition={{
+                                    duration: 0.18,
+                                    delay: childIndex * 0.03,
+                                    ease: [0.22, 1, 0.36, 1]
+                                  }}
+                                >
+                                  <NavLink
+                                    to={child.to}
+                                    end
+                                    onClick={onNavigate}
+                                    className={({ isActive }) =>
+                                      cn(
+                                        "flex min-h-9 items-center rounded-xl px-3 text-[13px] font-medium transition",
+                                        isActive
+                                          ? "bg-sidebar-elevated text-sidebar-text shadow-panel"
+                                          : "text-sidebar-muted hover:bg-sidebar-elevated hover:text-sidebar-text"
+                                      )
+                                    }
+                                  >
+                                    <span>{t(`navigation.${child.key}`)}</span>
+                                  </NavLink>
+                                </motion.div>
+                              ))}
+                            </motion.div>
+                          </motion.div>
+                        ) : null}
+                      </AnimatePresence>
                     </div>
                   );
                 })}
@@ -518,7 +651,7 @@ function SidebarContent({
           ))}
         </nav>
 
-        <div className="border-t border-sidebar-border px-3 py-4">
+        <div className="border-t border-sidebar-border px-2.5 py-3">
           <div
             className={cn(
               "flex items-center",
@@ -526,15 +659,15 @@ function SidebarContent({
             )}
             title={showCollapsedLabels ? userLabel : undefined}
           >
-            <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-sidebar-accent text-xs font-semibold text-sidebar-accent-contrast">
+            <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-sidebar-accent text-[11px] font-semibold text-sidebar-accent-contrast">
               {getInitials(userLabel)}
             </div>
             {!showCollapsedLabels ? (
               <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-sidebar-text">
+                <p className="truncate text-[13px] font-semibold text-sidebar-text">
                   {userLabel}
                 </p>
-                <p className="truncate text-xs text-sidebar-muted">
+                <p className="truncate text-[11px] text-sidebar-muted">
                   {businessRoleLabel}
                 </p>
               </div>
@@ -630,6 +763,7 @@ export function AppShell() {
     t
   );
   const userLabel = getUserLabel(accessContext?.displayName, user?.email);
+  const userEmail = user?.email ?? t("shell.emailFallback");
   const userInitials = getInitials(userLabel);
   const notificationItems = useMemo(
     () => [
@@ -720,7 +854,8 @@ export function AppShell() {
   } as CSSProperties;
 
   return (
-    <div className="min-h-screen bg-paper" style={shellLayoutStyle}>
+    <MotionConfig reducedMotion="user">
+      <div className="min-h-screen bg-paper" style={shellLayoutStyle}>
       <AnimatePresence>
         {isSidebarOpen ? (
           <div className="fixed inset-0 z-50 lg:hidden">
@@ -795,7 +930,7 @@ export function AppShell() {
       <div className="flex min-h-screen min-w-0 flex-col lg:pl-[var(--shell-sidebar-width)] lg:transition-[padding-left] lg:duration-200">
         <div className="flex min-h-screen min-w-0 flex-1 flex-col">
           <header className="sticky top-0 z-30 border-b border-line/70 bg-paper/95 backdrop-blur">
-            <div className="mx-auto flex w-full max-w-screen-2xl items-center gap-4 px-4 py-4 sm:px-6 lg:px-8">
+            <div className="mx-auto flex w-full max-w-screen-2xl items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
               <button
                 type="button"
                 onClick={() => setIsSidebarOpen(true)}
@@ -834,7 +969,7 @@ export function AppShell() {
                     name="workspace-search"
                     type="search"
                     placeholder={t("shell.searchPlaceholder")}
-                    className="h-11 w-full rounded-xl border border-line/70 bg-paper px-10 text-sm text-ink outline-none transition placeholder:text-ink-muted focus:border-line-strong"
+                    className="h-10 w-full rounded-xl border border-line/70 bg-paper px-10 text-sm text-ink outline-none transition placeholder:text-ink-muted focus:border-line-strong"
                   />
                 </div>
               </div>
@@ -900,7 +1035,7 @@ export function AppShell() {
                   <button
                     type="button"
                     onClick={() => setIsUserMenuOpen((currentValue) => !currentValue)}
-                    className="inline-flex min-h-11 items-center gap-3 rounded-xl border border-line/70 bg-paper px-2.5 py-1.5 shadow-panel transition hover:bg-sand/70"
+                    className="inline-flex min-h-10 items-center gap-2.5 rounded-xl border border-line/70 bg-paper px-2.5 py-1.5 shadow-panel transition hover:bg-sand/70"
                     aria-label={t("shell.profileMenuLabel")}
                     aria-expanded={isUserMenuOpen}
                   >
@@ -908,7 +1043,7 @@ export function AppShell() {
                       {userInitials}
                     </span>
                     <span className="hidden min-w-0 text-left sm:block">
-                      <span className="block truncate text-sm font-semibold text-ink">
+                      <span className="block truncate text-[13px] font-semibold text-ink">
                         {userLabel}
                       </span>
                       <span className="block truncate text-xs text-ink-soft">
@@ -921,32 +1056,41 @@ export function AppShell() {
                   <AnimatePresence>
                     {isUserMenuOpen ? (
                       <motion.div
-                        className="absolute right-0 top-full mt-3 w-72 rounded-2xl border border-line/70 bg-paper p-4 shadow-soft"
+                        className="absolute right-0 top-full mt-3 w-[min(22rem,calc(100vw-1.5rem))] rounded-[28px] border border-line/70 bg-paper p-4 shadow-soft"
                         variants={popoverVariants}
                         initial="initial"
                         animate="animate"
                         exit="exit"
                       >
-                        <div className="rounded-xl border border-line/70 bg-sand/40 p-4">
-                          <p className="truncate text-sm font-semibold text-ink">
-                            {userLabel}
-                          </p>
-                          <p className="mt-1 truncate text-xs text-ink-soft">
-                            {user?.email ?? t("shell.emailFallback")}
-                          </p>
-                          <p className="mt-2 text-xs font-medium uppercase tracking-[0.18em] text-ink-muted">
-                            {businessRoleLabel}
-                          </p>
+                        <div className="rounded-3xl border border-line/70 bg-paper p-4 shadow-panel">
+                          <div className="flex items-start gap-3">
+                            <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-ink text-sm font-semibold text-paper">
+                              {userInitials}
+                            </span>
+                            <div className="min-w-0 flex-1">
+                              <p className="truncate text-sm font-semibold text-ink">
+                                {userLabel}
+                              </p>
+                              {userEmail !== userLabel ? (
+                                <p className="mt-1 truncate text-xs text-ink-soft">
+                                  {userEmail}
+                                </p>
+                              ) : null}
+                              <span className="mt-3 inline-flex rounded-full bg-sand px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-soft">
+                                {businessRoleLabel}
+                              </span>
+                            </div>
+                          </div>
                         </div>
 
-                        <div className="mt-4">
+                        <div className="mt-4 rounded-3xl border border-line/70 bg-sand/35 p-4">
                           <LanguageSwitcher />
                         </div>
 
                         <button
                           type="button"
                           onClick={handleSignOut}
-                          className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-line-strong bg-paper px-4 text-sm font-medium text-ink shadow-panel transition hover:bg-sand/70"
+                          className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-line-strong bg-paper px-4 text-sm font-medium text-ink shadow-panel transition hover:bg-sand/70"
                         >
                           <LogOut className="size-4" aria-hidden="true" />
                           <span>{t("shell.signOut")}</span>
@@ -959,7 +1103,7 @@ export function AppShell() {
             </div>
           </header>
 
-          <main className="flex-1 px-4 pb-24 pt-6 sm:px-6 lg:px-8 lg:pb-8">
+          <main className="flex-1 px-4 pb-24 pt-5 sm:px-6 lg:px-8 lg:pb-8">
             <div className="mx-auto w-full max-w-screen-2xl">
               <AnimatePresence mode="wait">
                 <motion.div
@@ -1021,6 +1165,7 @@ export function AppShell() {
           </button>
         </div>
       </nav>
-    </div>
+      </div>
+    </MotionConfig>
   );
 }

@@ -60,17 +60,17 @@ export function CatalogPage() {
   return (
     <div className="space-y-6">
       <section className="grid gap-4 xl:grid-cols-[minmax(0,1.35fr)_340px]">
-        <div className="rounded-3xl border border-line/70 bg-linear-to-br from-paper via-paper to-sky-200/45 p-5 shadow-panel sm:p-6">
-          <div className="space-y-5">
+        <div className="rounded-3xl border border-line/70 bg-paper p-4 shadow-panel sm:p-5">
+          <div className="space-y-4">
             <div className="space-y-3">
               <span className="inline-flex min-h-9 items-center rounded-full border border-line/70 bg-paper/85 px-3 text-xs font-semibold uppercase tracking-[0.18em] text-ink-muted">
                 {t("catalog.header.eyebrow")}
               </span>
               <div className="space-y-2">
-                <h1 className="text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
+                <h1 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
                   {t("catalog.header.title")}
                 </h1>
-                <p className="max-w-2xl text-sm leading-7 text-ink-soft sm:text-base">
+                <p className="max-w-2xl text-sm leading-6 text-ink-soft">
                   {t("catalog.header.description")}
                 </p>
               </div>
@@ -97,13 +97,13 @@ export function CatalogPage() {
             <div className="flex flex-wrap gap-3">
               <a
                 href="#catalog-editor"
-                className="inline-flex min-h-12 items-center justify-center rounded-full bg-brand px-5 text-sm font-medium text-brand-contrast shadow-soft transition hover:bg-brand-hover"
+                className="inline-flex min-h-11 items-center justify-center rounded-full bg-brand px-4 text-sm font-medium text-brand-contrast shadow-soft transition hover:bg-brand-hover"
               >
                 {t("catalog.actions.manageItems")}
               </a>
               <a
                 href="#catalog-list"
-                className="inline-flex min-h-12 items-center justify-center rounded-full border border-line-strong bg-paper/95 px-5 text-sm font-medium text-ink shadow-panel transition hover:bg-sand/70"
+                className="inline-flex min-h-11 items-center justify-center rounded-full border border-line-strong bg-paper/95 px-4 text-sm font-medium text-ink shadow-panel transition hover:bg-sand/70"
               >
                 {t("catalog.actions.reviewList")}
               </a>

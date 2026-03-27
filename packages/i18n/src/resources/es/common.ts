@@ -11,25 +11,30 @@ const commonEs = {
     switchToDark: "Activar tema oscuro",
     aaReady: "AA validada",
     palettes: {
-      sage: {
-        name: "Sage calmado",
+      linen: {
+        name: "Lino editorial",
         description:
-          "Verdes suaves y balanceados para una experiencia serena y premium."
+          "Neutros crema, verde salvia y azul empolvado para una marca elegante y versatil."
       },
-      lagoon: {
-        name: "Laguna fresca",
+      mist: {
+        name: "Bruma ejecutiva",
         description:
-          "Azules limpios y acentos frios para una marca mas tecnologica."
+          "Grises calidos con azul niebla para una presencia sobria, moderna y profesional."
       },
-      terracotta: {
-        name: "Arcilla comercial",
+      clay: {
+        name: "Arcilla premium",
         description:
-          "Tonos calidos para negocios de servicio, cercania y conversion."
+          "Terracotas suaves, verdes desaturados y azul limpio para negocios cercanos y confiables."
       },
-      graphite: {
-        name: "Grafito preciso",
+      dusk: {
+        name: "Dusk refinado",
         description:
-          "Neutros serios con acentos controlados para marcas sobrias o industriales."
+          "Lavanda gris, teal humo y arena rosada para una identidad contemporanea sin ruido."
+      },
+      custom: {
+        name: "Paleta propia",
+        description:
+          "Parte de una base profesional y ajusta cuatro colores clave para crear una identidad propia."
       }
     }
   },
@@ -42,6 +47,7 @@ const commonEs = {
     quotesOverview: "Resumen",
     quotesNew: "Nueva cotizacion",
     quotesManage: "Gestionar cotizaciones",
+    learning: "Aprendizaje",
     admin: "Admin",
     settings: "Configuracion",
     errors: "Errores",
@@ -99,6 +105,7 @@ const commonEs = {
       quotes: "Cotizaciones activas y documentos listos para enviar.",
       quotesNew: "Wizard corto para crear una cotizacion sin perder contexto.",
       quotesManage: "Retoma cotizaciones existentes, ajusta detalles y conserva versionado.",
+      learning: "Guias y ayuda rapida para operar con mas claridad.",
       settings: "Configuracion transversal del tenant, branding y preferencias.",
       admin: "Auditoria global y controles reservados para perfiles autorizados.",
       errors: "Incidencias operativas y trazabilidad de errores visibles."
@@ -129,7 +136,13 @@ const commonEs = {
       "Esta ruta del espacio de trabajo todavia no esta conectada.",
     routeNotFoundDescription:
       "Sigue construyendo desde el shell del backoffice y conecta los siguientes modulos cuando ya sean funciones reales.",
-    loadingModule: "Cargando modulo..."
+    loadingModule: "Cargando modulo...",
+    loadingWorkspaceTitle: "Preparando tu espacio de trabajo",
+    loadingWorkspaceDescription:
+      "Estamos validando la sesion, el tenant activo y los permisos antes de abrir el backoffice.",
+    loadingSetupTitle: "Preparando tu acceso",
+    loadingSetupDescription:
+      "Estamos conectando tu sesion y cargando el contexto inicial antes de mostrar el flujo correcto."
   }
 };
 

@@ -75,7 +75,7 @@ export function AuthPage() {
   return (
     <div className="min-h-screen bg-white">
       <div className="flex min-h-screen">
-        <div className="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
+        <div className="flex flex-1 flex-col justify-center px-4 py-10 sm:px-6 lg:flex-none lg:px-16 xl:px-20">
           <div className="mx-auto w-full max-w-sm lg:w-96">
             <div>
               <img
@@ -83,7 +83,7 @@ export function AuthPage() {
                 alt="OperaPyme"
                 className="h-10 w-auto rounded-[14px]"
               />
-              <h1 className="mt-8 text-3xl font-bold tracking-tight text-ink">
+              <h1 className="mt-6 text-2xl font-bold tracking-tight text-ink sm:text-3xl">
                 {entryContent.title}
               </h1>
               <p className="mt-2 text-sm leading-6 text-ink-soft">
@@ -103,8 +103,8 @@ export function AuthPage() {
               </p>
             </div>
 
-            <div className="mt-10">
-              <form className="space-y-6" onSubmit={handleSubmit}>
+            <div className="mt-8">
+              <form className="space-y-5" onSubmit={handleSubmit}>
                 <div>
                   <label
                     htmlFor="auth-email"
@@ -122,14 +122,14 @@ export function AuthPage() {
                       onChange={(event) => setEmail(event.target.value)}
                       placeholder={t('auth.form.emailPlaceholder')}
                       required
-                      className="h-11.5 rounded-md border-line/80 bg-white px-3 py-2"
+                      className="rounded-xl border-line/80 bg-white"
                     />
                   </div>
                 </div>
 
                 <div>
                   <Button
-                    className="flex h-11 w-full justify-center rounded-md bg-[#1f2c38] px-3 py-1.5 text-sm font-semibold text-white shadow-none hover:bg-[#17212b]"
+                    className="flex w-full justify-center rounded-xl bg-[#1f2c38] text-sm font-semibold text-white shadow-none hover:bg-[#17212b]"
                     type="submit"
                     disabled={isSubmitting}
                   >
@@ -140,7 +140,7 @@ export function AuthPage() {
                 </div>
               </form>
 
-              <div className="mt-10">
+              <div className="mt-8">
                 <div className="relative">
                   <div
                     aria-hidden="true"
@@ -155,7 +155,7 @@ export function AuthPage() {
                   </div>
                 </div>
 
-                <div className="mt-6 rounded-xl border border-line/70 bg-white px-4 py-3">
+                <div className="mt-5 rounded-2xl border border-line/70 bg-white px-4 py-3">
                   <p className="text-sm leading-6 text-ink-soft">
                     {t('auth.form.noteText')}
                   </p>
@@ -166,7 +166,7 @@ export function AuthPage() {
         </div>
 
         <div className="relative hidden w-0 flex-1 overflow-hidden lg:block">
-          <div className="absolute inset-0 bg-linear-to-br from-butter-200/85 via-butter-200/35 to-paper" />
+          <div className="absolute inset-0 bg-paper" />
           <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(234,199,74,0.22)_1px,transparent_1.5px)] bg-size-[18px_18px] opacity-65" />
 
           <div className="absolute inset-0 flex flex-col items-center justify-center px-10">
@@ -202,7 +202,7 @@ export function AuthPage() {
                 </div>
               </div>
 
-              <div className="absolute -left-6 bottom-6 w-28 rounded-3xl border border-line/70 bg-paper/95 p-3 shadow-panel">
+              <div className="absolute -left-5 bottom-5 w-24 rounded-3xl border border-line/70 bg-paper/95 p-3 shadow-panel">
                 <div className="rounded-[14px] bg-butter-200 px-3 py-3" />
                 <div className="mt-3 space-y-2">
                   <div className="h-7 rounded-[14px] bg-sand-strong/75" />
@@ -211,19 +211,19 @@ export function AuthPage() {
                 </div>
               </div>
 
-              <div className="absolute -right-6 bottom-3 flex size-24 items-center justify-center rounded-[30px] border border-line/70 bg-paper/95 shadow-panel">
-                <ShieldCheck className="size-10 text-ink" aria-hidden="true" />
+              <div className="absolute -right-5 bottom-3 flex size-20 items-center justify-center rounded-[28px] border border-line/70 bg-paper/95 shadow-panel">
+                <ShieldCheck className="size-8 text-ink" aria-hidden="true" />
               </div>
             </div>
 
             <div className="mt-10 text-center">
-              <h2 className="text-5xl font-semibold tracking-tight text-ink">
+              <h2 className="text-4xl font-semibold tracking-tight text-ink xl:text-5xl">
                 {t('auth.hero.title')}
               </h2>
-              <p className="mt-4 text-xl text-ink-soft">
+              <p className="mt-4 text-lg text-ink-soft">
                 {t('auth.hero.description')}
               </p>
-              <div className="mt-12 flex items-center justify-center gap-2">
+              <div className="mt-10 flex items-center justify-center gap-2">
                 <span className="h-1.5 w-6 rounded-full bg-[#ab8500]" />
                 <span className="h-1.5 w-3 rounded-full bg-butter-200" />
                 <span className="h-1.5 w-3 rounded-full bg-butter-200" />

@@ -37,9 +37,9 @@ export function QuotesPage() {
     isLoading,
     refetch
   } = useQuotesData();
-  const { data: customers = [] } = useCustomersData();
-  const { data: leads = [] } = useLeadsData();
-  const { data: catalogItems = [] } = useCatalogItemsData();
+  const { data: customers } = useCustomersData({ enabled: false });
+  const { data: leads } = useLeadsData({ enabled: false });
+  const { data: catalogItems } = useCatalogItemsData({ enabled: false });
   const quoteSummary = useMemo(() => {
     const quotes = data ?? [];
 
@@ -55,17 +55,17 @@ export function QuotesPage() {
   return (
     <div className="space-y-4">
       <section className="grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_320px]">
-        <div className="rounded-3xl border border-line/70 bg-linear-to-br from-paper via-paper to-butter-200/55 p-5 shadow-panel sm:p-6">
+        <div className="rounded-3xl border border-line/70 bg-paper p-4 shadow-panel sm:p-5">
           <div className="space-y-4">
             <div className="space-y-2">
               <span className="inline-flex min-h-8 items-center rounded-full border border-line/70 bg-paper/85 px-3 text-xs font-semibold uppercase tracking-[0.16em] text-ink-muted">
                 {t("quotes.header.eyebrow")}
               </span>
               <div className="space-y-1">
-                <h1 className="text-[28px] font-semibold tracking-tight text-ink sm:text-[32px]">
+                <h1 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
                   {t("quotes.header.title")}
                 </h1>
-                <p className="max-w-2xl text-sm leading-6 text-ink-soft sm:text-base">
+                <p className="max-w-2xl text-sm leading-6 text-ink-soft">
                   {t("quotes.header.description")}
                 </p>
               </div>
@@ -92,14 +92,14 @@ export function QuotesPage() {
             <div className="flex flex-wrap gap-3">
               <Link
                 to="/quotes/new"
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-brand px-6 text-base font-medium text-brand-contrast shadow-soft transition hover:bg-brand-hover"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-brand px-5 text-sm font-medium text-brand-contrast shadow-soft transition hover:bg-brand-hover"
               >
                 {t("quotes.actions.createQuote")}
                 <ArrowRight className="size-4" aria-hidden="true" />
               </Link>
               <Link
                 to="/quotes/manage"
-                className="inline-flex min-h-12 items-center justify-center rounded-full border border-line-strong bg-paper/90 px-6 text-base font-medium text-ink shadow-panel transition hover:bg-sand-strong/80"
+                className="inline-flex min-h-11 items-center justify-center rounded-full border border-line-strong bg-paper/90 px-5 text-sm font-medium text-ink shadow-panel transition hover:bg-sand-strong/80"
               >
                 {t("quotes.actions.reviewQuotes")}
               </Link>
@@ -135,17 +135,17 @@ export function QuotesPage() {
               <SummaryRow
                 icon={<UsersRound className="size-4" aria-hidden="true" />}
                 label={t("quotes.overview.customersReady")}
-                value={String(customers.length)}
+                value={formatCachedSummaryValue(customers?.length, t)}
               />
               <SummaryRow
                 icon={<ShieldCheck className="size-4" aria-hidden="true" />}
                 label={t("quotes.overview.leadsReady")}
-                value={String(leads.length)}
+                value={formatCachedSummaryValue(leads?.length, t)}
               />
               <SummaryRow
                 icon={<FileText className="size-4" aria-hidden="true" />}
                 label={t("quotes.overview.catalogReady")}
-                value={String(catalogItems.length)}
+                value={formatCachedSummaryValue(catalogItems?.length, t)}
               />
               <SummaryRow
                 icon={<Signature className="size-4" aria-hidden="true" />}
@@ -205,7 +205,7 @@ export function QuotesPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-linear-to-br from-paper via-paper to-sage-200/45">
+        <Card className="bg-paper">
           <CardHeader className="pb-4">
             <CardTitle>{t("quotes.flow.title")}</CardTitle>
             <CardDescription>{t("quotes.flow.description")}</CardDescription>
@@ -367,4 +367,15 @@ function formatCurrency(value: number, currencyCode: string) {
   } catch {
     return `${currencyCode.toUpperCase()} ${value.toFixed(2)}`;
   }
+}
+
+function formatCachedSummaryValue(
+  value: number | null | undefined,
+  t: (key: string) => string
+) {
+  if (typeof value === "number") {
+    return String(value);
+  }
+
+  return t("quotes.form.pendingSummaryValue");
 }

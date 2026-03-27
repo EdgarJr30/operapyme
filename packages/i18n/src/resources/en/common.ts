@@ -11,25 +11,30 @@ const commonEn = {
     switchToDark: "Switch to dark theme",
     aaReady: "AA validated",
     palettes: {
-      sage: {
-        name: "Calm Sage",
+      linen: {
+        name: "Editorial Linen",
         description:
-          "Soft greens and balanced neutrals for a calm premium experience."
+          "Cream neutrals, soft sage, and dusty blue for an elegant and versatile brand."
       },
-      lagoon: {
-        name: "Fresh Lagoon",
+      mist: {
+        name: "Executive Mist",
         description:
-          "Clean blues and cool accents for a more technology-led brand."
+          "Warm greys with misty blue for a sober, modern, and professional presence."
       },
-      terracotta: {
-        name: "Commercial Clay",
+      clay: {
+        name: "Premium Clay",
         description:
-          "Warm tones for service-heavy businesses that need closeness and conversion."
+          "Soft terracotta, muted greens, and clean blue for trustworthy service-led brands."
       },
-      graphite: {
-        name: "Precise Graphite",
+      dusk: {
+        name: "Refined Dusk",
         description:
-          "Serious neutrals with controlled accents for sober or industrial brands."
+          "Grey lavender, smoke teal, and blush sand for a contemporary identity without noise."
+      },
+      custom: {
+        name: "Custom palette",
+        description:
+          "Start from a professional base and adjust four key colors to shape your own brand."
       }
     }
   },
@@ -42,6 +47,7 @@ const commonEn = {
     quotesOverview: "Overview",
     quotesNew: "New quote",
     quotesManage: "Manage quotes",
+    learning: "Learning",
     admin: "Admin",
     settings: "Settings",
     errors: "Errors",
@@ -98,6 +104,7 @@ const commonEn = {
       quotes: "Active quotes and documents ready to send.",
       quotesNew: "Short wizard to create a quote without losing context.",
       quotesManage: "Resume existing quotes, adjust details, and keep versioning.",
+      learning: "Guides and quick help to operate with more clarity.",
       settings: "Tenant-wide settings, branding, and appearance preferences.",
       admin: "Global audit and controls reserved for authorized profiles.",
       errors: "Operational incidents and visible error traceability."
@@ -127,7 +134,13 @@ const commonEn = {
     routeNotFoundTitle: "This workspace route is not wired yet.",
     routeNotFoundDescription:
       "Keep building from the backoffice shell and connect the next modules as they become real features.",
-    loadingModule: "Loading module..."
+    loadingModule: "Loading module...",
+    loadingWorkspaceTitle: "Preparing your workspace",
+    loadingWorkspaceDescription:
+      "We are validating your session, active tenant, and permissions before opening the backoffice.",
+    loadingSetupTitle: "Preparing your access",
+    loadingSetupDescription:
+      "We are connecting your session and loading the initial context before showing the right flow."
   }
 };
 

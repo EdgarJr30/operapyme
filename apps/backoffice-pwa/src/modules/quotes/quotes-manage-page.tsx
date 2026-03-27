@@ -29,23 +29,23 @@ export function QuotesManagePage() {
 
   return (
     <div className="space-y-4">
-      <section className="rounded-3xl border border-line/70 bg-linear-to-br from-paper via-paper to-butter-200/45 p-5 shadow-panel sm:p-6">
+      <section className="rounded-3xl border border-line/70 bg-paper p-4 shadow-panel sm:p-5">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="space-y-2">
             <span className="inline-flex min-h-8 items-center rounded-full border border-line/70 bg-paper/85 px-3 text-xs font-semibold uppercase tracking-[0.16em] text-ink-muted">
               {t("quotes.subroutes.manageEyebrow")}
             </span>
-            <h1 className="text-[28px] font-semibold tracking-tight text-ink sm:text-[32px]">
+            <h1 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
               {t("quotes.subroutes.manageTitle")}
             </h1>
-            <p className="max-w-2xl text-sm leading-6 text-ink-soft sm:text-base">
+            <p className="max-w-2xl text-sm leading-6 text-ink-soft">
               {t("quotes.subroutes.manageDescription")}
             </p>
           </div>
 
           <Link
             to="/quotes/new"
-            className="inline-flex min-h-12 items-center justify-center rounded-full bg-brand px-6 text-base font-medium text-brand-contrast shadow-soft transition hover:bg-brand-hover"
+            className="inline-flex min-h-11 items-center justify-center rounded-full bg-brand px-5 text-sm font-medium text-brand-contrast shadow-soft transition hover:bg-brand-hover"
           >
             {t("quotes.actions.createQuote")}
           </Link>

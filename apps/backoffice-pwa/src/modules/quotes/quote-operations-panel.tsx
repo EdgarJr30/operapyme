@@ -1,8 +1,24 @@
 import { type ReactNode, useEffect, useMemo, useState } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useFieldArray, useForm, type UseFormReturn } from "react-hook-form";
+import {
+  useFieldArray,
+  useForm,
+  type FieldErrors,
+  type FieldPath,
+  type UseFormReturn
+} from "react-hook-form";
 import { toast } from "sonner";
+import {
+  ArrowRight,
+  BadgeCheck,
+  CheckCircle2,
+  CircleAlert,
+  FileText,
+  Layers3,
+  type LucideIcon,
+  UserRound
+} from "lucide-react";
 
 import { useTranslation } from "@operapyme/i18n";
 
@@ -37,6 +53,7 @@ import { useQuoteMutations } from "@/modules/quotes/use-quote-mutations";
 
 type QuoteWorkflowMode = "create" | "update";
 type QuoteFormStepKey = "recipient" | "document" | "items" | "review";
+type QuoteFieldPath = FieldPath<QuoteFormValues>;
 
 interface QuoteOperationsPanelProps {
   customers: CustomerSummary[];
@@ -51,6 +68,21 @@ const quoteFormSteps: QuoteFormStepKey[] = [
   "items",
   "review"
 ];
+
+const quoteFormStepIcons: Record<QuoteFormStepKey, LucideIcon> = {
+  recipient: UserRound,
+  document: FileText,
+  items: Layers3,
+  review: BadgeCheck
+};
+
+interface ValidationIssue {
+  field?: QuoteFieldPath;
+  key: string;
+  label: string;
+  message: string;
+  step: QuoteFormStepKey;
+}
 
 export function QuoteOperationsPanel(props: QuoteOperationsPanelProps) {
   return <QuoteCreateWorkspace {...props} />;
@@ -68,8 +100,42 @@ export function QuoteCreateWorkspace({
 
   const form = useForm<QuoteFormValues>({
     resolver: zodResolver(quoteFormSchema),
-    defaultValues: buildCreateDefaults(customers, leads)
+    defaultValues: buildCreateDefaults(customers, leads),
+    reValidateMode: "onChange"
   });
+
+  const handleInvalidSubmit = (errors: FieldErrors<QuoteFormValues>) => {
+    guideToFirstInvalidField({
+      errors,
+      form,
+      setCurrentStep,
+      t
+    });
+  };
+
+  const handleAdvanceStep = async () => {
+    const fieldsToValidate = getFieldsForStep(
+      currentStep,
+      form.getValues("lineItems")?.length ?? 0
+    );
+    const isValid = await form.trigger(fieldsToValidate, { shouldFocus: true });
+
+    if (!isValid) {
+      guideToFirstInvalidField({
+        errors: form.formState.errors,
+        form,
+        setCurrentStep,
+        t
+      });
+      return;
+    }
+
+    const currentIndex = quoteFormSteps.indexOf(currentStep);
+
+    if (currentIndex < quoteFormSteps.length - 1) {
+      setCurrentStep(quoteFormSteps[currentIndex + 1]!);
+    }
+  };
 
   async function onSubmit(values: QuoteFormValues) {
     try {
@@ -121,7 +187,8 @@ export function QuoteCreateWorkspace({
           </Button>
         </div>
       }
-      onSubmit={form.handleSubmit(onSubmit)}
+      onNextStep={handleAdvanceStep}
+      onSubmit={form.handleSubmit(onSubmit, handleInvalidSubmit)}
     >
       <QuoteFormFields
         catalogItems={catalogItems}
@@ -150,8 +217,42 @@ export function QuoteManageWorkspace({
 
   const form = useForm<QuoteFormValues>({
     resolver: zodResolver(quoteFormSchema),
-    defaultValues: buildEmptyQuoteDefaults()
+    defaultValues: buildEmptyQuoteDefaults(),
+    reValidateMode: "onChange"
   });
+
+  const handleInvalidSubmit = (errors: FieldErrors<QuoteFormValues>) => {
+    guideToFirstInvalidField({
+      errors,
+      form,
+      setCurrentStep,
+      t
+    });
+  };
+
+  const handleAdvanceStep = async () => {
+    const fieldsToValidate = getFieldsForStep(
+      currentStep,
+      form.getValues("lineItems")?.length ?? 0
+    );
+    const isValid = await form.trigger(fieldsToValidate, { shouldFocus: true });
+
+    if (!isValid) {
+      guideToFirstInvalidField({
+        errors: form.formState.errors,
+        form,
+        setCurrentStep,
+        t
+      });
+      return;
+    }
+
+    const currentIndex = quoteFormSteps.indexOf(currentStep);
+
+    if (currentIndex < quoteFormSteps.length - 1) {
+      setCurrentStep(quoteFormSteps[currentIndex + 1]!);
+    }
+  };
 
   const selectedQuoteSummary = useMemo(
     () => quotes.find((quote) => quote.id === selectedQuoteId) ?? null,
@@ -344,7 +445,8 @@ export function QuoteManageWorkspace({
               </Button>
             </div>
           }
-          onSubmit={form.handleSubmit(onSubmit)}
+          onNextStep={handleAdvanceStep}
+          onSubmit={form.handleSubmit(onSubmit, handleInvalidSubmit)}
         >
           <QuoteFormFields
             catalogItems={catalogItems}
@@ -369,6 +471,7 @@ function QuoteWorkflowLayout({
   footer,
   form,
   mode,
+  onNextStep,
   onStepChange,
   onSubmit,
   summaryLabel,
@@ -381,6 +484,7 @@ function QuoteWorkflowLayout({
   footer: ReactNode;
   form: UseFormReturn<QuoteFormValues>;
   mode: QuoteWorkflowMode;
+  onNextStep: () => void | Promise<void>;
   onStepChange: (step: QuoteFormStepKey) => void;
   onSubmit: () => void;
   summaryLabel: string;
@@ -394,6 +498,10 @@ function QuoteWorkflowLayout({
   const values = watch();
   const currencyCode = values.currencyCode || "USD";
   const lineItems = values.lineItems ?? [];
+  const validationIssues = useMemo(
+    () => collectValidationIssues(errors, t),
+    [errors, t]
+  );
   const subtotal = lineItems.reduce(
     (total, item) => total + (Number(item.quantity) || 0) * (Number(item.unitPrice) || 0),
     0
@@ -408,6 +516,19 @@ function QuoteWorkflowLayout({
   );
   const grandTotal = Number((subtotal - discountTotal + taxTotal).toFixed(2));
   const currentStepIndex = quoteFormSteps.indexOf(currentStep);
+  const issuesByStep = validationIssues.reduce<Record<QuoteFormStepKey, number>>(
+    (result, issue) => {
+      result[issue.step] += 1;
+      return result;
+    },
+    {
+      recipient: 0,
+      document: 0,
+      items: 0,
+      review: 0
+    }
+  );
+  const hasValidationIssues = validationIssues.length > 0;
 
   return (
     <form
@@ -439,6 +560,8 @@ function QuoteWorkflowLayout({
               const stepNumber = index + 1;
               const isActive = step === currentStep;
               const isComplete = index < currentStepIndex;
+              const StepIcon = quoteFormStepIcons[step];
+              const stepIssueCount = issuesByStep[step];
 
               return (
                 <button
@@ -446,20 +569,37 @@ function QuoteWorkflowLayout({
                   type="button"
                   onClick={() => onStepChange(step)}
                   className={cn(
-                    "rounded-2xl border px-4 py-3 text-left transition",
+                    "rounded-3xl border px-4 py-3 text-left transition",
                     isActive
-                      ? "border-brand/40 bg-brand/10"
-                      : isComplete
-                        ? "border-sage-300/70 bg-sage-100/60"
-                        : "border-line/70 bg-paper hover:bg-sand/60"
+                      ? "border-brand/40 bg-brand/10 shadow-soft"
+                      : stepIssueCount > 0
+                        ? "border-peach-300/70 bg-peach-100/55"
+                        : isComplete
+                          ? "border-sage-300/70 bg-sage-100/60"
+                          : "border-line/70 bg-paper hover:bg-sand/60"
                   )}
                 >
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-muted">
-                    {t("quotes.form.stepNumber", { count: stepNumber })}
-                  </p>
-                  <p className="mt-1 text-sm font-semibold text-ink">
-                    {t(`quotes.form.steps.${step}.title`)}
-                  </p>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="space-y-1">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-muted">
+                        {t("quotes.form.stepNumber", { count: stepNumber })}
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <StepIcon className="size-4 text-ink-soft" />
+                        <p className="text-sm font-semibold text-ink">
+                          {t(`quotes.form.steps.${step}.title`)}
+                        </p>
+                      </div>
+                    </div>
+
+                    {stepIssueCount > 0 ? (
+                      <span className="inline-flex min-h-7 min-w-7 items-center justify-center rounded-full border border-peach-300/80 bg-paper px-2 text-xs font-semibold text-peach-700">
+                        {stepIssueCount}
+                      </span>
+                    ) : isComplete ? (
+                      <CheckCircle2 className="size-4.5 text-sage-700" />
+                    ) : null}
+                  </div>
                 </button>
               );
             })}
@@ -467,14 +607,49 @@ function QuoteWorkflowLayout({
         </CardHeader>
 
         <CardContent className="space-y-5">
-          <div className="rounded-3xl border border-line/70 bg-sand/35 p-4">
-            <p className="text-sm font-semibold text-ink">
-              {t(`quotes.form.steps.${currentStep}.title`)}
-            </p>
-            <p className="mt-1 text-sm leading-6 text-ink-soft">
-              {t(`quotes.form.steps.${currentStep}.description`)}
-            </p>
-          </div>
+          {hasValidationIssues ? (
+            <div className="rounded-3xl border border-peach-300/80 bg-peach-100/65 p-4">
+              <div className="flex items-start gap-3">
+                <CircleAlert className="mt-0.5 size-5 shrink-0 text-peach-700" />
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-sm font-semibold text-ink">
+                      {t("quotes.form.validationSummaryTitle")}
+                    </p>
+                    <p className="mt-1 text-sm leading-6 text-ink-soft">
+                      {t("quotes.form.validationSummaryPendingDetailed", {
+                        count: validationIssues.length
+                      })}
+                    </p>
+                  </div>
+
+                  <div className="grid gap-2">
+                    {validationIssues.map((issue) => (
+                      <button
+                        key={issue.key}
+                        type="button"
+                        onClick={() => onStepChange(issue.step)}
+                        className="flex items-start justify-between gap-3 rounded-2xl border border-peach-200/80 bg-paper/85 px-3 py-3 text-left transition hover:bg-paper"
+                      >
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-ink-muted">
+                            {t(`quotes.form.steps.${issue.step}.title`)}
+                          </p>
+                          <p className="mt-1 text-sm font-semibold text-ink">
+                            {issue.label}
+                          </p>
+                          <p className="mt-1 text-sm leading-6 text-ink-soft">
+                            {issue.message}
+                          </p>
+                        </div>
+                        <ArrowRight className="mt-0.5 size-4 shrink-0 text-ink-soft" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : null}
 
           {children}
 
@@ -493,9 +668,11 @@ function QuoteWorkflowLayout({
             {currentStepIndex < quoteFormSteps.length - 1 ? (
               <Button
                 type="button"
-                onClick={() => onStepChange(quoteFormSteps[currentStepIndex + 1]!)}
+                className="gap-2"
+                onClick={onNextStep}
               >
                 {t("quotes.form.nextStepAction")}
+                <ArrowRight className="size-4" />
               </Button>
             ) : null}
           </div>
@@ -505,7 +682,7 @@ function QuoteWorkflowLayout({
       </Card>
 
       <div className="space-y-4 xl:sticky xl:top-24 xl:self-start">
-        <Card className="bg-linear-to-br from-paper via-paper to-butter-200/45">
+        <Card className="bg-paper">
           <CardHeader className="space-y-2 pb-4">
             <CardTitle className="text-lg">{t("quotes.form.summaryTitle")}</CardTitle>
             <CardDescription>{summaryLabel}</CardDescription>
@@ -547,18 +724,82 @@ function QuoteWorkflowLayout({
               </p>
             </div>
 
-            <div className="rounded-2xl border border-line/70 bg-paper/75 p-4">
-              <p className="text-sm font-semibold text-ink">
-                {t("quotes.form.validationSummaryTitle")}
-              </p>
-              <p className="mt-2 text-sm leading-6 text-ink-soft">
-                {getValidationSummary(errors, t)}
-              </p>
-            </div>
+            {hasValidationIssues && (
+              <div className="space-y-2">
+                {validationIssues.map((issue) => (
+                  <button
+                    key={`summary-${issue.key}`}
+                    type="button"
+                    onClick={() => onStepChange(issue.step)}
+                    className="w-full rounded-2xl border border-line/70 bg-paper/80 px-3 py-3 text-left transition hover:bg-paper"
+                  >
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-ink-muted">
+                      {t(`quotes.form.steps.${issue.step}.title`)}
+                    </p>
+                    <p className="mt-1 text-sm font-semibold text-ink">{issue.label}</p>
+                    <p className="mt-1 text-sm leading-6 text-ink-soft">
+                      {issue.message}
+                    </p>
+                  </button>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
     </form>
+  );
+}
+
+function RecipientKindPicker({
+  currentKind,
+  onSelect
+}: {
+  currentKind: QuoteRecipientKind;
+  onSelect: (kind: QuoteRecipientKind) => void;
+}) {
+  const { t } = useTranslation("backoffice");
+
+  return (
+    <div className="grid gap-3 sm:grid-cols-3">
+      {quoteRecipientKindValues.map((kind) => {
+        const isActive = kind === currentKind;
+        const StepIcon =
+          kind === "customer"
+            ? UserRound
+            : kind === "lead"
+              ? Layers3
+              : BadgeCheck;
+
+        return (
+          <button
+            key={kind}
+            type="button"
+            onClick={() => onSelect(kind)}
+            className={cn(
+              "rounded-3xl border px-4 py-4 text-left transition",
+              isActive
+                ? "border-brand/40 bg-brand/10 shadow-soft"
+                : "border-line/70 bg-paper hover:bg-sand/60"
+            )}
+          >
+            <div className="flex items-center gap-3">
+              <span className="inline-flex size-10 items-center justify-center rounded-2xl bg-paper/85 text-ink-soft shadow-panel">
+                <StepIcon className="size-4.5" />
+              </span>
+              <div>
+                <p className="text-sm font-semibold text-ink">
+                  {t(`quotes.form.recipientKinds.${kind}`)}
+                </p>
+                <p className="mt-1 text-sm leading-6 text-ink-soft">
+                  {t(`quotes.form.recipientKindDescriptions.${kind}`)}
+                </p>
+              </div>
+            </div>
+          </button>
+        );
+      })}
+    </div>
   );
 }
 
@@ -641,6 +882,31 @@ function QuoteFormFields({
   if (step === "recipient") {
     return (
       <div className="space-y-4">
+        <div className="rounded-3xl border border-line/70 bg-paper/72 p-4">
+          <p className="text-sm font-semibold text-ink">
+            {t("quotes.form.recipientSelectorTitle")}
+          </p>
+          <p className="mt-1 text-sm leading-6 text-ink-soft">
+            {t("quotes.form.recipientSelectorDescription")}
+          </p>
+          <div className="mt-4">
+            <RecipientKindPicker
+              currentKind={recipientKind}
+              onSelect={(nextKind) => {
+                setValue("recipientKind", nextKind, { shouldValidate: true });
+
+                if (nextKind !== "customer") {
+                  setValue("customerId", "");
+                }
+
+                if (nextKind !== "lead") {
+                  setValue("leadId", "");
+                }
+              }}
+            />
+          </div>
+        </div>
+
         <div className="grid gap-4 sm:grid-cols-2">
           <Field
             label={t("quotes.form.recipientKindLabel")}
@@ -695,69 +961,88 @@ function QuoteFormFields({
         </div>
 
         {recipientKind === "customer" ? (
-          <Field
-            label={t("quotes.form.customerLabel")}
-            error={errors.customerId?.message}
-            htmlFor={`${idPrefix}-quote-customer`}
-          >
-            <Select
-              id={`${idPrefix}-quote-customer`}
-              name={customerField.name}
-              onBlur={customerField.onBlur}
-              ref={customerField.ref}
-              value={customerId ?? ""}
-              onChange={(event) => {
-                customerField.onChange(event);
-                setValue("customerId", event.target.value, { shouldValidate: true });
-              }}
+          <div className="rounded-3xl border border-line/70 bg-sand/35 p-4">
+            <Field
+              label={t("quotes.form.customerLabel")}
+              error={errors.customerId?.message}
+              htmlFor={`${idPrefix}-quote-customer`}
             >
-              <option value="">{t("quotes.form.customerPlaceholder")}</option>
-              {customers.map((customer) => (
-                <option key={customer.id} value={customer.id}>
-                  {customer.displayName}
-                </option>
-              ))}
-            </Select>
-            {customers.length === 0 ? (
-              <p className="text-sm text-ink-soft">{t("quotes.form.noCustomersHint")}</p>
-            ) : null}
-          </Field>
+              <Select
+                id={`${idPrefix}-quote-customer`}
+                name={customerField.name}
+                onBlur={customerField.onBlur}
+                ref={customerField.ref}
+                value={customerId ?? ""}
+                onChange={(event) => {
+                  customerField.onChange(event);
+                  setValue("customerId", event.target.value, { shouldValidate: true });
+                }}
+              >
+                <option value="">{t("quotes.form.customerPlaceholder")}</option>
+                {customers.map((customer) => (
+                  <option key={customer.id} value={customer.id}>
+                    {customer.displayName}
+                  </option>
+                ))}
+              </Select>
+              {customers.length === 0 ? (
+                <p className="text-sm text-ink-soft">{t("quotes.form.noCustomersHint")}</p>
+              ) : (
+                <p className="text-sm text-ink-soft">
+                  {t("quotes.form.customerSelectedHint")}
+                </p>
+              )}
+            </Field>
+          </div>
         ) : recipientKind === "lead" ? (
-          <Field
-            label={t("quotes.form.leadLabel")}
-            error={errors.leadId?.message}
-            htmlFor={`${idPrefix}-quote-lead`}
-          >
-            <Select
-              id={`${idPrefix}-quote-lead`}
-              name={leadField.name}
-              onBlur={leadField.onBlur}
-              ref={leadField.ref}
-              value={leadId ?? ""}
-              onChange={(event) => {
-                leadField.onChange(event);
-                setValue("leadId", event.target.value, { shouldValidate: true });
-              }}
+          <div className="rounded-3xl border border-line/70 bg-sand/35 p-4">
+            <Field
+              label={t("quotes.form.leadLabel")}
+              error={errors.leadId?.message}
+              htmlFor={`${idPrefix}-quote-lead`}
             >
-              <option value="">{t("quotes.form.leadPlaceholder")}</option>
-              {leads.map((lead) => (
-                <option key={lead.id} value={lead.id}>
-                  {lead.displayName}
-                </option>
-              ))}
-            </Select>
-            {leads.length === 0 ? (
-              <p className="text-sm text-ink-soft">{t("quotes.form.noLeadsHint")}</p>
-            ) : null}
-          </Field>
+              <Select
+                id={`${idPrefix}-quote-lead`}
+                name={leadField.name}
+                onBlur={leadField.onBlur}
+                ref={leadField.ref}
+                value={leadId ?? ""}
+                onChange={(event) => {
+                  leadField.onChange(event);
+                  setValue("leadId", event.target.value, { shouldValidate: true });
+                }}
+              >
+                <option value="">{t("quotes.form.leadPlaceholder")}</option>
+                {leads.map((lead) => (
+                  <option key={lead.id} value={lead.id}>
+                    {lead.displayName}
+                  </option>
+                ))}
+              </Select>
+              {leads.length === 0 ? (
+                <p className="text-sm text-ink-soft">{t("quotes.form.noLeadsHint")}</p>
+              ) : (
+                <p className="text-sm text-ink-soft">
+                  {t("quotes.form.leadSelectedHint")}
+                </p>
+              )}
+            </Field>
+          </div>
         ) : (
-          <div className="rounded-3xl border border-dashed border-line/70 bg-paper/70 p-4">
-            <p className="text-sm font-semibold text-ink">
-              {t("quotes.form.quickRecipientTitle")}
-            </p>
-            <p className="mt-2 text-sm leading-6 text-ink-soft">
-              {t("quotes.form.quickRecipientDescription")}
-            </p>
+          <div className="rounded-3xl border border-dashed border-line/70 bg-paper p-4">
+            <div className="flex items-start gap-3">
+              <span className="inline-flex size-10 items-center justify-center rounded-2xl bg-paper/85 text-ink-soft shadow-panel">
+                <BadgeCheck className="size-4.5" />
+              </span>
+              <div>
+                <p className="text-sm font-semibold text-ink">
+                  {t("quotes.form.quickRecipientTitle")}
+                </p>
+                <p className="mt-2 text-sm leading-6 text-ink-soft">
+                  {t("quotes.form.quickRecipientDescription")}
+                </p>
+              </div>
+            </div>
           </div>
         )}
 
@@ -1302,15 +1587,244 @@ function formatCurrency(value: number, currencyCode: string) {
   }
 }
 
-function getValidationSummary(
+function guideToFirstInvalidField({
+  errors,
+  form,
+  setCurrentStep,
+  t
+}: {
+  errors: UseFormReturn<QuoteFormValues>["formState"]["errors"];
+  form: UseFormReturn<QuoteFormValues>;
+  setCurrentStep: (step: QuoteFormStepKey) => void;
+  t: ReturnType<typeof useTranslation<"backoffice">>["t"];
+}) {
+  const issues = collectValidationIssues(errors, t);
+  const primaryIssue = issues[0];
+
+  if (!primaryIssue) {
+    return;
+  }
+
+  setCurrentStep(primaryIssue.step);
+
+  const scheduleFocus =
+    typeof window !== "undefined" && typeof window.requestAnimationFrame === "function"
+      ? window.requestAnimationFrame.bind(window)
+      : (callback: FrameRequestCallback) => setTimeout(callback, 0);
+
+  scheduleFocus(() => {
+    if (primaryIssue.field) {
+      form.setFocus(primaryIssue.field);
+    }
+  });
+
+  toast.error(
+    t("quotes.form.validationToast", {
+      count: issues.length,
+      label: primaryIssue.label
+    })
+  );
+}
+
+function getFieldsForStep(
+  step: QuoteFormStepKey,
+  lineItemCount: number
+) {
+  if (step === "recipient") {
+    return [
+      "recipientKind",
+      "customerId",
+      "leadId",
+      "recipientDisplayName",
+      "recipientContactName",
+      "recipientEmail",
+      "recipientWhatsApp",
+      "recipientPhone"
+    ] satisfies QuoteFieldPath[];
+  }
+
+  if (step === "document") {
+    return [
+      "title",
+      "status",
+      "currencyCode",
+      "validUntil"
+    ] satisfies QuoteFieldPath[];
+  }
+
+  if (step === "review") {
+    return ["notes"] satisfies QuoteFieldPath[];
+  }
+
+  const lineItemFields: QuoteFieldPath[] = [];
+
+  for (let index = 0; index < lineItemCount; index += 1) {
+    lineItemFields.push(
+      `lineItems.${index}.catalogItemId` as QuoteFieldPath,
+      `lineItems.${index}.itemName` as QuoteFieldPath,
+      `lineItems.${index}.itemDescription` as QuoteFieldPath,
+      `lineItems.${index}.quantity` as QuoteFieldPath,
+      `lineItems.${index}.unitLabel` as QuoteFieldPath,
+      `lineItems.${index}.unitPrice` as QuoteFieldPath,
+      `lineItems.${index}.discountTotal` as QuoteFieldPath,
+      `lineItems.${index}.taxTotal` as QuoteFieldPath
+    );
+  }
+
+  return lineItemFields.length > 0
+    ? lineItemFields
+    : (["lineItems"] satisfies QuoteFieldPath[]);
+}
+
+function collectValidationIssues(
   errors: UseFormReturn<QuoteFormValues>["formState"]["errors"],
   t: ReturnType<typeof useTranslation<"backoffice">>["t"]
 ) {
-  if (Object.keys(errors).length === 0) {
-    return t("quotes.form.validationSummaryReady");
+  const issues: ValidationIssue[] = [];
+
+  appendValidationIssues({
+    errors,
+    issues,
+    parentPath: "",
+    t
+  });
+
+  const uniqueIssues = new Map<string, ValidationIssue>();
+
+  for (const issue of issues) {
+    if (!uniqueIssues.has(issue.key)) {
+      uniqueIssues.set(issue.key, issue);
+    }
   }
 
-  return t("quotes.form.validationSummaryPending");
+  return [...uniqueIssues.values()];
+}
+
+function appendValidationIssues({
+  errors,
+  issues,
+  parentPath,
+  t
+}: {
+  errors: FieldErrors<QuoteFormValues> | Record<string, unknown>;
+  issues: ValidationIssue[];
+  parentPath: string;
+  t: ReturnType<typeof useTranslation<"backoffice">>["t"];
+}) {
+  for (const [fieldName, fieldValue] of Object.entries(errors)) {
+    if (!fieldValue) {
+      continue;
+    }
+
+    const fieldPath = parentPath ? `${parentPath}.${fieldName}` : fieldName;
+
+    if (Array.isArray(fieldValue)) {
+      fieldValue.forEach((nestedValue, index) => {
+        if (!nestedValue) {
+          return;
+        }
+
+        appendValidationIssues({
+          errors: nestedValue as Record<string, unknown>,
+          issues,
+          parentPath: `${fieldPath}.${index}`,
+          t
+        });
+      });
+      continue;
+    }
+
+    if (
+      typeof fieldValue === "object" &&
+      "message" in fieldValue &&
+      typeof fieldValue.message === "string"
+    ) {
+      const normalizedFieldPath = fieldPath as QuoteFieldPath;
+
+      issues.push({
+        field: normalizedFieldPath,
+        key: fieldPath,
+        label: getFieldLabel(fieldPath, t),
+        message: fieldValue.message,
+        step: getStepForField(fieldPath)
+      });
+      continue;
+    }
+
+    if (typeof fieldValue === "object") {
+      appendValidationIssues({
+        errors: fieldValue as Record<string, unknown>,
+        issues,
+        parentPath: fieldPath,
+        t
+      });
+    }
+  }
+}
+
+function getStepForField(fieldPath: string): QuoteFormStepKey {
+  if (fieldPath.startsWith("lineItems")) {
+    return "items";
+  }
+
+  if (
+    fieldPath === "title" ||
+    fieldPath === "status" ||
+    fieldPath === "currencyCode" ||
+    fieldPath === "validUntil"
+  ) {
+    return "document";
+  }
+
+  if (fieldPath === "notes") {
+    return "review";
+  }
+
+  return "recipient";
+}
+
+function getFieldLabel(
+  fieldPath: string,
+  t: ReturnType<typeof useTranslation<"backoffice">>["t"]
+) {
+  const lineItemMatch = /^lineItems\.(\d+)\.(.+)$/.exec(fieldPath);
+
+  if (lineItemMatch) {
+    const lineIndex = Number(lineItemMatch[1] ?? 0) + 1;
+    const lineField = lineItemMatch[2];
+    const lineItemLabel = t("quotes.form.lineItemLabel", { index: lineIndex });
+
+    const lineFieldLabels: Record<string, string> = {
+      catalogItemId: t("quotes.form.catalogItemLabel"),
+      itemName: t("quotes.form.lineItemNameLabel"),
+      itemDescription: t("quotes.form.lineItemDescriptionLabel"),
+      quantity: t("quotes.form.quantityLabel"),
+      unitLabel: t("quotes.form.unitLabelLabel"),
+      unitPrice: t("quotes.form.unitPriceLabel"),
+      discountTotal: t("quotes.form.discountTotalLabel"),
+      taxTotal: t("quotes.form.taxTotalLabel")
+    };
+
+    return `${lineItemLabel} · ${lineFieldLabels[lineField] ?? lineField}`;
+  }
+
+  const labels: Record<string, string> = {
+    recipientKind: t("quotes.form.recipientKindLabel"),
+    customerId: t("quotes.form.customerLabel"),
+    leadId: t("quotes.form.leadLabel"),
+    recipientDisplayName: t("quotes.form.recipientDisplayNameLabel"),
+    recipientContactName: t("quotes.form.recipientContactNameLabel"),
+    recipientEmail: t("quotes.form.recipientEmailLabel"),
+    recipientWhatsApp: t("quotes.form.recipientWhatsAppLabel"),
+    recipientPhone: t("quotes.form.recipientPhoneLabel"),
+    title: t("quotes.form.titleLabel"),
+    status: t("quotes.form.statusLabel"),
+    currencyCode: t("quotes.form.currencyCodeLabel"),
+    validUntil: t("quotes.form.validUntilLabel"),
+    notes: t("quotes.form.notesLabel")
+  };
+
+  return labels[fieldPath] ?? fieldPath;
 }
 
 function SummaryMetric({ label, value }: { label: string; value: string }) {

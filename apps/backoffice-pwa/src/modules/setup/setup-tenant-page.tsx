@@ -19,6 +19,7 @@ import {
 } from "@/lib/forms/tenant-setup-schema";
 import { supabase } from "@/lib/supabase/client";
 import { UnconfiguredPage } from "@/modules/auth/unconfigured-page";
+import { CompactTenantPaletteSelector } from "@/modules/settings/tenant-palette-section";
 
 export function SetupTenantPage() {
   const { t } = useTranslation("backoffice");
@@ -87,22 +88,22 @@ export function SetupTenantPage() {
   }
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-6xl items-center px-4 py-12 sm:px-6">
+    <div className="mx-auto flex min-h-screen max-w-6xl items-center px-4 py-10 sm:px-6">
       <div className="grid w-full gap-4 lg:grid-cols-[1.05fr_0.95fr]">
-        <Card className="overflow-hidden bg-linear-to-br from-paper via-paper to-peach-200/55">
-          <CardContent className="space-y-5 p-6 sm:p-8">
+        <Card className="overflow-hidden bg-paper">
+          <CardContent className="space-y-4 p-5 sm:p-6">
             <p className="text-xs uppercase tracking-[0.24em] text-ink-muted">
               {t("setup.eyebrow")}
             </p>
-            <h1 className="max-w-2xl text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
+            <h1 className="max-w-2xl text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
               {t("setup.title")}
             </h1>
-            <p className="max-w-2xl text-sm leading-7 text-ink-soft sm:text-base">
+            <p className="max-w-2xl text-sm leading-6 text-ink-soft">
               {t("setup.description")}
             </p>
 
             <div className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-3xl border border-line/70 bg-paper/85 p-4">
+              <div className="rounded-3xl border border-line/70 bg-paper/85 p-3.5">
                 <p className="text-sm font-semibold text-ink">
                   {t("setup.cardTenantTitle")}
                 </p>
@@ -110,7 +111,7 @@ export function SetupTenantPage() {
                   {t("setup.cardTenantText")}
                 </p>
               </div>
-              <div className="rounded-3xl border border-line/70 bg-paper/85 p-4">
+              <div className="rounded-3xl border border-line/70 bg-paper/85 p-3.5">
                 <p className="text-sm font-semibold text-ink">
                   {t("setup.cardRolesTitle")}
                 </p>
@@ -119,6 +120,8 @@ export function SetupTenantPage() {
                 </p>
               </div>
             </div>
+
+            <CompactTenantPaletteSelector />
           </CardContent>
         </Card>
 
@@ -126,7 +129,7 @@ export function SetupTenantPage() {
           <CardHeader>
             <CardTitle>{t("setup.formTitle")}</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-5">
+          <CardContent className="space-y-4">
             <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-ink" htmlFor="tenant-name">
@@ -168,7 +171,7 @@ export function SetupTenantPage() {
               </Button>
             </form>
 
-            <div className="rounded-3xl border border-line/70 bg-paper/70 p-4">
+            <div className="rounded-3xl border border-line/70 bg-paper/70 p-3.5">
               <div className="flex items-start gap-3">
                 <Building2 className="mt-1 size-4 shrink-0 text-ink" />
                 <div>
@@ -182,7 +185,7 @@ export function SetupTenantPage() {
               </div>
             </div>
 
-            <div className="rounded-3xl border border-line/70 bg-sand-strong/80 p-4">
+            <div className="rounded-3xl border border-line/70 bg-sand-strong/80 p-3.5">
               <div className="flex items-start gap-3">
                 <Sparkles className="mt-1 size-4 shrink-0 text-ink" />
                 <div>

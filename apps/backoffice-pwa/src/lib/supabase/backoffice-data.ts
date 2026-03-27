@@ -786,6 +786,11 @@ export async function updateCatalogItem(input: UpdateCatalogItemInput) {
 
 export async function createQuote(input: CreateQuoteInput) {
   const client = requireSupabaseClient();
+  const normalizedCustomerId =
+    input.recipientKind === "customer" ? input.customerId ?? null : null;
+  const normalizedLeadId =
+    input.recipientKind === "lead" ? input.leadId ?? null : null;
+
   const { data: quoteId, error } = await client.rpc("create_quote", {
     target_tenant_id: input.tenantId,
     target_title: input.title.trim(),
@@ -793,8 +798,8 @@ export async function createQuote(input: CreateQuoteInput) {
     target_currency_code: input.currencyCode.trim().toUpperCase(),
     target_recipient_kind: input.recipientKind,
     target_line_items: normalizeQuoteLineItems(input.lineItems),
-    target_customer_id: input.customerId ?? null,
-    target_lead_id: input.leadId ?? null,
+    target_customer_id: normalizedCustomerId,
+    target_lead_id: normalizedLeadId,
     target_recipient_display_name: normalizeOptionalValue(
       input.recipientDisplayName
     ),
@@ -828,6 +833,11 @@ export async function createQuote(input: CreateQuoteInput) {
 
 export async function updateQuote(input: UpdateQuoteInput) {
   const client = requireSupabaseClient();
+  const normalizedCustomerId =
+    input.recipientKind === "customer" ? input.customerId ?? null : null;
+  const normalizedLeadId =
+    input.recipientKind === "lead" ? input.leadId ?? null : null;
+
   const { data: quoteId, error } = await client.rpc("update_quote", {
     target_tenant_id: input.tenantId,
     target_quote_id: input.quoteId,
@@ -837,8 +847,8 @@ export async function updateQuote(input: UpdateQuoteInput) {
     target_currency_code: input.currencyCode.trim().toUpperCase(),
     target_recipient_kind: input.recipientKind,
     target_line_items: normalizeQuoteLineItems(input.lineItems),
-    target_customer_id: input.customerId ?? null,
-    target_lead_id: input.leadId ?? null,
+    target_customer_id: normalizedCustomerId,
+    target_lead_id: normalizedLeadId,
     target_recipient_display_name: normalizeOptionalValue(
       input.recipientDisplayName
     ),

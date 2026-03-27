@@ -37,7 +37,8 @@ function renderRoute(route: string) {
       <MemoryRouter initialEntries={[route]}>
         <Routes>
           <Route path="/" element={<AppShell />}>
-            <Route index element={<div>Dashboard stub</div>} />
+          <Route index element={<div>Dashboard stub</div>} />
+            <Route path="learning" element={<div>Learning stub</div>} />
             <Route path="quotes" element={<div>Quotes overview stub</div>} />
             <Route path="quotes/new" element={<div>Quotes new stub</div>} />
             <Route path="quotes/manage" element={<div>Quotes manage stub</div>} />
@@ -99,6 +100,14 @@ describe("backoffice shell", () => {
 
     expect(
       await screen.findByRole("link", { name: /^Admin$/i })
+    ).toBeInTheDocument();
+  });
+
+  it("shows the learning module in the extended navigation", async () => {
+    renderRoute("/");
+
+    expect(
+      await screen.findByRole("link", { name: /^Aprendizaje$/i })
     ).toBeInTheDocument();
   });
 

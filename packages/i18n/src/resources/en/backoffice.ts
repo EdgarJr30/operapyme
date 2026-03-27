@@ -129,6 +129,70 @@ const backofficeEn = {
         "AI should stay focused on commercial acceleration, not gimmicks."
     }
   },
+  learning: {
+    header: {
+      eyebrow: "Learning",
+      title: "Quick guides to move forward with confidence",
+      description:
+        "Find the essential step-by-step guidance here so using OperaPyme feels clearer and easier."
+    },
+    principles: {
+      title: "What you will find here",
+      description:
+        "This space gathers short, practical help so work screens can stay simple and focused.",
+      runtimeTitle: "Less friction while working",
+      runtimeText:
+        "Screens like create quote now stay focused on completing the task instead of over-explaining it.",
+      guidesTitle: "Clear steps",
+      guidesText:
+        "Each guide summarizes the recommended order to solve a task without wasting time figuring out where to start.",
+      supportTitle: "Direct access",
+      supportText:
+        "Jump into the right area from here and complete the real action once the next step is clear."
+    },
+    guides: {
+      quotesFast: {
+        eyebrow: "Quotes",
+        title: "Create a quote in a few steps",
+        description:
+          "Ideal for sending a proposal without slowing down the commercial flow.",
+        stepOne: "Choose customer, lead, or fast lead based on the context.",
+        stepTwo: "Fill title, status, currency, and validity only when they matter.",
+        stepThree: "Add at least one line with quantity and price, then save.",
+        action: "Go to new quote"
+      },
+      quotesManage: {
+        eyebrow: "Follow-up",
+        title: "Resume an existing quote",
+        description:
+          "Use this guide to adjust, update, or close documents that already exist.",
+        stepOne: "Open manage quotes and pick the correct document.",
+        stepTwo: "Adjust recipient, document, or line items depending on the case.",
+        stepThree: "Save changes and verify the total before sharing.",
+        action: "Go to manage quotes"
+      },
+      crmLead: {
+        eyebrow: "CRM",
+        title: "Capture a lead and prepare it for quoting",
+        description:
+          "When there is still no clear recipient in the pipeline, this is the best place to start.",
+        stepOne: "Register company, contact, and the main channel.",
+        stepTwo: "Summarize the commercial need in one useful sentence.",
+        stepThree: "Then move into quotes once you know what you will offer.",
+        action: "Go to CRM"
+      },
+      catalog: {
+        eyebrow: "Catalog",
+        title: "Prepare items before quoting",
+        description:
+          "This helps you quote faster when you sell recurring products or services.",
+        stepOne: "Create products or services with a clear name and category.",
+        stepTwo: "Define whether pricing is fixed or on request.",
+        stepThree: "Use those items later inside quote line items.",
+        action: "Go to catalog"
+      }
+    }
+  },
   crm: {
     header: {
       eyebrow: "CRM module",
@@ -489,6 +553,37 @@ const backofficeEn = {
       manageDescription:
         "Resume existing documents, adjust line items, and keep context before sending."
     },
+    createPage: {
+      directEntryDescription:
+        "Start directly: customers {customers}, leads {leads}, items {catalogItems}. Complete what you need and save.",
+      customerCount: "Customers ready",
+      customerCountHint: "Use them when you already know who you are quoting.",
+      leadCount: "Leads ready",
+      leadCountHint: "Resume existing prospects without leaving the flow.",
+      catalogCount: "Items ready",
+      catalogCountHint: "Speed up the commercial detail with reusable catalog items.",
+      focusTitle: "What matters most right now",
+      focusDescription:
+        "This flow now keeps the minimum work front and center and only reveals the rest when it actually helps.",
+      focusRecipientTitle: "1. Define the recipient",
+      focusRecipientDescription:
+        "Choose customer, lead, or fast lead and fill only the useful contact channels.",
+      focusDocumentTitle: "2. Adjust the document",
+      focusDocumentDescription:
+        "Title, status, currency, and validity now stay together so decisions feel cleaner.",
+      focusItemsTitle: "3. Build the proposal",
+      focusItemsDescription:
+        "Complete line items, review totals, and save without losing context.",
+      fastTrackTitle: "Recommended shortcut",
+      fastTrackDescription:
+        "If you just need to quote now, start with fast lead and move in this order.",
+      fastTrackLead:
+        "Enter the company or reference plus at least one clear contact channel.",
+      fastTrackPrice:
+        "Add one line with name, quantity, and price so the total becomes clear.",
+      fastTrackSave:
+        "Save the quote and decide later whether this recipient should move into CRM."
+    },
     landing: {
       createCardTitle: "Create a new quote",
       createCardDescription: "Start with a short, step-based flow.",
@@ -559,8 +654,13 @@ const backofficeEn = {
       pendingSummaryValue: "Pending",
       validationSummaryTitle: "Form health",
       validationSummaryReady: "Everything looks ready to save or update.",
+      validationSummaryReadyTitle: "Ready to save",
+      validationSummaryReadyDescription:
+        "There are no visible blockers left in this form.",
       validationSummaryPending:
         "There are still fields to review before closing the quote.",
+      validationSummaryPendingDetailed:
+        "There are {count} items to review before closing the quote.",
       reviewChecklistTitle: "Final review",
       reviewChecklistRecipient: "Confirm the recipient and channels visible in the document.",
       reviewChecklistDocument: "Verify validity date, status, and commercial narrative.",
@@ -593,6 +693,8 @@ const backofficeEn = {
       resetAction: "Clear form",
       createSuccess: "Quote created successfully as {quoteNumber}.",
       createError: "We could not create the quote. {message}",
+      validationToast:
+        "Review {label}. There are still {count} items to fix.",
       updateSuccess: "Quote updated successfully.",
       updateError: "We could not update the quote. {message}",
       noQuoteSelected: "Select a quote before trying to update it.",
@@ -610,17 +712,40 @@ const backofficeEn = {
         lead: "Existing lead",
         ad_hoc: "Fast lead"
       },
+      recipientKindDescriptions: {
+        customer: "Use an existing customer and bring their data into the document.",
+        lead: "Resume an existing lead without capturing it again.",
+        ad_hoc: "Quote now and decide later whether it belongs in CRM."
+      },
+      recipientSelectorTitle: "How do you want to start this quote",
+      recipientSelectorDescription:
+        "Pick the path that gets this quote out with the fewest steps.",
       customerLabel: "Customer",
       customerPlaceholder: "Select a customer",
+      customerSelectedHint:
+        "When you choose a customer, their data fills into the document and you can still adjust it.",
       noCustomersHint:
         "There are no live customers yet. You can use an existing lead or a fast lead instead.",
       leadLabel: "Lead",
       leadPlaceholder: "Select a lead",
+      leadSelectedHint:
+        "When you choose a lead, their data fills into the document so you do not repeat work.",
       noLeadsHint:
         "There are no saved leads yet. Capture them from CRM or quote as a fast lead instead.",
       quickRecipientTitle: "Fast quote without saving a lead",
       quickRecipientDescription:
         "Use this mode when you need to quote immediately and decide later whether the recipient belongs in CRM.",
+      centralFocusTitle: "Focus for this step",
+      centralFocusByStep: {
+        recipient:
+          "Make it clear who this quote is for and which channel should be used to respond.",
+        document:
+          "Adjust the title, currency, and validity so the document reads cleanly.",
+        items:
+          "Build a proposal that is easy to understand, with clear lines and a reliable total.",
+        review:
+          "Do one final pass on notes, blockers, and total before saving."
+      },
       quoteNumberLabel: "Quote number",
       generatedNumberPlaceholder: "Assigned automatically after save",
       generatedNumberHint:
@@ -889,6 +1014,9 @@ const backofficeEn = {
     noteTitle: "Operating rule",
     noteText:
       "Later this flow can become a multi-step wizard, but today it already leaves the membership and base role ready.",
+    paletteTitle: "Initial visual identity",
+    paletteDescription:
+      "You can start with a curated palette or build your own from four base colors, then refine it later in settings.",
     nextTitle: "What comes next",
     nextText:
       "After bootstrap the backoffice is ready to connect customers, quotes, and real tenant configuration."
@@ -936,15 +1064,15 @@ const backofficeEn = {
     palette: {
       title: "Tenant visual palette",
       description:
-        "Choose a curated palette so backoffice and storefront share the same brand without losing readability or consistency.",
+        "Choose a curated palette or build your own so backoffice and storefront share an elegant brand without losing readability or consistency.",
       sharedBadge: "One brand, two apps",
       previewBadge: "Live preview",
-      ruleTitle: "Why we start with presets instead of a free color picker",
+      ruleTitle: "Why we combine curated presets with simple customization",
       ruleText:
-        "These palettes are curated to keep contrast, setup speed, and visual consistency across modules and screens.",
+        "The base palettes already start balanced, and the custom palette only asks for four seed colors to preserve contrast, setup speed, and visual consistency.",
       storageTitle: "Current persistence",
       storageText:
-        "In this scaffold the selection is stored locally for fast iteration. The next real step is persisting `palette_id` per tenant in Supabase and using local cache only as an optimization.",
+        "In this scaffold both the selection and the custom palette are stored locally for fast iteration. The next real step is persisting `palette_id` and branding seeds per tenant in Supabase.",
       backofficeTitle: "Operational backoffice",
       backofficeDescription:
         "More structure, more useful density, and a more contained canvas for daily work.",
@@ -959,7 +1087,20 @@ const backofficeEn = {
       apply: "Apply palette",
       active: "Active palette",
       contrastLabel: "CTA contrast",
-      reviewLabel: "Review contrast"
+      reviewLabel: "Review contrast",
+      toastTitle: "Palette updated",
+      toastDescription: "The active visual identity now uses {palette}.",
+      customBadge: "Editable",
+      custom: {
+        paperLabel: "Light base",
+        primaryLabel: "Primary color",
+        secondaryLabel: "Secondary color",
+        tertiaryLabel: "Support color",
+        helperTitle: "How the custom palette works",
+        helperText:
+          "These four colors generate surfaces, borders, backgrounds, and states to keep a professional identity without opening an advanced editor.",
+        reset: "Restore base"
+      }
     },
     principles: {
       rbacTitle: "RBAC before polish",

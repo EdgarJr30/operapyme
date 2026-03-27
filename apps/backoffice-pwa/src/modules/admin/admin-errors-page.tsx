@@ -29,14 +29,14 @@ export function AdminErrorsPage() {
       <section className="grid gap-4 xl:grid-cols-[1.3fr_0.9fr]">
         <Card className="overflow-hidden">
           <CardContent className="space-y-6">
-            <div className="space-y-4">
+            <div className="space-y-3">
               <p className="text-xs uppercase tracking-[0.24em] text-ink-muted">
                 {t("admin.errors.eyebrow")}
               </p>
-              <h1 className="max-w-2xl text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
+              <h1 className="max-w-2xl text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
                 {t("admin.errors.title")}
               </h1>
-              <p className="max-w-2xl text-sm leading-7 text-ink-soft sm:text-base">
+              <p className="max-w-2xl text-sm leading-6 text-ink-soft">
                 {t("admin.errors.description")}
               </p>
             </div>
@@ -139,7 +139,7 @@ export function AdminErrorsPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-linear-to-br from-paper via-paper to-peach-200/65">
+        <Card className="bg-paper">
           <CardHeader>
             <CardTitle>auth_event_logs</CardTitle>
             <CardDescription>

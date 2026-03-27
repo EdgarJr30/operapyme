@@ -172,7 +172,7 @@ export function CustomerOperationsPanel({
         </CardContent>
       </Card>
 
-      <Card className="bg-linear-to-br from-paper via-paper to-sage-200/50">
+      <Card className="bg-paper">
         <CardHeader>
           <CardTitle>{t("crm.customerForm.updateTitle")}</CardTitle>
           <CardDescription>

@@ -194,10 +194,10 @@ describe("quote operations panel", () => {
 
     renderCreatePanel();
 
-    await user.click(screen.getByRole("button", { name: /Documento/i }));
+    await user.click(screen.getByRole("button", { name: /^Siguiente paso$/i }));
 
     await user.type(screen.getByLabelText(/Titulo/i), "Propuesta de soporte");
-    await user.click(screen.getByRole("button", { name: /Lineas/i }));
+    await user.click(screen.getByRole("button", { name: /^Siguiente paso$/i }));
     await user.type(screen.getByLabelText(/Nombre del servicio o producto/i), "Soporte premium");
     await user.clear(screen.getByLabelText(/Precio unitario/i));
     await user.type(screen.getByLabelText(/Precio unitario/i), "1500");
@@ -221,6 +221,79 @@ describe("quote operations panel", () => {
     expect(
       mutationState.createQuoteMutation.mutateAsync.mock.calls[0][0]
     ).not.toHaveProperty("quoteNumber");
+  });
+
+  it("guides the user to the first invalid step when required fields are missing", async () => {
+    const mutationState = buildMutationState();
+    quoteMutationMocks.useQuoteMutations.mockReturnValue(mutationState);
+    quoteMutationMocks.useQuoteDetailData.mockReturnValue({
+      data: null,
+      error: null,
+      isError: false,
+      isLoading: false
+    });
+    const user = userEvent.setup();
+
+    renderCreatePanel();
+
+    await user.click(screen.getByRole("button", { name: /Guardar cotizacion/i }));
+
+    expect(await screen.findByLabelText(/Titulo/i)).toBeInTheDocument();
+    expect(
+      screen.getAllByText(/Ingresa un titulo para la cotizacion/i).length
+    ).toBeGreaterThan(0);
+    expect(
+      mutationState.createQuoteMutation.mutateAsync
+    ).not.toHaveBeenCalled();
+  });
+
+  it("creates a quote from the fast lead path without customer or lead ids", async () => {
+    const mutationState = buildMutationState();
+    quoteMutationMocks.useQuoteMutations.mockReturnValue(mutationState);
+    quoteMutationMocks.useQuoteDetailData.mockReturnValue({
+      data: null,
+      error: null,
+      isError: false,
+      isLoading: false
+    });
+    const user = userEvent.setup();
+
+    renderCreatePanel();
+
+    await user.selectOptions(
+      screen.getByLabelText(/Tipo de receptor/i),
+      "ad_hoc"
+    );
+    const recipientInput = screen.getByLabelText(/Empresa o referencia/i);
+    const emailInput = screen.getByLabelText(/^Correo$/i);
+    await user.clear(recipientInput);
+    await user.type(recipientInput, "Prospecto urgente");
+    await user.clear(emailInput);
+    await user.type(emailInput, "urgente@test.com");
+
+    await user.click(screen.getAllByRole("button", { name: /Documento/i })[0]!);
+    await user.type(await screen.findByLabelText(/Titulo/i), "Cotizacion express");
+
+    await user.click(screen.getAllByRole("button", { name: /Lineas/i })[0]!);
+    await user.type(
+      await screen.findByLabelText(/Nombre del servicio o producto/i),
+      "Paquete express"
+    );
+    await user.clear(screen.getByLabelText(/Precio unitario/i));
+    await user.type(screen.getByLabelText(/Precio unitario/i), "950");
+
+    await user.click(screen.getByRole("button", { name: /Guardar cotizacion/i }));
+
+    expect(mutationState.createQuoteMutation.mutateAsync).toHaveBeenCalledWith(
+      expect.objectContaining({
+        recipientKind: "ad_hoc",
+        customerId: null,
+        leadId: null,
+        recipientDisplayName: "Prospecto urgente",
+        recipientEmail: "urgente@test.com",
+        title: "Cotizacion express"
+      })
+    );
   });
 
   it("submits a live quote update mutation with expected version input", async () => {
@@ -275,9 +348,9 @@ describe("quote operations panel", () => {
 
     renderManagePanel();
 
-    await user.click(screen.getByRole("button", { name: /Documento/i }));
+    await user.click(screen.getByRole("button", { name: /^Siguiente paso$/i }));
 
-    const updateTitleInput = screen.getByLabelText(/Titulo/i);
+    const updateTitleInput = await screen.findByLabelText(/Titulo/i);
     await user.clear(updateTitleInput);
     await user.type(updateTitleInput, "Propuesta Northline actualizada");
     await user.click(screen.getByRole("button", { name: /Actualizar cotizacion/i }));

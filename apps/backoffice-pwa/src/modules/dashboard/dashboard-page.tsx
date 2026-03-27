@@ -86,17 +86,17 @@ export function DashboardPage() {
   return (
     <div className="space-y-6">
       <section className="grid gap-4 xl:grid-cols-[minmax(0,1.4fr)_340px]">
-        <div className="rounded-3xl border border-line/70 bg-linear-to-br from-paper via-paper to-sky-200/45 p-5 shadow-panel sm:p-6">
-          <div className="flex flex-col gap-5">
+        <div className="rounded-3xl border border-line/70 bg-paper p-4 shadow-panel sm:p-5">
+          <div className="flex flex-col gap-4">
             <div className="space-y-3">
               <span className="inline-flex min-h-9 items-center rounded-full border border-line/70 bg-paper/85 px-3 text-xs font-semibold uppercase tracking-[0.18em] text-ink-muted">
                 {t("dashboard.header.eyebrow")}
               </span>
               <div className="space-y-2">
-                <h1 className="text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
+                <h1 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
                   {t("dashboard.header.title")}
                 </h1>
-                <p className="max-w-2xl text-sm leading-7 text-ink-soft sm:text-base">
+                <p className="max-w-2xl text-sm leading-6 text-ink-soft">
                   {t("dashboard.header.description")}
                 </p>
               </div>
@@ -131,19 +131,19 @@ export function DashboardPage() {
             <div className="flex flex-wrap gap-3">
               <NavLink
                 to="/crm"
-                className="inline-flex min-h-12 items-center justify-center rounded-full border border-line-strong bg-paper/95 px-5 text-sm font-medium text-ink shadow-panel transition hover:bg-sand/70"
+                className="inline-flex min-h-11 items-center justify-center rounded-full border border-line-strong bg-paper/95 px-4 text-sm font-medium text-ink shadow-panel transition hover:bg-sand/70"
               >
                 {t("dashboard.actions.newLead")}
               </NavLink>
               <NavLink
                 to="/quotes"
-                className="inline-flex min-h-12 items-center justify-center rounded-full bg-brand px-5 text-sm font-medium text-brand-contrast shadow-soft transition hover:bg-brand-hover"
+                className="inline-flex min-h-11 items-center justify-center rounded-full bg-brand px-4 text-sm font-medium text-brand-contrast shadow-soft transition hover:bg-brand-hover"
               >
                 {t("dashboard.actions.newQuote")}
               </NavLink>
               <NavLink
                 to="/catalog"
-                className="inline-flex min-h-12 items-center justify-center rounded-full border border-line-strong bg-paper/95 px-5 text-sm font-medium text-ink shadow-panel transition hover:bg-sand/70"
+                className="inline-flex min-h-11 items-center justify-center rounded-full border border-line-strong bg-paper/95 px-4 text-sm font-medium text-ink shadow-panel transition hover:bg-sand/70"
               >
                 {t("dashboard.actions.reviewCatalog")}
               </NavLink>
@@ -151,9 +151,9 @@ export function DashboardPage() {
           </div>
         </div>
 
-        <div className="rounded-3xl border border-line/70 bg-paper p-5 shadow-panel">
+        <div className="rounded-3xl border border-line/70 bg-paper p-4 shadow-panel sm:p-5">
           <div className="space-y-1">
-            <p className="text-lg font-semibold text-ink">
+            <p className="text-base font-semibold text-ink sm:text-lg">
               {t("dashboard.checklist.title")}
             </p>
             <p className="text-sm leading-6 text-ink-soft">
@@ -166,7 +166,7 @@ export function DashboardPage() {
               <NavLink
                 key={key}
                 to={to}
-                className="flex min-h-14 items-center justify-between gap-3 rounded-2xl border border-line/70 bg-sand/45 px-4 py-3 transition hover:border-line-strong hover:bg-paper"
+                className="flex min-h-12 items-center justify-between gap-3 rounded-2xl border border-line/70 bg-sand/45 px-4 py-3 transition hover:border-line-strong hover:bg-paper"
               >
                 <div className="flex items-center gap-3">
                   <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-paper text-ink shadow-panel">
