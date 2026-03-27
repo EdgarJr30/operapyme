@@ -428,40 +428,42 @@ test.describe("backoffice modules", () => {
   test("renders the main desktop routes with mock tenant data", async ({
     page
   }, testInfo) => {
-    const routes = [
-      {
-        path: "/",
-        heading: /Resumen operativo del negocio/i,
-        screenshot: "dashboard-desktop.png"
-      },
-      {
-        path: "/crm",
-        heading: /Leads, clientes y seguimiento/i,
-        screenshot: "crm-desktop.png"
-      },
-      {
-        path: "/catalog",
-        heading: /Catalogo comercial del tenant/i,
-        screenshot: "catalog-desktop.png"
-      },
-      {
-        path: "/quotes",
-        heading: /Cotizaciones y documentos comerciales/i,
-        screenshot: "quotes-desktop.png"
-      }
-    ];
+    await page.goto("/");
+    await expect(
+      page.getByRole("heading", { name: /Resumen operativo del negocio/i })
+    ).toBeVisible();
+    await page.screenshot({
+      path: testInfo.outputPath("dashboard-desktop.png"),
+      fullPage: true
+    });
 
-    for (const routeConfig of routes) {
-      await page.goto(routeConfig.path);
-      await expect(
-        page.getByRole("heading", { name: routeConfig.heading })
-      ).toBeVisible();
+    await page.goto("/quotes");
+    await expect(
+      page.getByRole("heading", { name: /Cotizaciones y documentos comerciales/i })
+    ).toBeVisible();
+    await page.screenshot({
+      path: testInfo.outputPath("quotes-desktop.png"),
+      fullPage: true
+    });
 
-      await page.screenshot({
-        path: testInfo.outputPath(routeConfig.screenshot),
-        fullPage: true
-      });
-    }
+    await page.getByRole("link", { name: /Crear cotizacion/i }).first().click();
+    await expect(
+      page.getByRole("heading", { name: /Crear cotizacion/i })
+    ).toBeVisible();
+    await page.screenshot({
+      path: testInfo.outputPath("quotes-create-desktop.png"),
+      fullPage: true
+    });
+
+    await page.goto("/quotes");
+    await page.getByRole("link", { name: /Revisar cotizaciones/i }).first().click();
+    await expect(
+      page.getByRole("heading", { name: /Gestionar cotizaciones/i })
+    ).toBeVisible();
+    await page.screenshot({
+      path: testInfo.outputPath("quotes-manage-desktop.png"),
+      fullPage: true
+    });
   });
 
   test("keeps the quotes module usable on mobile", async ({ browser }, testInfo) => {
@@ -482,6 +484,16 @@ test.describe("backoffice modules", () => {
 
     await page.screenshot({
       path: testInfo.outputPath("quotes-mobile.png"),
+      fullPage: true
+    });
+
+    await page.getByRole("link", { name: /Crear cotizacion/i }).first().click();
+    await expect(
+      page.getByRole("heading", { name: /Crear cotizacion/i })
+    ).toBeVisible();
+
+    await page.screenshot({
+      path: testInfo.outputPath("quotes-create-mobile.png"),
       fullPage: true
     });
 

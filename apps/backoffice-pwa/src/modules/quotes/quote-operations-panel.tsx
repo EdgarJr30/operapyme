@@ -30,8 +30,12 @@ import type {
   QuoteRecipientKind,
   QuoteSummary
 } from "@/lib/supabase/backoffice-data";
+import { cn } from "@/lib/utils";
 import { useQuoteDetailData } from "@/modules/quotes/use-quote-detail-data";
 import { useQuoteMutations } from "@/modules/quotes/use-quote-mutations";
+
+type QuoteWorkflowMode = "create" | "update";
+type QuoteFormStepKey = "recipient" | "document" | "items" | "review";
 
 interface QuoteOperationsPanelProps {
   customers: CustomerSummary[];
@@ -40,25 +44,124 @@ interface QuoteOperationsPanelProps {
   quotes: QuoteSummary[];
 }
 
-export function QuoteOperationsPanel({
+const quoteFormSteps: QuoteFormStepKey[] = [
+  "recipient",
+  "document",
+  "items",
+  "review"
+];
+
+export function QuoteOperationsPanel(props: QuoteOperationsPanelProps) {
+  return <QuoteCreateWorkspace {...props} />;
+}
+
+export function QuoteCreateWorkspace({
+  customers,
+  leads,
+  catalogItems
+}: QuoteOperationsPanelProps) {
+  const { t } = useTranslation("backoffice");
+  const { createQuoteMutation } = useQuoteMutations();
+  const quoteFormSchema = createQuoteFormSchema(t);
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [currentStep, setCurrentStep] = useState<QuoteFormStepKey>("recipient");
+
+  const form = useForm<QuoteFormValues>({
+    resolver: zodResolver(quoteFormSchema),
+    defaultValues: buildCreateDefaults(customers, leads)
+  });
+
+  async function onSubmit(values: QuoteFormValues) {
+    setFeedback(null);
+
+    try {
+      const createdQuote = await createQuoteMutation.mutateAsync(toQuotePayload(values));
+      setFeedback(
+        t("quotes.form.createSuccess", { quoteNumber: createdQuote.quoteNumber })
+      );
+      form.reset(buildCreateDefaults(customers, leads));
+      setCurrentStep("recipient");
+    } catch (error) {
+      setFeedback(
+        t("quotes.form.createError", {
+          message: error instanceof Error ? error.message : ""
+        })
+      );
+    }
+  }
+
+  return (
+    <QuoteWorkflowLayout
+      mode="create"
+      title={t("quotes.form.createTitle")}
+      description={t("quotes.form.createDescription")}
+      form={form}
+      currentStep={currentStep}
+      onStepChange={setCurrentStep}
+      summaryLabel={t("quotes.form.newDraftLabel")}
+      footer={
+        <>
+          {feedback ? (
+            <FeedbackBanner
+              tone={createQuoteMutation.isError ? "error" : "success"}
+            >
+              {feedback}
+            </FeedbackBanner>
+          ) : null}
+          <div className="flex flex-wrap gap-3">
+            <Button
+              type="button"
+              size="lg"
+              variant="secondary"
+              onClick={() => {
+                form.reset(buildCreateDefaults(customers, leads));
+                setFeedback(null);
+                setCurrentStep("recipient");
+              }}
+            >
+              {t("quotes.form.resetAction")}
+            </Button>
+            <Button
+              type="submit"
+              size="lg"
+              disabled={createQuoteMutation.isPending}
+            >
+              {createQuoteMutation.isPending
+                ? t("quotes.form.createSubmitting")
+                : t("quotes.form.createAction")}
+            </Button>
+          </div>
+        </>
+      }
+      onSubmit={form.handleSubmit(onSubmit)}
+    >
+      <QuoteFormFields
+        catalogItems={catalogItems}
+        customers={customers}
+        leads={leads}
+        form={form}
+        idPrefix="create"
+        quoteNumber={null}
+        step={currentStep}
+      />
+    </QuoteWorkflowLayout>
+  );
+}
+
+export function QuoteManageWorkspace({
   customers,
   leads,
   catalogItems,
   quotes
 }: QuoteOperationsPanelProps) {
   const { t } = useTranslation("backoffice");
-  const { createQuoteMutation, updateQuoteMutation } = useQuoteMutations();
+  const { updateQuoteMutation } = useQuoteMutations();
   const quoteFormSchema = createQuoteFormSchema(t);
   const [selectedQuoteId, setSelectedQuoteId] = useState<string>("");
-  const [createFeedback, setCreateFeedback] = useState<string | null>(null);
-  const [updateFeedback, setUpdateFeedback] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [currentStep, setCurrentStep] = useState<QuoteFormStepKey>("recipient");
 
-  const createForm = useForm<QuoteFormValues>({
-    resolver: zodResolver(quoteFormSchema),
-    defaultValues: buildCreateDefaults(customers, leads)
-  });
-
-  const updateForm = useForm<QuoteFormValues>({
+  const form = useForm<QuoteFormValues>({
     resolver: zodResolver(quoteFormSchema),
     defaultValues: buildEmptyQuoteDefaults()
   });
@@ -67,7 +170,6 @@ export function QuoteOperationsPanel({
     () => quotes.find((quote) => quote.id === selectedQuoteId) ?? null,
     [quotes, selectedQuoteId]
   );
-
   const selectedQuoteDetailQuery = useQuoteDetailData(selectedQuoteId || null);
   const selectedQuoteDetail = selectedQuoteDetailQuery.data ?? null;
 
@@ -82,12 +184,12 @@ export function QuoteOperationsPanel({
       return;
     }
 
-    updateForm.reset(buildUpdateDefaults(selectedQuoteDetail));
-  }, [selectedQuoteDetail, updateForm]);
+    form.reset(buildUpdateDefaults(selectedQuoteDetail));
+  }, [form, selectedQuoteDetail]);
 
   useEffect(() => {
     if (quotes.length === 0) {
-      updateForm.reset(buildEmptyQuoteDefaults());
+      form.reset(buildEmptyQuoteDefaults());
       return;
     }
 
@@ -96,42 +198,23 @@ export function QuoteOperationsPanel({
     }
 
     if (!selectedQuoteDetailQuery.isLoading && !selectedQuoteDetail) {
-      updateForm.reset(buildEmptyQuoteDefaults());
+      form.reset(buildEmptyQuoteDefaults());
     }
   }, [
+    form,
     quotes.length,
     selectedQuoteDetail,
     selectedQuoteDetailQuery.isLoading,
-    selectedQuoteSummary,
-    updateForm
+    selectedQuoteSummary
   ]);
 
-  async function onCreate(values: QuoteFormValues) {
-    setCreateFeedback(null);
-
-    try {
-      const createdQuote = await createQuoteMutation.mutateAsync(toQuotePayload(values));
-      setCreateFeedback(
-        t("quotes.form.createSuccess", { quoteNumber: createdQuote.quoteNumber })
-      );
-      createForm.reset(buildCreateDefaults(customers, leads));
-      setSelectedQuoteId(createdQuote.id);
-    } catch (error) {
-      setCreateFeedback(
-        t("quotes.form.createError", {
-          message: error instanceof Error ? error.message : ""
-        })
-      );
-    }
-  }
-
-  async function onUpdate(values: QuoteFormValues) {
+  async function onSubmit(values: QuoteFormValues) {
     if (!selectedQuoteDetail) {
-      setUpdateFeedback(t("quotes.form.noQuoteSelected"));
+      setFeedback(t("quotes.form.noQuoteSelected"));
       return;
     }
 
-    setUpdateFeedback(null);
+    setFeedback(null);
 
     try {
       await updateQuoteMutation.mutateAsync({
@@ -139,9 +222,9 @@ export function QuoteOperationsPanel({
         version: selectedQuoteDetail.version,
         ...toQuotePayload(values)
       });
-      setUpdateFeedback(t("quotes.form.updateSuccess"));
+      setFeedback(t("quotes.form.updateSuccess"));
     } catch (error) {
-      setUpdateFeedback(
+      setFeedback(
         t("quotes.form.updateError", {
           message: error instanceof Error ? error.message : ""
         })
@@ -149,72 +232,34 @@ export function QuoteOperationsPanel({
     }
   }
 
-  return (
-    <div className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
+  if (quotes.length === 0) {
+    return (
       <Card>
-        <CardHeader>
-          <CardTitle>{t("quotes.form.createTitle")}</CardTitle>
-          <CardDescription>
-            {t("quotes.form.createDescription")}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form
-            className="space-y-4"
-            onSubmit={createForm.handleSubmit(onCreate)}
-            noValidate
-          >
-            <QuoteFormFields
-              catalogItems={catalogItems}
-              customers={customers}
-              leads={leads}
-              form={createForm}
-              idPrefix="create"
-              quoteNumber={null}
-            />
-
-            {createFeedback ? (
-              <FeedbackBanner
-                tone={createQuoteMutation.isError ? "error" : "success"}
-              >
-                {createFeedback}
-              </FeedbackBanner>
-            ) : null}
-
-            <div className="flex flex-wrap gap-3 pt-2">
-              <Button
-                type="submit"
-                size="lg"
-                disabled={createQuoteMutation.isPending}
-              >
-                {createQuoteMutation.isPending
-                  ? t("quotes.form.createSubmitting")
-                  : t("quotes.form.createAction")}
-              </Button>
-              <Button
-                type="button"
-                size="lg"
-                variant="secondary"
-                onClick={() => {
-                  createForm.reset(buildCreateDefaults(customers, leads));
-                  setCreateFeedback(null);
-                }}
-              >
-                {t("quotes.form.resetAction")}
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
-
-      <Card className="bg-linear-to-br from-paper via-paper to-butter-200/65">
         <CardHeader>
           <CardTitle>{t("quotes.form.updateTitle")}</CardTitle>
           <CardDescription>
             {t("quotes.form.updateDescription")}
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent>
+          <FeedbackBanner tone="neutral">
+            {t("quotes.form.noQuotesHint")}
+          </FeedbackBanner>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="grid gap-4 xl:grid-cols-[300px_minmax(0,1fr)]">
+      <Card className="h-fit">
+        <CardHeader className="space-y-2 pb-4">
+          <CardTitle>{t("quotes.manage.selectorTitle")}</CardTitle>
+          <CardDescription>
+            {t("quotes.manage.selectorDescription")}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
           <div className="space-y-2">
             <label className="text-sm font-medium text-ink" htmlFor="quote-record">
               {t("quotes.form.recordLabel")}
@@ -224,30 +269,57 @@ export function QuoteOperationsPanel({
               value={selectedQuoteId}
               onChange={(event) => {
                 setSelectedQuoteId(event.target.value);
-                setUpdateFeedback(null);
+                setFeedback(null);
+                setCurrentStep("recipient");
               }}
             >
-              {quotes.length === 0 ? (
-                <option value="">{t("quotes.form.noQuotesOption")}</option>
-              ) : (
-                quotes.map((quote) => (
-                  <option key={quote.id} value={quote.id}>
-                    {quote.quoteNumber}
-                  </option>
-                ))
-              )}
+              {quotes.map((quote) => (
+                <option key={quote.id} value={quote.id}>
+                  {quote.quoteNumber}
+                </option>
+              ))}
             </Select>
           </div>
 
-          {quotes.length === 0 ? (
-            <FeedbackBanner tone="neutral">
-              {t("quotes.form.noQuotesHint")}
-            </FeedbackBanner>
-          ) : selectedQuoteDetailQuery.isLoading ? (
+          {quotes.map((quote) => (
+            <button
+              key={quote.id}
+              type="button"
+              onClick={() => {
+                setSelectedQuoteId(quote.id);
+                setFeedback(null);
+                setCurrentStep("recipient");
+              }}
+              className={cn(
+                "w-full rounded-2xl border px-4 py-3 text-left transition",
+                quote.id === selectedQuoteId
+                  ? "border-brand/50 bg-brand/10 shadow-panel"
+                  : "border-line/70 bg-paper hover:bg-sand/60"
+              )}
+            >
+              <p className="text-sm font-semibold text-ink">{quote.quoteNumber}</p>
+              <p className="mt-1 text-sm text-ink-soft">
+                {quote.recipientDisplayName}
+              </p>
+              <p className="mt-2 text-xs uppercase tracking-[0.16em] text-ink-muted">
+                {t(`quotes.list.status.${quote.status}`)}
+              </p>
+            </button>
+          ))}
+        </CardContent>
+      </Card>
+
+      {selectedQuoteDetailQuery.isLoading ? (
+        <Card>
+          <CardContent className="p-6">
             <FeedbackBanner tone="neutral">
               {t("quotes.form.loadingDetailHint")}
             </FeedbackBanner>
-          ) : selectedQuoteDetailQuery.isError ? (
+          </CardContent>
+        </Card>
+      ) : selectedQuoteDetailQuery.isError ? (
+        <Card>
+          <CardContent className="p-6">
             <FeedbackBanner tone="error">
               {t("quotes.form.loadingDetailError", {
                 message:
@@ -256,51 +328,263 @@ export function QuoteOperationsPanel({
                     : ""
               })}
             </FeedbackBanner>
-          ) : (
-            <form
-              className="space-y-4"
-              onSubmit={updateForm.handleSubmit(onUpdate)}
-              noValidate
-            >
-              <QuoteFormFields
-                catalogItems={catalogItems}
-                customers={customers}
-                leads={leads}
-                form={updateForm}
-                idPrefix="update"
-                quoteNumber={selectedQuoteDetail?.quoteNumber ?? null}
-              />
-
-              {selectedQuoteDetail ? (
-                <p className="text-sm text-ink-soft">
-                  {t("quotes.form.versionHint", {
-                    version: selectedQuoteDetail.version
-                  })}
-                </p>
-              ) : null}
-
-              {updateFeedback ? (
+          </CardContent>
+        </Card>
+      ) : (
+        <QuoteWorkflowLayout
+          mode="update"
+          title={t("quotes.form.updateTitle")}
+          description={t("quotes.form.updateDescription")}
+          form={form}
+          currentStep={currentStep}
+          onStepChange={setCurrentStep}
+          summaryLabel={selectedQuoteDetail?.quoteNumber ?? t("quotes.form.updateTitle")}
+          badge={
+            selectedQuoteDetail ? (
+              <span className="text-xs uppercase tracking-[0.16em] text-ink-muted">
+                {t("quotes.form.versionHint", {
+                  version: selectedQuoteDetail.version
+                })}
+              </span>
+            ) : null
+          }
+          footer={
+            <>
+              {feedback ? (
                 <FeedbackBanner
                   tone={updateQuoteMutation.isError ? "error" : "success"}
                 >
-                  {updateFeedback}
+                  {feedback}
                 </FeedbackBanner>
               ) : null}
+              <div className="flex justify-end">
+                <Button
+                  type="submit"
+                  size="lg"
+                  disabled={updateQuoteMutation.isPending || !selectedQuoteDetail}
+                >
+                  {updateQuoteMutation.isPending
+                    ? t("quotes.form.updateSubmitting")
+                    : t("quotes.form.updateAction")}
+                </Button>
+              </div>
+            </>
+          }
+          onSubmit={form.handleSubmit(onSubmit)}
+        >
+          <QuoteFormFields
+            catalogItems={catalogItems}
+            customers={customers}
+            leads={leads}
+            form={form}
+            idPrefix="update"
+            quoteNumber={selectedQuoteDetail?.quoteNumber ?? null}
+            step={currentStep}
+          />
+        </QuoteWorkflowLayout>
+      )}
+    </div>
+  );
+}
 
+function QuoteWorkflowLayout({
+  badge,
+  children,
+  currentStep,
+  description,
+  footer,
+  form,
+  mode,
+  onStepChange,
+  onSubmit,
+  summaryLabel,
+  title
+}: {
+  badge?: ReactNode;
+  children: ReactNode;
+  currentStep: QuoteFormStepKey;
+  description: string;
+  footer: ReactNode;
+  form: UseFormReturn<QuoteFormValues>;
+  mode: QuoteWorkflowMode;
+  onStepChange: (step: QuoteFormStepKey) => void;
+  onSubmit: () => void;
+  summaryLabel: string;
+  title: string;
+}) {
+  const { t } = useTranslation("backoffice");
+  const {
+    watch,
+    formState: { errors }
+  } = form;
+  const values = watch();
+  const currencyCode = values.currencyCode || "USD";
+  const lineItems = values.lineItems ?? [];
+  const subtotal = lineItems.reduce(
+    (total, item) => total + (Number(item.quantity) || 0) * (Number(item.unitPrice) || 0),
+    0
+  );
+  const discountTotal = lineItems.reduce(
+    (total, item) => total + (Number(item.discountTotal) || 0),
+    0
+  );
+  const taxTotal = lineItems.reduce(
+    (total, item) => total + (Number(item.taxTotal) || 0),
+    0
+  );
+  const grandTotal = Number((subtotal - discountTotal + taxTotal).toFixed(2));
+  const currentStepIndex = quoteFormSteps.indexOf(currentStep);
+
+  return (
+    <form
+      className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]"
+      noValidate
+      onSubmit={onSubmit}
+    >
+      <Card>
+        <CardHeader className="space-y-4 pb-5">
+          <div className="space-y-2">
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="inline-flex min-h-8 items-center rounded-full border border-line/70 bg-paper/80 px-3 text-xs font-semibold uppercase tracking-[0.16em] text-ink-muted">
+                {mode === "create"
+                  ? t("quotes.form.createBadge")
+                  : t("quotes.form.updateBadge")}
+              </span>
+              {badge}
+            </div>
+            <div className="space-y-1">
+              <CardTitle className="text-[28px] leading-tight">{title}</CardTitle>
+              <CardDescription className="text-sm leading-6">
+                {description}
+              </CardDescription>
+            </div>
+          </div>
+
+          <div className="grid gap-2 sm:grid-cols-4">
+            {quoteFormSteps.map((step, index) => {
+              const stepNumber = index + 1;
+              const isActive = step === currentStep;
+              const isComplete = index < currentStepIndex;
+
+              return (
+                <button
+                  key={step}
+                  type="button"
+                  onClick={() => onStepChange(step)}
+                  className={cn(
+                    "rounded-2xl border px-4 py-3 text-left transition",
+                    isActive
+                      ? "border-brand/40 bg-brand/10"
+                      : isComplete
+                        ? "border-sage-300/70 bg-sage-100/60"
+                        : "border-line/70 bg-paper hover:bg-sand/60"
+                  )}
+                >
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-muted">
+                    {t("quotes.form.stepNumber", { count: stepNumber })}
+                  </p>
+                  <p className="mt-1 text-sm font-semibold text-ink">
+                    {t(`quotes.form.steps.${step}.title`)}
+                  </p>
+                </button>
+              );
+            })}
+          </div>
+        </CardHeader>
+
+        <CardContent className="space-y-5">
+          <div className="rounded-3xl border border-line/70 bg-sand/35 p-4">
+            <p className="text-sm font-semibold text-ink">
+              {t(`quotes.form.steps.${currentStep}.title`)}
+            </p>
+            <p className="mt-1 text-sm leading-6 text-ink-soft">
+              {t(`quotes.form.steps.${currentStep}.description`)}
+            </p>
+          </div>
+
+          {children}
+
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line/70 pt-4">
+            <Button
+              type="button"
+              variant="ghost"
+              disabled={currentStepIndex === 0}
+              onClick={() =>
+                onStepChange(quoteFormSteps[Math.max(currentStepIndex - 1, 0)]!)
+              }
+            >
+              {t("quotes.form.backStepAction")}
+            </Button>
+
+            {currentStepIndex < quoteFormSteps.length - 1 ? (
               <Button
-                type="submit"
-                size="lg"
-                disabled={updateQuoteMutation.isPending || !selectedQuoteDetail}
+                type="button"
+                onClick={() => onStepChange(quoteFormSteps[currentStepIndex + 1]!)}
               >
-                {updateQuoteMutation.isPending
-                  ? t("quotes.form.updateSubmitting")
-                  : t("quotes.form.updateAction")}
+                {t("quotes.form.nextStepAction")}
               </Button>
-            </form>
-          )}
+            ) : null}
+          </div>
+
+          <div className="space-y-3">{footer}</div>
         </CardContent>
       </Card>
-    </div>
+
+      <div className="space-y-4 xl:sticky xl:top-24 xl:self-start">
+        <Card className="bg-linear-to-br from-paper via-paper to-butter-200/45">
+          <CardHeader className="space-y-2 pb-4">
+            <CardTitle className="text-lg">{t("quotes.form.summaryTitle")}</CardTitle>
+            <CardDescription>{summaryLabel}</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <SummaryMetric
+              label={t("quotes.form.summaryRecipient")}
+              value={values.recipientDisplayName || t("quotes.form.pendingSummaryValue")}
+            />
+            <SummaryMetric
+              label={t("quotes.form.summaryStatus")}
+              value={t(`quotes.list.status.${values.status}`)}
+            />
+            <SummaryMetric
+              label={t("quotes.form.summaryLineItems")}
+              value={String(lineItems.length)}
+            />
+
+            <div className="rounded-2xl border border-line/70 bg-paper/85 p-4">
+              <p className="text-sm font-semibold text-ink">
+                {t("quotes.form.grandTotalLabel")}
+              </p>
+              <div className="mt-3 space-y-2 text-sm text-ink-soft">
+                <p>
+                  {t("quotes.form.subtotalSummaryLabel")}:{" "}
+                  {formatCurrency(subtotal, currencyCode)}
+                </p>
+                <p>
+                  {t("quotes.form.discountSummaryLabel")}:{" "}
+                  {formatCurrency(discountTotal, currencyCode)}
+                </p>
+                <p>
+                  {t("quotes.form.taxSummaryLabel")}:{" "}
+                  {formatCurrency(taxTotal, currencyCode)}
+                </p>
+              </div>
+              <p className="mt-4 text-xl font-semibold text-ink">
+                {formatCurrency(grandTotal, currencyCode)}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-line/70 bg-paper/75 p-4">
+              <p className="text-sm font-semibold text-ink">
+                {t("quotes.form.validationSummaryTitle")}
+              </p>
+              <p className="mt-2 text-sm leading-6 text-ink-soft">
+                {getValidationSummary(errors, t)}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </form>
   );
 }
 
@@ -310,7 +594,8 @@ function QuoteFormFields({
   leads,
   form,
   idPrefix,
-  quoteNumber
+  quoteNumber,
+  step
 }: {
   catalogItems: CatalogItemSummary[];
   customers: CustomerSummary[];
@@ -318,6 +603,7 @@ function QuoteFormFields({
   form: UseFormReturn<QuoteFormValues>;
   idPrefix: string;
   quoteNumber?: string | null;
+  step: QuoteFormStepKey;
 }) {
   const { t } = useTranslation("backoffice");
   const {
@@ -337,20 +623,6 @@ function QuoteFormFields({
   const leadId = watch("leadId");
   const currencyCode = watch("currencyCode") || "USD";
   const lineItems = watch("lineItems") ?? [];
-
-  const subtotal = lineItems.reduce(
-    (total, item) => total + (Number(item.quantity) || 0) * (Number(item.unitPrice) || 0),
-    0
-  );
-  const discountTotal = lineItems.reduce(
-    (total, item) => total + (Number(item.discountTotal) || 0),
-    0
-  );
-  const taxTotal = lineItems.reduce(
-    (total, item) => total + (Number(item.taxTotal) || 0),
-    0
-  );
-  const grandTotal = Number((subtotal - discountTotal + taxTotal).toFixed(2));
 
   useEffect(() => {
     if (recipientKind !== "customer") {
@@ -392,248 +664,260 @@ function QuoteFormFields({
   const customerField = register("customerId");
   const leadField = register("leadId");
 
-  return (
-    <>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field
-          label={t("quotes.form.recipientKindLabel")}
-          error={errors.recipientKind?.message}
-          htmlFor={`${idPrefix}-recipient-kind`}
-        >
-          <Select
-            id={`${idPrefix}-recipient-kind`}
-            name={recipientKindField.name}
-            onBlur={recipientKindField.onBlur}
-            ref={recipientKindField.ref}
-            value={recipientKind}
-            onChange={(event) => {
-              const nextKind = event.target.value as QuoteRecipientKind;
+  if (step === "recipient") {
+    return (
+      <div className="space-y-4">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field
+            label={t("quotes.form.recipientKindLabel")}
+            error={errors.recipientKind?.message}
+            htmlFor={`${idPrefix}-recipient-kind`}
+          >
+            <Select
+              id={`${idPrefix}-recipient-kind`}
+              name={recipientKindField.name}
+              onBlur={recipientKindField.onBlur}
+              ref={recipientKindField.ref}
+              value={recipientKind}
+              onChange={(event) => {
+                const nextKind = event.target.value as QuoteRecipientKind;
 
-              recipientKindField.onChange(event);
-              setValue("recipientKind", nextKind, { shouldValidate: true });
+                recipientKindField.onChange(event);
+                setValue("recipientKind", nextKind, { shouldValidate: true });
 
-              if (nextKind !== "customer") {
-                setValue("customerId", "");
+                if (nextKind !== "customer") {
+                  setValue("customerId", "");
+                }
+
+                if (nextKind !== "lead") {
+                  setValue("leadId", "");
+                }
+              }}
+            >
+              {quoteRecipientKindValues.map((kind) => (
+                <option key={kind} value={kind}>
+                  {t(`quotes.form.recipientKinds.${kind}`)}
+                </option>
+              ))}
+            </Select>
+          </Field>
+
+          <Field
+            label={t("quotes.form.quoteNumberLabel")}
+            htmlFor={`${idPrefix}-quote-number`}
+          >
+            <Input
+              id={`${idPrefix}-quote-number`}
+              value={
+                quoteNumber && quoteNumber.trim().length > 0
+                  ? quoteNumber
+                  : t("quotes.form.generatedNumberPlaceholder")
               }
-
-              if (nextKind !== "lead") {
-                setValue("leadId", "");
-              }
-            }}
-          >
-            {quoteRecipientKindValues.map((kind) => (
-              <option key={kind} value={kind}>
-                {t(`quotes.form.recipientKinds.${kind}`)}
-              </option>
-            ))}
-          </Select>
-        </Field>
-
-        <Field
-          label={t("quotes.form.quoteNumberLabel")}
-          htmlFor={`${idPrefix}-quote-number`}
-        >
-          <Input
-            id={`${idPrefix}-quote-number`}
-            value={
-              quoteNumber && quoteNumber.trim().length > 0
-                ? quoteNumber
-                : t("quotes.form.generatedNumberPlaceholder")
-            }
-            readOnly
-            disabled
-          />
-          <p className="text-sm text-ink-soft">{t("quotes.form.generatedNumberHint")}</p>
-        </Field>
-      </div>
-
-      {recipientKind === "customer" ? (
-        <Field
-          label={t("quotes.form.customerLabel")}
-          error={errors.customerId?.message}
-          htmlFor={`${idPrefix}-quote-customer`}
-        >
-          <Select
-            id={`${idPrefix}-quote-customer`}
-            name={customerField.name}
-            onBlur={customerField.onBlur}
-            ref={customerField.ref}
-            value={customerId ?? ""}
-            onChange={(event) => {
-              customerField.onChange(event);
-              setValue("customerId", event.target.value, { shouldValidate: true });
-            }}
-          >
-            <option value="">{t("quotes.form.customerPlaceholder")}</option>
-            {customers.map((customer) => (
-              <option key={customer.id} value={customer.id}>
-                {customer.displayName}
-              </option>
-            ))}
-          </Select>
-          {customers.length === 0 ? (
-            <p className="text-sm text-ink-soft">{t("quotes.form.noCustomersHint")}</p>
-          ) : null}
-        </Field>
-      ) : recipientKind === "lead" ? (
-        <Field
-          label={t("quotes.form.leadLabel")}
-          error={errors.leadId?.message}
-          htmlFor={`${idPrefix}-quote-lead`}
-        >
-          <Select
-            id={`${idPrefix}-quote-lead`}
-            name={leadField.name}
-            onBlur={leadField.onBlur}
-            ref={leadField.ref}
-            value={leadId ?? ""}
-            onChange={(event) => {
-              leadField.onChange(event);
-              setValue("leadId", event.target.value, { shouldValidate: true });
-            }}
-          >
-            <option value="">{t("quotes.form.leadPlaceholder")}</option>
-            {leads.map((lead) => (
-              <option key={lead.id} value={lead.id}>
-                {lead.displayName}
-              </option>
-            ))}
-          </Select>
-          {leads.length === 0 ? (
-            <p className="text-sm text-ink-soft">{t("quotes.form.noLeadsHint")}</p>
-          ) : null}
-        </Field>
-      ) : (
-        <div className="rounded-3xl border border-dashed border-line/70 bg-paper/70 p-4">
-          <p className="text-sm font-semibold text-ink">
-            {t("quotes.form.quickRecipientTitle")}
-          </p>
-          <p className="mt-2 text-sm leading-6 text-ink-soft">
-            {t("quotes.form.quickRecipientDescription")}
-          </p>
+              readOnly
+              disabled
+            />
+            <p className="text-sm text-ink-soft">{t("quotes.form.generatedNumberHint")}</p>
+          </Field>
         </div>
-      )}
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field
-          label={t("quotes.form.recipientDisplayNameLabel")}
-          error={errors.recipientDisplayName?.message}
-          htmlFor={`${idPrefix}-recipient-display-name`}
-        >
-          <Input
-            id={`${idPrefix}-recipient-display-name`}
-            placeholder={t("quotes.form.recipientDisplayNamePlaceholder")}
-            {...register("recipientDisplayName")}
-          />
-        </Field>
+        {recipientKind === "customer" ? (
+          <Field
+            label={t("quotes.form.customerLabel")}
+            error={errors.customerId?.message}
+            htmlFor={`${idPrefix}-quote-customer`}
+          >
+            <Select
+              id={`${idPrefix}-quote-customer`}
+              name={customerField.name}
+              onBlur={customerField.onBlur}
+              ref={customerField.ref}
+              value={customerId ?? ""}
+              onChange={(event) => {
+                customerField.onChange(event);
+                setValue("customerId", event.target.value, { shouldValidate: true });
+              }}
+            >
+              <option value="">{t("quotes.form.customerPlaceholder")}</option>
+              {customers.map((customer) => (
+                <option key={customer.id} value={customer.id}>
+                  {customer.displayName}
+                </option>
+              ))}
+            </Select>
+            {customers.length === 0 ? (
+              <p className="text-sm text-ink-soft">{t("quotes.form.noCustomersHint")}</p>
+            ) : null}
+          </Field>
+        ) : recipientKind === "lead" ? (
+          <Field
+            label={t("quotes.form.leadLabel")}
+            error={errors.leadId?.message}
+            htmlFor={`${idPrefix}-quote-lead`}
+          >
+            <Select
+              id={`${idPrefix}-quote-lead`}
+              name={leadField.name}
+              onBlur={leadField.onBlur}
+              ref={leadField.ref}
+              value={leadId ?? ""}
+              onChange={(event) => {
+                leadField.onChange(event);
+                setValue("leadId", event.target.value, { shouldValidate: true });
+              }}
+            >
+              <option value="">{t("quotes.form.leadPlaceholder")}</option>
+              {leads.map((lead) => (
+                <option key={lead.id} value={lead.id}>
+                  {lead.displayName}
+                </option>
+              ))}
+            </Select>
+            {leads.length === 0 ? (
+              <p className="text-sm text-ink-soft">{t("quotes.form.noLeadsHint")}</p>
+            ) : null}
+          </Field>
+        ) : (
+          <div className="rounded-3xl border border-dashed border-line/70 bg-paper/70 p-4">
+            <p className="text-sm font-semibold text-ink">
+              {t("quotes.form.quickRecipientTitle")}
+            </p>
+            <p className="mt-2 text-sm leading-6 text-ink-soft">
+              {t("quotes.form.quickRecipientDescription")}
+            </p>
+          </div>
+        )}
 
-        <Field
-          label={t("quotes.form.recipientContactNameLabel")}
-          error={errors.recipientContactName?.message}
-          htmlFor={`${idPrefix}-recipient-contact-name`}
-        >
-          <Input
-            id={`${idPrefix}-recipient-contact-name`}
-            placeholder={t("quotes.form.recipientContactNamePlaceholder")}
-            {...register("recipientContactName")}
-          />
-        </Field>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field
+            label={t("quotes.form.recipientDisplayNameLabel")}
+            error={errors.recipientDisplayName?.message}
+            htmlFor={`${idPrefix}-recipient-display-name`}
+          >
+            <Input
+              id={`${idPrefix}-recipient-display-name`}
+              placeholder={t("quotes.form.recipientDisplayNamePlaceholder")}
+              {...register("recipientDisplayName")}
+            />
+          </Field>
+
+          <Field
+            label={t("quotes.form.recipientContactNameLabel")}
+            error={errors.recipientContactName?.message}
+            htmlFor={`${idPrefix}-recipient-contact-name`}
+          >
+            <Input
+              id={`${idPrefix}-recipient-contact-name`}
+              placeholder={t("quotes.form.recipientContactNamePlaceholder")}
+              {...register("recipientContactName")}
+            />
+          </Field>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-3">
+          <Field
+            label={t("quotes.form.recipientEmailLabel")}
+            error={errors.recipientEmail?.message}
+            htmlFor={`${idPrefix}-recipient-email`}
+          >
+            <Input
+              id={`${idPrefix}-recipient-email`}
+              type="email"
+              placeholder={t("quotes.form.recipientEmailPlaceholder")}
+              {...register("recipientEmail")}
+            />
+          </Field>
+
+          <Field
+            label={t("quotes.form.recipientWhatsAppLabel")}
+            error={errors.recipientWhatsApp?.message}
+            htmlFor={`${idPrefix}-recipient-whatsapp`}
+          >
+            <Input
+              id={`${idPrefix}-recipient-whatsapp`}
+              placeholder={t("quotes.form.recipientWhatsAppPlaceholder")}
+              {...register("recipientWhatsApp")}
+            />
+          </Field>
+
+          <Field
+            label={t("quotes.form.recipientPhoneLabel")}
+            error={errors.recipientPhone?.message}
+            htmlFor={`${idPrefix}-recipient-phone`}
+          >
+            <Input
+              id={`${idPrefix}-recipient-phone`}
+              placeholder={t("quotes.form.recipientPhonePlaceholder")}
+              {...register("recipientPhone")}
+            />
+          </Field>
+        </div>
       </div>
+    );
+  }
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <Field
-          label={t("quotes.form.recipientEmailLabel")}
-          error={errors.recipientEmail?.message}
-          htmlFor={`${idPrefix}-recipient-email`}
-        >
-          <Input
-            id={`${idPrefix}-recipient-email`}
-            type="email"
-            placeholder={t("quotes.form.recipientEmailPlaceholder")}
-            {...register("recipientEmail")}
-          />
-        </Field>
+  if (step === "document") {
+    return (
+      <div className="space-y-4">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field
+            label={t("quotes.form.titleLabel")}
+            error={errors.title?.message}
+            htmlFor={`${idPrefix}-quote-title`}
+          >
+            <Input
+              id={`${idPrefix}-quote-title`}
+              placeholder={t("quotes.form.titlePlaceholder")}
+              {...register("title")}
+            />
+          </Field>
 
-        <Field
-          label={t("quotes.form.recipientWhatsAppLabel")}
-          error={errors.recipientWhatsApp?.message}
-          htmlFor={`${idPrefix}-recipient-whatsapp`}
-        >
-          <Input
-            id={`${idPrefix}-recipient-whatsapp`}
-            placeholder={t("quotes.form.recipientWhatsAppPlaceholder")}
-            {...register("recipientWhatsApp")}
-          />
-        </Field>
+          <Field
+            label={t("quotes.form.statusLabel")}
+            error={errors.status?.message}
+            htmlFor={`${idPrefix}-quote-status`}
+          >
+            <Select id={`${idPrefix}-quote-status`} {...register("status")}>
+              {quoteStatusValues.map((status) => (
+                <option key={status} value={status}>
+                  {t(`quotes.list.status.${status}`)}
+                </option>
+              ))}
+            </Select>
+          </Field>
+        </div>
 
-        <Field
-          label={t("quotes.form.recipientPhoneLabel")}
-          error={errors.recipientPhone?.message}
-          htmlFor={`${idPrefix}-recipient-phone`}
-        >
-          <Input
-            id={`${idPrefix}-recipient-phone`}
-            placeholder={t("quotes.form.recipientPhonePlaceholder")}
-            {...register("recipientPhone")}
-          />
-        </Field>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field
+            label={t("quotes.form.currencyCodeLabel")}
+            error={errors.currencyCode?.message}
+            htmlFor={`${idPrefix}-quote-currency`}
+          >
+            <Input
+              id={`${idPrefix}-quote-currency`}
+              placeholder={t("quotes.form.currencyCodePlaceholder")}
+              maxLength={3}
+              {...register("currencyCode")}
+            />
+          </Field>
+
+          <Field
+            label={t("quotes.form.validUntilLabel")}
+            error={errors.validUntil?.message}
+            htmlFor={`${idPrefix}-quote-valid-until`}
+          >
+            <Input
+              id={`${idPrefix}-quote-valid-until`}
+              type="date"
+              {...register("validUntil")}
+            />
+          </Field>
+        </div>
       </div>
+    );
+  }
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field
-          label={t("quotes.form.titleLabel")}
-          error={errors.title?.message}
-          htmlFor={`${idPrefix}-quote-title`}
-        >
-          <Input
-            id={`${idPrefix}-quote-title`}
-            placeholder={t("quotes.form.titlePlaceholder")}
-            {...register("title")}
-          />
-        </Field>
-
-        <Field
-          label={t("quotes.form.statusLabel")}
-          error={errors.status?.message}
-          htmlFor={`${idPrefix}-quote-status`}
-        >
-          <Select id={`${idPrefix}-quote-status`} {...register("status")}>
-            {quoteStatusValues.map((status) => (
-              <option key={status} value={status}>
-                {t(`quotes.list.status.${status}`)}
-              </option>
-            ))}
-          </Select>
-        </Field>
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field
-          label={t("quotes.form.currencyCodeLabel")}
-          error={errors.currencyCode?.message}
-          htmlFor={`${idPrefix}-quote-currency`}
-        >
-          <Input
-            id={`${idPrefix}-quote-currency`}
-            placeholder={t("quotes.form.currencyCodePlaceholder")}
-            maxLength={3}
-            {...register("currencyCode")}
-          />
-        </Field>
-
-        <Field
-          label={t("quotes.form.validUntilLabel")}
-          error={errors.validUntil?.message}
-          htmlFor={`${idPrefix}-quote-valid-until`}
-        >
-          <Input
-            id={`${idPrefix}-quote-valid-until`}
-            type="date"
-            {...register("validUntil")}
-          />
-        </Field>
-      </div>
-
+  if (step === "items") {
+    return (
       <div className="space-y-4 rounded-3xl border border-line/70 bg-paper/72 p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -657,7 +941,10 @@ function QuoteFormFields({
           const catalogField = register(`lineItems.${index}.catalogItemId`);
 
           return (
-            <div key={field.id} className="space-y-4 rounded-3xl border border-line/70 bg-paper/85 p-4">
+            <div
+              key={field.id}
+              className="space-y-4 rounded-3xl border border-line/70 bg-paper/85 p-4"
+            >
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <p className="text-sm font-semibold text-ink">
                   {t("quotes.form.lineItemLabel", { index: index + 1 })}
@@ -821,28 +1108,20 @@ function QuoteFormFields({
           );
         })}
       </div>
+    );
+  }
 
+  return (
+    <div className="space-y-4">
       <div className="rounded-3xl border border-line/70 bg-paper/70 p-4">
         <p className="text-sm font-semibold text-ink">
-          {t("quotes.form.grandTotalLabel")}
+          {t("quotes.form.reviewChecklistTitle")}
         </p>
         <div className="mt-3 grid gap-2 text-sm text-ink-soft">
-          <p>
-            {t("quotes.form.subtotalSummaryLabel")}:{" "}
-            {formatCurrency(subtotal, currencyCode)}
-          </p>
-          <p>
-            {t("quotes.form.discountSummaryLabel")}:{" "}
-            {formatCurrency(discountTotal, currencyCode)}
-          </p>
-          <p>
-            {t("quotes.form.taxSummaryLabel")}:{" "}
-            {formatCurrency(taxTotal, currencyCode)}
-          </p>
+          <p>{t("quotes.form.reviewChecklistRecipient")}</p>
+          <p>{t("quotes.form.reviewChecklistDocument")}</p>
+          <p>{t("quotes.form.reviewChecklistItems")}</p>
         </div>
-        <p className="mt-3 text-base font-semibold text-ink">
-          {formatCurrency(grandTotal, currencyCode)}
-        </p>
       </div>
 
       <Field
@@ -856,7 +1135,7 @@ function QuoteFormFields({
           {...register("notes")}
         />
       </Field>
-    </>
+    </div>
   );
 }
 
@@ -1047,6 +1326,28 @@ function formatCurrency(value: number, currencyCode: string) {
   } catch {
     return `${currencyCode.toUpperCase()} ${value.toFixed(2)}`;
   }
+}
+
+function getValidationSummary(
+  errors: UseFormReturn<QuoteFormValues>["formState"]["errors"],
+  t: ReturnType<typeof useTranslation<"backoffice">>["t"]
+) {
+  if (Object.keys(errors).length === 0) {
+    return t("quotes.form.validationSummaryReady");
+  }
+
+  return t("quotes.form.validationSummaryPending");
+}
+
+function SummaryMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-2xl border border-line/70 bg-paper/75 p-4">
+      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-ink-muted">
+        {label}
+      </p>
+      <p className="mt-2 text-sm font-semibold text-ink">{value}</p>
+    </div>
+  );
 }
 
 function FeedbackBanner({

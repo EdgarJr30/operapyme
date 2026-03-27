@@ -1,5 +1,6 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { vi } from "vitest";
 
 import { I18nextProvider } from "@operapyme/i18n";
@@ -30,10 +31,6 @@ vi.mock("@/modules/catalog/use-catalog-items-data", () => ({
   useCatalogItemsData: quotesMocks.useCatalogItemsData
 }));
 
-vi.mock("@/modules/quotes/quote-operations-panel", () => ({
-  QuoteOperationsPanel: () => <div>Quote operations stub</div>
-}));
-
 vi.mock("@/modules/quotes/quote-pdf-download-button", () => ({
   QuotePdfDownloadButton: () => <div>Quote PDF stub</div>
 }));
@@ -43,7 +40,9 @@ function renderPage() {
 
   return render(
     <I18nextProvider i18n={i18n}>
-      <QuotesPage />
+      <MemoryRouter>
+        <QuotesPage />
+      </MemoryRouter>
     </I18nextProvider>
   );
 }
@@ -249,6 +248,12 @@ describe("quotes page", () => {
 
     renderPage();
 
+    expect(
+      await screen.findByRole("link", { name: /Crear cotizacion/i })
+    ).toHaveAttribute("href", "/quotes/new");
+    expect(
+      await screen.findByRole("link", { name: /Revisar cotizaciones/i })
+    ).toHaveAttribute("href", "/quotes/manage");
     expect(
       await screen.findByText(/COT-2026-000210/i)
     ).toBeInTheDocument();

@@ -96,6 +96,8 @@ Version instalada en el workspace durante esta tarea: `@react-pdf/renderer@^4.3.
 ### UX del builder
 
 - el builder trabaja por bloques: receptor, metadata, line items, totales y notas
+- la landing del modulo ya no debe mezclar overview, create y update en el mismo scroll
+- el flujo principal del builder se resuelve por pasos cortos: receptor, documento, line items y revision
 - los defaults priorizan velocidad: si hay clientes, inicia desde cliente; si no, desde lead; si no, desde lead rapido
 - cuando se elige cliente o lead, el formulario hidrata el snapshot documental y permite ajustarlo
 - el PDF se genera bajo demanda desde una cotizacion ya guardada

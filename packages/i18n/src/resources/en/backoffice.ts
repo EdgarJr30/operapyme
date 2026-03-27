@@ -479,6 +479,24 @@ const backofficeEn = {
       createQuote: "Create quote",
       reviewQuotes: "Review quotes"
     },
+    subroutes: {
+      createEyebrow: "New flow",
+      createTitle: "Create quote",
+      createDescription:
+        "Work through short steps to capture the recipient, document, and commercial detail with less friction.",
+      manageEyebrow: "Active follow-up",
+      manageTitle: "Manage quotes",
+      manageDescription:
+        "Resume existing documents, adjust line items, and keep context before sending."
+    },
+    landing: {
+      createCardTitle: "Create a new quote",
+      createCardDescription: "Start with a short, step-based flow.",
+      manageCardTitle: "Manage existing quotes",
+      manageCardDescription: "Jump straight into the quotes that need changes or follow-up.",
+      resumeCardTitle: "Resume pending work",
+      resumeCardDescription: "Return quickly to drafts, open quotes, and approved documents."
+    },
     overview: {
       title: "Quoting readiness",
       description:
@@ -522,9 +540,52 @@ const backofficeEn = {
       createTitle: "New quote",
       createDescription:
         "Complete the recipient, line items, and terms to issue a quote ready to send.",
+      createBadge: "New document",
       updateTitle: "Update quote",
       updateDescription:
         "Resume an existing quote, adjust line items, and keep versioning intact.",
+      updateBadge: "Active edit",
+      workflowTitle: "Progressive quote flow",
+      workflowDescription:
+        "Reduce visual noise and keep only the useful fields visible at each step.",
+      workflowRecipientHint: "Step 1: define the recipient and contact channels.",
+      workflowDocumentHint: "Step 2: adjust status, currency, and document validity.",
+      workflowItemsHint: "Step 3 and 4: build line items, review totals, and close with notes.",
+      newDraftLabel: "New draft",
+      summaryTitle: "Quick summary",
+      summaryRecipient: "Recipient",
+      summaryStatus: "Status",
+      summaryLineItems: "Lines",
+      pendingSummaryValue: "Pending",
+      validationSummaryTitle: "Form health",
+      validationSummaryReady: "Everything looks ready to save or update.",
+      validationSummaryPending:
+        "There are still fields to review before closing the quote.",
+      reviewChecklistTitle: "Final review",
+      reviewChecklistRecipient: "Confirm the recipient and channels visible in the document.",
+      reviewChecklistDocument: "Verify validity date, status, and commercial narrative.",
+      reviewChecklistItems: "Confirm line items, discounts, taxes, and the computed total.",
+      backStepAction: "Previous step",
+      nextStepAction: "Next step",
+      stepNumber: "Step {count}",
+      steps: {
+        recipient: {
+          title: "Recipient",
+          description: "Define who the quote is for and how they should be reached."
+        },
+        document: {
+          title: "Document",
+          description: "Adjust operational metadata without mixing it with line items."
+        },
+        items: {
+          title: "Line items",
+          description: "Capture the commercial detail and keep totals clear."
+        },
+        review: {
+          title: "Review",
+          description: "Close notes, validate context, and save the document."
+        }
+      },
       createAction: "Save quote",
       createSubmitting: "Saving quote...",
       updateAction: "Update quote",
@@ -642,6 +703,11 @@ const backofficeEn = {
         taxTotal: "Tax cannot be negative.",
         notesMax: "Keep the notes under 500 characters."
       }
+    },
+    manage: {
+      selectorTitle: "Recent quotes",
+      selectorDescription:
+        "Choose a quote to resume the flow without opening an overly long screen."
     },
     list: {
       title: "Quote list",

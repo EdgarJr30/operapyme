@@ -38,6 +38,9 @@ function renderRoute(route: string) {
         <Routes>
           <Route path="/" element={<AppShell />}>
             <Route index element={<div>Dashboard stub</div>} />
+            <Route path="quotes" element={<div>Quotes overview stub</div>} />
+            <Route path="quotes/new" element={<div>Quotes new stub</div>} />
+            <Route path="quotes/manage" element={<div>Quotes manage stub</div>} />
             <Route path="admin" element={<AdminAuditPage />} />
             <Route path="admin/errors" element={<AdminErrorsPage />} />
             <Route path="settings" element={<div>Settings stub</div>} />
@@ -96,6 +99,17 @@ describe("backoffice shell", () => {
 
     expect(
       await screen.findByRole("link", { name: /^Admin$/i })
+    ).toBeInTheDocument();
+  });
+
+  it("shows quote subroutes when the quotes module is active", async () => {
+    renderRoute("/quotes/manage");
+
+    expect(
+      await screen.findByRole("link", { name: /^Gestionar cotizaciones$/i })
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByRole("link", { name: /^Nueva cotizacion$/i })
     ).toBeInTheDocument();
   });
 

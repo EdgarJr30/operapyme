@@ -479,6 +479,24 @@ const backofficeEs = {
       createQuote: "Crear cotizacion",
       reviewQuotes: "Revisar cotizaciones"
     },
+    subroutes: {
+      createEyebrow: "Nuevo flujo",
+      createTitle: "Crear cotizacion",
+      createDescription:
+        "Trabaja por pasos cortos para capturar receptor, documento y detalle comercial con menos friccion.",
+      manageEyebrow: "Seguimiento activo",
+      manageTitle: "Gestionar cotizaciones",
+      manageDescription:
+        "Retoma documentos existentes, ajusta lineas y conserva contexto antes de enviarlos."
+    },
+    landing: {
+      createCardTitle: "Crear una nueva cotizacion",
+      createCardDescription: "Empieza con un flujo corto y enfocado por pasos.",
+      manageCardTitle: "Gestionar cotizaciones existentes",
+      manageCardDescription: "Entra directo a las que necesitan ajuste o seguimiento.",
+      resumeCardTitle: "Retomar trabajo pendiente",
+      resumeCardDescription: "Vuelve rapido a drafts, abiertas y documentos aprobados."
+    },
     overview: {
       title: "Capacidad de cotizar",
       description:
@@ -522,9 +540,52 @@ const backofficeEs = {
       createTitle: "Nueva cotizacion",
       createDescription:
         "Completa receptor, lineas y condiciones para emitir una cotizacion lista para enviar.",
+      createBadge: "Nuevo documento",
       updateTitle: "Actualizar cotizacion",
       updateDescription:
         "Retoma una cotizacion existente, ajusta lineas y conserva versionado.",
+      updateBadge: "Edicion activa",
+      workflowTitle: "Flujo progresivo del cotizador",
+      workflowDescription:
+        "Reduce ruido visual y deja solo los campos utiles en cada momento del trabajo.",
+      workflowRecipientHint: "Paso 1: define receptor y canales de contacto.",
+      workflowDocumentHint: "Paso 2: ajusta estado, moneda y validez del documento.",
+      workflowItemsHint: "Paso 3 y 4: arma lineas, revisa totales y cierra notas.",
+      newDraftLabel: "Borrador nuevo",
+      summaryTitle: "Resumen rapido",
+      summaryRecipient: "Receptor",
+      summaryStatus: "Estado",
+      summaryLineItems: "Lineas",
+      pendingSummaryValue: "Pendiente",
+      validationSummaryTitle: "Estado del formulario",
+      validationSummaryReady: "Todo luce listo para guardar o actualizar.",
+      validationSummaryPending:
+        "Todavia quedan campos por revisar antes de cerrar la cotizacion.",
+      reviewChecklistTitle: "Revision final",
+      reviewChecklistRecipient: "Confirma el receptor y los canales visibles en el documento.",
+      reviewChecklistDocument: "Verifica fecha de validez, estado y narrativa comercial.",
+      reviewChecklistItems: "Confirma lineas, descuentos, impuestos y total calculado.",
+      backStepAction: "Paso anterior",
+      nextStepAction: "Siguiente paso",
+      stepNumber: "Paso {count}",
+      steps: {
+        recipient: {
+          title: "Receptor",
+          description: "Define a quien va dirigida la cotizacion y como contactarlo."
+        },
+        document: {
+          title: "Documento",
+          description: "Ajusta metadata operativa sin mezclarla con line items."
+        },
+        items: {
+          title: "Lineas",
+          description: "Captura el detalle comercial y deja los totales claros."
+        },
+        review: {
+          title: "Revision",
+          description: "Cierra notas, valida contexto y guarda el documento."
+        }
+      },
       createAction: "Guardar cotizacion",
       createSubmitting: "Guardando cotizacion...",
       updateAction: "Actualizar cotizacion",
@@ -642,6 +703,11 @@ const backofficeEs = {
         taxTotal: "Los impuestos no pueden ser negativos.",
         notesMax: "Mantener las notas por debajo de 500 caracteres."
       }
+    },
+    manage: {
+      selectorTitle: "Cotizaciones recientes",
+      selectorDescription:
+        "Elige una cotizacion para retomar el flujo sin abrir una pantalla demasiado larga."
     },
     list: {
       title: "Listado de cotizaciones",

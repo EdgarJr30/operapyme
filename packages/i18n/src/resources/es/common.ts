@@ -39,6 +39,9 @@ const commonEs = {
     catalog: "Catalogo",
     quotes: "Cotizaciones",
     quotesShort: "Cotiz.",
+    quotesOverview: "Resumen",
+    quotesNew: "Nueva cotizacion",
+    quotesManage: "Gestionar cotizaciones",
     admin: "Admin",
     settings: "Configuracion",
     errors: "Errores",
@@ -92,6 +95,8 @@ const commonEs = {
       crm: "Leads, clientes y seguimiento comercial en una misma vista.",
       catalog: "Productos y servicios listos para cotizar.",
       quotes: "Cotizaciones activas y documentos listos para enviar.",
+      quotesNew: "Wizard corto para crear una cotizacion sin perder contexto.",
+      quotesManage: "Retoma cotizaciones existentes, ajusta detalles y conserva versionado.",
       settings: "Configuracion transversal del tenant, branding y preferencias.",
       admin: "Auditoria global y controles reservados para perfiles autorizados.",
       errors: "Incidencias operativas y trazabilidad de errores visibles."

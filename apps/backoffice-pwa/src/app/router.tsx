@@ -158,6 +158,34 @@ async function loadQuotesRoute() {
   };
 }
 
+async function loadQuotesCreateRoute() {
+  const { QuotesCreatePage } = await import("@/modules/quotes/quotes-create-page");
+
+  return {
+    Component: function QuotesCreateRoute() {
+      return (
+        <Suspense fallback={<RouteLoader />}>
+          <QuotesCreatePage />
+        </Suspense>
+      );
+    }
+  };
+}
+
+async function loadQuotesManageRoute() {
+  const { QuotesManagePage } = await import("@/modules/quotes/quotes-manage-page");
+
+  return {
+    Component: function QuotesManageRoute() {
+      return (
+        <Suspense fallback={<RouteLoader />}>
+          <QuotesManagePage />
+        </Suspense>
+      );
+    }
+  };
+}
+
 async function loadSettingsRoute() {
   const { SettingsPage } = await import("@/modules/settings/settings-page");
 
@@ -239,6 +267,14 @@ export const appRoutes: RouteObject[] = [
       {
         path: "quotes",
         lazy: loadQuotesRoute
+      },
+      {
+        path: "quotes/new",
+        lazy: loadQuotesCreateRoute
+      },
+      {
+        path: "quotes/manage",
+        lazy: loadQuotesManageRoute
       },
       {
         path: "admin",

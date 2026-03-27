@@ -51,6 +51,9 @@ type ShellNavItemKey =
   | "crm"
   | "catalog"
   | "quotes"
+  | "quotesOverview"
+  | "quotesNew"
+  | "quotesManage"
   | "admin"
   | "settings";
 
@@ -58,6 +61,7 @@ interface ShellNavItem {
   to: string;
   key: ShellNavItemKey;
   icon: typeof House;
+  children?: ShellNavItem[];
 }
 
 interface SidebarSection {
@@ -94,7 +98,24 @@ const businessNavItems: ShellNavItem[] = [
   {
     to: "/quotes",
     key: "quotes",
-    icon: FileText
+    icon: FileText,
+    children: [
+      {
+        to: "/quotes",
+        key: "quotesOverview",
+        icon: FileText
+      },
+      {
+        to: "/quotes/new",
+        key: "quotesNew",
+        icon: FileText
+      },
+      {
+        to: "/quotes/manage",
+        key: "quotesManage",
+        icon: FileText
+      }
+    ]
   }
 ];
 
@@ -166,6 +187,20 @@ function getRouteMeta(pathname: string): RouteMeta {
   }
 
   if (pathname.startsWith("/quotes")) {
+    if (pathname.startsWith("/quotes/new")) {
+      return {
+        labelKey: "navigation.quotesNew",
+        descriptionKey: "shell.pageDescriptions.quotesNew"
+      };
+    }
+
+    if (pathname.startsWith("/quotes/manage")) {
+      return {
+        labelKey: "navigation.quotesManage",
+        descriptionKey: "shell.pageDescriptions.quotesManage"
+      };
+    }
+
     return {
       labelKey: "navigation.quotes",
       descriptionKey: "shell.pageDescriptions.quotes"
@@ -289,6 +324,7 @@ function SidebarContent({
   userLabel: string;
   t: (key: string) => string;
 }) {
+  const location = useLocation();
   const isDesktop = mode === "desktop";
   const showCollapsedLabels = isDesktop && isCollapsed;
   const showTenantSwitcher = memberships.length > 1 && !showCollapsedLabels;
@@ -397,41 +433,85 @@ function SidebarContent({
               )}
             >
               <div className="space-y-1">
-                {section.items.map(({ to, key, icon: Icon }) => (
-                  <NavLink
-                    key={to}
-                    to={to}
-                    end={to === "/"}
-                    onClick={onNavigate}
-                    className={({ isActive }) =>
-                      cn(
-                        "group relative flex min-h-12 items-center rounded-xl text-[16px] font-medium transition",
-                        showCollapsedLabels
-                          ? "justify-center px-2"
-                          : "gap-3 px-3",
-                        isActive
-                          ? "bg-sidebar-accent text-sidebar-accent-contrast"
-                          : "text-sidebar-text hover:bg-sidebar-elevated hover:text-sidebar-text"
-                      )
-                    }
-                    aria-label={t(`navigation.${key}`)}
-                    title={showCollapsedLabels ? t(`navigation.${key}`) : undefined}
-                  >
-                    <span
-                      className={cn(
-                        "flex size-10 shrink-0 items-center justify-center rounded-lg transition",
-                        showCollapsedLabels ? "" : "group-hover:bg-sidebar-border/55"
-                      )}
-                    >
-                      <Icon className="size-4.5" aria-hidden="true" />
-                    </span>
-                    {!showCollapsedLabels ? (
-                      <span className="truncate">{t(`navigation.${key}`)}</span>
-                    ) : (
-                      <span className="sr-only">{t(`navigation.${key}`)}</span>
-                    )}
-                  </NavLink>
-                ))}
+                {section.items.map(({ children, to, key, icon: Icon }) => {
+                  const isGroupActive =
+                    children?.some((child) =>
+                      location.pathname === child.to ||
+                      location.pathname.startsWith(`${child.to}/`)
+                    ) ?? false;
+                  const showChildren =
+                    Boolean(children?.length) &&
+                    !showCollapsedLabels &&
+                    (isGroupActive || mode === "mobile");
+
+                  return (
+                    <div key={to} className="space-y-1">
+                      <NavLink
+                        to={to}
+                        end={to === "/"}
+                        onClick={onNavigate}
+                        className={({ isActive }) =>
+                          cn(
+                            "group relative flex min-h-12 items-center rounded-xl text-[16px] font-medium transition",
+                            showCollapsedLabels
+                              ? "justify-center px-2"
+                              : "gap-3 px-3",
+                            isActive || isGroupActive
+                              ? "bg-sidebar-accent text-sidebar-accent-contrast"
+                              : "text-sidebar-text hover:bg-sidebar-elevated hover:text-sidebar-text"
+                          )
+                        }
+                        aria-label={t(`navigation.${key}`)}
+                        title={showCollapsedLabels ? t(`navigation.${key}`) : undefined}
+                      >
+                        <span
+                          className={cn(
+                            "flex size-10 shrink-0 items-center justify-center rounded-lg transition",
+                            showCollapsedLabels ? "" : "group-hover:bg-sidebar-border/55"
+                          )}
+                        >
+                          <Icon className="size-4.5" aria-hidden="true" />
+                        </span>
+                        {!showCollapsedLabels ? (
+                          <>
+                            <span className="truncate">{t(`navigation.${key}`)}</span>
+                            {children?.length ? (
+                              <ChevronDown
+                                className="ml-auto size-4 opacity-70"
+                                aria-hidden="true"
+                              />
+                            ) : null}
+                          </>
+                        ) : (
+                          <span className="sr-only">{t(`navigation.${key}`)}</span>
+                        )}
+                      </NavLink>
+
+                      {showChildren ? (
+                        <div className="space-y-1 pl-4">
+                          {children?.map((child) => (
+                            <NavLink
+                              key={child.to}
+                              to={child.to}
+                              end
+                              onClick={onNavigate}
+                              className={({ isActive }) =>
+                                cn(
+                                  "flex min-h-10 items-center rounded-xl px-3 text-sm font-medium transition",
+                                  isActive
+                                    ? "bg-sidebar-elevated text-sidebar-text"
+                                    : "text-sidebar-muted hover:bg-sidebar-elevated hover:text-sidebar-text"
+                                )
+                              }
+                            >
+                              <span>{t(`navigation.${child.key}`)}</span>
+                            </NavLink>
+                          ))}
+                        </div>
+                      ) : null}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           ))}

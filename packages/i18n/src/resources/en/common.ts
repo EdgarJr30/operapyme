@@ -39,6 +39,9 @@ const commonEn = {
     catalog: "Catalog",
     quotes: "Quotes",
     quotesShort: "Quotes",
+    quotesOverview: "Overview",
+    quotesNew: "New quote",
+    quotesManage: "Manage quotes",
     admin: "Admin",
     settings: "Settings",
     errors: "Errors",
@@ -91,6 +94,8 @@ const commonEn = {
       crm: "Leads, customers, and commercial follow-up in one view.",
       catalog: "Products and services ready to quote.",
       quotes: "Active quotes and documents ready to send.",
+      quotesNew: "Short wizard to create a quote without losing context.",
+      quotesManage: "Resume existing quotes, adjust details, and keep versioning.",
       settings: "Tenant-wide settings, branding, and appearance preferences.",
       admin: "Global audit and controls reserved for authorized profiles.",
       errors: "Operational incidents and visible error traceability."

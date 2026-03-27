@@ -16,6 +16,7 @@ La interfaz debe sentirse:
 - cada modulo abre con resumen operativo, acciones directas y estado real del trabajo
 - una accion primaria clara por bloque
 - formularios compactos con labels arriba
+- formularios largos resueltos por pasos cortos o subrutas operativas, no como una sola pantalla gigante
 - estados vacios utiles, no decorativos
 - errores accionables
 - jerarquia visual consistente entre mobile y desktop
@@ -58,6 +59,7 @@ La interfaz debe sentirse:
 - evitar cards de "reglas", "guidelines", "blueprint" o explicaciones tecnicas dentro de la UI runtime del backoffice
 - usar la parte superior de cada modulo para mostrar que puede hacerse ahora, que estado tiene el modulo y cual es la siguiente accion recomendable
 - cuando existan datos, priorizar resumenes, listados recientes y accesos directos sobre copy explicativo
+- cuando un modulo combine overview, creacion y gestion, separar esas tareas en subrutas o superficies dedicadas antes de seguir agregando bloques en la landing
 
 ## Superficies clave
 
