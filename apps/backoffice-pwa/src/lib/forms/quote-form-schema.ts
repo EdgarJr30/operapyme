@@ -4,6 +4,7 @@ import type { TFunction } from "@operapyme/i18n";
 
 import {
   MAX_QUOTE_LINE_DISCOUNT_PERCENT,
+  calculateQuoteDocumentDiscountBase,
   calculateQuoteLineSubtotal
 } from "@/lib/forms/quote-line-discounts";
 
@@ -85,6 +86,16 @@ export function createQuoteFormSchema(t: TFunction<"backoffice">) {
         .string()
         .min(3, t("quotes.form.validation.currencyCode"))
         .max(3, t("quotes.form.validation.currencyCode")),
+      documentDiscountPercent: z
+        .number()
+        .min(0, t("quotes.form.validation.documentDiscountPercent"))
+        .max(
+          MAX_QUOTE_LINE_DISCOUNT_PERCENT,
+          t("quotes.form.validation.documentDiscountPercentMax")
+        ),
+      documentDiscountTotal: z
+        .number()
+        .min(0, t("quotes.form.validation.documentDiscountTotal")),
       validUntil: z.string().optional(),
       notes: z.string().max(500, t("quotes.form.validation.notesMax")),
       lineItems: z
@@ -119,6 +130,17 @@ export function createQuoteFormSchema(t: TFunction<"backoffice">) {
           });
         }
       });
+
+      if (
+        values.documentDiscountTotal >
+        calculateQuoteDocumentDiscountBase(values.lineItems)
+      ) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: t("quotes.form.validation.documentDiscountTotalExceeded"),
+          path: ["documentDiscountTotal"]
+        });
+      }
     });
 }
 

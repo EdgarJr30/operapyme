@@ -21,7 +21,8 @@
 - toda cotizacion guarda snapshot del receptor aunque exista relacion con CRM
 - toda cotizacion necesita al menos una linea comercial persistida
 - cada linea de cotizacion puede editar descuento porcentual o descuento fijo; el porcentaje es la referencia operativa y el monto se deriva o recalcula desde esa base
-- subtotal, descuentos, impuestos y total del documento salen de las lineas
+- la cotizacion puede aplicar ademas un descuento global de documento, calculado sobre el subtotal neto despues de los descuentos por linea
+- subtotal, descuentos, impuestos y total del documento se derivan desde las lineas y los ajustes globales permitidos del documento; no se editan como totales manuales sueltos
 - enviar o aprobar una cotizacion es evento auditable
 - una proforma nace desde una cotizacion o una base equivalente trazable
 

@@ -765,6 +765,13 @@ const backofficeEs = {
       statusLabel: "Estado",
       currencyCodeLabel: "Moneda",
       currencyCodePlaceholder: "USD",
+      documentDiscountTitle: "Descuento global del documento",
+      documentDiscountDescription:
+        "Aplica un ajuste general a la cotizacion completa despues de los descuentos por linea.",
+      documentDiscountPercentLabel: "Descuento global %",
+      documentDiscountAmountLabel: "Descuento global fijo",
+      documentDiscountHint:
+        "Se calcula sobre {amount} netos despues de los descuentos por linea.",
       validUntilLabel: "Valida hasta",
       lineItemsTitle: "Detalle comercial",
       lineItemsDescription:
@@ -795,6 +802,8 @@ const backofficeEs = {
       defaultProductUnit: "unidad",
       grandTotalLabel: "Total calculado",
       subtotalSummaryLabel: "Subtotal",
+      lineDiscountSummaryLabel: "Descuentos por linea",
+      documentDiscountSummaryLabel: "Descuento global",
       discountSummaryLabel: "Descuentos",
       taxSummaryLabel: "Impuestos",
       notesLabel: "Notas",
@@ -819,6 +828,14 @@ const backofficeEs = {
         titleMin: "Ingresa un titulo para la cotizacion.",
         titleMax: "Mantener el titulo por debajo de 160 caracteres.",
         currencyCode: "Usa un codigo de moneda de 3 letras.",
+        documentDiscountPercent:
+          "El descuento global porcentual no puede ser negativo.",
+        documentDiscountPercentMax:
+          "El descuento global porcentual no puede superar 100%.",
+        documentDiscountTotal:
+          "El descuento global no puede ser negativo.",
+        documentDiscountTotalExceeded:
+          "El descuento global no puede superar el subtotal neto despues de los descuentos por linea.",
         lineItemsMin: "Agrega al menos una linea a la cotizacion.",
         lineItemNameMin: "Cada linea necesita un nombre visible.",
         lineItemNameMax:

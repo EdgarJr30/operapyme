@@ -309,6 +309,7 @@ export interface CreateQuoteInput {
   title: string;
   status: QuoteStatus;
   currencyCode: string;
+  documentDiscountTotal: number;
   notes?: string | null;
   validUntil?: string | null;
   lineItems: QuoteLineInput[];
@@ -798,6 +799,7 @@ export async function createQuote(input: CreateQuoteInput) {
     target_currency_code: input.currencyCode.trim().toUpperCase(),
     target_recipient_kind: input.recipientKind,
     target_line_items: normalizeQuoteLineItems(input.lineItems),
+    target_document_discount_total: input.documentDiscountTotal,
     target_customer_id: normalizedCustomerId,
     target_lead_id: normalizedLeadId,
     target_recipient_display_name: normalizeOptionalValue(
@@ -847,6 +849,7 @@ export async function updateQuote(input: UpdateQuoteInput) {
     target_currency_code: input.currencyCode.trim().toUpperCase(),
     target_recipient_kind: input.recipientKind,
     target_line_items: normalizeQuoteLineItems(input.lineItems),
+    target_document_discount_total: input.documentDiscountTotal,
     target_customer_id: normalizedCustomerId,
     target_lead_id: normalizedLeadId,
     target_recipient_display_name: normalizeOptionalValue(

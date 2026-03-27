@@ -431,9 +431,9 @@ describe("backoffice data access", () => {
         title: "Propuesta Northline",
         currency_code: "USD",
         subtotal: "150.00",
-        discount_total: "10.00",
+        discount_total: "16.00",
         tax_total: "25.20",
-        grand_total: "165.20",
+        grand_total: "159.20",
         status: "draft",
         version: 1,
         valid_until: "2026-04-30",
@@ -464,6 +464,7 @@ describe("backoffice data access", () => {
       title: "  Propuesta Northline  ",
       status: "draft",
       currencyCode: "usd",
+      documentDiscountTotal: 6,
       validUntil: "2026-04-30",
       notes: " temporary qa check ",
       lineItems: [
@@ -498,6 +499,7 @@ describe("backoffice data access", () => {
           taxTotal: 25.2
         }
       ],
+      target_document_discount_total: 6,
       target_customer_id: "customer-1",
       target_lead_id: null,
       target_recipient_display_name: "Northline Industrial",
@@ -512,7 +514,7 @@ describe("backoffice data access", () => {
       expect.objectContaining({
         quoteNumber: "COT-2026-000001",
         currencyCode: "USD",
-        grandTotal: 165.2,
+        grandTotal: 159.2,
         version: 1
       })
     );
@@ -567,6 +569,7 @@ describe("backoffice data access", () => {
       title: " Cotizacion express ",
       status: "draft",
       currencyCode: "usd",
+      documentDiscountTotal: 0,
       validUntil: "",
       notes: "",
       lineItems: [
@@ -601,6 +604,7 @@ describe("backoffice data access", () => {
           taxTotal: 0
         }
       ],
+      target_document_discount_total: 0,
       target_customer_id: null,
       target_lead_id: null,
       target_recipient_display_name: "Urgent Prospect",
@@ -629,9 +633,9 @@ describe("backoffice data access", () => {
         title: "Propuesta Northline actualizada",
         currency_code: "DOP",
         subtotal: "210.00",
-        discount_total: "20.00",
+        discount_total: "28.00",
         tax_total: "34.20",
-        grand_total: "224.20",
+        grand_total: "216.20",
         status: "sent",
         version: 2,
         valid_until: "2026-05-15",
@@ -664,6 +668,7 @@ describe("backoffice data access", () => {
       title: "  Propuesta Northline actualizada  ",
       status: "sent",
       currencyCode: "dop",
+      documentDiscountTotal: 8,
       validUntil: "2026-05-15",
       notes: " temporary qa update ",
       lineItems: [
@@ -700,6 +705,7 @@ describe("backoffice data access", () => {
           taxTotal: 34.2
         }
       ],
+      target_document_discount_total: 8,
       target_customer_id: "customer-1",
       target_lead_id: null,
       target_recipient_display_name: "Northline Industrial",
@@ -714,7 +720,7 @@ describe("backoffice data access", () => {
       expect.objectContaining({
         quoteNumber: "COT-2026-000001",
         currencyCode: "DOP",
-        grandTotal: 224.2,
+        grandTotal: 216.2,
         version: 2
       })
     );

@@ -10,6 +10,10 @@ import {
 import type { ThemePaletteDefinition } from "@operapyme/ui";
 
 import type { QuoteDetail } from "@/lib/supabase/backoffice-data";
+import {
+  calculateQuoteDocumentDiscountTotalFromCombinedDiscount,
+  calculateQuoteLineDiscountTotal
+} from "@/lib/forms/quote-line-discounts";
 
 export interface QuotePdfDocumentProps {
   generatedAt: string;
@@ -27,6 +31,11 @@ export function QuotePdfDocument({
   quote
 }: QuotePdfDocumentProps) {
   const styles = createStyles(palette);
+  const lineDiscountTotal = calculateQuoteLineDiscountTotal(quote.lineItems);
+  const documentDiscountTotal = calculateQuoteDocumentDiscountTotalFromCombinedDiscount({
+    lineItems: quote.lineItems,
+    totalDiscount: quote.discountTotal
+  });
 
   return (
     <Document
@@ -172,8 +181,13 @@ export function QuotePdfDocument({
               styles={styles}
             />
             <MetaRow
-              label="Descuentos"
-              value={formatCurrency(quote.discountTotal, quote.currencyCode)}
+              label="Descuentos por linea"
+              value={formatCurrency(lineDiscountTotal, quote.currencyCode)}
+              styles={styles}
+            />
+            <MetaRow
+              label="Descuento global"
+              value={formatCurrency(documentDiscountTotal, quote.currencyCode)}
               styles={styles}
             />
             <MetaRow

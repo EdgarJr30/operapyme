@@ -765,6 +765,13 @@ const backofficeEn = {
       statusLabel: "Status",
       currencyCodeLabel: "Currency",
       currencyCodePlaceholder: "USD",
+      documentDiscountTitle: "Document-level discount",
+      documentDiscountDescription:
+        "Apply a general adjustment to the full quote after line-level discounts.",
+      documentDiscountPercentLabel: "Document discount %",
+      documentDiscountAmountLabel: "Fixed document discount",
+      documentDiscountHint:
+        "It is calculated on {amount} net after line-level discounts.",
       validUntilLabel: "Valid until",
       lineItemsTitle: "Commercial detail",
       lineItemsDescription:
@@ -795,6 +802,8 @@ const backofficeEn = {
       defaultProductUnit: "unit",
       grandTotalLabel: "Calculated total",
       subtotalSummaryLabel: "Subtotal",
+      lineDiscountSummaryLabel: "Line discounts",
+      documentDiscountSummaryLabel: "Document discount",
       discountSummaryLabel: "Discounts",
       taxSummaryLabel: "Taxes",
       notesLabel: "Notes",
@@ -819,6 +828,13 @@ const backofficeEn = {
         titleMin: "Enter a title for the quote.",
         titleMax: "Keep the title under 160 characters.",
         currencyCode: "Use a 3-letter currency code.",
+        documentDiscountPercent:
+          "Document percentage discount cannot be negative.",
+        documentDiscountPercentMax:
+          "Document percentage discount cannot exceed 100%.",
+        documentDiscountTotal: "Document discount cannot be negative.",
+        documentDiscountTotalExceeded:
+          "Document discount cannot exceed the net subtotal after line discounts.",
         lineItemsMin: "Add at least one line item to the quote.",
         lineItemNameMin: "Each line needs a visible name.",
         lineItemNameMax:

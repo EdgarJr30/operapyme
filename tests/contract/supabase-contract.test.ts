@@ -27,6 +27,9 @@ const catalogItemsMigrationPath = path.resolve(
 const quoteRecipientsMigrationPath = path.resolve(
   "supabase/migrations/202603270001_quote_recipients_leads_and_pdf_foundation.sql"
 );
+const quoteDocumentDiscountMigrationPath = path.resolve(
+  "supabase/migrations/202603270003_quote_document_discount.sql"
+);
 
 describe("supabase foundation contracts", () => {
   it("creates the required secure foundation tables", () => {
@@ -156,5 +159,15 @@ describe("supabase foundation contracts", () => {
       "create or replace function public.update_quote"
     );
     expect(migration).toContain("jsonb_array_length(normalized_line_items) = 0");
+  });
+
+  it("allows document-level discounts on top of line-item discounts", () => {
+    const migration = fs.readFileSync(quoteDocumentDiscountMigrationPath, "utf8");
+
+    expect(migration).toContain("target_document_discount_total numeric default 0");
+    expect(migration).toContain(
+      "Document discount cannot exceed quote subtotal after line discounts"
+    );
+    expect(migration).toContain("discount_total = computed_total_discount");
   });
 });

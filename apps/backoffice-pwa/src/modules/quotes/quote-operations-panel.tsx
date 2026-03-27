@@ -40,7 +40,12 @@ import {
   type QuoteFormValues
 } from "@/lib/forms/quote-form-schema";
 import {
+  calculateQuoteDocumentDiscountAmountFromPercent,
+  calculateQuoteDocumentDiscountBase,
+  calculateQuoteDocumentDiscountPercentFromAmount,
+  calculateQuoteDocumentDiscountTotalFromCombinedDiscount,
   calculateQuoteLineDiscountAmountFromPercent,
+  calculateQuoteLineDiscountTotal,
   calculateQuoteLineDiscountPercentFromAmount
 } from "@/lib/forms/quote-line-discounts";
 import { buildOperationalAutofillProps } from "@/lib/forms/autofill";
@@ -512,9 +517,10 @@ function QuoteWorkflowLayout({
     (total, item) => total + (Number(item.quantity) || 0) * (Number(item.unitPrice) || 0),
     0
   );
-  const discountTotal = lineItems.reduce(
-    (total, item) => total + (Number(item.discountTotal) || 0),
-    0
+  const lineDiscountTotal = calculateQuoteLineDiscountTotal(lineItems);
+  const documentDiscountTotal = Number(values.documentDiscountTotal) || 0;
+  const discountTotal = Number(
+    (lineDiscountTotal + documentDiscountTotal).toFixed(2)
   );
   const taxTotal = lineItems.reduce(
     (total, item) => total + (Number(item.taxTotal) || 0),
@@ -718,8 +724,12 @@ function QuoteWorkflowLayout({
                   {formatCurrency(subtotal, currencyCode)}
                 </p>
                 <p>
-                  {t("quotes.form.discountSummaryLabel")}:{" "}
-                  {formatCurrency(discountTotal, currencyCode)}
+                  {t("quotes.form.lineDiscountSummaryLabel")}:{" "}
+                  {formatCurrency(lineDiscountTotal, currencyCode)}
+                </p>
+                <p>
+                  {t("quotes.form.documentDiscountSummaryLabel")}:{" "}
+                  {formatCurrency(documentDiscountTotal, currencyCode)}
                 </p>
                 <p>
                   {t("quotes.form.taxSummaryLabel")}:{" "}
@@ -844,7 +854,9 @@ function QuoteFormFields({
   const customerId = watch("customerId");
   const leadId = watch("leadId");
   const currencyCode = watch("currencyCode") || "USD";
+  const documentDiscountPercent = watch("documentDiscountPercent") ?? 0;
   const lineItems = watch("lineItems") ?? [];
+  const documentDiscountBase = calculateQuoteDocumentDiscountBase(lineItems);
 
   const syncLineItemDiscounts = ({
     discountPercent,
@@ -893,6 +905,56 @@ function QuoteFormFields({
       shouldValidate: true
     });
   };
+
+  const syncDocumentDiscounts = ({
+    discountPercent,
+    discountTotal,
+    source
+  }: {
+    discountPercent?: number;
+    discountTotal?: number;
+    source: "amount" | "percent";
+  }) => {
+    const nextLineItems = [...lineItems];
+    const nextDocumentDiscountTotal =
+      source === "percent"
+        ? calculateQuoteDocumentDiscountAmountFromPercent({
+            discountPercent,
+            lineItems: nextLineItems
+          })
+        : normalizeFieldNumber(discountTotal);
+    const nextDocumentDiscountPercent =
+      source === "amount"
+        ? calculateQuoteDocumentDiscountPercentFromAmount({
+            discountTotal,
+            lineItems: nextLineItems
+          })
+        : normalizeFieldNumber(discountPercent);
+
+    setValue("documentDiscountPercent", nextDocumentDiscountPercent, {
+      shouldDirty: true,
+      shouldValidate: true
+    });
+    setValue("documentDiscountTotal", nextDocumentDiscountTotal, {
+      shouldDirty: true,
+      shouldValidate: true
+    });
+  };
+
+  useEffect(() => {
+    setValue(
+      "documentDiscountTotal",
+      Number(
+        (
+          (documentDiscountBase * normalizeFieldNumber(documentDiscountPercent)) /
+          100
+        ).toFixed(2)
+      ),
+      {
+        shouldValidate: true
+      }
+    );
+  }, [documentDiscountBase, documentDiscountPercent, setValue]);
 
   useEffect(() => {
     if (recipientKind !== "customer") {
@@ -1179,6 +1241,18 @@ function QuoteFormFields({
   }
 
   if (step === "document") {
+    const documentDiscountPercentField = register("documentDiscountPercent", {
+      valueAsNumber: true
+    });
+    const documentDiscountTotalField = register("documentDiscountTotal", {
+      onChange: (event) => {
+        syncDocumentDiscounts({
+          discountTotal: event.target.valueAsNumber,
+          source: "amount"
+        });
+      },
+      valueAsNumber: true
+    });
     return (
       <div className="space-y-4">
         <div className="grid gap-4 sm:grid-cols-2">
@@ -1241,6 +1315,56 @@ function QuoteFormFields({
               {...register("validUntil")}
             />
           </Field>
+        </div>
+
+        <div className="rounded-3xl border border-line/70 bg-paper/72 p-4">
+          <p className="text-sm font-semibold text-ink">
+            {t("quotes.form.documentDiscountTitle")}
+          </p>
+          <p className="mt-1 text-sm leading-6 text-ink-soft">
+            {t("quotes.form.documentDiscountDescription")}
+          </p>
+
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <Field
+              label={t("quotes.form.documentDiscountPercentLabel")}
+              error={errors.documentDiscountPercent?.message}
+              htmlFor={`${idPrefix}-quote-document-discount-percent`}
+            >
+              <Input
+                id={`${idPrefix}-quote-document-discount-percent`}
+                type="number"
+                step="1"
+                min="0"
+                max="100"
+                inputMode="decimal"
+                {...buildOperationalAutofillProps("off")}
+                {...documentDiscountPercentField}
+              />
+            </Field>
+
+            <Field
+              label={t("quotes.form.documentDiscountAmountLabel")}
+              error={errors.documentDiscountTotal?.message}
+              htmlFor={`${idPrefix}-quote-document-discount-amount`}
+            >
+              <Input
+                id={`${idPrefix}-quote-document-discount-amount`}
+                type="number"
+                step="1"
+                min="0"
+                inputMode="decimal"
+                {...buildOperationalAutofillProps("off")}
+                {...documentDiscountTotalField}
+              />
+            </Field>
+          </div>
+
+          <p className="mt-3 text-sm leading-6 text-ink-soft">
+            {t("quotes.form.documentDiscountHint", {
+              amount: formatCurrency(documentDiscountBase, currencyCode)
+            })}
+          </p>
         </div>
       </div>
     );
@@ -1564,6 +1688,8 @@ function buildCreateDefaults(
       title: "",
       status: "draft",
       currencyCode: "USD",
+      documentDiscountPercent: 0,
+      documentDiscountTotal: 0,
       validUntil: "",
       notes: "",
       lineItems: [buildEmptyLineItem()]
@@ -1583,6 +1709,8 @@ function buildCreateDefaults(
       title: "",
       status: "draft",
       currencyCode: "USD",
+      documentDiscountPercent: 0,
+      documentDiscountTotal: 0,
       validUntil: "",
       notes: "",
       lineItems: [buildEmptyLineItem()]
@@ -1619,6 +1747,8 @@ function buildEmptyQuoteDefaults(): QuoteFormValues {
     title: "",
     status: "draft",
     currencyCode: "USD",
+    documentDiscountPercent: 0,
+    documentDiscountTotal: 0,
     validUntil: "",
     notes: "",
     lineItems: [buildEmptyLineItem()]
@@ -1638,6 +1768,17 @@ function buildUpdateDefaults(quote: QuoteDetail): QuoteFormValues {
     title: quote.title,
     status: quote.status,
     currencyCode: quote.currencyCode,
+    documentDiscountPercent: calculateQuoteDocumentDiscountPercentFromAmount({
+      discountTotal: calculateQuoteDocumentDiscountTotalFromCombinedDiscount({
+        lineItems: quote.lineItems,
+        totalDiscount: quote.discountTotal
+      }),
+      lineItems: quote.lineItems
+    }),
+    documentDiscountTotal: calculateQuoteDocumentDiscountTotalFromCombinedDiscount({
+      lineItems: quote.lineItems,
+      totalDiscount: quote.discountTotal
+    }),
     validUntil: quote.validUntil ?? "",
     notes: quote.notes ?? "",
     lineItems:
@@ -1674,6 +1815,7 @@ function toQuotePayload(values: QuoteFormValues) {
     title: values.title,
     status: values.status,
     currencyCode: values.currencyCode,
+    documentDiscountTotal: values.documentDiscountTotal,
     validUntil: values.validUntil,
     notes: values.notes,
     lineItems: values.lineItems.map(({ discountPercent: _discountPercent, ...lineItem }) => lineItem)
@@ -1823,6 +1965,8 @@ function getFieldsForStep(
       "title",
       "status",
       "currencyCode",
+      "documentDiscountPercent",
+      "documentDiscountTotal",
       "validUntil"
     ] satisfies QuoteFieldPath[];
   }
@@ -1947,6 +2091,8 @@ function getStepForField(fieldPath: string): QuoteFormStepKey {
     fieldPath === "title" ||
     fieldPath === "status" ||
     fieldPath === "currencyCode" ||
+    fieldPath === "documentDiscountPercent" ||
+    fieldPath === "documentDiscountTotal" ||
     fieldPath === "validUntil"
   ) {
     return "document";
@@ -1997,6 +2143,8 @@ function getFieldLabel(
     title: t("quotes.form.titleLabel"),
     status: t("quotes.form.statusLabel"),
     currencyCode: t("quotes.form.currencyCodeLabel"),
+    documentDiscountPercent: t("quotes.form.documentDiscountPercentLabel"),
+    documentDiscountTotal: t("quotes.form.documentDiscountAmountLabel"),
     validUntil: t("quotes.form.validUntilLabel"),
     notes: t("quotes.form.notesLabel")
   };

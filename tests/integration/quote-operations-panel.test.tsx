@@ -198,6 +198,8 @@ describe("quote operations panel", () => {
     await user.click(screen.getByRole("button", { name: /^Siguiente paso$/i }));
 
     await user.type(screen.getByLabelText(/Titulo/i), "Propuesta de soporte");
+    await user.clear(screen.getByLabelText(/Descuento global %/i));
+    await user.type(screen.getByLabelText(/Descuento global %/i), "4");
     await user.click(screen.getByRole("button", { name: /^Siguiente paso$/i }));
     await user.type(screen.getByLabelText(/Nombre del servicio o producto/i), "Soporte premium");
     await user.clear(screen.getByLabelText(/Precio unitario/i));
@@ -207,6 +209,7 @@ describe("quote operations panel", () => {
     expect(mutationState.createQuoteMutation.mutateAsync).toHaveBeenCalledWith(
       expect.objectContaining({
         title: "Propuesta de soporte",
+        documentDiscountTotal: 60,
         recipientKind: "customer"
       })
     );
@@ -239,6 +242,8 @@ describe("quote operations panel", () => {
 
     await user.click(screen.getByRole("button", { name: /^Siguiente paso$/i }));
     await user.type(screen.getByLabelText(/Titulo/i), "Cotizacion decimal");
+    await user.clear(screen.getByLabelText(/Descuento global %/i));
+    await user.type(screen.getByLabelText(/Descuento global %/i), "10");
     await user.click(screen.getByRole("button", { name: /^Siguiente paso$/i }));
 
     const quantityInput = screen.getByLabelText(/Cantidad/i);
@@ -280,6 +285,9 @@ describe("quote operations panel", () => {
         taxTotal: 0.02
       })
     );
+    expect(
+      mutationState.createQuoteMutation.mutateAsync.mock.calls[0][0]
+    ).toEqual(expect.objectContaining({ documentDiscountTotal: 0.02 }));
     expect(
       mutationState.createQuoteMutation.mutateAsync.mock.calls[0][0].lineItems[0]
     ).not.toHaveProperty("discountPercent");
@@ -330,6 +338,69 @@ describe("quote operations panel", () => {
     await user.type(quantityInput, "4");
 
     expect(discountAmountInput).toHaveValue(50);
+  });
+
+  it("syncs the document-level discount from a shared header control", async () => {
+    const mutationState = buildMutationState();
+    quoteMutationMocks.useQuoteMutations.mockReturnValue(mutationState);
+    quoteMutationMocks.useQuoteDetailData.mockReturnValue({
+      data: null,
+      error: null,
+      isError: false,
+      isLoading: false
+    });
+    const user = userEvent.setup();
+
+    renderCreatePanel();
+
+    await user.click(screen.getByRole("button", { name: /^Siguiente paso$/i }));
+    await user.type(
+      screen.getByLabelText(/Titulo/i),
+      "Cotizacion con descuento global"
+    );
+
+    const documentDiscountPercentInput = screen.getByLabelText(
+      /Descuento global %/i
+    );
+    const documentDiscountAmountInput = screen.getByLabelText(
+      /Descuento global fijo/i
+    );
+
+    await user.clear(documentDiscountPercentInput);
+    await user.type(documentDiscountPercentInput, "4");
+    expect(documentDiscountAmountInput).toHaveValue(0);
+
+    await user.click(screen.getByRole("button", { name: /^Siguiente paso$/i }));
+
+    await user.type(
+      screen.getByLabelText(/Nombre del servicio o producto/i),
+      "Paquete global"
+    );
+    await user.clear(screen.getByLabelText(/Precio unitario/i));
+    await user.type(screen.getByLabelText(/Precio unitario/i), "100");
+
+    await user.click(screen.getAllByRole("button", { name: /Documento/i })[0]!);
+    const documentDiscountAmountInputUpdated = await screen.findByLabelText(
+      /Descuento global fijo/i
+    );
+    const documentDiscountPercentInputUpdated = screen.getByLabelText(
+      /Descuento global %/i
+    );
+
+    expect(documentDiscountAmountInputUpdated).toHaveValue(4);
+
+    await user.clear(documentDiscountAmountInputUpdated);
+    await user.type(documentDiscountAmountInputUpdated, "10");
+
+    expect(documentDiscountPercentInputUpdated).toHaveValue(10);
+
+    await user.click(screen.getByRole("button", { name: /Guardar cotizacion/i }));
+
+    expect(mutationState.createQuoteMutation.mutateAsync).toHaveBeenCalledWith(
+      expect.objectContaining({
+        documentDiscountTotal: 10
+      })
+    );
   });
 
   it("guides the user to the first invalid step when required fields are missing", async () => {
@@ -397,6 +468,7 @@ describe("quote operations panel", () => {
       expect.objectContaining({
         recipientKind: "ad_hoc",
         customerId: null,
+        documentDiscountTotal: 0,
         leadId: null,
         recipientDisplayName: "Prospecto urgente",
         recipientEmail: "urgente@test.com",
@@ -456,6 +528,10 @@ describe("quote operations panel", () => {
     const user = userEvent.setup();
 
     renderManagePanel();
+
+    await user.click(screen.getAllByRole("button", { name: /Documento/i })[0]!);
+    expect(await screen.findByLabelText(/Descuento global %/i)).toHaveValue(0);
+    expect(screen.getByLabelText(/Descuento global fijo/i)).toHaveValue(0);
 
     await user.click(screen.getAllByRole("button", { name: /Lineas/i })[0]!);
     expect(await screen.findByLabelText(/Descuento %/i)).toHaveValue(10);
