@@ -46,6 +46,14 @@ Las plataformas maduras de quoting centran la cotizacion en line items con:
 
 En `OperaPyme` las lineas viven en `quote_line_items` y el total del documento se deriva desde ellas en SQL.
 
+Para descuentos por linea:
+
+- la UI debe permitir descuento porcentual y descuento fijo
+- el porcentaje es la referencia operativa principal
+- cuando cambia cantidad o precio, el descuento fijo se recalcula desde el porcentaje vigente
+- si el usuario ajusta el monto fijo, la UI debe derivar el porcentaje equivalente para mantener ambos visibles y sincronizados
+- la persistencia actual sigue guardando `discount_total` por linea como valor documental final
+
 ### Documento comercial serio
 
 Una cotizacion profesional necesita:
@@ -100,6 +108,7 @@ Version instalada en el workspace durante esta tarea: `@react-pdf/renderer@^4.3.
 - el flujo principal del builder se resuelve por pasos cortos: receptor, documento, line items y revision
 - los defaults priorizan velocidad: si hay clientes, inicia desde cliente; si no, desde lead; si no, desde lead rapido
 - cuando se elige cliente o lead, el formulario hidrata el snapshot documental y permite ajustarlo
+- en line items, descuento % y descuento fijo conviven en la misma fila con sincronizacion bidireccional y porcentaje como base operativa
 - el PDF se genera bajo demanda desde una cotizacion ya guardada
 
 ## Alcance de esta iteracion

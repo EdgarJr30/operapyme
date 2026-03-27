@@ -20,6 +20,7 @@
 - una cotizacion puede iniciar desde cliente, lead o receptor rapido no persistido
 - toda cotizacion guarda snapshot del receptor aunque exista relacion con CRM
 - toda cotizacion necesita al menos una linea comercial persistida
+- cada linea de cotizacion puede editar descuento porcentual o descuento fijo; el porcentaje es la referencia operativa y el monto se deriva o recalcula desde esa base
 - subtotal, descuentos, impuestos y total del documento salen de las lineas
 - enviar o aprobar una cotizacion es evento auditable
 - una proforma nace desde una cotizacion o una base equivalente trazable

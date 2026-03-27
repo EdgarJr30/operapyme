@@ -39,6 +39,10 @@ import {
   quoteStatusValues,
   type QuoteFormValues
 } from "@/lib/forms/quote-form-schema";
+import {
+  calculateQuoteLineDiscountAmountFromPercent,
+  calculateQuoteLineDiscountPercentFromAmount
+} from "@/lib/forms/quote-line-discounts";
 import { buildOperationalAutofillProps } from "@/lib/forms/autofill";
 import type {
   CatalogItemSummary,
@@ -842,6 +846,54 @@ function QuoteFormFields({
   const currencyCode = watch("currencyCode") || "USD";
   const lineItems = watch("lineItems") ?? [];
 
+  const syncLineItemDiscounts = ({
+    discountPercent,
+    discountTotal,
+    index,
+    quantity,
+    source,
+    unitPrice
+  }: {
+    discountPercent?: number;
+    discountTotal?: number;
+    index: number;
+    quantity?: number;
+    source: "amount" | "percent";
+    unitPrice?: number;
+  }) => {
+    const currentLineItem = lineItems[index];
+
+    if (!currentLineItem) {
+      return;
+    }
+
+    const nextLineItem = {
+      ...currentLineItem,
+      ...(typeof discountPercent === "number" ? { discountPercent } : {}),
+      ...(typeof quantity === "number" ? { quantity } : {}),
+      ...(typeof discountTotal === "number" ? { discountTotal } : {}),
+      ...(typeof unitPrice === "number" ? { unitPrice } : {})
+    };
+
+    const nextDiscountTotal =
+      source === "percent"
+        ? calculateQuoteLineDiscountAmountFromPercent(nextLineItem)
+        : normalizeFieldNumber(nextLineItem.discountTotal);
+    const nextDiscountPercent =
+      source === "amount"
+        ? calculateQuoteLineDiscountPercentFromAmount(nextLineItem)
+        : normalizeFieldNumber(nextLineItem.discountPercent);
+
+    setValue(`lineItems.${index}.discountPercent`, nextDiscountPercent, {
+      shouldDirty: true,
+      shouldValidate: true
+    });
+    setValue(`lineItems.${index}.discountTotal`, nextDiscountTotal, {
+      shouldDirty: true,
+      shouldValidate: true
+    });
+  };
+
   useEffect(() => {
     if (recipientKind !== "customer") {
       return;
@@ -1217,6 +1269,54 @@ function QuoteFormFields({
 
         {fields.map((field, index) => {
           const catalogField = register(`lineItems.${index}.catalogItemId`);
+          const quantityField = register(`lineItems.${index}.quantity`, {
+            onChange: (event) => {
+              syncLineItemDiscounts({
+                discountPercent: lineItems[index]?.discountPercent ?? 0,
+                index,
+                quantity: event.target.valueAsNumber,
+                source: "percent"
+              });
+            },
+            valueAsNumber: true
+          });
+          const unitPriceField = register(`lineItems.${index}.unitPrice`, {
+            onChange: (event) => {
+              syncLineItemDiscounts({
+                discountPercent: lineItems[index]?.discountPercent ?? 0,
+                index,
+                source: "percent",
+                unitPrice: event.target.valueAsNumber
+              });
+            },
+            valueAsNumber: true
+          });
+          const discountPercentField = register(
+            `lineItems.${index}.discountPercent`,
+            {
+              onChange: (event) => {
+                syncLineItemDiscounts({
+                  discountPercent: event.target.valueAsNumber,
+                  index,
+                  source: "percent"
+                });
+              },
+              valueAsNumber: true
+            }
+          );
+          const discountTotalField = register(
+            `lineItems.${index}.discountTotal`,
+            {
+              onChange: (event) => {
+                syncLineItemDiscounts({
+                  discountTotal: event.target.valueAsNumber,
+                  index,
+                  source: "amount"
+                });
+              },
+              valueAsNumber: true
+            }
+          );
 
           return (
             <div
@@ -1253,8 +1353,10 @@ function QuoteFormFields({
                     setValue(`lineItems.${index}.catalogItemId`, event.target.value);
                     hydrateLineItemFromCatalog({
                       catalogItems,
+                      discountPercent: lineItems[index]?.discountPercent ?? 0,
                       index,
                       itemId: event.target.value,
+                      quantity: lineItems[index]?.quantity ?? 1,
                       setValue,
                       t
                     });
@@ -1310,7 +1412,7 @@ function QuoteFormFields({
                 />
               </Field>
 
-              <div className="grid gap-4 sm:grid-cols-4">
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
                 <Field
                   label={t("quotes.form.quantityLabel")}
                   error={errors.lineItems?.[index]?.quantity?.message}
@@ -1323,9 +1425,7 @@ function QuoteFormFields({
                     min="0"
                     inputMode="decimal"
                     {...buildOperationalAutofillProps("off")}
-                    {...register(`lineItems.${index}.quantity`, {
-                      valueAsNumber: true
-                    })}
+                    {...quantityField}
                   />
                 </Field>
 
@@ -1341,14 +1441,29 @@ function QuoteFormFields({
                     min="0"
                     inputMode="decimal"
                     {...buildOperationalAutofillProps("off")}
-                    {...register(`lineItems.${index}.unitPrice`, {
-                      valueAsNumber: true
-                    })}
+                    {...unitPriceField}
                   />
                 </Field>
 
                 <Field
-                  label={t("quotes.form.discountTotalLabel")}
+                  label={t("quotes.form.discountPercentLabel")}
+                  error={errors.lineItems?.[index]?.discountPercent?.message}
+                  htmlFor={`${idPrefix}-line-item-discount-percent-${index}`}
+                >
+                  <Input
+                    id={`${idPrefix}-line-item-discount-percent-${index}`}
+                    type="number"
+                    step="1"
+                    min="0"
+                    max="100"
+                    inputMode="decimal"
+                    {...buildOperationalAutofillProps("off")}
+                    {...discountPercentField}
+                  />
+                </Field>
+
+                <Field
+                  label={t("quotes.form.discountAmountLabel")}
                   error={errors.lineItems?.[index]?.discountTotal?.message}
                   htmlFor={`${idPrefix}-line-item-discount-${index}`}
                 >
@@ -1359,9 +1474,7 @@ function QuoteFormFields({
                     min="0"
                     inputMode="decimal"
                     {...buildOperationalAutofillProps("off")}
-                    {...register(`lineItems.${index}.discountTotal`, {
-                      valueAsNumber: true
-                    })}
+                    {...discountTotalField}
                   />
                 </Field>
 
@@ -1383,6 +1496,10 @@ function QuoteFormFields({
                   />
                 </Field>
               </div>
+
+              <p className="text-sm leading-6 text-ink-soft">
+                {t("quotes.form.discountSyncHint")}
+              </p>
 
               <p className="text-sm leading-6 text-ink-soft">
                 {t("quotes.form.lineItemTotalLabel")}:{" "}
@@ -1483,6 +1600,7 @@ function buildEmptyLineItem() {
     quantity: 1,
     unitLabel: "",
     unitPrice: 0,
+    discountPercent: 0,
     discountTotal: 0,
     taxTotal: 0
   };
@@ -1531,6 +1649,11 @@ function buildUpdateDefaults(quote: QuoteDetail): QuoteFormValues {
             quantity: lineItem.quantity,
             unitLabel: lineItem.unitLabel ?? "",
             unitPrice: lineItem.unitPrice,
+            discountPercent: calculateQuoteLineDiscountPercentFromAmount({
+              discountTotal: lineItem.discountTotal,
+              quantity: lineItem.quantity,
+              unitPrice: lineItem.unitPrice
+            }),
             discountTotal: lineItem.discountTotal,
             taxTotal: lineItem.taxTotal
           }))
@@ -1553,20 +1676,24 @@ function toQuotePayload(values: QuoteFormValues) {
     currencyCode: values.currencyCode,
     validUntil: values.validUntil,
     notes: values.notes,
-    lineItems: values.lineItems
+    lineItems: values.lineItems.map(({ discountPercent: _discountPercent, ...lineItem }) => lineItem)
   };
 }
 
 function hydrateLineItemFromCatalog({
   catalogItems,
+  discountPercent,
   index,
   itemId,
+  quantity,
   setValue,
   t
 }: {
   catalogItems: CatalogItemSummary[];
+  discountPercent: number;
   index: number;
   itemId: string;
+  quantity: number;
   setValue: UseFormReturn<QuoteFormValues>["setValue"];
   t: ReturnType<typeof useTranslation<"backoffice">>["t"];
 }) {
@@ -1582,6 +1709,18 @@ function hydrateLineItemFromCatalog({
   setValue(`lineItems.${index}.itemDescription`, selectedItem.description ?? "");
   setValue(`lineItems.${index}.unitLabel`, getDefaultUnitLabel(selectedItem, t));
   setValue(`lineItems.${index}.unitPrice`, selectedItem.unitPrice ?? 0);
+  setValue(
+    `lineItems.${index}.discountTotal`,
+    calculateQuoteLineDiscountAmountFromPercent({
+      discountPercent,
+      quantity,
+      unitPrice: selectedItem.unitPrice ?? 0
+    }),
+    {
+      shouldDirty: true,
+      shouldValidate: true
+    }
+  );
 }
 
 function getDefaultUnitLabel(
@@ -1617,6 +1756,10 @@ function formatCurrency(value: number, currencyCode: string) {
   } catch {
     return `${currencyCode.toUpperCase()} ${value.toFixed(2)}`;
   }
+}
+
+function normalizeFieldNumber(value: number | undefined) {
+  return typeof value === "number" && Number.isFinite(value) ? value : 0;
 }
 
 function guideToFirstInvalidField({
@@ -1698,6 +1841,7 @@ function getFieldsForStep(
       `lineItems.${index}.quantity` as QuoteFieldPath,
       `lineItems.${index}.unitLabel` as QuoteFieldPath,
       `lineItems.${index}.unitPrice` as QuoteFieldPath,
+      `lineItems.${index}.discountPercent` as QuoteFieldPath,
       `lineItems.${index}.discountTotal` as QuoteFieldPath,
       `lineItems.${index}.taxTotal` as QuoteFieldPath
     );
@@ -1833,7 +1977,8 @@ function getFieldLabel(
       quantity: t("quotes.form.quantityLabel"),
       unitLabel: t("quotes.form.unitLabelLabel"),
       unitPrice: t("quotes.form.unitPriceLabel"),
-      discountTotal: t("quotes.form.discountTotalLabel"),
+      discountPercent: t("quotes.form.discountPercentLabel"),
+      discountTotal: t("quotes.form.discountAmountLabel"),
       taxTotal: t("quotes.form.taxTotalLabel")
     };
 

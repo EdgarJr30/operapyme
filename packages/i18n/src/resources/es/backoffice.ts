@@ -784,8 +784,12 @@ const backofficeEs = {
       unitLabelPlaceholder: "servicio",
       quantityLabel: "Cantidad",
       unitPriceLabel: "Precio unitario",
+      discountPercentLabel: "Descuento %",
+      discountAmountLabel: "Descuento fijo",
       discountTotalLabel: "Descuento",
       taxTotalLabel: "Impuestos",
+      discountSyncHint:
+        "Puedes editar porcentaje o monto; el sistema conserva el porcentaje como referencia y recalcula el otro valor.",
       lineItemTotalLabel: "Total de la linea",
       defaultServiceUnit: "servicio",
       defaultProductUnit: "unidad",
@@ -824,7 +828,12 @@ const backofficeEs = {
         quantity: "La cantidad debe ser mayor que cero.",
         unitLabelMax: "Mantener la unidad por debajo de 40 caracteres.",
         unitPrice: "El precio unitario no puede ser negativo.",
+        discountPercent: "El descuento porcentual no puede ser negativo.",
+        discountPercentMax:
+          "El descuento porcentual no puede superar 100%.",
         discountTotal: "El descuento no puede ser negativo.",
+        discountTotalExceeded:
+          "El descuento fijo no puede superar el subtotal de la linea.",
         taxTotal: "Los impuestos no pueden ser negativos.",
         notesMax: "Mantener las notas por debajo de 500 caracteres."
       }

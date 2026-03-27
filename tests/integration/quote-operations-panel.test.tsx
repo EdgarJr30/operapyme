@@ -243,12 +243,14 @@ describe("quote operations panel", () => {
 
     const quantityInput = screen.getByLabelText(/Cantidad/i);
     const unitPriceInput = screen.getByLabelText(/Precio unitario/i);
-    const discountInput = screen.getByLabelText(/Descuento/i);
+    const discountPercentInput = screen.getByLabelText(/Descuento %/i);
+    const discountAmountInput = screen.getByLabelText(/Descuento fijo/i);
     const taxInput = screen.getByLabelText(/Impuestos/i);
 
     expect(quantityInput).toHaveAttribute("step", "1");
     expect(unitPriceInput).toHaveAttribute("step", "1");
-    expect(discountInput).toHaveAttribute("step", "1");
+    expect(discountPercentInput).toHaveAttribute("step", "1");
+    expect(discountAmountInput).toHaveAttribute("step", "1");
     expect(taxInput).toHaveAttribute("step", "1");
 
     await user.type(
@@ -256,25 +258,78 @@ describe("quote operations panel", () => {
       "Soporte fraccional"
     );
     await user.clear(quantityInput);
-    await user.type(quantityInput, "1.5");
+    await user.type(quantityInput, "1.25");
     await user.clear(unitPriceInput);
-    await user.type(unitPriceInput, "0.03");
-    await user.clear(discountInput);
-    await user.type(discountInput, "0.01");
+    await user.type(unitPriceInput, "0.2");
+    await user.clear(discountPercentInput);
+    await user.type(discountPercentInput, "12.5");
     await user.clear(taxInput);
     await user.type(taxInput, "0.02");
+
+    expect(discountAmountInput).toHaveValue(0.03);
+
     await user.click(screen.getByRole("button", { name: /Guardar cotizacion/i }));
 
     expect(
       mutationState.createQuoteMutation.mutateAsync.mock.calls[0][0].lineItems[0]
     ).toEqual(
       expect.objectContaining({
-        quantity: 1.5,
-        unitPrice: 0.03,
-        discountTotal: 0.01,
+        quantity: 1.25,
+        unitPrice: 0.2,
+        discountTotal: 0.03,
         taxTotal: 0.02
       })
     );
+    expect(
+      mutationState.createQuoteMutation.mutateAsync.mock.calls[0][0].lineItems[0]
+    ).not.toHaveProperty("discountPercent");
+  });
+
+  it("keeps discount percentage as the working reference while allowing manual fixed amounts", async () => {
+    const mutationState = buildMutationState();
+    quoteMutationMocks.useQuoteMutations.mockReturnValue(mutationState);
+    quoteMutationMocks.useQuoteDetailData.mockReturnValue({
+      data: null,
+      error: null,
+      isError: false,
+      isLoading: false
+    });
+    const user = userEvent.setup();
+
+    renderCreatePanel();
+
+    await user.click(screen.getByRole("button", { name: /^Siguiente paso$/i }));
+    await user.type(screen.getByLabelText(/Titulo/i), "Cotizacion con descuento dual");
+    await user.click(screen.getByRole("button", { name: /^Siguiente paso$/i }));
+
+    await user.type(
+      screen.getByLabelText(/Nombre del servicio o producto/i),
+      "Mantenimiento dual"
+    );
+
+    const quantityInput = screen.getByLabelText(/Cantidad/i);
+    const unitPriceInput = screen.getByLabelText(/Precio unitario/i);
+    const discountPercentInput = screen.getByLabelText(/Descuento %/i);
+    const discountAmountInput = screen.getByLabelText(/Descuento fijo/i);
+
+    await user.clear(quantityInput);
+    await user.type(quantityInput, "2");
+    await user.clear(unitPriceInput);
+    await user.type(unitPriceInput, "100");
+    await user.clear(discountPercentInput);
+    await user.type(discountPercentInput, "10");
+
+    expect(discountAmountInput).toHaveValue(20);
+
+    await user.clear(discountAmountInput);
+    await user.type(discountAmountInput, "25");
+
+    expect(discountPercentInput).toHaveValue(12.5);
+
+    await user.clear(quantityInput);
+    await user.type(quantityInput, "4");
+
+    expect(discountAmountInput).toHaveValue(50);
   });
 
   it("guides the user to the first invalid step when required fields are missing", async () => {
@@ -402,8 +457,11 @@ describe("quote operations panel", () => {
 
     renderManagePanel();
 
-    await user.click(screen.getByRole("button", { name: /^Siguiente paso$/i }));
+    await user.click(screen.getAllByRole("button", { name: /Lineas/i })[0]!);
+    expect(await screen.findByLabelText(/Descuento %/i)).toHaveValue(10);
+    expect(screen.getByLabelText(/Descuento fijo/i)).toHaveValue(100);
 
+    await user.click(screen.getAllByRole("button", { name: /Documento/i })[0]!);
     const updateTitleInput = await screen.findByLabelText(/Titulo/i);
     await user.clear(updateTitleInput);
     await user.type(updateTitleInput, "Propuesta Northline actualizada");

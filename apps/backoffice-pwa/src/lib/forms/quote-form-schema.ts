@@ -2,6 +2,11 @@ import { z } from "zod";
 
 import type { TFunction } from "@operapyme/i18n";
 
+import {
+  MAX_QUOTE_LINE_DISCOUNT_PERCENT,
+  calculateQuoteLineSubtotal
+} from "@/lib/forms/quote-line-discounts";
+
 export const quoteRecipientKindValues = [
   "customer",
   "lead",
@@ -32,6 +37,13 @@ export function createQuoteFormSchema(t: TFunction<"backoffice">) {
       .string()
       .max(40, t("quotes.form.validation.unitLabelMax")),
     unitPrice: z.number().min(0, t("quotes.form.validation.unitPrice")),
+    discountPercent: z
+      .number()
+      .min(0, t("quotes.form.validation.discountPercent"))
+      .max(
+        MAX_QUOTE_LINE_DISCOUNT_PERCENT,
+        t("quotes.form.validation.discountPercentMax")
+      ),
     discountTotal: z
       .number()
       .min(0, t("quotes.form.validation.discountTotal")),
@@ -95,6 +107,18 @@ export function createQuoteFormSchema(t: TFunction<"backoffice">) {
           path: ["leadId"]
         });
       }
+
+      values.lineItems.forEach((lineItem, index) => {
+        const lineSubtotal = calculateQuoteLineSubtotal(lineItem);
+
+        if (lineItem.discountTotal > lineSubtotal) {
+          context.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: t("quotes.form.validation.discountTotalExceeded"),
+            path: ["lineItems", index, "discountTotal"]
+          });
+        }
+      });
     });
 }
 
