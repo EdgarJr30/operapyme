@@ -98,6 +98,7 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 - [docs/governance/UI_UX_RULES.md](./docs/governance/UI_UX_RULES.md): contrato obligatorio de UX/UI, mobile-first, accesibilidad, espaciado y navegacion.
 - [docs/tenant-theming.md](./docs/tenant-theming.md): estrategia de branding por tenant y appearance modes.
 - [docs/development-setup.md](./docs/development-setup.md): instalacion, scripts y flujo local.
+- [docs/governance/PERFORMANCE_RULES.md](./docs/governance/PERFORMANCE_RULES.md): reglas obligatorias para bundle inicial, refresh, bootstrap de auth y carga diferida.
 - [docs/architecture/SUPABASE_ARCHITECTURE.md](./docs/architecture/SUPABASE_ARCHITECTURE.md): fundacion segura de backend con RBAC, RLS y auditoria.
 - [docs/domain/AUDIT_MODEL.md](./docs/domain/AUDIT_MODEL.md): modelo de auditoria y observabilidad.
 - [docs/governance/SUPABASE_RULES.md](./docs/governance/SUPABASE_RULES.md): reglas obligatorias para esquema, politicas y operaciones sensibles.
@@ -129,6 +130,7 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 - scaffold inicial del backoffice en progreso
 - shell operativo del backoffice alineado con sidebar desktop, navbar superior y bottom navigation movil
 - soporte `light` / `dark` / `system` activo en el backoffice
+- refresh del backoffice aligerado con auth bootstrap deduplicado, rutas criticas diferidas, PDF fuera del bundle inicial y soporte global diferido para toast/permisos
 - baseline de testing y contratos del repo sembrados
 - fundacion Supabase segura sembrada con enfoque RBAC, RLS y auditoria
 - auth del backoffice sembrado con magic link
@@ -160,6 +162,8 @@ Flujo funcional actual:
 4. entrar por `/auth`
 5. completar `/setup` si el usuario aun no tiene tenant
 6. si el callback llega con `code` o con `token_hash` valido, el backoffice confirma la sesion y vuelve a `/auth` cuando el enlace ya no sirve o viene incompleto
+
+Durante refresh o hidratacion de sesion, el backoffice espera el `accessContext` antes de decidir entre shell o `/setup`, y muestra skeleton loaders de aplicacion en lugar de flashear una pantalla incorrecta.
 
 Modulos operativos activos hoy:
 
@@ -208,7 +212,8 @@ Para variables backend u operativas de Supabase, usar `supabase/.env.example` co
 
 - `npm run test`: unit + integration + contract
 - `npm run test:e2e:smoke`: prueba de humo del backoffice
-- `npm run verify`: typecheck + build + tests + smoke e2e
+- `npm run check:backoffice-bundle`: valida el presupuesto del bundle inicial del backoffice
+- `npm run verify`: typecheck + build + bundle guard + tests + smoke e2e
 
 ### Fundacion segura
 
@@ -229,6 +234,7 @@ Para variables backend u operativas de Supabase, usar `supabase/.env.example` co
 - El backoffice soporta `light`, `dark` y `system`.
 - La preferencia de apariencia se persiste por dispositivo.
 - La apariencia personal y el branding por tenant son capas distintas.
+- El branding actual incluye paletas curadas de tono pastel refinado y una paleta propia basica generada desde cuatro colores base.
 - La estrategia de paletas curadas por tenant vive en [docs/tenant-theming.md](./docs/tenant-theming.md).
 
 ### Donde vive la app React real

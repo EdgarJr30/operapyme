@@ -414,6 +414,7 @@ Apple-inspired UI rules:
 3. Match the keyboard and input type to the field purpose.
 4. Use `autocomplete`, `inputmode`, and appropriate validation hints where supported.
 5. If a field has a tricky requirement, show helper text before the user fails validation.
+6. Number inputs must default native spinner increments to whole steps (`step="1"`). If the field domain accepts decimals, keep manual decimal entry available without changing the spinner to `0.01` increments.
 
 ### 12.3 Validation rules
 

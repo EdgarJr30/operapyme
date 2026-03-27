@@ -39,6 +39,7 @@ import {
   quoteStatusValues,
   type QuoteFormValues
 } from "@/lib/forms/quote-form-schema";
+import { buildOperationalAutofillProps } from "@/lib/forms/autofill";
 import type {
   CatalogItemSummary,
   CustomerSummary,
@@ -353,6 +354,7 @@ export function QuoteManageWorkspace({
             <Select
               id="quote-record"
               value={selectedQuoteId}
+              {...buildOperationalAutofillProps("off")}
               onChange={(event) => {
                 setSelectedQuoteId(event.target.value);
                 setCurrentStep("recipient");
@@ -535,6 +537,7 @@ function QuoteWorkflowLayout({
       className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]"
       noValidate
       onSubmit={onSubmit}
+      {...buildOperationalAutofillProps("off")}
     >
       <Card>
         <CardHeader className="space-y-4 pb-5">
@@ -919,6 +922,7 @@ function QuoteFormFields({
               onBlur={recipientKindField.onBlur}
               ref={recipientKindField.ref}
               value={recipientKind}
+              {...buildOperationalAutofillProps("off")}
               onChange={(event) => {
                 const nextKind = event.target.value as QuoteRecipientKind;
 
@@ -946,16 +950,17 @@ function QuoteFormFields({
             label={t("quotes.form.quoteNumberLabel")}
             htmlFor={`${idPrefix}-quote-number`}
           >
-            <Input
+            <output
               id={`${idPrefix}-quote-number`}
-              value={
+              aria-live="polite"
+              className="flex min-h-12 w-full items-center rounded-xl border border-line bg-paper/90 px-3 text-sm text-ink sm:min-h-11"
+            >
+              {
                 quoteNumber && quoteNumber.trim().length > 0
                   ? quoteNumber
                   : t("quotes.form.generatedNumberPlaceholder")
               }
-              readOnly
-              disabled
-            />
+            </output>
             <p className="text-sm text-ink-soft">{t("quotes.form.generatedNumberHint")}</p>
           </Field>
         </div>
@@ -973,6 +978,7 @@ function QuoteFormFields({
                 onBlur={customerField.onBlur}
                 ref={customerField.ref}
                 value={customerId ?? ""}
+                {...buildOperationalAutofillProps("off")}
                 onChange={(event) => {
                   customerField.onChange(event);
                   setValue("customerId", event.target.value, { shouldValidate: true });
@@ -1007,6 +1013,7 @@ function QuoteFormFields({
                 onBlur={leadField.onBlur}
                 ref={leadField.ref}
                 value={leadId ?? ""}
+                {...buildOperationalAutofillProps("off")}
                 onChange={(event) => {
                   leadField.onChange(event);
                   setValue("leadId", event.target.value, { shouldValidate: true });
@@ -1055,6 +1062,7 @@ function QuoteFormFields({
             <Input
               id={`${idPrefix}-recipient-display-name`}
               placeholder={t("quotes.form.recipientDisplayNamePlaceholder")}
+              {...buildOperationalAutofillProps("section-quote-recipient organization")}
               {...register("recipientDisplayName")}
             />
           </Field>
@@ -1067,6 +1075,7 @@ function QuoteFormFields({
             <Input
               id={`${idPrefix}-recipient-contact-name`}
               placeholder={t("quotes.form.recipientContactNamePlaceholder")}
+              {...buildOperationalAutofillProps("section-quote-recipient name")}
               {...register("recipientContactName")}
             />
           </Field>
@@ -1082,6 +1091,7 @@ function QuoteFormFields({
               id={`${idPrefix}-recipient-email`}
               type="email"
               placeholder={t("quotes.form.recipientEmailPlaceholder")}
+              {...buildOperationalAutofillProps("section-quote-recipient email")}
               {...register("recipientEmail")}
             />
           </Field>
@@ -1094,6 +1104,7 @@ function QuoteFormFields({
             <Input
               id={`${idPrefix}-recipient-whatsapp`}
               placeholder={t("quotes.form.recipientWhatsAppPlaceholder")}
+              {...buildOperationalAutofillProps("section-quote-recipient tel")}
               {...register("recipientWhatsApp")}
             />
           </Field>
@@ -1106,6 +1117,7 @@ function QuoteFormFields({
             <Input
               id={`${idPrefix}-recipient-phone`}
               placeholder={t("quotes.form.recipientPhonePlaceholder")}
+              {...buildOperationalAutofillProps("section-quote-recipient tel-national")}
               {...register("recipientPhone")}
             />
           </Field>
@@ -1126,6 +1138,7 @@ function QuoteFormFields({
             <Input
               id={`${idPrefix}-quote-title`}
               placeholder={t("quotes.form.titlePlaceholder")}
+              {...buildOperationalAutofillProps("off")}
               {...register("title")}
             />
           </Field>
@@ -1135,7 +1148,11 @@ function QuoteFormFields({
             error={errors.status?.message}
             htmlFor={`${idPrefix}-quote-status`}
           >
-            <Select id={`${idPrefix}-quote-status`} {...register("status")}>
+            <Select
+              id={`${idPrefix}-quote-status`}
+              {...buildOperationalAutofillProps("off")}
+              {...register("status")}
+            >
               {quoteStatusValues.map((status) => (
                 <option key={status} value={status}>
                   {t(`quotes.list.status.${status}`)}
@@ -1155,6 +1172,7 @@ function QuoteFormFields({
               id={`${idPrefix}-quote-currency`}
               placeholder={t("quotes.form.currencyCodePlaceholder")}
               maxLength={3}
+              {...buildOperationalAutofillProps("off")}
               {...register("currencyCode")}
             />
           </Field>
@@ -1167,6 +1185,7 @@ function QuoteFormFields({
             <Input
               id={`${idPrefix}-quote-valid-until`}
               type="date"
+              {...buildOperationalAutofillProps("off")}
               {...register("validUntil")}
             />
           </Field>
@@ -1228,6 +1247,7 @@ function QuoteFormFields({
                   onBlur={catalogField.onBlur}
                   ref={catalogField.ref}
                   value={lineItems[index]?.catalogItemId ?? ""}
+                  {...buildOperationalAutofillProps("off")}
                   onChange={(event) => {
                     catalogField.onChange(event);
                     setValue(`lineItems.${index}.catalogItemId`, event.target.value);
@@ -1258,6 +1278,7 @@ function QuoteFormFields({
                   <Input
                     id={`${idPrefix}-line-item-name-${index}`}
                     placeholder={t("quotes.form.lineItemNamePlaceholder")}
+                    {...buildOperationalAutofillProps("off")}
                     {...register(`lineItems.${index}.itemName`)}
                   />
                 </Field>
@@ -1270,6 +1291,7 @@ function QuoteFormFields({
                   <Input
                     id={`${idPrefix}-line-item-unit-${index}`}
                     placeholder={t("quotes.form.unitLabelPlaceholder")}
+                    {...buildOperationalAutofillProps("off")}
                     {...register(`lineItems.${index}.unitLabel`)}
                   />
                 </Field>
@@ -1283,6 +1305,7 @@ function QuoteFormFields({
                 <Textarea
                   id={`${idPrefix}-line-item-description-${index}`}
                   placeholder={t("quotes.form.lineItemDescriptionPlaceholder")}
+                  {...buildOperationalAutofillProps("off")}
                   {...register(`lineItems.${index}.itemDescription`)}
                 />
               </Field>
@@ -1296,8 +1319,10 @@ function QuoteFormFields({
                   <Input
                     id={`${idPrefix}-line-item-quantity-${index}`}
                     type="number"
-                    step="0.01"
+                    step="1"
                     min="0"
+                    inputMode="decimal"
+                    {...buildOperationalAutofillProps("off")}
                     {...register(`lineItems.${index}.quantity`, {
                       valueAsNumber: true
                     })}
@@ -1312,8 +1337,10 @@ function QuoteFormFields({
                   <Input
                     id={`${idPrefix}-line-item-price-${index}`}
                     type="number"
-                    step="0.01"
+                    step="1"
                     min="0"
+                    inputMode="decimal"
+                    {...buildOperationalAutofillProps("off")}
                     {...register(`lineItems.${index}.unitPrice`, {
                       valueAsNumber: true
                     })}
@@ -1328,8 +1355,10 @@ function QuoteFormFields({
                   <Input
                     id={`${idPrefix}-line-item-discount-${index}`}
                     type="number"
-                    step="0.01"
+                    step="1"
                     min="0"
+                    inputMode="decimal"
+                    {...buildOperationalAutofillProps("off")}
                     {...register(`lineItems.${index}.discountTotal`, {
                       valueAsNumber: true
                     })}
@@ -1344,8 +1373,10 @@ function QuoteFormFields({
                   <Input
                     id={`${idPrefix}-line-item-tax-${index}`}
                     type="number"
-                    step="0.01"
+                    step="1"
                     min="0"
+                    inputMode="decimal"
+                    {...buildOperationalAutofillProps("off")}
                     {...register(`lineItems.${index}.taxTotal`, {
                       valueAsNumber: true
                     })}
@@ -1391,6 +1422,7 @@ function QuoteFormFields({
         <Textarea
           id={`${idPrefix}-quote-notes`}
           placeholder={t("quotes.form.notesPlaceholder")}
+          {...buildOperationalAutofillProps("off")}
           {...register("notes")}
         />
       </Field>

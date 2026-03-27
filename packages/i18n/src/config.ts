@@ -18,7 +18,7 @@ export const appNamespaces = {
 };
 
 export const languageLabels: Record<SupportedLanguage, string> = {
-  es: "Espanol",
+  es: "Español",
   en: "English"
 };
 

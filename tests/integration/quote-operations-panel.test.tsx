@@ -1,4 +1,5 @@
 import React from "react";
+import "@testing-library/jest-dom/vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
@@ -221,6 +222,59 @@ describe("quote operations panel", () => {
     expect(
       mutationState.createQuoteMutation.mutateAsync.mock.calls[0][0]
     ).not.toHaveProperty("quoteNumber");
+  });
+
+  it("uses whole-number spinner steps while keeping manual decimal entry for line items", async () => {
+    const mutationState = buildMutationState();
+    quoteMutationMocks.useQuoteMutations.mockReturnValue(mutationState);
+    quoteMutationMocks.useQuoteDetailData.mockReturnValue({
+      data: null,
+      error: null,
+      isError: false,
+      isLoading: false
+    });
+    const user = userEvent.setup();
+
+    renderCreatePanel();
+
+    await user.click(screen.getByRole("button", { name: /^Siguiente paso$/i }));
+    await user.type(screen.getByLabelText(/Titulo/i), "Cotizacion decimal");
+    await user.click(screen.getByRole("button", { name: /^Siguiente paso$/i }));
+
+    const quantityInput = screen.getByLabelText(/Cantidad/i);
+    const unitPriceInput = screen.getByLabelText(/Precio unitario/i);
+    const discountInput = screen.getByLabelText(/Descuento/i);
+    const taxInput = screen.getByLabelText(/Impuestos/i);
+
+    expect(quantityInput).toHaveAttribute("step", "1");
+    expect(unitPriceInput).toHaveAttribute("step", "1");
+    expect(discountInput).toHaveAttribute("step", "1");
+    expect(taxInput).toHaveAttribute("step", "1");
+
+    await user.type(
+      screen.getByLabelText(/Nombre del servicio o producto/i),
+      "Soporte fraccional"
+    );
+    await user.clear(quantityInput);
+    await user.type(quantityInput, "1.5");
+    await user.clear(unitPriceInput);
+    await user.type(unitPriceInput, "0.03");
+    await user.clear(discountInput);
+    await user.type(discountInput, "0.01");
+    await user.clear(taxInput);
+    await user.type(taxInput, "0.02");
+    await user.click(screen.getByRole("button", { name: /Guardar cotizacion/i }));
+
+    expect(
+      mutationState.createQuoteMutation.mutateAsync.mock.calls[0][0].lineItems[0]
+    ).toEqual(
+      expect.objectContaining({
+        quantity: 1.5,
+        unitPrice: 0.03,
+        discountTotal: 0.01,
+        taxTotal: 0.02
+      })
+    );
   });
 
   it("guides the user to the first invalid step when required fields are missing", async () => {

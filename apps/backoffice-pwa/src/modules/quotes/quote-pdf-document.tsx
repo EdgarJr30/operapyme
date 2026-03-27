@@ -7,15 +7,15 @@ import {
   View
 } from "@react-pdf/renderer";
 
-import type { ThemePalette } from "@operapyme/ui";
+import type { ThemePaletteDefinition } from "@operapyme/ui";
 
 import type { QuoteDetail } from "@/lib/supabase/backoffice-data";
 
-interface QuotePdfDocumentProps {
+export interface QuotePdfDocumentProps {
   generatedAt: string;
   issuerName: string;
   logoUrl?: string | null;
-  palette: ThemePalette;
+  palette: ThemePaletteDefinition;
   quote: QuoteDetail;
 }
 
@@ -195,7 +195,7 @@ export function QuotePdfDocument({
   );
 }
 
-function createStyles(palette: ThemePalette) {
+function createStyles(palette: ThemePaletteDefinition) {
   return StyleSheet.create({
     page: {
       paddingTop: 32,

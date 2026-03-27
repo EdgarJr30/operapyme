@@ -44,6 +44,7 @@ El `service role key` no vive aqui.
 - `catalog` ya modela oferta comercial reusable con `product` o `service`, visibilidad `public/private`, pricing `fixed/on_request` y estados `active/draft/archived`
 - `quotes` ya delega la numeracion y el incremento de version a RPCs de Supabase para evitar inconsistencias por concurrencia
 - `quotes` ya soporta cliente, lead existente o lead rapido, mantiene snapshot del receptor, persiste line items y genera PDF con `@react-pdf/renderer`
+- el cotizador declara `autocomplete` semantico y marca sus campos operativos para que extensiones de autofill o password managers no intenten tratarlos como un formulario de login
 - la generacion PDF ya no forma parte del bundle inicial; se carga bajo demanda y se precalienta al enfocar o apuntar la accion de descarga
 - el bootstrap de i18n ahora usa interpolacion nativa de i18next con placeholders simples y evita pagar `i18next-icu` en el primer paint
 - el toaster global y la pantalla de acceso denegado salen por carga diferida, dejando `feedback-vendor` e `icons-vendor` fuera del bundle inicial

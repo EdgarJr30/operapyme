@@ -74,6 +74,7 @@ Acceso canonico a Supabase para este repo:
 - Todo modulo nuevo debe poder activarse o desactivarse por plan o feature flag.
 - El idioma base del producto es espanol.
 - Toda UI nueva debe salir con soporte `es` y `en` desde `packages/i18n`, no con strings hardcodeados en componentes.
+- Si un cambio de i18n solo requiere placeholders simples como `{count}` o `{tenant}`, preferir interpolacion nativa de i18next y no sumar runtimes de formato avanzados a la ruta critica sin una necesidad real medida.
 - Toda UI nueva o cambio visual relevante debe cumplir `docs/governance/UI_UX_RULES.md` como contrato obligatorio de producto.
 - La apariencia visual se divide en dos capas: modo de usuario o dispositivo (`light`, `dark`, `system`) y branding por tenant con paletas curadas.
 - Todo cambio visual debe apoyarse en tokens semanticos y mantener contraste, calma visual e identidad consistente.
@@ -105,10 +106,16 @@ Acceso canonico a Supabase para este repo:
 - No agregar dependencias si el problema ya se resuelve con el stack actual.
 - Mantener ASCII por defecto al editar archivos.
 - No mezclar logica de dominio con componentes de presentacion.
+- Proteger siempre la ruta critica de carga (`main`, providers, auth bootstrap, router, `/`, `/auth`, `/setup`) y evitar imports pesados en esa superficie.
+- Toda capacidad costosa y no esencial para primer render, como PDF, exportaciones, editores o herramientas admin, debe cargarse con `lazy` o `import()` bajo demanda.
+- El toaster global, pantallas de permiso denegado y otras superficies de soporte de baja frecuencia no deben entrar al entry bundle si pueden diferirse con `lazy`.
+- No meter trabajo async de Supabase dentro de `onAuthStateChange`; el callback debe sincronizar sesion y delegar hidratacion posterior.
+- Cuando la ruta critica dependa de un backend cross-origin como Supabase, evaluar `dns-prefetch` o `preconnect` si ayudan a bajar la latencia del primer request.
 - Cuando se use Tailwind, preferir siempre utilidades canónicas del framework si ya existe una equivalente.
 - No introducir utilidades arbitrarias solo por costumbre si Tailwind ya ofrece la clase estandar.
 - Ejemplos que deben evitarse cuando exista alternativa canónica: `h-[46px]`, `max-w-[32rem]`, `rounded-[24px]`, `[background-size:18px_18px]`.
 - Ejemplos preferidos: `h-11.5`, `max-w-lg`, `rounded-3xl`, `bg-size-[18px_18px]`.
+- En inputs `type="number"` del producto, los controles nativos de incremento/decremento deben avanzar de `1` en `1`; los decimales siguen permitidos por escritura manual cuando el dominio los necesite. No usar `step="0.01"` como comportamiento por defecto para spinners operativos.
 - Evitar nombres ligados a un rubro especifico en el core.
 - Todo cambio de datos debe contemplar estados vacios, errores y permisos.
 - No exponer operaciones sensibles o masivas como CRUD cliente directo cuando haya riesgo de abuso.

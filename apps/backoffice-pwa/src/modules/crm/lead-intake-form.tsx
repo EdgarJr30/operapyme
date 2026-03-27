@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { StatusPill } from "@/components/ui/status-pill";
 import { Textarea } from "@/components/ui/textarea";
+import { buildOperationalAutofillProps } from "@/lib/forms/autofill";
 import {
   createLeadIntakeSchema,
   type LeadIntakeValues,
@@ -102,7 +103,12 @@ export function LeadIntakeForm() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form className="space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
+          <form
+            className="space-y-4"
+            onSubmit={handleSubmit(onSubmit)}
+            noValidate
+            {...buildOperationalAutofillProps("off")}
+          >
             <div className="grid gap-4 sm:grid-cols-2">
               <Field
                 label={t("crm.form.companyLabel")}
@@ -113,7 +119,7 @@ export function LeadIntakeForm() {
                 <Input
                   id="company"
                   placeholder={t("crm.form.companyPlaceholder")}
-                  autoComplete="organization"
+                  {...buildOperationalAutofillProps("section-crm-lead organization")}
                   aria-describedby={errors.company ? "company-error" : undefined}
                   aria-invalid={Boolean(errors.company)}
                   {...register("company")}
@@ -129,7 +135,7 @@ export function LeadIntakeForm() {
                 <Input
                   id="contactName"
                   placeholder={t("crm.form.contactNamePlaceholder")}
-                  autoComplete="name"
+                  {...buildOperationalAutofillProps("section-crm-lead name")}
                   aria-describedby={
                     errors.contactName ? "contactName-error" : undefined
                   }
@@ -150,7 +156,7 @@ export function LeadIntakeForm() {
                   id="email"
                   type="email"
                   placeholder={t("crm.form.emailPlaceholder")}
-                  autoComplete="email"
+                  {...buildOperationalAutofillProps("section-crm-lead email")}
                   aria-describedby={errors.email ? "email-error" : undefined}
                   aria-invalid={Boolean(errors.email)}
                   {...register("email")}
@@ -166,7 +172,7 @@ export function LeadIntakeForm() {
                 <Input
                   id="whatsapp"
                   placeholder={t("crm.form.whatsappPlaceholder")}
-                  autoComplete="tel"
+                  {...buildOperationalAutofillProps("section-crm-lead tel")}
                   aria-describedby={
                     errors.whatsapp ? "whatsapp-error" : undefined
                   }
@@ -184,6 +190,7 @@ export function LeadIntakeForm() {
             >
               <Select
                 id="source"
+                {...buildOperationalAutofillProps("off")}
                 aria-describedby={errors.source ? "source-error" : undefined}
                 aria-invalid={Boolean(errors.source)}
                 {...register("source")}
@@ -205,6 +212,7 @@ export function LeadIntakeForm() {
               <Textarea
                 id="needSummary"
                 placeholder={t("crm.form.needSummaryPlaceholder")}
+                {...buildOperationalAutofillProps("off")}
                 aria-describedby={
                   errors.needSummary ? "needSummary-error" : undefined
                 }

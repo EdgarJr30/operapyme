@@ -24,6 +24,7 @@
 - CTA principal visible sin tener que buscarlo.
 - Touch targets minimos de 44px.
 - Inputs con label arriba, nunca solo placeholder.
+- En campos `type="number"` del backoffice, el spinner nativo siempre debe subir y bajar de `1` en `1`; si el campo acepta decimales, estos se permiten por digitacion manual sin convertir el spinner en saltos de `0.01`.
 - No usar modales para flujos largos en movil; preferir pantalla completa o drawer.
 - No convertir dark mode en la identidad visual por defecto ni en un dashboard oscuro saturado.
 - No usar morado generico como color principal.
@@ -34,6 +35,8 @@
 - El idioma por defecto del backoffice es espanol.
 - Todo texto visible debe salir de `@operapyme/i18n` con claves `es` y `en`.
 - Si una vista nueva requiere cambio de idioma, persistir la preferencia del usuario sin romper el fallback a espanol.
+- Si el copy solo necesita placeholders simples como `{count}` o `{tenant}`, mantener i18next con interpolacion nativa y no reintroducir runtimes tipo ICU en la ruta critica.
+- Todo formulario operativo que no sea de autenticacion debe declarar `autocomplete` semantico o `off`; si un gestor de passwords interfiere con el flujo, se permite marcar el form o los campos con atributos `data-*-ignore` para evitar que lo trate como login.
 - Soportar `light`, `dark` y `system` sin romper la misma jerarquia visual ni convertir dark mode en una interfaz neon o gamer.
 - Consumir tokens semanticos de superficie, borde, texto y acento; evitar hardcodear `white`, `black` o colores por cliente en componentes de app.
 - El feedback transitorio de acciones debe usar el toaster global con `sonner`; no duplicarlo con banners inline salvo que el estado necesite persistir en pantalla.
@@ -45,6 +48,11 @@
 - Validacion siempre compartida con Zod cuando haya formulario.
 - No consultar Supabase directo desde componentes visuales complejos; encapsular acceso.
 - No resolver autorizacion real en UI; la UI solo expresa estados de permiso.
+- Proteger la carga inicial del backoffice: `src/main.tsx`, `src/app/providers.tsx`, `src/app/auth-provider.tsx`, `src/app/router.tsx`, `/`, `/auth`, `/auth/callback` y `/setup` no pueden recibir imports pesados sin una justificacion clara.
+- Toda capacidad de alto costo y baja frecuencia, como PDF, exportaciones, flows admin o helpers avanzados, debe salir por `lazy` o `import()` bajo demanda.
+- El toaster global, pantallas de permiso denegado y superficies de soporte poco frecuentes tambien deben salir por `lazy` cuando no formen parte del primer paint.
+- `onAuthStateChange` solo sincroniza estado local; cualquier RPC o hidratacion adicional debe ocurrir fuera del callback.
+- Si el primer render depende de Supabase u otro origen externo critico, considerar `dns-prefetch` o `preconnect` desde `index.html` o `transformIndexHtml`.
 - Evitar props drilling profundo. Elevar o aislar estado.
 - En Tailwind, preferir siempre la clase canonica del framework cuando ya exista una equivalente.
 - Evitar utilidades arbitrarias de tamano, radio, ancho o propiedades inline cuando Tailwind ya tenga una clase estandar.

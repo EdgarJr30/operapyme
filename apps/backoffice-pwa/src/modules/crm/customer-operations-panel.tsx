@@ -17,6 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { buildOperationalAutofillProps } from "@/lib/forms/autofill";
 import {
   createCustomerFormSchema,
   customerSourceValues,
@@ -144,6 +145,7 @@ export function CustomerOperationsPanel({
             className="space-y-4"
             onSubmit={createForm.handleSubmit(onCreate)}
             noValidate
+            {...buildOperationalAutofillProps("off")}
           >
             <CustomerFormFields form={createForm} idPrefix="create" />
 
@@ -190,6 +192,7 @@ export function CustomerOperationsPanel({
             <Select
               id="customer-record"
               value={selectedCustomerId}
+              {...buildOperationalAutofillProps("off")}
               onChange={(event) => {
                 setSelectedCustomerId(event.target.value);
               }}
@@ -215,6 +218,7 @@ export function CustomerOperationsPanel({
               className="space-y-4"
               onSubmit={updateForm.handleSubmit(onUpdate)}
               noValidate
+              {...buildOperationalAutofillProps("off")}
             >
               <CustomerFormFields form={updateForm} idPrefix="update" />
 
@@ -247,6 +251,7 @@ function CustomerFormFields({
     formState: { errors },
     register
   } = form;
+  const autofillSection = `section-${idPrefix}-customer`;
 
   return (
     <>
@@ -259,6 +264,7 @@ function CustomerFormFields({
           <Input
             id={`${idPrefix}-customer-display-name`}
             placeholder={t("crm.customerForm.displayNamePlaceholder")}
+            {...buildOperationalAutofillProps(`${autofillSection} organization`)}
             {...register("displayName")}
           />
         </Field>
@@ -271,6 +277,7 @@ function CustomerFormFields({
           <Input
             id={`${idPrefix}-customer-contact-name`}
             placeholder={t("crm.customerForm.contactNamePlaceholder")}
+            {...buildOperationalAutofillProps(`${autofillSection} name`)}
             {...register("contactName")}
           />
         </Field>
@@ -285,6 +292,7 @@ function CustomerFormFields({
           <Input
             id={`${idPrefix}-customer-code`}
             placeholder={t("crm.customerForm.customerCodePlaceholder")}
+            {...buildOperationalAutofillProps("off")}
             {...register("customerCode")}
           />
         </Field>
@@ -297,6 +305,7 @@ function CustomerFormFields({
           <Input
             id={`${idPrefix}-customer-legal-name`}
             placeholder={t("crm.customerForm.legalNamePlaceholder")}
+            {...buildOperationalAutofillProps(`${autofillSection} organization`)}
             {...register("legalName")}
           />
         </Field>
@@ -312,6 +321,7 @@ function CustomerFormFields({
             id={`${idPrefix}-customer-email`}
             type="email"
             placeholder={t("crm.customerForm.emailPlaceholder")}
+            {...buildOperationalAutofillProps(`${autofillSection} email`)}
             {...register("email")}
           />
         </Field>
@@ -324,6 +334,7 @@ function CustomerFormFields({
           <Input
             id={`${idPrefix}-customer-whatsapp`}
             placeholder={t("crm.customerForm.whatsappPlaceholder")}
+            {...buildOperationalAutofillProps(`${autofillSection} tel`)}
             {...register("whatsapp")}
           />
         </Field>
@@ -338,6 +349,7 @@ function CustomerFormFields({
           <Input
             id={`${idPrefix}-customer-phone`}
             placeholder={t("crm.customerForm.phonePlaceholder")}
+            {...buildOperationalAutofillProps(`${autofillSection} tel-national`)}
             {...register("phone")}
           />
         </Field>
@@ -350,6 +362,7 @@ function CustomerFormFields({
           <Input
             id={`${idPrefix}-customer-document`}
             placeholder={t("crm.customerForm.documentIdPlaceholder")}
+            {...buildOperationalAutofillProps("off")}
             {...register("documentId")}
           />
         </Field>
@@ -361,7 +374,11 @@ function CustomerFormFields({
           error={errors.source?.message}
           htmlFor={`${idPrefix}-customer-source`}
         >
-          <Select id={`${idPrefix}-customer-source`} {...register("source")}>
+          <Select
+            id={`${idPrefix}-customer-source`}
+            {...buildOperationalAutofillProps("off")}
+            {...register("source")}
+          >
             {customerSourceValues.map((source) => (
               <option key={source} value={source}>
                 {t(getSourceTranslationKey(source))}
@@ -375,7 +392,11 @@ function CustomerFormFields({
           error={errors.status?.message}
           htmlFor={`${idPrefix}-customer-status`}
         >
-          <Select id={`${idPrefix}-customer-status`} {...register("status")}>
+          <Select
+            id={`${idPrefix}-customer-status`}
+            {...buildOperationalAutofillProps("off")}
+            {...register("status")}
+          >
             {customerStatusValues.map((status) => (
               <option key={status} value={status}>
                 {t(`crm.recent.customerStatus.${status}`)}
@@ -393,6 +414,7 @@ function CustomerFormFields({
         <Textarea
           id={`${idPrefix}-customer-notes`}
           placeholder={t("crm.customerForm.notesPlaceholder")}
+          {...buildOperationalAutofillProps("off")}
           {...register("notes")}
         />
       </Field>

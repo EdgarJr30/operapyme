@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 
 import { useBackofficeAuth } from "@/app/auth-provider";
+import { AppLoadingScreen } from "@/components/layout/app-loading-screen";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/lib/supabase/client";
 import { UnconfiguredPage } from "@/modules/auth/unconfigured-page";
@@ -85,8 +86,13 @@ function readAuthCallbackPayload(rawUrl: string): AuthCallbackPayload {
 
 export function AuthCallbackPage() {
   const { t } = useTranslation("backoffice");
-  const { isBootstrapped, isConfigured, refreshAccessContext, status } =
-    useBackofficeAuth();
+  const {
+    isAccessContextLoading,
+    isBootstrapped,
+    isConfigured,
+    refreshAccessContext,
+    status
+  } = useBackofficeAuth();
   const [callbackError, setCallbackError] = useState<string | null>(null);
   const callbackPayload = useMemo(() => {
     if (typeof window === "undefined") {
@@ -154,6 +160,10 @@ export function AuthCallbackPage() {
     return <UnconfiguredPage />;
   }
 
+  if (status === "loading" || (status === "signed_in" && isAccessContextLoading)) {
+    return <AppLoadingScreen variant="setup" />;
+  }
+
   if (status === "signed_in") {
     return <Navigate to={isBootstrapped ? "/" : "/setup"} replace />;
   }
@@ -163,16 +173,16 @@ export function AuthCallbackPage() {
   }
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-3xl items-center px-4 py-12 sm:px-6">
+    <div className="mx-auto flex min-h-screen max-w-3xl items-center px-4 py-10 sm:px-6">
       <Card className="w-full">
-        <CardContent className="space-y-4 p-6 sm:p-8">
+        <CardContent className="space-y-4 p-5 sm:p-6">
           <p className="text-xs uppercase tracking-[0.24em] text-ink-muted">
             {t("auth.callback.eyebrow")}
           </p>
-          <h1 className="text-3xl font-semibold tracking-tight text-ink">
+          <h1 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
             {t("auth.callback.title")}
           </h1>
-          <p className="text-sm leading-7 text-ink-soft">
+          <p className="text-sm leading-6 text-ink-soft">
             {callbackError ||
               (callbackPayload.kind === "missing"
                 ? t("auth.callback.errorMissing")

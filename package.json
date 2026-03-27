@@ -17,6 +17,7 @@
   "scripts": {
     "dev:backoffice": "npm run dev --workspace @operapyme/backoffice-pwa --",
     "build:backoffice": "npm run build --workspace @operapyme/backoffice-pwa",
+    "check:backoffice-bundle": "node tools/performance/check-backoffice-bundle.mjs",
     "typecheck:backoffice": "npm run typecheck --workspace @operapyme/backoffice-pwa",
     "test": "npm run test:unit && npm run test:integration && npm run test:contract",
     "test:unit": "vitest run tests/unit",
@@ -24,7 +25,7 @@
     "test:contract": "vitest run tests/contract",
     "test:e2e": "playwright test",
     "test:e2e:smoke": "playwright test tests/e2e/smoke.spec.ts",
-    "verify": "npm run typecheck:backoffice && npm run build:backoffice && npm run test && npm run test:e2e:smoke"
+    "verify": "npm run typecheck:backoffice && npm run build:backoffice && npm run check:backoffice-bundle && npm run test && npm run test:e2e:smoke"
   },
   "devDependencies": {
     "@playwright/test": "^1.54.2",

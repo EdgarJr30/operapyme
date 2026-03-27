@@ -42,6 +42,7 @@ interface BackofficeAuthContextValue {
   accessContext: BackofficeAccessContext | null;
   activeTenantId: string | null;
   isBootstrapped: boolean;
+  isAccessContextLoading: boolean;
   isConfigured: boolean;
   signInWithOtp: (email: string) => Promise<string | null>;
   signOut: () => Promise<string | null>;
@@ -51,6 +52,14 @@ interface BackofficeAuthContextValue {
 
 export const BackofficeAuthContext =
   createContext<BackofficeAuthContextValue | null>(null);
+
+interface AccessContextRequestState {
+  userId: string;
+  promise: Promise<BackofficeAccessContext>;
+}
+
+let accessContextRequestState: AccessContextRequestState | null = null;
+let accessContextRequestVersion = 0;
 
 function readStoredTenantId() {
   if (typeof window === "undefined") {
@@ -163,6 +172,50 @@ function parseAccessContext(raw: unknown): BackofficeAccessContext {
   };
 }
 
+function clearAccessContextRequestState() {
+  accessContextRequestState = null;
+}
+
+async function loadAccessContextForUser(
+  userId: string,
+  force = false
+) {
+  if (!supabase) {
+    return createEmptyBackofficeAccessContext();
+  }
+
+  if (
+    !force &&
+    accessContextRequestState &&
+    accessContextRequestState.userId === userId
+  ) {
+    return accessContextRequestState.promise;
+  }
+
+  const requestVersion = ++accessContextRequestVersion;
+  const request = Promise.resolve(supabase.rpc("get_my_access_context"))
+    .then(({ data, error }) => {
+      if (error) {
+        console.error("Failed to load access context.", error);
+        return createEmptyBackofficeAccessContext();
+      }
+
+      return parseAccessContext(data);
+    })
+    .finally(() => {
+      if (accessContextRequestVersion === requestVersion) {
+        clearAccessContextRequestState();
+      }
+    });
+
+  accessContextRequestState = {
+    userId,
+    promise: request
+  };
+
+  return request;
+}
+
 export function BackofficeAuthProvider({ children }: PropsWithChildren) {
   const [status, setStatus] = useState<BackofficeAuthStatus>(
     isSupabaseConfigured ? "loading" : "unconfigured"
@@ -171,29 +224,33 @@ export function BackofficeAuthProvider({ children }: PropsWithChildren) {
   const [user, setUser] = useState<User | null>(null);
   const [accessContext, setAccessContext] =
     useState<BackofficeAccessContext | null>(null);
+  const [isAccessContextLoading, setIsAccessContextLoading] = useState(
+    isSupabaseConfigured
+  );
   const [activeTenantId, setActiveTenantIdState] = useState<string | null>(() =>
     readStoredTenantId()
   );
 
   const refreshAccessContext = useCallback(async () => {
-    if (!supabase) {
-      return;
-    }
-
-    const { data, error } = await supabase.rpc("get_my_access_context");
-
-    if (error) {
-      console.error("Failed to load access context.", error);
+    if (!supabase || !user?.id) {
       startTransition(() => {
-        setAccessContext(createEmptyBackofficeAccessContext());
+        setAccessContext(null);
+        setIsAccessContextLoading(false);
       });
       return;
     }
 
     startTransition(() => {
-      setAccessContext(parseAccessContext(data));
+      setIsAccessContextLoading(true);
     });
-  }, []);
+
+    const nextAccessContext = await loadAccessContextForUser(user.id, true);
+
+    startTransition(() => {
+      setAccessContext(nextAccessContext);
+      setIsAccessContextLoading(false);
+    });
+  }, [user?.id]);
 
   useEffect(() => {
     if (!supabase) {
@@ -202,43 +259,12 @@ export function BackofficeAuthProvider({ children }: PropsWithChildren) {
         setSession(null);
         setUser(null);
         setAccessContext(null);
+        setIsAccessContextLoading(false);
       });
       return;
     }
 
     const supabaseClient = supabase;
-    let isMounted = true;
-
-    async function hydrateSession() {
-      const { data, error } = await supabaseClient.auth.getSession();
-
-      if (!isMounted) {
-        return;
-      }
-
-      if (error) {
-        console.error("Failed to hydrate Supabase session.", error);
-      }
-
-      const nextSession = data.session;
-
-      startTransition(() => {
-        setSession(nextSession);
-        setUser(nextSession?.user ?? null);
-        setStatus(nextSession ? "signed_in" : "signed_out");
-      });
-
-      if (nextSession) {
-        await refreshAccessContext();
-      } else {
-        startTransition(() => {
-          setAccessContext(null);
-          setActiveTenantIdState(null);
-        });
-      }
-    }
-
-    void hydrateSession();
 
     const {
       data: { subscription }
@@ -249,22 +275,56 @@ export function BackofficeAuthProvider({ children }: PropsWithChildren) {
         setStatus(nextSession ? "signed_in" : "signed_out");
       });
 
-      if (nextSession) {
-        void refreshAccessContext();
-      } else {
+      if (!nextSession) {
+        clearAccessContextRequestState();
         startTransition(() => {
           setAccessContext(null);
           setActiveTenantIdState(null);
+          setIsAccessContextLoading(false);
         });
         writeStoredTenantId(null);
       }
     });
 
     return () => {
-      isMounted = false;
       subscription.unsubscribe();
     };
   }, []);
+
+  useEffect(() => {
+    if (!supabase || status === "loading") {
+      return;
+    }
+
+    if (!user?.id) {
+      startTransition(() => {
+        setAccessContext(null);
+        setIsAccessContextLoading(false);
+      });
+      return;
+    }
+
+    let isActive = true;
+
+    startTransition(() => {
+      setIsAccessContextLoading(true);
+    });
+
+    void loadAccessContextForUser(user.id).then((nextAccessContext) => {
+      if (!isActive) {
+        return;
+      }
+
+      startTransition(() => {
+        setAccessContext(nextAccessContext);
+        setIsAccessContextLoading(false);
+      });
+    });
+
+    return () => {
+      isActive = false;
+    };
+  }, [status, user?.id]);
 
   useEffect(() => {
     const primaryTenant = getPrimaryTenantMembership(accessContext, activeTenantId);
@@ -326,6 +386,7 @@ export function BackofficeAuthProvider({ children }: PropsWithChildren) {
       accessContext,
       activeTenantId,
       isBootstrapped: hasBootstrappedTenant(accessContext),
+      isAccessContextLoading,
       isConfigured: isSupabaseConfigured,
       signInWithOtp,
       signOut,
@@ -338,6 +399,7 @@ export function BackofficeAuthProvider({ children }: PropsWithChildren) {
       user,
       accessContext,
       activeTenantId,
+      isAccessContextLoading,
       signInWithOtp,
       signOut,
       refreshAccessContext,

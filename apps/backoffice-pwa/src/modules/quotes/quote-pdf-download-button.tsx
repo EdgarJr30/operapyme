@@ -1,7 +1,6 @@
-import { useMemo, useState } from "react";
+import { type ComponentType, useMemo, useState } from "react";
 
 import { Download } from "lucide-react";
-import { pdf } from "@react-pdf/renderer";
 
 import { getPrimaryTenantMembership } from "@operapyme/domain";
 import { useTranslation } from "@operapyme/i18n";
@@ -11,7 +10,32 @@ import { toast } from "sonner";
 import { useBackofficeAuth } from "@/app/auth-provider";
 import { Button, type ButtonProps } from "@/components/ui/button";
 import { getQuoteDetail } from "@/lib/supabase/backoffice-data";
-import { QuotePdfDocument } from "@/modules/quotes/quote-pdf-document";
+import type { QuotePdfDocumentProps } from "@/modules/quotes/quote-pdf-document";
+
+interface QuotePdfRuntime {
+  pdf: typeof import("@react-pdf/renderer").pdf;
+  QuotePdfDocument: ComponentType<QuotePdfDocumentProps>;
+}
+
+let quotePdfRuntimePromise: Promise<QuotePdfRuntime> | null = null;
+
+function loadQuotePdfRuntime() {
+  if (!quotePdfRuntimePromise) {
+    quotePdfRuntimePromise = Promise.all([
+      import("@react-pdf/renderer"),
+      import("@/modules/quotes/quote-pdf-document")
+    ]).then(([{ pdf }, { QuotePdfDocument }]) => ({
+      pdf,
+      QuotePdfDocument
+    }));
+  }
+
+  return quotePdfRuntimePromise;
+}
+
+function warmQuotePdfRuntime() {
+  void loadQuotePdfRuntime();
+}
 
 export function QuotePdfDownloadButton({
   quoteId,
@@ -48,6 +72,7 @@ export function QuotePdfDownloadButton({
 
     try {
       const quote = await getQuoteDetail(activeTenantId, quoteId);
+      const { pdf, QuotePdfDocument } = await loadQuotePdfRuntime();
       const blob = await pdf(
         <QuotePdfDocument
           generatedAt={new Date().toISOString()}
@@ -75,9 +100,11 @@ export function QuotePdfDownloadButton({
     <Button
       type="button"
       variant={variant}
+      onFocus={warmQuotePdfRuntime}
       onClick={() => {
         void handleDownload();
       }}
+      onPointerEnter={warmQuotePdfRuntime}
       disabled={isGenerating}
     >
       <Download className="size-4" aria-hidden="true" />

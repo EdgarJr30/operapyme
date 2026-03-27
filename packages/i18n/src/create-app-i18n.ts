@@ -1,6 +1,5 @@
 import LanguageDetector from "i18next-browser-languagedetector";
 import { createInstance } from "i18next";
-import ICU from "i18next-icu";
 import { initReactI18next } from "react-i18next";
 
 import {
@@ -33,7 +32,6 @@ export function createAppI18n({
   const instance = createInstance();
   const resources = buildBundledResources(namespaces);
 
-  instance.use(ICU);
   instance.use(LanguageDetector);
   instance.use(initReactI18next);
 
@@ -50,7 +48,9 @@ export function createAppI18n({
     initImmediate: false,
     returnNull: false,
     interpolation: {
-      escapeValue: false
+      escapeValue: false,
+      prefix: "{",
+      suffix: "}"
     },
     detection: {
       order: ["querystring", "localStorage"],

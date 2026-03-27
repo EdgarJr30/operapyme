@@ -1,4 +1,5 @@
 import React from "react";
+import "@testing-library/jest-dom/vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
@@ -86,6 +87,35 @@ describe("catalog operations panel", () => {
         name: "Kit de instalacion premium",
         category: "Servicios de campo",
         unitPrice: 1890
+      })
+    );
+  });
+
+  it("uses whole-number spinner steps while keeping manual decimal entry for base price", async () => {
+    const mutationState = buildMutationState();
+    catalogMutationMocks.useCatalogMutations.mockReturnValue(mutationState);
+    const user = userEvent.setup();
+
+    renderPanel();
+
+    const createPriceInput = screen.getAllByLabelText(/Precio base/i)[0];
+
+    expect(createPriceInput).toHaveAttribute("step", "1");
+
+    await user.type(
+      screen.getAllByLabelText(/Nombre visible/i)[0],
+      "Servicio con decimal"
+    );
+    await user.type(screen.getAllByLabelText(/Categoria/i)[0], "Servicios");
+    await user.clear(createPriceInput);
+    await user.type(createPriceInput, "0.03");
+    await user.click(screen.getByRole("button", { name: /Guardar item/i }));
+
+    expect(
+      mutationState.createCatalogItemMutation.mutateAsync
+    ).toHaveBeenCalledWith(
+      expect.objectContaining({
+        unitPrice: 0.03
       })
     );
   });

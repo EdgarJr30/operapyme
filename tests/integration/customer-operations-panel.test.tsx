@@ -109,4 +109,32 @@ describe("customer operations panel", () => {
       })
     );
   });
+
+  it("scopes customer forms away from auth autofill overlays", () => {
+    const mutationState = buildMutationState();
+    customerMutationMocks.useCustomerMutations.mockReturnValue(mutationState);
+
+    const { container } = renderPanel();
+
+    const createDisplayNameInput =
+      container.querySelector<HTMLInputElement>("#create-customer-display-name");
+    const createCustomerCodeInput =
+      container.querySelector<HTMLInputElement>("#create-customer-code");
+    const customerRecordSelect =
+      container.querySelector<HTMLSelectElement>("#customer-record");
+    const updateEmailInput =
+      container.querySelector<HTMLInputElement>("#update-customer-email");
+
+    expect(createDisplayNameInput).toHaveAttribute(
+      "autocomplete",
+      "section-create-customer organization"
+    );
+    expect(createDisplayNameInput).toHaveAttribute("data-1p-ignore", "true");
+    expect(createCustomerCodeInput).toHaveAttribute("autocomplete", "off");
+    expect(customerRecordSelect).toHaveAttribute("autocomplete", "off");
+    expect(updateEmailInput).toHaveAttribute(
+      "autocomplete",
+      "section-update-customer email"
+    );
+  });
 });

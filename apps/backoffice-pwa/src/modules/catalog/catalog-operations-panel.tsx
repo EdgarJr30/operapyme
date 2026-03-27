@@ -417,8 +417,9 @@ function CatalogItemFormFields({
         <Input
           id={`${idPrefix}-catalog-price`}
           type="number"
-          step="0.01"
+          step="1"
           min="0"
+          inputMode="decimal"
           placeholder={t("catalog.form.unitPricePlaceholder")}
           disabled={pricingMode === "on_request"}
           {...register("unitPrice", {
