@@ -46,6 +46,7 @@ La interfaz debe sentirse:
 - usar navbar superior fija con breadcrumbs, busqueda corta y acciones globales de alto valor
 - dejar notificaciones, cambio de tema y menu de usuario en la barra superior, no escondidos dentro del contenido
 - en desktop, el sidebar puede ser mas utilitario y denso si mejora orientacion y velocidad de acceso
+- el sidebar desktop puede usar una superficie contrastada y compacta siempre que conserve legibilidad, tenant visible y estado colapsado opcional
 - evitar sidebars convertidos en cards gigantes o en una composicion demasiado editorial cuando la tarea principal es operar
 - en movil, la navegacion inferior debe limitarse a los modulos mas usados y el resto vivir en un drawer o menu extendido
 - el cambio de tenant debe sentirse visible y cercano, porque afecta permisos y datos en toda la sesion

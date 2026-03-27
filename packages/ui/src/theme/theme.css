@@ -26,6 +26,11 @@
   --color-brand-hover: var(--vf-active-brand-hover);
   --color-brand-soft: var(--vf-active-brand-soft);
   --color-brand-contrast: var(--vf-active-brand-contrast);
+  --color-sidebar-surface: var(--vf-active-sidebar-surface);
+  --color-sidebar-elevated: var(--vf-active-sidebar-elevated);
+  --color-sidebar-border: var(--vf-active-sidebar-border);
+  --color-sidebar-text: var(--vf-active-sidebar-text);
+  --color-sidebar-muted: var(--vf-active-sidebar-muted);
 
   --shadow-soft: var(--vf-active-shadow-soft);
   --shadow-panel: var(--vf-active-shadow-panel);
@@ -55,6 +60,11 @@
   --vf-light-brand-hover: #88b4a1;
   --vf-light-brand-soft: var(--vf-light-primary-200);
   --vf-light-brand-contrast: var(--vf-light-ink);
+  --vf-light-sidebar-surface: #101827;
+  --vf-light-sidebar-elevated: #172235;
+  --vf-light-sidebar-border: #26334a;
+  --vf-light-sidebar-text: #f5f7fb;
+  --vf-light-sidebar-muted: #9cabbe;
   --vf-light-app-background:
     radial-gradient(circle at top left, rgba(214, 228, 243, 0.62), transparent 32%),
     radial-gradient(circle at top right, rgba(207, 227, 216, 0.72), transparent 28%),
@@ -84,6 +94,11 @@
   --vf-dark-brand-hover: #97c8b1;
   --vf-dark-brand-soft: var(--vf-dark-primary-200);
   --vf-dark-brand-contrast: var(--vf-dark-ink);
+  --vf-dark-sidebar-surface: #0a1220;
+  --vf-dark-sidebar-elevated: #111c2d;
+  --vf-dark-sidebar-border: #223147;
+  --vf-dark-sidebar-text: #f3f6fb;
+  --vf-dark-sidebar-muted: #97a7bc;
   --vf-dark-app-background:
     radial-gradient(circle at top left, rgba(40, 71, 93, 0.42), transparent 32%),
     radial-gradient(circle at top right, rgba(53, 83, 70, 0.46), transparent 28%),
@@ -117,6 +132,11 @@
   --vf-active-brand-hover: var(--vf-light-brand-hover);
   --vf-active-brand-soft: var(--vf-light-brand-soft);
   --vf-active-brand-contrast: var(--vf-light-brand-contrast);
+  --vf-active-sidebar-surface: var(--vf-light-sidebar-surface);
+  --vf-active-sidebar-elevated: var(--vf-light-sidebar-elevated);
+  --vf-active-sidebar-border: var(--vf-light-sidebar-border);
+  --vf-active-sidebar-text: var(--vf-light-sidebar-text);
+  --vf-active-sidebar-muted: var(--vf-light-sidebar-muted);
   --vf-active-app-background: var(--vf-light-app-background);
   --vf-active-hero-background: var(--vf-light-hero-background);
   --vf-active-shadow-soft: var(--vf-shadow-soft);
@@ -149,6 +169,11 @@
   --vf-active-brand-hover: var(--vf-dark-brand-hover);
   --vf-active-brand-soft: var(--vf-dark-brand-soft);
   --vf-active-brand-contrast: var(--vf-dark-brand-contrast);
+  --vf-active-sidebar-surface: var(--vf-dark-sidebar-surface);
+  --vf-active-sidebar-elevated: var(--vf-dark-sidebar-elevated);
+  --vf-active-sidebar-border: var(--vf-dark-sidebar-border);
+  --vf-active-sidebar-text: var(--vf-dark-sidebar-text);
+  --vf-active-sidebar-muted: var(--vf-dark-sidebar-muted);
   --vf-active-app-background: var(--vf-dark-app-background);
   --vf-active-hero-background: var(--vf-dark-hero-background);
   --vf-active-shadow-soft: var(--vf-shadow-soft-dark);

@@ -44,9 +44,9 @@ El `service role key` no vive aqui.
 
 ## Shell y navegacion
 
-- desktop: sidebar utilitario con grupos de modulos, cambio de tenant visible y acceso rapido a cerrar sesion
+- desktop: sidebar contrastado y compacto con estado expandido/colapsado, cambio de tenant visible y acceso rapido a cerrar sesion
 - header: breadcrumbs, busqueda corta, notificaciones operativas, toggle de tema y menu de usuario
-- mobile: tab bar inferior para `Inicio`, `CRM` y `Cotizaciones`, con el resto en un drawer
+- mobile: tab bar inferior para `Inicio`, `CRM` y `Cotizaciones`, con el resto en un drawer lateral mas directo y consistente con el sidebar desktop
 - `Catalogo` vive en el menu extendido para priorizar captura y seguimiento comercial rapido en movil
 - todo el copy del shell sigue saliendo desde `@operapyme/i18n`
 

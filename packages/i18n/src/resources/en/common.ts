@@ -77,6 +77,8 @@ const commonEn = {
     mobileNavigationLabel: "Mobile navigation",
     mobileMenuLabel: "Open main menu",
     closeMenuLabel: "Close main menu",
+    collapseSidebarLabel: "Collapse sidebar",
+    expandSidebarLabel: "Expand sidebar",
     breadcrumbsLabel: "Current route",
     searchLabel: "Search the workspace",
     searchPlaceholder: "Search module or action",

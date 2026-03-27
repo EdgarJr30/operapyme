@@ -2,9 +2,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
   Bell,
+  ChevronLeft,
   ChevronDown,
   ChevronRight,
-  CirclePlus,
   FileText,
   House,
   LogOut,
@@ -13,7 +13,6 @@ import {
   Search,
   Settings2,
   ShieldCheck,
-  Store,
   UsersRound,
   X
 } from "lucide-react";
@@ -64,6 +63,11 @@ interface RouteMeta {
   labelKey: string;
   descriptionKey: string;
 }
+
+const SIDEBAR_COLLAPSED_STORAGE_KEY =
+  "operapyme:backoffice-sidebar-collapsed:v1";
+const DESKTOP_SIDEBAR_EXPANDED_WIDTH = 288;
+const DESKTOP_SIDEBAR_COLLAPSED_WIDTH = 96;
 
 const businessNavItems: ShellNavItem[] = [
   {
@@ -224,6 +228,16 @@ function getBottomTabItems(navItems: ShellNavItem[]) {
   return navItems.filter((item) => bottomKeys.includes(item.key));
 }
 
+function getInitialSidebarCollapsed() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return (
+    window.localStorage.getItem(SIDEBAR_COLLAPSED_STORAGE_KEY) === "1"
+  );
+}
+
 function getRoleLabel(
   isGlobalAdmin: boolean | undefined,
   tenantRoleKeys: string[] | undefined,
@@ -246,9 +260,13 @@ function SidebarContent({
   activeTenantName,
   businessRoleLabel,
   memberships,
+  isCollapsed,
+  mode,
   onTenantChange,
   onNavigate,
+  onToggleSidebar,
   onSignOut,
+  userLabel,
   t
 }: {
   sections: SidebarSection[];
@@ -256,49 +274,111 @@ function SidebarContent({
   activeTenantName: string;
   businessRoleLabel: string;
   memberships: Array<{ tenantId: string; tenantName: string }>;
+  isCollapsed: boolean;
+  mode: "desktop" | "mobile";
   onTenantChange: (tenantId: string) => void;
   onNavigate: () => void;
+  onToggleSidebar: () => void;
   onSignOut: () => void;
+  userLabel: string;
   t: (key: string) => string;
 }) {
+  const isDesktop = mode === "desktop";
+  const showCollapsedLabels = isDesktop && isCollapsed;
+  const showTenantSwitcher = memberships.length > 1 && !showCollapsedLabels;
+  const footerYear = new Date().getFullYear();
+
   return (
-    <div className="flex h-full flex-col bg-paper">
-      <div className="px-5 pb-5 pt-6">
-        <div className="flex items-center gap-3">
-          <div className="flex size-11 items-center justify-center rounded-2xl bg-brand text-brand-contrast shadow-panel">
-            <Store className="size-5" aria-hidden="true" />
+    <div className="flex h-full flex-col bg-sidebar-surface text-sidebar-text">
+      <div className="border-b border-sidebar-border px-4 pb-4 pt-5">
+        <div className="flex items-start gap-3">
+          <div className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-sidebar-border bg-sidebar-elevated shadow-panel">
+            <img
+              src="/pwa-icon.svg"
+              alt={t("shell.productName")}
+              className="size-8"
+            />
           </div>
-          <div className="min-w-0">
-            <p className="truncate text-2xl font-semibold tracking-tight text-ink">
-              {t("shell.productName")}
-            </p>
-            <p className="truncate text-sm text-ink-soft">{t("shell.badge")}</p>
+          <div className="min-w-0 flex-1">
+            {!showCollapsedLabels ? (
+              <>
+                <p className="truncate text-base font-semibold tracking-tight text-sidebar-text">
+                  {t("shell.productName")}
+                </p>
+                <p className="truncate text-sm text-sidebar-muted">
+                  {activeTenantName}
+                </p>
+              </>
+            ) : (
+              <span className="sr-only">{t("shell.productName")}</span>
+            )}
           </div>
+          <button
+            type="button"
+            onClick={onToggleSidebar}
+            className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl border border-sidebar-border bg-sidebar-elevated text-sidebar-text transition hover:bg-sidebar-border"
+            aria-label={
+              isDesktop
+                ? isCollapsed
+                  ? t("shell.expandSidebarLabel")
+                  : t("shell.collapseSidebarLabel")
+                : t("shell.closeMenuLabel")
+            }
+            title={
+              isDesktop
+                ? isCollapsed
+                  ? t("shell.expandSidebarLabel")
+                  : t("shell.collapseSidebarLabel")
+                : t("shell.closeMenuLabel")
+            }
+          >
+            {isDesktop ? (
+              isCollapsed ? (
+                <ChevronRight className="size-4.5" aria-hidden="true" />
+              ) : (
+                <ChevronLeft className="size-4.5" aria-hidden="true" />
+              )
+            ) : (
+              <X className="size-4.5" aria-hidden="true" />
+            )}
+          </button>
         </div>
 
-        <div className="mt-8 flex items-center gap-3">
-          <div className="flex size-12 items-center justify-center rounded-full bg-sand text-sm font-semibold text-ink">
-            {getInitials(activeTenantName)}
-          </div>
-          <div className="min-w-0">
-            <p className="truncate text-base font-semibold text-ink">
-              {activeTenantName}
+        {!showCollapsedLabels ? (
+          <div className="mt-4 rounded-2xl border border-sidebar-border bg-sidebar-elevated px-3 py-3">
+            <p className="truncate text-xs font-semibold uppercase tracking-[0.18em] text-sidebar-muted">
+              {t("shell.tenantLabel")}
             </p>
-            <p className="truncate text-sm text-ink-soft">{businessRoleLabel}</p>
+            <div className="mt-3 flex items-center gap-3">
+              <div className="flex size-10 items-center justify-center rounded-full bg-brand text-xs font-semibold text-brand-contrast">
+                {getInitials(activeTenantName)}
+              </div>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold text-sidebar-text">
+                  {activeTenantName}
+                </p>
+                <p className="truncate text-xs text-sidebar-muted">
+                  {businessRoleLabel}
+                </p>
+              </div>
+            </div>
           </div>
-        </div>
+        ) : null}
 
-        <div className="mt-6 border-t border-line/70 pt-5">
+        {showTenantSwitcher ? (
           <label
             htmlFor="tenant-switcher-sidebar"
-            className="text-xs font-semibold uppercase tracking-[0.22em] text-ink-muted"
+            className="mt-4 block text-xs font-semibold uppercase tracking-[0.18em] text-sidebar-muted"
           >
             {t("shell.tenantSwitcherLabel")}
           </label>
+        ) : null}
+
+        {showTenantSwitcher ? (
           <Select
             id="tenant-switcher-sidebar"
             value={activeTenantId}
-            className="mt-2 h-11 rounded-xl border-line/70 bg-paper text-sm"
+            className="mt-2 h-11 rounded-xl border-sidebar-border bg-sidebar-elevated text-sm text-sidebar-text"
             onChange={(event) => onTenantChange(event.target.value)}
           >
             {memberships.map((membership) => (
@@ -307,16 +387,23 @@ function SidebarContent({
               </option>
             ))}
           </Select>
-        </div>
+        ) : null}
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-3 pb-4">
-        {sections.map((section) => (
-          <div key={section.labelKey} className="mt-5 first:mt-0">
-            <p className="px-2 text-xs font-semibold uppercase tracking-[0.22em] text-ink-muted">
-              {t(section.labelKey)}
-            </p>
-            <div className="mt-3 space-y-1.5">
+      <nav
+        aria-label={t("shell.primaryNavigationLabel")}
+        className="flex-1 overflow-y-auto px-3 py-4"
+      >
+        {sections.map((section, sectionIndex) => (
+          <div
+            key={section.labelKey}
+            className={cn(
+              sectionIndex === 0
+                ? ""
+                : "mt-4 border-t border-sidebar-border pt-4"
+            )}
+          >
+            <div className="space-y-1">
               {section.items.map(({ to, key, icon: Icon }) => (
                 <NavLink
                   key={to}
@@ -325,17 +412,32 @@ function SidebarContent({
                   onClick={onNavigate}
                   className={({ isActive }) =>
                     cn(
-                      "group flex min-h-11 items-center gap-3 rounded-xl border-l-4 px-3 py-2.5 text-[15px] font-medium transition",
+                      "group relative flex min-h-11 items-center rounded-xl px-3 py-2.5 text-[15px] font-medium transition",
+                      showCollapsedLabels
+                        ? "justify-center px-2"
+                        : "gap-3",
                       isActive
-                        ? "border-brand bg-butter-200/70 text-ink"
-                        : "border-transparent text-ink-soft hover:bg-sand/70 hover:text-ink"
+                        ? "bg-brand text-brand-contrast shadow-panel"
+                        : "text-sidebar-text hover:bg-sidebar-elevated"
                     )
                   }
+                  aria-label={t(`navigation.${key}`)}
+                  title={showCollapsedLabels ? t(`navigation.${key}`) : undefined}
                 >
-                  <span className="flex size-9 shrink-0 items-center justify-center rounded-lg text-ink-soft transition group-hover:bg-paper group-hover:text-ink">
+                  <span
+                    className={cn(
+                      "flex size-9 shrink-0 items-center justify-center rounded-lg transition",
+                      showCollapsedLabels ? "" : "group-hover:bg-sidebar-border/60",
+                      "text-sidebar-muted group-hover:text-sidebar-text"
+                    )}
+                  >
                     <Icon className="size-4.5" aria-hidden="true" />
                   </span>
-                  <span>{t(`navigation.${key}`)}</span>
+                  {!showCollapsedLabels ? (
+                    <span className="truncate">{t(`navigation.${key}`)}</span>
+                  ) : (
+                    <span className="sr-only">{t(`navigation.${key}`)}</span>
+                  )}
                 </NavLink>
               ))}
             </div>
@@ -343,15 +445,54 @@ function SidebarContent({
         ))}
       </nav>
 
-      <div className="border-t border-line/70 px-3 py-4">
+      <div className="border-t border-sidebar-border px-3 py-4">
+        <div
+          className={cn(
+            "flex items-center",
+            showCollapsedLabels ? "justify-center" : "gap-3"
+          )}
+          title={showCollapsedLabels ? userLabel : undefined}
+        >
+          <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-brand text-[11px] font-semibold text-brand-contrast">
+            {getInitials(userLabel)}
+          </div>
+          {!showCollapsedLabels ? (
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-sidebar-text">
+                {userLabel}
+              </p>
+              <p className="truncate text-xs text-sidebar-muted">
+                {businessRoleLabel}
+              </p>
+            </div>
+          ) : (
+            <span className="sr-only">{userLabel}</span>
+          )}
+        </div>
+
         <button
           type="button"
           onClick={onSignOut}
-          className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[15px] font-medium text-red-600 transition hover:bg-red-50"
+          className={cn(
+            "mt-4 flex min-h-11 w-full items-center rounded-xl px-3 py-2.5 text-left text-[15px] font-medium text-red-400 transition hover:bg-red-500/10 hover:text-red-300",
+            showCollapsedLabels ? "justify-center px-2" : "gap-3"
+          )}
+          aria-label={t("shell.signOut")}
+          title={showCollapsedLabels ? t("shell.signOut") : undefined}
         >
           <LogOut className="size-4.5" aria-hidden="true" />
-          <span>{t("shell.signOut")}</span>
+          {!showCollapsedLabels ? (
+            <span>{t("shell.signOut")}</span>
+          ) : (
+            <span className="sr-only">{t("shell.signOut")}</span>
+          )}
         </button>
+
+        {!showCollapsedLabels ? (
+          <p className="mt-4 text-xs leading-5 text-sidebar-muted">
+            {footerYear} {t("shell.productName")} · {t("shell.badge")}
+          </p>
+        ) : null}
       </div>
     </div>
   );
@@ -368,6 +509,9 @@ export function AppShell() {
     user
   } = useBackofficeAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isDesktopSidebarCollapsed, setIsDesktopSidebarCollapsed] = useState(
+    getInitialSidebarCollapsed
+  );
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const activeTenantMembership = getPrimaryTenantMembership(
@@ -470,6 +614,13 @@ export function AppShell() {
     };
   }, [isSidebarOpen]);
 
+  useEffect(() => {
+    window.localStorage.setItem(
+      SIDEBAR_COLLAPSED_STORAGE_KEY,
+      isDesktopSidebarCollapsed ? "1" : "0"
+    );
+  }, [isDesktopSidebarCollapsed]);
+
   const handleSignOut = () => {
     void signOut();
   };
@@ -490,29 +641,25 @@ export function AppShell() {
               exit="exit"
             />
             <motion.div
-              className="relative h-full w-full max-w-xs shadow-soft"
+              className="relative h-full w-full max-w-[17.5rem] shadow-soft"
               variants={slideOverVariants}
               initial="initial"
               animate="animate"
               exit="exit"
             >
-              <button
-                type="button"
-                onClick={() => setIsSidebarOpen(false)}
-                className="absolute right-3 top-3 z-10 inline-flex size-10 items-center justify-center rounded-xl border border-line/70 bg-paper text-ink shadow-panel"
-                aria-label={t("shell.closeMenuLabel")}
-              >
-                <X className="size-5" aria-hidden="true" />
-              </button>
               <SidebarContent
                 sections={sections}
                 activeTenantId={activeTenantMembership?.tenantId ?? ""}
                 activeTenantName={activeTenantName}
                 businessRoleLabel={businessRoleLabel}
                 memberships={memberships}
+                isCollapsed={false}
+                mode="mobile"
                 onTenantChange={setActiveTenantId}
                 onNavigate={() => setIsSidebarOpen(false)}
+                onToggleSidebar={() => setIsSidebarOpen(false)}
                 onSignOut={handleSignOut}
+                userLabel={userLabel}
                 t={t}
               />
             </motion.div>
@@ -521,19 +668,34 @@ export function AppShell() {
       </AnimatePresence>
 
       <div className="flex min-h-screen">
-        <aside className="hidden w-72 shrink-0 border-r border-line/70 bg-paper lg:block">
+        <motion.aside
+          className="hidden shrink-0 lg:block"
+          animate={{
+            width: isDesktopSidebarCollapsed
+              ? DESKTOP_SIDEBAR_COLLAPSED_WIDTH
+              : DESKTOP_SIDEBAR_EXPANDED_WIDTH
+          }}
+          initial={false}
+          transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+        >
           <SidebarContent
             sections={sections}
             activeTenantId={activeTenantMembership?.tenantId ?? ""}
             activeTenantName={activeTenantName}
             businessRoleLabel={businessRoleLabel}
             memberships={memberships}
+            isCollapsed={isDesktopSidebarCollapsed}
+            mode="desktop"
             onTenantChange={setActiveTenantId}
             onNavigate={() => undefined}
+            onToggleSidebar={() =>
+              setIsDesktopSidebarCollapsed((currentValue) => !currentValue)
+            }
             onSignOut={handleSignOut}
+            userLabel={userLabel}
             t={t}
           />
-        </aside>
+        </motion.aside>
 
         <div className="flex min-h-screen min-w-0 flex-1 flex-col">
           <header className="sticky top-0 z-30 border-b border-line/70 bg-paper/95 backdrop-blur">

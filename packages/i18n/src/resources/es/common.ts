@@ -77,6 +77,8 @@ const commonEs = {
     mobileNavigationLabel: "Navegacion movil",
     mobileMenuLabel: "Abrir menu principal",
     closeMenuLabel: "Cerrar menu principal",
+    collapseSidebarLabel: "Colapsar menu lateral",
+    expandSidebarLabel: "Expandir menu lateral",
     breadcrumbsLabel: "Ruta actual",
     searchLabel: "Buscar en el workspace",
     searchPlaceholder: "Buscar modulo o accion",
