@@ -57,7 +57,7 @@ const commonEn = {
     workspaceTitle: "Backoffice workspace",
     workspaceDescription:
       "Mobile-first CRM, quotes, expenses, and reporting.",
-    workspaceTenantDescription: "Operating inside {{tenant}}.",
+    workspaceTenantDescription: "Operating inside {tenant}.",
     tenantLabel: "Active business",
     tenantFallback: "No active tenant",
     tenantSwitcherLabel: "Switch business",
@@ -79,7 +79,7 @@ const commonEn = {
     closeMenuLabel: "Close main menu",
     collapseSidebarLabel: "Collapse sidebar",
     expandSidebarLabel: "Expand sidebar",
-    sidebarFooterLegal: "© {{year}} {{tenant}}. All rights reserved.",
+    sidebarFooterLegal: "© {year} {tenant}. All rights reserved.",
     sidebarFooterProduct: "OperaPyme backoffice",
     breadcrumbsLabel: "Current route",
     searchLabel: "Search the workspace",
@@ -87,10 +87,10 @@ const commonEn = {
     openNotificationsLabel: "Open notifications",
     profileMenuLabel: "Open user menu",
     pageDescriptions: {
-      dashboard: "Business overview, quick actions, and recent activity.",
-      crm: "Leads, customers, and follow-up on one surface.",
-      catalog: "Products and services ready to quote without duplicate content.",
-      quotes: "Quotes and commercial documents for the active tenant.",
+      dashboard: "Operational summary, quick actions, and recent activity.",
+      crm: "Leads, customers, and commercial follow-up in one view.",
+      catalog: "Products and services ready to quote.",
+      quotes: "Active quotes and documents ready to send.",
       settings: "Tenant-wide settings, branding, and appearance preferences.",
       admin: "Global audit and controls reserved for authorized profiles.",
       errors: "Operational incidents and visible error traceability."
@@ -101,12 +101,12 @@ const commonEn = {
       newBadge: "New",
       tenantTitle: "Tenant context",
       tenantDescription:
-        "You are working inside {{tenant}}. Keep this context while creating customers and quotes.",
+        "You are working inside {tenant}. Everything you save in CRM, catalog, and quotes will use this context.",
       tenantFallback:
         "We do not see an active tenant yet. Review the context before operating on commercial data.",
       appearanceTitle: "Appearance synced",
       appearanceDescription:
-        "The active palette is {{palette}} and stays separate from the user's visual mode.",
+        "The active palette is {palette} and stays separate from the user's visual mode.",
       governanceTitle: "Workspace governance",
       governanceDescription:
         "Admin and settings stay outside the main commercial flow to avoid mixing contexts.",

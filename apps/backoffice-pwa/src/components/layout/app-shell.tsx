@@ -294,8 +294,8 @@ function SidebarContent({
   const showTenantSwitcher = memberships.length > 1 && !showCollapsedLabels;
   const footerYear = new Date().getFullYear();
   const footerLegalLabel = t("shell.sidebarFooterLegal")
-    .replace("{{year}}", String(footerYear))
-    .replace("{{tenant}}", activeTenantName);
+    .replace("{year}", String(footerYear))
+    .replace("{tenant}", activeTenantName);
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden bg-sidebar-surface text-sidebar-text">

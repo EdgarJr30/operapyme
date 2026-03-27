@@ -1,4 +1,6 @@
-import { ArrowRight, FileText, ShieldCheck, Signature } from "lucide-react";
+import { FileText, ShieldCheck, Signature, UsersRound } from "lucide-react";
+
+import { useMemo, type ReactNode } from "react";
 
 import { useTranslation } from "@operapyme/i18n";
 
@@ -19,25 +21,6 @@ import { QuoteOperationsPanel } from "@/modules/quotes/quote-operations-panel";
 import { QuotePdfDownloadButton } from "@/modules/quotes/quote-pdf-download-button";
 import { useQuotesData } from "@/modules/quotes/use-quotes-data";
 
-const flowSteps = [
-  {
-    titleKey: "quotes.flow.draftTitle",
-    textKey: "quotes.flow.draftText"
-  },
-  {
-    titleKey: "quotes.flow.reviewTitle",
-    textKey: "quotes.flow.reviewText"
-  },
-  {
-    titleKey: "quotes.flow.sendTitle",
-    textKey: "quotes.flow.sendText"
-  },
-  {
-    titleKey: "quotes.flow.decideTitle",
-    textKey: "quotes.flow.decideText"
-  }
-];
-
 export function QuotesPage() {
   const { t } = useTranslation("backoffice");
   const {
@@ -51,155 +34,199 @@ export function QuotesPage() {
   const { data: customers = [] } = useCustomersData();
   const { data: leads = [] } = useLeadsData();
   const { data: catalogItems = [] } = useCatalogItemsData();
+  const quoteSummary = useMemo(() => {
+    const quotes = data ?? [];
+
+    return {
+      total: quotes.length,
+      open: quotes.filter((quote) =>
+        ["draft", "sent", "viewed"].includes(quote.status)
+      ).length,
+      approved: quotes.filter((quote) => quote.status === "approved").length
+    };
+  }, [data]);
 
   return (
-    <div className="space-y-5 lg:space-y-6">
-      <section className="space-y-2">
-        <p className="text-xs uppercase tracking-[0.24em] text-ink-muted">
-          {t("quotes.header.eyebrow")}
-        </p>
-        <h1 className="text-3xl font-semibold tracking-tight text-ink">
-          {t("quotes.header.title")}
-        </h1>
-        <p className="max-w-3xl text-sm leading-7 text-ink-soft">
-          {t("quotes.header.description")}
-        </p>
-      </section>
+    <div className="space-y-6">
+      <section className="grid gap-4 xl:grid-cols-[minmax(0,1.35fr)_340px]">
+        <div className="rounded-3xl border border-line/70 bg-linear-to-br from-paper via-paper to-butter-200/55 p-5 shadow-panel sm:p-6">
+          <div className="space-y-5">
+            <div className="space-y-3">
+              <span className="inline-flex min-h-9 items-center rounded-full border border-line/70 bg-paper/85 px-3 text-xs font-semibold uppercase tracking-[0.18em] text-ink-muted">
+                {t("quotes.header.eyebrow")}
+              </span>
+              <div className="space-y-2">
+                <h1 className="text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
+                  {t("quotes.header.title")}
+                </h1>
+                <p className="max-w-2xl text-sm leading-7 text-ink-soft sm:text-base">
+                  {t("quotes.header.description")}
+                </p>
+              </div>
+            </div>
 
-      <section className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
+            <div className="flex flex-wrap gap-2">
+              <StatusPill tone="info">
+                {t("quotes.overview.totalQuotes", {
+                  count: quoteSummary.total
+                })}
+              </StatusPill>
+              <StatusPill tone="warning">
+                {t("quotes.overview.openQuotes", {
+                  count: quoteSummary.open
+                })}
+              </StatusPill>
+              <StatusPill tone="success">
+                {t("quotes.overview.approvedQuotes", {
+                  count: quoteSummary.approved
+                })}
+              </StatusPill>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <a
+                href="#quotes-editor"
+                className="inline-flex min-h-12 items-center justify-center rounded-full bg-brand px-5 text-sm font-medium text-brand-contrast shadow-soft transition hover:bg-brand-hover"
+              >
+                {t("quotes.actions.createQuote")}
+              </a>
+              <a
+                href="#quotes-list"
+                className="inline-flex min-h-12 items-center justify-center rounded-full border border-line-strong bg-paper/95 px-5 text-sm font-medium text-ink shadow-panel transition hover:bg-sand/70"
+              >
+                {t("quotes.actions.reviewQuotes")}
+              </a>
+            </div>
+          </div>
+        </div>
+
         <Card>
           <CardHeader>
-            <CardTitle>{t("quotes.flow.title")}</CardTitle>
-            <CardDescription>
-              {t("quotes.flow.description")}
-            </CardDescription>
+            <CardTitle>{t("quotes.overview.title")}</CardTitle>
+            <CardDescription>{t("quotes.overview.description")}</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-3 md:grid-cols-4">
-              {flowSteps.map((step, index) => (
-                <div
-                  key={step.titleKey}
-                  className="rounded-3xl border border-line/70 bg-paper/70 p-4"
-                >
-                  <div className="mb-3 flex items-center justify-between gap-2">
-                    <span className="flex size-8 items-center justify-center rounded-full bg-sage-200 text-xs font-semibold text-ink">
-                      {index + 1}
-                    </span>
-                    {index < flowSteps.length - 1 ? (
-                      <ArrowRight className="size-4 text-ink-muted" />
-                    ) : null}
-                  </div>
-                  <p className="text-sm font-semibold text-ink">
-                    {t(step.titleKey)}
-                  </p>
-                  <p className="mt-2 text-sm leading-6 text-ink-soft">
-                    {t(step.textKey)}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-linear-to-br from-paper via-paper to-butter-200/70">
-          <CardHeader>
-            <CardTitle>{t("quotes.document.title")}</CardTitle>
-            <CardDescription>
-              {t("quotes.document.description")}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-start gap-3">
-              <FileText className="mt-1 size-4 shrink-0 text-ink" />
-              <p className="text-sm leading-6 text-ink-soft">
-                {t("quotes.document.structuredSections")}
-              </p>
-            </div>
-            <div className="flex items-start gap-3">
-              <ShieldCheck className="mt-1 size-4 shrink-0 text-ink" />
-              <p className="text-sm leading-6 text-ink-soft">
-                {t("quotes.document.versioning")}
-              </p>
-            </div>
-            <div className="flex items-start gap-3">
-              <Signature className="mt-1 size-4 shrink-0 text-ink" />
-              <p className="text-sm leading-6 text-ink-soft">
-                {t("quotes.document.publicLinks")}
-              </p>
+            <div className="space-y-3">
+              <SummaryRow
+                icon={<UsersRound className="size-4" aria-hidden="true" />}
+                label={t("quotes.overview.customersReady")}
+                value={String(customers.length)}
+              />
+              <SummaryRow
+                icon={<ShieldCheck className="size-4" aria-hidden="true" />}
+                label={t("quotes.overview.leadsReady")}
+                value={String(leads.length)}
+              />
+              <SummaryRow
+                icon={<FileText className="size-4" aria-hidden="true" />}
+                label={t("quotes.overview.catalogReady")}
+                value={String(catalogItems.length)}
+              />
+              <SummaryRow
+                icon={<Signature className="size-4" aria-hidden="true" />}
+                label={t("quotes.overview.readyToSend")}
+                value={String(quoteSummary.open)}
+              />
             </div>
           </CardContent>
         </Card>
       </section>
 
-      <QuoteOperationsPanel
-        catalogItems={catalogItems}
-        customers={customers}
-        leads={leads}
-        quotes={data ?? []}
-      />
+      <div id="quotes-editor">
+        <QuoteOperationsPanel
+          catalogItems={catalogItems}
+          customers={customers}
+          leads={leads}
+          quotes={data ?? []}
+        />
+      </div>
 
-      <Card>
+      <Card id="quotes-list">
         <CardHeader>
           <CardTitle>{t("quotes.list.title")}</CardTitle>
-          <CardDescription>
-            {t("quotes.list.description")}
-          </CardDescription>
+          <CardDescription>{t("quotes.list.description")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           {!hasTenantContext ? (
-            <div className="rounded-3xl border border-dashed border-line-strong bg-paper/70 p-5">
-              <p className="text-sm font-medium text-ink">
-                {t("quotes.list.noTenantTitle")}
-              </p>
-              <p className="mt-2 text-sm leading-6 text-ink-soft">
-                {t("quotes.list.noTenantDescription")}
-              </p>
-            </div>
+            <InlineStateCard
+              title={t("quotes.list.noTenantTitle")}
+              description={t("quotes.list.noTenantDescription")}
+            />
           ) : isLoading ? (
-            <div className="rounded-3xl border border-dashed border-line-strong bg-paper/70 p-5">
-              <p className="text-sm font-medium text-ink">
-                {t("quotes.list.loadingTitle")}
-              </p>
-              <p className="mt-2 text-sm leading-6 text-ink-soft">
-                {t("quotes.list.loadingDescription")}
-              </p>
-            </div>
+            <InlineStateCard
+              title={t("quotes.list.loadingTitle")}
+              description={t("quotes.list.loadingDescription")}
+            />
           ) : isError ? (
-            <div className="rounded-3xl border border-dashed border-line-strong bg-paper/70 p-5">
-              <p className="text-sm font-medium text-ink">
-                {t("quotes.list.errorTitle")}
-              </p>
-              <p className="mt-2 text-sm leading-6 text-ink-soft">
-                {t("quotes.list.errorDescription", {
-                  message: error instanceof Error ? error.message : ""
-                })}
-              </p>
-              <Button
-                className="mt-4"
-                variant="secondary"
-                onClick={() => {
-                  void refetch();
-                }}
-              >
-                {t("quotes.list.retryAction")}
-              </Button>
-            </div>
+            <InlineStateCard
+              title={t("quotes.list.errorTitle")}
+              description={t("quotes.list.errorDescription", {
+                message: error instanceof Error ? error.message : ""
+              })}
+              action={
+                <Button
+                  className="mt-4"
+                  variant="secondary"
+                  onClick={() => {
+                    void refetch();
+                  }}
+                >
+                  {t("quotes.list.retryAction")}
+                </Button>
+              }
+            />
           ) : data && data.length > 0 ? (
             data
               .slice(0, 6)
               .map((quote) => <QuoteCard key={quote.id} quote={quote} t={t} />)
           ) : (
-            <div className="rounded-3xl border border-dashed border-line-strong bg-paper/70 p-5">
-              <p className="text-sm font-medium text-ink">
-                {t("quotes.list.emptyTitle")}
-              </p>
-              <p className="mt-2 text-sm leading-6 text-ink-soft">
-                {t("quotes.list.emptyDescription")}
-              </p>
-            </div>
+            <InlineStateCard
+              title={t("quotes.list.emptyTitle")}
+              description={t("quotes.list.emptyDescription")}
+            />
           )}
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+function InlineStateCard({
+  title,
+  description,
+  action
+}: {
+  title: string;
+  description: string;
+  action?: ReactNode;
+}) {
+  return (
+    <div className="rounded-3xl border border-dashed border-line-strong bg-paper/70 p-5">
+      <p className="text-sm font-medium text-ink">{title}</p>
+      <p className="mt-2 text-sm leading-6 text-ink-soft">{description}</p>
+      {action}
+    </div>
+  );
+}
+
+function SummaryRow({
+  icon,
+  label,
+  value
+}: {
+  icon: ReactNode;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-3 rounded-2xl border border-line/70 bg-sand/45 px-4 py-3">
+      <div className="flex items-center gap-3">
+        <span className="flex size-10 items-center justify-center rounded-2xl bg-paper text-ink shadow-panel">
+          {icon}
+        </span>
+        <span className="text-sm font-medium text-ink">{label}</span>
+      </div>
+      <span className="text-lg font-semibold tracking-tight text-ink">{value}</span>
     </div>
   );
 }

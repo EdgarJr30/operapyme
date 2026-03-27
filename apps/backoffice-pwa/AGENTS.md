@@ -28,6 +28,7 @@
 - No convertir dark mode en la identidad visual por defecto ni en un dashboard oscuro saturado.
 - No usar morado generico como color principal.
 - Usar la direccion visual definida en `docs/ui-ux-direction.md`.
+- Las pantallas runtime del backoffice deben abrir con resumen operativo, acciones y estados reales; no usar cards de blueprint, scaffold, reglas internas o explicaciones tecnicas dentro de la app.
 - Toda animacion, transicion de entrada o salida, drawer, popover o apertura/cierre de modal debe implementarse con `motion.dev` (`motion`).
 - Respetar `prefers-reduced-motion` con la configuracion global de Motion y evitar animaciones decorativas que ralenticen tareas operativas.
 - El idioma por defecto del backoffice es espanol.

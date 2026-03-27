@@ -1,31 +1,33 @@
 const backofficeEs = {
   dashboard: {
     header: {
-      eyebrow: "Panel comercial",
-      title: "Empieza el dia con contexto claro y acciones visibles.",
+      eyebrow: "Inicio",
+      title: "Resumen operativo del negocio",
       description:
-        "La entrada del backoffice debe ayudarte a ver el pulso del tenant, saltar rapido a CRM o cotizaciones y retomar trabajo sin ruido visual."
+        "Consulta actividad reciente, prioriza el siguiente paso y entra directo a CRM, catalogo y cotizaciones.",
+      customerCountBadge: "{count} clientes en cartera",
+      activeCustomerCountBadge: "{count} activos",
+      openQuoteCountBadge: "{count} cotizaciones abiertas",
+      pendingBadge: "Esperando contexto del tenant"
     },
     actions: {
       newLead: "Nuevo lead",
-      newQuote: "Nueva cotizacion"
+      newQuote: "Nueva cotizacion",
+      reviewCatalog: "Revisar catalogo"
     },
     checklist: {
-      title: "Siguiente bloque sugerido",
+      title: "Siguiente en cola",
       description:
-        "Usa esta base para mantener la operacion comercial corta, visible y facil de retomar.",
-      captureLead: "Captura o actualiza el siguiente lead que necesita seguimiento.",
-      prepareCatalog:
-        "Completa los productos o servicios minimos antes de emitir nuevas cotizaciones.",
-      sendQuote:
-        "Convierte una oportunidad activa en cotizacion real y revisa su estado.",
-      reviewSettings:
-        "Ajusta branding, preferencias y permisos antes de abrir nuevas superficies."
+        "Accede a los bloques clave del dia sin perder contexto.",
+      captureLead: "Registrar un nuevo lead",
+      prepareCatalog: "Actualizar productos y servicios",
+      sendQuote: "Preparar o retomar una cotizacion",
+      reviewSettings: "Ajustar configuracion del tenant"
     },
     emptyState: {
-      title: "Aun no hay actividad comercial para mostrar",
+      title: "Todavia no hay movimiento comercial",
       description:
-        "Cuando el tenant empiece a registrar clientes y cotizaciones, esta entrada mostrara el resumen operativo y los ultimos movimientos."
+        "Empieza por CRM o catalogo para preparar la primera cotizacion del tenant."
     },
     hero: {
       badgeBlueprint: "Blueprint convertido en codigo",
@@ -51,38 +53,35 @@ const backofficeEs = {
     },
     stats: {
       customerCount: {
-        label: "Clientes visibles",
-        detail: "{{count}} clientes disponibles para el tenant activo."
+        label: "Clientes",
+        detail: "{count} clientes disponibles para cotizar y dar seguimiento."
       },
       quoteCount: {
-        label: "Cotizaciones registradas",
-        detail: "{{count}} cotizaciones protegidas por RLS en este tenant."
+        label: "Cotizaciones",
+        detail: "{count} cotizaciones registradas para este tenant."
       },
       openQuoteCount: {
-        label: "Cotizaciones abiertas",
-        detail: "{{count}} cotizaciones en borrador, enviadas o vistas."
+        label: "Abiertas",
+        detail: "{count} cotizaciones que siguen en gestion o espera."
       }
     },
     livePulse: {
       noTenantTitle: "Todavia no hay un tenant activo seleccionado",
       noTenantDescription:
-        "Completa el bootstrap o vuelve a cargar el contexto antes de pedir datos comerciales.",
+        "Selecciona un tenant activo antes de revisar clientes y cotizaciones.",
       loadingTitle: "Cargando el pulso comercial",
       loadingDescription:
-        "Estamos leyendo clientes y cotizaciones reales desde Supabase para este tenant.",
+        "Estamos leyendo clientes y cotizaciones del tenant activo.",
       errorTitle: "No pudimos cargar el pulso comercial",
       errorDescription:
-        "La lectura real del tenant fallo por ahora. {{message}}",
+        "La lectura real del tenant fallo por ahora. {message}",
       retryAction: "Reintentar carga",
-      emptyTitle: "Aun no hay actividad comercial cargada",
-      emptyDescription:
-        "Cuando el tenant empiece a registrar clientes y cotizaciones, este dashboard mostrara sus metricas y snapshots reales.",
       customersTitle: "Clientes recientes",
       customersDescription:
-        "Lectura directa desde `customers` respetando tenant activo y RLS.",
+        "Ultimos clientes tocados por el equipo comercial.",
       quotesTitle: "Cotizaciones recientes",
       quotesDescription:
-        "Lectura directa desde `quotes` con visibilidad protegida por permisos.",
+        "Cotizaciones con seguimiento reciente y salida a PDF.",
       contactPending: "Contacto pendiente",
       customerCodeLabel: "Codigo",
       customerCodePending: "Sin codigo",
@@ -133,14 +132,32 @@ const backofficeEs = {
   crm: {
     header: {
       eyebrow: "Modulo CRM",
-      title: "Captura de leads y seguimiento",
+      title: "Leads, clientes y seguimiento",
       description:
-        "Este primer scaffold se enfoca en un patron de intake que funciona en movil, valida rapido y queda listo para persistencia con Supabase."
+        "Captura oportunidades, revisa clientes recientes y actualiza datos comerciales sin salir del modulo."
+    },
+    actions: {
+      captureLead: "Capturar lead",
+      manageCustomers: "Gestionar clientes"
+    },
+    overview: {
+      title: "Estado del CRM",
+      description:
+        "Usa este resumen para ver si el tenant ya tiene base activa y casos que requieren seguimiento.",
+      totalCustomers: "{count} clientes",
+      activeCustomers: "{count} activos",
+      inactiveCustomers: "{count} por revisar",
+      totalLabel: "Clientes totales",
+      activeLabel: "Clientes activos",
+      needsAttentionLabel: "Inactivos o archivados",
+      emptyTitle: "Todavia no hay clientes en cartera",
+      emptyDescription:
+        "Empieza capturando un lead o creando el primer cliente del tenant."
     },
     form: {
       title: "Captura rapida de lead",
       description:
-        "Usa esta superficie para capturar leads reales del tenant activo sin perder el patron mobile-first.",
+        "Registra un lead con lo minimo necesario para no perder velocidad comercial.",
       companyLabel: "Empresa",
       companyPlaceholder: "Northline Industrial",
       contactNameLabel: "Nombre del contacto",
@@ -161,17 +178,17 @@ const backofficeEs = {
       submitting: "Guardando lead...",
       clear: "Limpiar formulario",
       createSuccess: "Lead creado correctamente.",
-      createError: "No pudimos crear el lead. {{message}}",
+      createError: "No pudimos crear el lead. {message}",
       noTenantHint:
         "Necesitas un tenant activo antes de capturar leads reales para CRM.",
-      previewTitle: "Vista previa del envio",
+      previewTitle: "Resumen del lead",
       previewDescription:
-        "Este panel luego sirve para enriquecimiento con IA, reglas de asignacion y siguientes pasos sugeridos.",
-      previewDraftStatus: "Borrador listo para revisar",
-      previewStatus: "Lead capturado en modo borrador",
+        "Verifica rapidamente el contacto y la necesidad antes de seguir con el cliente o la cotizacion.",
+      previewDraftStatus: "Lead en captura",
+      previewStatus: "Lead listo para seguimiento",
       previewEmptyTitle: "Todavia no hay nada enviado",
       previewEmptyDescription:
-        "Completa el formulario para validar el stack de formularios, los estilos de campo y el espaciado mobile-first.",
+        "Completa el formulario para ver el resumen operativo del lead.",
       previewCompany: "Empresa",
       previewContact: "Contacto",
       previewChannel: "Canal",
@@ -179,19 +196,19 @@ const backofficeEs = {
       previewPendingValue: "Pendiente"
     },
     recent: {
-      title: "Snapshots recientes del pipeline",
+      title: "Clientes recientes",
       description:
-        "Lectura real de clientes para el tenant activo, manteniendo las cards del CRM ligeras en movil.",
+        "Consulta los ultimos clientes tocados por el equipo y entra con contexto a cada seguimiento.",
       originLabel: "Origen",
       noTenantTitle: "No hay tenant activo para consultar clientes",
       noTenantDescription:
-        "Primero el usuario debe quedar dentro de un tenant activo antes de leer el CRM.",
+        "Selecciona un tenant activo antes de revisar la cartera.",
       loadingTitle: "Cargando clientes reales",
       loadingDescription:
-        "Estamos leyendo el modulo `customers` con el contexto actual del tenant.",
+        "Estamos leyendo los clientes del tenant activo.",
       errorTitle: "No pudimos cargar los clientes",
       errorDescription:
-        "La lectura real del CRM fallo por ahora. {{message}}",
+        "La lectura real del CRM fallo por ahora. {message}",
       retryAction: "Reintentar carga",
       emptyTitle: "Todavia no hay clientes registrados",
       emptyDescription:
@@ -225,21 +242,21 @@ const backofficeEs = {
         "Buena UX aqui no es algo cosmetico. Impacta de forma directa la velocidad de cotizacion y la conversion."
     },
     customerForm: {
-      createTitle: "Crear cliente real",
+      createTitle: "Nuevo cliente",
       createDescription:
-        "Este formulario ya escribe en `customers` usando el tenant activo y las politicas RLS.",
-      updateTitle: "Actualizar cliente existente",
+        "Completa la ficha comercial para dejar el cliente listo para seguimiento y cotizacion.",
+      updateTitle: "Actualizar cliente",
       updateDescription:
-        "Usa esta superficie para mantener datos operativos reales sin salir del modulo CRM.",
+        "Corrige datos, estado u observaciones del cliente sin salir del CRM.",
       createAction: "Guardar cliente",
       createSubmitting: "Guardando cliente...",
       updateAction: "Actualizar cliente",
       updateSubmitting: "Actualizando cliente...",
       resetAction: "Limpiar formulario",
       createSuccess: "Cliente creado correctamente.",
-      createError: "No pudimos crear el cliente. {{message}}",
+      createError: "No pudimos crear el cliente. {message}",
       updateSuccess: "Cliente actualizado correctamente.",
-      updateError: "No pudimos actualizar el cliente. {{message}}",
+      updateError: "No pudimos actualizar el cliente. {message}",
       noCustomerSelected: "Selecciona un cliente antes de intentar actualizarlo.",
       recordLabel: "Cliente a actualizar",
       noCustomersOption: "No hay clientes todavia",
@@ -298,12 +315,30 @@ const backofficeEs = {
       eyebrow: "Modulo catalogo",
       title: "Catalogo comercial del tenant",
       description:
-        "Gestiona productos y servicios reales del tenant activo con visibilidad, precio y estados listos para cotizacion."
+        "Organiza productos y servicios, actualiza precio y visibilidad, y deja todo listo para cotizar."
+    },
+    actions: {
+      manageItems: "Gestionar items",
+      reviewList: "Revisar listado"
+    },
+    overview: {
+      title: "Estado del catalogo",
+      description:
+        "Valida rapido si el tenant ya tiene oferta publicada y cuantos items siguen a solicitud.",
+      totalItems: "{count} items",
+      publicItems: "{count} publicos",
+      onRequestItems: "{count} a solicitud",
+      totalLabel: "Items totales",
+      publicLabel: "Visibles al equipo",
+      onRequestLabel: "Precio a solicitud",
+      emptyTitle: "Todavia no hay items cargados",
+      emptyDescription:
+        "Empieza creando el primer producto o servicio del tenant."
     },
     search: {
       title: "Buscar en el catalogo",
       description:
-        "Filtra por nombre, codigo, categoria o descripcion sin salir de la vista principal.",
+        "Filtra por nombre, codigo, categoria o descripcion sin salir del listado.",
       placeholder:
         "Buscar por item, codigo o categoria"
     },
@@ -328,21 +363,21 @@ const backofficeEs = {
       onRequest: "A solicitud"
     },
     form: {
-      createTitle: "Crear item real",
+      createTitle: "Nuevo item",
       createDescription:
-        "Este formulario ya escribe en `catalog_items` para el tenant activo con permisos `catalog.write`.",
-      updateTitle: "Actualizar item existente",
+        "Registra un producto o servicio con la informacion minima para ventas.",
+      updateTitle: "Actualizar item",
       updateDescription:
-        "Mantiene nombre, precio, visibilidad y estado del item sin salir del modulo.",
+        "Corrige precio, visibilidad o estado del item sin salir del catalogo.",
       createAction: "Guardar item",
       createSubmitting: "Guardando item...",
       updateAction: "Actualizar item",
       updateSubmitting: "Actualizando item...",
       resetAction: "Limpiar formulario",
       createSuccess: "Item de catalogo creado correctamente.",
-      createError: "No pudimos crear el item. {{message}}",
+      createError: "No pudimos crear el item. {message}",
       updateSuccess: "Item de catalogo actualizado correctamente.",
-      updateError: "No pudimos actualizar el item. {{message}}",
+      updateError: "No pudimos actualizar el item. {message}",
       noItemSelected: "Selecciona un item antes de intentar actualizarlo.",
       recordLabel: "Item a actualizar",
       noItemsOption: "No hay items todavia",
@@ -382,18 +417,18 @@ const backofficeEs = {
       }
     },
     list: {
-      title: "Items reales del catalogo",
+      title: "Listado del catalogo",
       description:
-        "Lectura real desde `catalog_items` con tarjetas compactas y foco mobile-first.",
+        "Consulta los items disponibles, filtra rapido y detecta faltantes antes de cotizar.",
       noTenantTitle: "No hay tenant activo para consultar el catalogo",
       noTenantDescription:
-        "El shell necesita un tenant activo antes de leer items comerciales reales.",
+        "Selecciona un tenant activo antes de revisar el catalogo.",
       loadingTitle: "Cargando items reales del catalogo",
       loadingDescription:
-        "Estamos leyendo `catalog_items` con el contexto actual del tenant.",
+        "Estamos leyendo el catalogo del tenant activo.",
       errorTitle: "No pudimos cargar el catalogo",
       errorDescription:
-        "La lectura real del catalogo fallo por ahora. {{message}}",
+        "La lectura real del catalogo fallo por ahora. {message}",
       retryAction: "Reintentar carga",
       emptyTitle: "Todavia no hay items registrados",
       emptyDescription:
@@ -436,9 +471,25 @@ const backofficeEs = {
   quotes: {
     header: {
       eyebrow: "Modulo cotizaciones",
-      title: "Cotizaciones con receptor flexible y PDF comercial",
+      title: "Cotizaciones y documentos comerciales",
       description:
-        "El cotizador debe servir para clientes, leads ya registrados y leads rapidos sin guardar, manteniendo versionado, trazabilidad y un PDF serio."
+        "Crea, actualiza y da seguimiento a cotizaciones con receptor flexible y salida PDF lista para enviar."
+    },
+    actions: {
+      createQuote: "Crear cotizacion",
+      reviewQuotes: "Revisar cotizaciones"
+    },
+    overview: {
+      title: "Capacidad de cotizar",
+      description:
+        "Verifica si el tenant ya tiene base suficiente para cotizar y cuantas cotizaciones siguen abiertas.",
+      totalQuotes: "{count} cotizaciones",
+      openQuotes: "{count} abiertas",
+      approvedQuotes: "{count} aprobadas",
+      customersReady: "Clientes disponibles",
+      leadsReady: "Leads disponibles",
+      catalogReady: "Items de catalogo",
+      readyToSend: "Cotizaciones en seguimiento"
     },
     flow: {
       title: "Flujo de cotizacion a decision",
@@ -468,21 +519,21 @@ const backofficeEs = {
         "El PDF debe poder enviarse rapido sin depender de un paso manual de maquetacion."
     },
     form: {
-      createTitle: "Crear cotizacion real",
+      createTitle: "Nueva cotizacion",
       createDescription:
-        "Crea cotizaciones reales con cliente, lead existente o lead rapido, y calcula totales desde line items.",
-      updateTitle: "Actualizar cotizacion existente",
+        "Completa receptor, lineas y condiciones para emitir una cotizacion lista para enviar.",
+      updateTitle: "Actualizar cotizacion",
       updateDescription:
-        "Edita una cotizacion real del tenant activo con versionado y detalle persistido por linea.",
+        "Retoma una cotizacion existente, ajusta lineas y conserva versionado.",
       createAction: "Guardar cotizacion",
       createSubmitting: "Guardando cotizacion...",
       updateAction: "Actualizar cotizacion",
       updateSubmitting: "Actualizando cotizacion...",
       resetAction: "Limpiar formulario",
-      createSuccess: "Cotizacion creada correctamente como {{quoteNumber}}.",
-      createError: "No pudimos crear la cotizacion. {{message}}",
+      createSuccess: "Cotizacion creada correctamente como {quoteNumber}.",
+      createError: "No pudimos crear la cotizacion. {message}",
       updateSuccess: "Cotizacion actualizada correctamente.",
-      updateError: "No pudimos actualizar la cotizacion. {{message}}",
+      updateError: "No pudimos actualizar la cotizacion. {message}",
       noQuoteSelected: "Selecciona una cotizacion antes de intentar actualizarla.",
       recordLabel: "Cotizacion a actualizar",
       noQuotesOption: "No hay cotizaciones todavia",
@@ -490,8 +541,8 @@ const backofficeEs = {
         "Crea una cotizacion real para habilitar el flujo de actualizacion.",
       loadingDetailHint: "Cargando el detalle completo de la cotizacion seleccionada.",
       loadingDetailError:
-        "No pudimos leer el detalle de la cotizacion. {{message}}",
-      versionHint: "La siguiente actualizacion incrementara la version desde v{{version}}.",
+        "No pudimos leer el detalle de la cotizacion. {message}",
+      versionHint: "La siguiente actualizacion incrementara la version desde v{version}.",
       recipientKindLabel: "Tipo de receptor",
       recipientKinds: {
         customer: "Cliente existente",
@@ -508,11 +559,11 @@ const backofficeEs = {
         "Aun no hay leads persistidos. Puedes capturarlos desde CRM o cotizar como lead rapido.",
       quickRecipientTitle: "Cotizacion rapida sin guardar lead",
       quickRecipientDescription:
-        "Usa este modo cuando necesites emitir una cotizacion inmediata y decidir despues si el receptor debe escalarse a lead o cliente.",
+        "Usa este modo cuando necesites cotizar de inmediato y decidir despues si ese receptor pasa a CRM.",
       quoteNumberLabel: "Numero de cotizacion",
       generatedNumberPlaceholder: "Se asignara automaticamente al guardar",
       generatedNumberHint:
-        "La numeracion vive en Supabase y se asigna automaticamente para mantener consistencia y auditoria.",
+        "La numeracion se asigna automaticamente para mantener orden y trazabilidad.",
       recipientDisplayNameLabel: "Empresa o referencia",
       recipientDisplayNamePlaceholder: "Northline Industrial",
       recipientContactNameLabel: "Contacto",
@@ -531,10 +582,10 @@ const backofficeEs = {
       validUntilLabel: "Valida hasta",
       lineItemsTitle: "Detalle comercial",
       lineItemsDescription:
-        "Cada linea debe reflejar un servicio o producto ofertado con cantidad, precio y ajustes visibles.",
+        "Cada linea debe dejar claro que se ofrece, cuanto cuesta y que ajuste aplica.",
       addLineItemAction: "Agregar linea",
       removeLineItemAction: "Eliminar linea",
-      lineItemLabel: "Detalle {{index}}",
+      lineItemLabel: "Detalle {index}",
       catalogItemLabel: "Catalogo relacionado",
       catalogItemPlaceholder: "Selecciona un item del catalogo o captura manual",
       catalogItemOnRequest: "A solicitud",
@@ -593,19 +644,19 @@ const backofficeEs = {
       }
     },
     list: {
-      title: "Lista de cotizaciones reales",
+      title: "Listado de cotizaciones",
       description:
-        "Lectura real desde `quotes` con snapshot del receptor, cards mobile-first y descarga de PDF.",
+        "Consulta cotizaciones recientes, revisa estado y descarga el PDF sin salir del modulo.",
       currentValueLabel: "Valor actual",
       noTenantTitle: "No hay tenant activo para consultar cotizaciones",
       noTenantDescription:
-        "El shell necesita un tenant activo antes de leer la operacion comercial.",
+        "Selecciona un tenant activo antes de revisar las cotizaciones.",
       loadingTitle: "Cargando cotizaciones reales",
       loadingDescription:
-        "Estamos leyendo el modulo `quotes` con el contexto actual del tenant.",
+        "Estamos leyendo las cotizaciones del tenant activo.",
       errorTitle: "No pudimos cargar las cotizaciones",
       errorDescription:
-        "La lectura real de quotes fallo por ahora. {{message}}",
+        "La lectura real de quotes fallo por ahora. {message}",
       retryAction: "Reintentar carga",
       emptyTitle: "Todavia no hay cotizaciones registradas",
       emptyDescription:
@@ -623,7 +674,7 @@ const backofficeEs = {
     pdf: {
       downloadAction: "Descargar PDF",
       generatingAction: "Generando PDF...",
-      downloadError: "No pudimos generar el PDF. {{message}}",
+      downloadError: "No pudimos generar el PDF. {message}",
       noTenantError: "Necesitas un tenant activo para generar el PDF."
     }
   },
@@ -710,7 +761,7 @@ const backofficeEs = {
       submitting: "Enviando acceso...",
       emailSentTitle: "Revisa tu correo",
       emailSentText:
-        "Enviamos un enlace de acceso a {{email}}. Si no lo ves, revisa spam o vuelve a intentarlo.",
+        "Enviamos un enlace de acceso a {email}. Si no lo ves, revisa spam o vuelve a intentarlo.",
       noteTitle: "Modo actual de acceso",
       noteText:
         "Usamos acceso por correo para que entres rapido desde cualquier dispositivo."
@@ -759,7 +810,7 @@ const backofficeEs = {
     namePlaceholder: "OperaPyme Demo Norte",
     slugLabel: "Slug del tenant",
     slugPlaceholder: "operapyme-demo-norte",
-    slugHint: "URL operativa sugerida: {{slug}}",
+    slugHint: "URL operativa sugerida: {slug}",
     submit: "Crear tenant y continuar",
     submitting: "Creando tenant...",
     noteTitle: "Regla de operación",

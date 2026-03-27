@@ -1,11 +1,13 @@
 import type { ReactNode } from "react";
 
 import {
+  ArrowRight,
   ArrowUpRight,
   CircleAlert,
   FileText,
   Package2,
   RefreshCw,
+  Settings2,
   UsersRound
 } from "lucide-react";
 
@@ -40,11 +42,27 @@ const statCards = [
   }
 ];
 
-const checklistItems = [
-  "dashboard.checklist.captureLead",
-  "dashboard.checklist.prepareCatalog",
-  "dashboard.checklist.sendQuote",
-  "dashboard.checklist.reviewSettings"
+const nextStepItems = [
+  {
+    key: "captureLead" as const,
+    to: "/crm",
+    icon: UsersRound
+  },
+  {
+    key: "prepareCatalog" as const,
+    to: "/catalog",
+    icon: Package2
+  },
+  {
+    key: "sendQuote" as const,
+    to: "/quotes",
+    icon: FileText
+  },
+  {
+    key: "reviewSettings" as const,
+    to: "/settings",
+    icon: Settings2
+  }
 ];
 
 export function DashboardPage() {
@@ -67,111 +85,75 @@ export function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-3xl border border-line/70 bg-linear-to-r from-sky-200/55 via-paper to-paper p-5 shadow-panel sm:p-6">
-        <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
-          <div className="max-w-3xl space-y-3">
-            <span className="inline-flex min-h-9 items-center rounded-full border border-line/70 bg-paper/85 px-3 text-xs font-semibold uppercase tracking-[0.18em] text-ink-muted">
-              {t("dashboard.header.eyebrow")}
-            </span>
-            <div className="space-y-2">
-              <h1 className="text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
-                {t("dashboard.header.title")}
-              </h1>
-              <p className="max-w-2xl text-sm leading-7 text-ink-soft sm:text-base">
-                {t("dashboard.header.description")}
-              </p>
+      <section className="grid gap-4 xl:grid-cols-[minmax(0,1.4fr)_340px]">
+        <div className="rounded-3xl border border-line/70 bg-linear-to-br from-paper via-paper to-sky-200/45 p-5 shadow-panel sm:p-6">
+          <div className="flex flex-col gap-5">
+            <div className="space-y-3">
+              <span className="inline-flex min-h-9 items-center rounded-full border border-line/70 bg-paper/85 px-3 text-xs font-semibold uppercase tracking-[0.18em] text-ink-muted">
+                {t("dashboard.header.eyebrow")}
+              </span>
+              <div className="space-y-2">
+                <h1 className="text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
+                  {t("dashboard.header.title")}
+                </h1>
+                <p className="max-w-2xl text-sm leading-7 text-ink-soft sm:text-base">
+                  {t("dashboard.header.description")}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {hasTenantContext && !isLoading && !isError && data ? (
+                <>
+                  <StatusPill tone="info">
+                    {t("dashboard.header.customerCountBadge", {
+                      count: data.customerCount
+                    })}
+                  </StatusPill>
+                  <StatusPill tone="success">
+                    {t("dashboard.header.activeCustomerCountBadge", {
+                      count: data.activeCustomerCount
+                    })}
+                  </StatusPill>
+                  <StatusPill tone="warning">
+                    {t("dashboard.header.openQuoteCountBadge", {
+                      count: data.openQuoteCount
+                    })}
+                  </StatusPill>
+                </>
+              ) : (
+                <StatusPill tone="neutral">
+                  {t("dashboard.header.pendingBadge")}
+                </StatusPill>
+              )}
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <NavLink
+                to="/crm"
+                className="inline-flex min-h-12 items-center justify-center rounded-full border border-line-strong bg-paper/95 px-5 text-sm font-medium text-ink shadow-panel transition hover:bg-sand/70"
+              >
+                {t("dashboard.actions.newLead")}
+              </NavLink>
+              <NavLink
+                to="/quotes"
+                className="inline-flex min-h-12 items-center justify-center rounded-full bg-brand px-5 text-sm font-medium text-brand-contrast shadow-soft transition hover:bg-brand-hover"
+              >
+                {t("dashboard.actions.newQuote")}
+              </NavLink>
+              <NavLink
+                to="/catalog"
+                className="inline-flex min-h-12 items-center justify-center rounded-full border border-line-strong bg-paper/95 px-5 text-sm font-medium text-ink shadow-panel transition hover:bg-sand/70"
+              >
+                {t("dashboard.actions.reviewCatalog")}
+              </NavLink>
             </div>
           </div>
-
-          <div className="flex flex-wrap gap-3">
-            <NavLink
-              to="/crm"
-              className="inline-flex min-h-11 items-center justify-center rounded-xl border border-line-strong bg-paper/95 px-5 text-sm font-medium text-ink shadow-panel transition hover:bg-sand/70"
-            >
-              {t("dashboard.actions.newLead")}
-            </NavLink>
-            <NavLink
-              to="/quotes"
-              className="inline-flex min-h-11 items-center justify-center rounded-xl bg-brand px-5 text-sm font-medium text-brand-contrast shadow-soft transition hover:bg-brand-hover"
-            >
-              {t("dashboard.actions.newQuote")}
-            </NavLink>
-          </div>
-        </div>
-      </section>
-
-      <section className="grid gap-4 xl:grid-cols-[minmax(0,1.5fr)_320px]">
-        <div className="grid gap-4 md:grid-cols-3">
-          {!hasTenantContext ? (
-            <InlineStatePanel
-              title={t("dashboard.livePulse.noTenantTitle")}
-              description={t("dashboard.livePulse.noTenantDescription")}
-              className="md:col-span-3"
-            />
-          ) : isLoading ? (
-            <InlineStatePanel
-              title={t("dashboard.livePulse.loadingTitle")}
-              description={t("dashboard.livePulse.loadingDescription")}
-              className="md:col-span-3"
-            />
-          ) : isError ? (
-            <InlineStatePanel
-              title={t("dashboard.livePulse.errorTitle")}
-              description={t("dashboard.livePulse.errorDescription", {
-                message: error instanceof Error ? error.message : ""
-              })}
-              className="md:col-span-3"
-              action={
-                <Button
-                  variant="secondary"
-                  className="rounded-xl"
-                  onClick={() => {
-                    void refetch();
-                  }}
-                >
-                  <RefreshCw className="mr-2 size-4" aria-hidden="true" />
-                  {t("dashboard.livePulse.retryAction")}
-                </Button>
-              }
-            />
-          ) : (
-            statCards.map(({ id, icon: Icon, iconClassName }) => (
-              <div
-                key={id}
-                className="rounded-3xl border border-line/70 bg-paper p-5 shadow-panel"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <span
-                    className={cn(
-                      "flex size-12 items-center justify-center rounded-2xl",
-                      iconClassName
-                    )}
-                  >
-                    <Icon className="size-5" aria-hidden="true" />
-                  </span>
-                  <StatusPill tone={getStatTone(id)}>
-                    {t(`dashboard.stats.${id}.label`)}
-                  </StatusPill>
-                </div>
-
-                <div className="mt-5">
-                  <p className="text-3xl font-semibold tracking-tight text-ink">
-                    {data?.[id] ?? 0}
-                  </p>
-                  <p className="mt-2 text-sm leading-6 text-ink-soft">
-                    {t(`dashboard.stats.${id}.detail`, {
-                      count: data?.[id] ?? 0
-                    })}
-                  </p>
-                </div>
-              </div>
-            ))
-          )}
         </div>
 
         <div className="rounded-3xl border border-line/70 bg-paper p-5 shadow-panel">
           <div className="space-y-1">
-            <p className="text-sm font-semibold text-ink">
+            <p className="text-lg font-semibold text-ink">
               {t("dashboard.checklist.title")}
             </p>
             <p className="text-sm leading-6 text-ink-soft">
@@ -179,20 +161,96 @@ export function DashboardPage() {
             </p>
           </div>
 
-          <ol className="mt-4 space-y-3">
-            {checklistItems.map((item, index) => (
-              <li
-                key={item}
-                className="flex items-start gap-3 rounded-2xl border border-line/70 bg-sand/45 px-4 py-3"
+          <div className="mt-4 space-y-3">
+            {nextStepItems.map(({ key, to, icon: Icon }) => (
+              <NavLink
+                key={key}
+                to={to}
+                className="flex min-h-14 items-center justify-between gap-3 rounded-2xl border border-line/70 bg-sand/45 px-4 py-3 transition hover:border-line-strong hover:bg-paper"
               >
-                <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full bg-paper text-xs font-semibold text-ink shadow-panel">
-                  {index + 1}
-                </span>
-                <span className="text-sm leading-6 text-ink-soft">{t(item)}</span>
-              </li>
+                <div className="flex items-center gap-3">
+                  <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-paper text-ink shadow-panel">
+                    <Icon className="size-4.5" aria-hidden="true" />
+                  </span>
+                  <div>
+                    <p className="text-sm font-semibold text-ink">
+                      {t(`dashboard.checklist.${key}`)}
+                    </p>
+                  </div>
+                </div>
+                <ArrowRight className="size-4 text-ink-muted" aria-hidden="true" />
+              </NavLink>
             ))}
-          </ol>
+          </div>
         </div>
+      </section>
+
+      <section className="grid gap-4 md:grid-cols-3">
+        {!hasTenantContext ? (
+          <InlineStatePanel
+            title={t("dashboard.livePulse.noTenantTitle")}
+            description={t("dashboard.livePulse.noTenantDescription")}
+            className="md:col-span-3"
+          />
+        ) : isLoading ? (
+          <InlineStatePanel
+            title={t("dashboard.livePulse.loadingTitle")}
+            description={t("dashboard.livePulse.loadingDescription")}
+            className="md:col-span-3"
+          />
+        ) : isError ? (
+          <InlineStatePanel
+            title={t("dashboard.livePulse.errorTitle")}
+            description={t("dashboard.livePulse.errorDescription", {
+              message: error instanceof Error ? error.message : ""
+            })}
+            className="md:col-span-3"
+            action={
+              <Button
+                variant="secondary"
+                className="rounded-full"
+                onClick={() => {
+                  void refetch();
+                }}
+              >
+                <RefreshCw className="mr-2 size-4" aria-hidden="true" />
+                {t("dashboard.livePulse.retryAction")}
+              </Button>
+            }
+          />
+        ) : (
+          statCards.map(({ id, icon: Icon, iconClassName }) => (
+            <div
+              key={id}
+              className="rounded-3xl border border-line/70 bg-paper p-5 shadow-panel"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <span
+                  className={cn(
+                    "flex size-12 items-center justify-center rounded-2xl",
+                    iconClassName
+                  )}
+                >
+                  <Icon className="size-5" aria-hidden="true" />
+                </span>
+                <StatusPill tone={getStatTone(id)}>
+                  {t(`dashboard.stats.${id}.label`)}
+                </StatusPill>
+              </div>
+
+              <div className="mt-5">
+                <p className="text-3xl font-semibold tracking-tight text-ink">
+                  {data?.[id] ?? 0}
+                </p>
+                <p className="mt-2 text-sm leading-6 text-ink-soft">
+                  {t(`dashboard.stats.${id}.detail`, {
+                    count: data?.[id] ?? 0
+                  })}
+                </p>
+              </div>
+            </div>
+          ))
+        )}
       </section>
 
       {hasTenantContext && !isLoading && !isError ? (
@@ -301,13 +359,19 @@ function EmptyStatePanel() {
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <NavLink
             to="/crm"
-            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-line-strong bg-paper px-5 text-sm font-medium text-ink shadow-panel transition hover:bg-sand/70"
+            className="inline-flex min-h-12 items-center justify-center rounded-full border border-line-strong bg-paper px-5 text-sm font-medium text-ink shadow-panel transition hover:bg-sand/70"
           >
             {t("dashboard.actions.newLead")}
           </NavLink>
           <NavLink
+            to="/catalog"
+            className="inline-flex min-h-12 items-center justify-center rounded-full border border-line-strong bg-paper px-5 text-sm font-medium text-ink shadow-panel transition hover:bg-sand/70"
+          >
+            {t("dashboard.actions.reviewCatalog")}
+          </NavLink>
+          <NavLink
             to="/quotes"
-            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-brand px-5 text-sm font-medium text-brand-contrast shadow-soft transition hover:bg-brand-hover"
+            className="inline-flex min-h-12 items-center justify-center rounded-full bg-brand px-5 text-sm font-medium text-brand-contrast shadow-soft transition hover:bg-brand-hover"
           >
             {t("dashboard.actions.newQuote")}
           </NavLink>

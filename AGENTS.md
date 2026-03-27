@@ -78,6 +78,7 @@ Acceso canonico a Supabase para este repo:
 - La apariencia visual se divide en dos capas: modo de usuario o dispositivo (`light`, `dark`, `system`) y branding por tenant con paletas curadas.
 - Todo cambio visual debe apoyarse en tokens semanticos y mantener contraste, calma visual e identidad consistente.
 - El estandar de animacion del producto es `motion.dev` (`motion`). No introducir otra libreria de animacion para transiciones, overlays, drawers, modales o microinteracciones sin una decision documentada.
+- Las pantallas runtime del backoffice no deben mostrar copy de scaffold, blueprint, reglas internas o explicaciones tecnicas; deben abrir con resumen operativo, acciones y estados reales del modulo.
 
 ## Filosofia de producto
 

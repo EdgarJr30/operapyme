@@ -13,6 +13,7 @@ La interfaz debe sentirse:
 ## Principios
 
 - cada pantalla responde a una tarea de negocio concreta
+- cada modulo abre con resumen operativo, acciones directas y estado real del trabajo
 - una accion primaria clara por bloque
 - formularios compactos con labels arriba
 - estados vacios utiles, no decorativos
@@ -51,6 +52,12 @@ La interfaz debe sentirse:
 - evitar sidebars convertidos en cards gigantes o en una composicion demasiado editorial cuando la tarea principal es operar
 - en movil, la navegacion inferior debe limitarse a los modulos mas usados y el resto vivir en un drawer o menu extendido
 - el cambio de tenant debe sentirse visible y cercano, porque afecta permisos y datos en toda la sesion
+
+## Pantallas operativas
+
+- evitar cards de "reglas", "guidelines", "blueprint" o explicaciones tecnicas dentro de la UI runtime del backoffice
+- usar la parte superior de cada modulo para mostrar que puede hacerse ahora, que estado tiene el modulo y cual es la siguiente accion recomendable
+- cuando existan datos, priorizar resumenes, listados recientes y accesos directos sobre copy explicativo
 
 ## Superficies clave
 

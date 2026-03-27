@@ -57,7 +57,7 @@ const commonEs = {
     workspaceTitle: "Espacio de trabajo del backoffice",
     workspaceDescription:
       "CRM, cotizaciones, gastos y reportes pensados para movil.",
-    workspaceTenantDescription: "Operando dentro de {{tenant}}.",
+    workspaceTenantDescription: "Operando dentro de {tenant}.",
     tenantLabel: "Negocio activo",
     tenantFallback: "Sin tenant activo",
     tenantSwitcherLabel: "Cambiar negocio",
@@ -80,7 +80,7 @@ const commonEs = {
     collapseSidebarLabel: "Colapsar menu lateral",
     expandSidebarLabel: "Expandir menu lateral",
     sidebarFooterLegal:
-      "© {{year}} {{tenant}}. Todos los derechos reservados.",
+      "© {year} {tenant}. Todos los derechos reservados.",
     sidebarFooterProduct: "OperaPyme backoffice",
     breadcrumbsLabel: "Ruta actual",
     searchLabel: "Buscar en el workspace",
@@ -88,10 +88,10 @@ const commonEs = {
     openNotificationsLabel: "Abrir notificaciones",
     profileMenuLabel: "Abrir menu del usuario",
     pageDescriptions: {
-      dashboard: "Vista general del negocio, atajos y actividad reciente.",
-      crm: "Leads, clientes y seguimiento comercial en una sola superficie.",
-      catalog: "Productos y servicios listos para cotizar sin duplicar contenido.",
-      quotes: "Cotizaciones y documentos comerciales del tenant activo.",
+      dashboard: "Resumen operativo, accesos rapidos y actividad reciente.",
+      crm: "Leads, clientes y seguimiento comercial en una misma vista.",
+      catalog: "Productos y servicios listos para cotizar.",
+      quotes: "Cotizaciones activas y documentos listos para enviar.",
       settings: "Configuracion transversal del tenant, branding y preferencias.",
       admin: "Auditoria global y controles reservados para perfiles autorizados.",
       errors: "Incidencias operativas y trazabilidad de errores visibles."
@@ -102,12 +102,12 @@ const commonEs = {
       newBadge: "Nuevo",
       tenantTitle: "Contexto del tenant",
       tenantDescription:
-        "Estas trabajando dentro de {{tenant}}. Mantiene este contexto al crear clientes y cotizaciones.",
+        "Estas trabajando dentro de {tenant}. Todo lo que guardes en CRM, catalogo y cotizaciones usara este contexto.",
       tenantFallback:
         "Todavia no vemos un tenant activo. Revisa el contexto antes de operar datos comerciales.",
       appearanceTitle: "Apariencia sincronizada",
       appearanceDescription:
-        "La paleta activa es {{palette}} y sigue separada del modo visual del usuario.",
+        "La paleta activa es {palette} y sigue separada del modo visual del usuario.",
       governanceTitle: "Gobernanza del workspace",
       governanceDescription:
         "Admin y configuracion siguen fuera del flujo comercial principal para evitar mezclar contextos.",

@@ -1,31 +1,33 @@
 const backofficeEn = {
   dashboard: {
     header: {
-      eyebrow: "Commercial dashboard",
-      title: "Start the day with clear context and visible actions.",
+      eyebrow: "Home",
+      title: "Operational business summary",
       description:
-        "The backoffice entry should help you read the tenant pulse, jump quickly into CRM or quoting, and resume work without visual noise."
+        "Review recent activity, prioritize the next step, and jump straight into CRM, catalog, or quotes.",
+      customerCountBadge: "{count} customers in pipeline",
+      activeCustomerCountBadge: "{count} active",
+      openQuoteCountBadge: "{count} open quotes",
+      pendingBadge: "Waiting for tenant context"
     },
     actions: {
       newLead: "New lead",
-      newQuote: "New quote"
+      newQuote: "New quote",
+      reviewCatalog: "Review catalog"
     },
     checklist: {
-      title: "Suggested next block",
+      title: "Next in queue",
       description:
-        "Use this baseline to keep commercial work short, visible, and easy to resume.",
-      captureLead: "Capture or update the next lead that needs follow-up.",
-      prepareCatalog:
-        "Complete the minimum products or services before sending new quotes.",
-      sendQuote:
-        "Turn one active opportunity into a live quote and review its status.",
-      reviewSettings:
-        "Adjust branding, preferences, and permissions before opening new surfaces."
+        "Open the key blocks of the day without losing context.",
+      captureLead: "Register a new lead",
+      prepareCatalog: "Update products and services",
+      sendQuote: "Prepare or resume a quote",
+      reviewSettings: "Adjust tenant settings"
     },
     emptyState: {
-      title: "There is no commercial activity to show yet",
+      title: "There is no commercial movement yet",
       description:
-        "As soon as the tenant starts registering customers and quotes, this entry will show the operational summary and latest movement."
+        "Start from CRM or catalog to prepare the tenant's first quote."
     },
     hero: {
       badgeBlueprint: "Blueprint translated into code",
@@ -51,38 +53,35 @@ const backofficeEn = {
     },
     stats: {
       customerCount: {
-        label: "Visible customers",
-        detail: "{{count}} customers currently visible for the active tenant."
+        label: "Customers",
+        detail: "{count} customers available to quote and follow up."
       },
       quoteCount: {
-        label: "Stored quotes",
-        detail: "{{count}} quotes protected by RLS inside this tenant."
+        label: "Quotes",
+        detail: "{count} quotes currently stored for this tenant."
       },
       openQuoteCount: {
-        label: "Open quotes",
-        detail: "{{count}} quotes still in draft, sent, or viewed state."
+        label: "Open",
+        detail: "{count} quotes still moving through the pipeline."
       }
     },
     livePulse: {
       noTenantTitle: "There is no active tenant selected yet",
       noTenantDescription:
-        "Complete bootstrap or reload the access context before requesting live commercial data.",
+        "Select an active tenant before reviewing customers and quotes.",
       loadingTitle: "Loading the commercial pulse",
       loadingDescription:
-        "We are reading live customers and quotes from Supabase for this tenant.",
+        "We are reading customers and quotes for the active tenant.",
       errorTitle: "We could not load the commercial pulse",
       errorDescription:
-        "The live tenant read failed for now. {{message}}",
+        "The live tenant read failed for now. {message}",
       retryAction: "Retry load",
-      emptyTitle: "There is no commercial activity yet",
-      emptyDescription:
-        "As soon as the tenant starts creating customers and quotes, this dashboard will show the live metrics and snapshots.",
       customersTitle: "Recent customers",
       customersDescription:
-        "Direct read from `customers` while respecting the active tenant and RLS.",
+        "Latest customers touched by the commercial team.",
       quotesTitle: "Recent quotes",
       quotesDescription:
-        "Direct read from `quotes` with visibility protected by permissions.",
+        "Quotes with recent follow-up and PDF output.",
       contactPending: "Pending contact",
       customerCodeLabel: "Code",
       customerCodePending: "No code yet",
@@ -133,14 +132,32 @@ const backofficeEn = {
   crm: {
     header: {
       eyebrow: "CRM module",
-      title: "Lead capture and follow-up",
+      title: "Leads, customers, and follow-up",
       description:
-        "This first scaffold focuses on an intake pattern that works on mobile, validates quickly, and stays ready for Supabase persistence."
+        "Capture opportunities, review recent customers, and update commercial data without leaving the module."
+    },
+    actions: {
+      captureLead: "Capture lead",
+      manageCustomers: "Manage customers"
+    },
+    overview: {
+      title: "CRM status",
+      description:
+        "Use this summary to see whether the tenant already has an active base and cases that need follow-up.",
+      totalCustomers: "{count} customers",
+      activeCustomers: "{count} active",
+      inactiveCustomers: "{count} to review",
+      totalLabel: "Total customers",
+      activeLabel: "Active customers",
+      needsAttentionLabel: "Inactive or archived",
+      emptyTitle: "There are no customers in the pipeline yet",
+      emptyDescription:
+        "Start by capturing a lead or creating the tenant's first customer."
     },
     form: {
       title: "Fast lead intake",
       description:
-        "Use this surface to capture live leads for the active tenant without losing the mobile-first pattern.",
+        "Capture a lead with the minimum information needed to keep commercial speed.",
       companyLabel: "Company",
       companyPlaceholder: "Northline Industrial",
       contactNameLabel: "Contact name",
@@ -161,17 +178,17 @@ const backofficeEn = {
       submitting: "Saving lead...",
       clear: "Clear form",
       createSuccess: "Lead created successfully.",
-      createError: "We could not create the lead. {{message}}",
+      createError: "We could not create the lead. {message}",
       noTenantHint:
         "You need an active tenant before capturing live CRM leads.",
-      previewTitle: "Submission preview",
+      previewTitle: "Lead summary",
       previewDescription:
-        "This panel becomes useful later for AI enrichment, assignment rules, and suggested next steps.",
-      previewDraftStatus: "Draft ready for review",
-      previewStatus: "Lead captured in draft mode",
+        "Quickly verify the contact and the need before moving into customer or quote work.",
+      previewDraftStatus: "Lead in capture",
+      previewStatus: "Lead ready for follow-up",
       previewEmptyTitle: "Nothing submitted yet",
       previewEmptyDescription:
-        "Fill the form to validate the scaffolded form stack, field styles, and mobile-first spacing.",
+        "Fill the form to see the operational summary for this lead.",
       previewCompany: "Company",
       previewContact: "Contact",
       previewChannel: "Channel",
@@ -179,19 +196,19 @@ const backofficeEn = {
       previewPendingValue: "Pending"
     },
     recent: {
-      title: "Recent pipeline snapshots",
+      title: "Recent customers",
       description:
-        "Live customer read for the active tenant while keeping CRM cards lightweight on mobile.",
+        "Review the latest customers touched by the team and enter each follow-up with context.",
       originLabel: "Origin",
       noTenantTitle: "There is no active tenant to read customers from",
       noTenantDescription:
-        "The user must belong to an active tenant before the CRM can read live data.",
+        "Select an active tenant before reviewing the customer base.",
       loadingTitle: "Loading live customers",
       loadingDescription:
-        "We are reading the `customers` module with the current tenant context.",
+        "We are reading customers for the active tenant.",
       errorTitle: "We could not load customers",
       errorDescription:
-        "The live CRM read failed for now. {{message}}",
+        "The live CRM read failed for now. {message}",
       retryAction: "Retry load",
       emptyTitle: "There are no customers yet",
       emptyDescription:
@@ -225,21 +242,21 @@ const backofficeEn = {
         "Good UX here is not cosmetic. It directly affects quote speed and conversion."
     },
     customerForm: {
-      createTitle: "Create live customer",
+      createTitle: "New customer",
       createDescription:
-        "This form now writes into `customers` using the active tenant and RLS policies.",
-      updateTitle: "Update existing customer",
+        "Complete the commercial profile so the customer is ready for follow-up and quoting.",
+      updateTitle: "Update customer",
       updateDescription:
-        "Use this surface to keep live operational data current without leaving the CRM module.",
+        "Correct customer data, status, or notes without leaving CRM.",
       createAction: "Save customer",
       createSubmitting: "Saving customer...",
       updateAction: "Update customer",
       updateSubmitting: "Updating customer...",
       resetAction: "Clear form",
       createSuccess: "Customer created successfully.",
-      createError: "We could not create the customer. {{message}}",
+      createError: "We could not create the customer. {message}",
       updateSuccess: "Customer updated successfully.",
-      updateError: "We could not update the customer. {{message}}",
+      updateError: "We could not update the customer. {message}",
       noCustomerSelected: "Select a customer before trying to update it.",
       recordLabel: "Customer to update",
       noCustomersOption: "There are no customers yet",
@@ -298,12 +315,30 @@ const backofficeEn = {
       eyebrow: "Catalog module",
       title: "Tenant commercial catalog",
       description:
-        "Manage live products and services for the active tenant with visibility, pricing, and state ready for quoting."
+        "Organize products and services, update pricing and visibility, and keep everything ready for quoting."
+    },
+    actions: {
+      manageItems: "Manage items",
+      reviewList: "Review list"
+    },
+    overview: {
+      title: "Catalog status",
+      description:
+        "Quickly validate whether the tenant already has a published offer and how many items stay on-request.",
+      totalItems: "{count} items",
+      publicItems: "{count} public",
+      onRequestItems: "{count} on request",
+      totalLabel: "Total items",
+      publicLabel: "Visible to the team",
+      onRequestLabel: "On-request pricing",
+      emptyTitle: "There are no items yet",
+      emptyDescription:
+        "Start by creating the first product or service for this tenant."
     },
     search: {
       title: "Search the catalog",
       description:
-        "Filter by name, code, category, or description without leaving the main view.",
+        "Filter by name, code, category, or description without leaving the list.",
       placeholder:
         "Search by item, code, or category"
     },
@@ -328,21 +363,21 @@ const backofficeEn = {
       onRequest: "On request"
     },
     form: {
-      createTitle: "Create live item",
+      createTitle: "New item",
       createDescription:
-        "This form now writes into `catalog_items` for the active tenant under `catalog.write` permissions.",
-      updateTitle: "Update existing item",
+        "Register a product or service with the minimum information sales needs.",
+      updateTitle: "Update item",
       updateDescription:
-        "Keep the item name, price, visibility, and status current without leaving the module.",
+        "Adjust pricing, visibility, or state without leaving the catalog.",
       createAction: "Save item",
       createSubmitting: "Saving item...",
       updateAction: "Update item",
       updateSubmitting: "Updating item...",
       resetAction: "Clear form",
       createSuccess: "Catalog item created successfully.",
-      createError: "We could not create the item. {{message}}",
+      createError: "We could not create the item. {message}",
       updateSuccess: "Catalog item updated successfully.",
-      updateError: "We could not update the item. {{message}}",
+      updateError: "We could not update the item. {message}",
       noItemSelected: "Select an item before trying to update it.",
       recordLabel: "Item to update",
       noItemsOption: "There are no items yet",
@@ -382,18 +417,18 @@ const backofficeEn = {
       }
     },
     list: {
-      title: "Live catalog items",
+      title: "Catalog list",
       description:
-        "Live read from `catalog_items` with compact cards and mobile-first focus.",
+        "Review available items, filter quickly, and detect missing information before quoting.",
       noTenantTitle: "There is no active tenant to read the catalog from",
       noTenantDescription:
-        "The shell needs an active tenant before it can read live commercial items.",
+        "Select an active tenant before reviewing the catalog.",
       loadingTitle: "Loading live catalog items",
       loadingDescription:
-        "We are reading `catalog_items` with the current tenant context.",
+        "We are reading the active tenant catalog.",
       errorTitle: "We could not load the catalog",
       errorDescription:
-        "The live catalog read failed for now. {{message}}",
+        "The live catalog read failed for now. {message}",
       retryAction: "Retry load",
       emptyTitle: "There are no items yet",
       emptyDescription:
@@ -436,9 +471,25 @@ const backofficeEn = {
   quotes: {
     header: {
       eyebrow: "Quotes module",
-      title: "Quotes with flexible recipients and commercial PDF output",
+      title: "Quotes and commercial documents",
       description:
-        "The quote builder must work for customers, saved leads, and fast ad hoc leads while keeping versioning, traceability, and a serious PDF output."
+        "Create, update, and follow quotes with flexible recipients and PDF output ready to send."
+    },
+    actions: {
+      createQuote: "Create quote",
+      reviewQuotes: "Review quotes"
+    },
+    overview: {
+      title: "Quoting readiness",
+      description:
+        "Check whether the tenant already has enough base data to quote and how many quotes stay open.",
+      totalQuotes: "{count} quotes",
+      openQuotes: "{count} open",
+      approvedQuotes: "{count} approved",
+      customersReady: "Available customers",
+      leadsReady: "Available leads",
+      catalogReady: "Catalog items",
+      readyToSend: "Quotes in follow-up"
     },
     flow: {
       title: "Quote-to-decision flow",
@@ -468,21 +519,21 @@ const backofficeEn = {
         "The PDF should be ready to send quickly without a manual layout step."
     },
     form: {
-      createTitle: "Create live quote",
+      createTitle: "New quote",
       createDescription:
-        "Create live quotes with a customer, a saved lead, or a fast ad hoc lead, while totals are computed from line items.",
-      updateTitle: "Update existing quote",
+        "Complete the recipient, line items, and terms to issue a quote ready to send.",
+      updateTitle: "Update quote",
       updateDescription:
-        "Edit a live quote for the active tenant with versioning and persisted line detail.",
+        "Resume an existing quote, adjust line items, and keep versioning intact.",
       createAction: "Save quote",
       createSubmitting: "Saving quote...",
       updateAction: "Update quote",
       updateSubmitting: "Updating quote...",
       resetAction: "Clear form",
-      createSuccess: "Quote created successfully as {{quoteNumber}}.",
-      createError: "We could not create the quote. {{message}}",
+      createSuccess: "Quote created successfully as {quoteNumber}.",
+      createError: "We could not create the quote. {message}",
       updateSuccess: "Quote updated successfully.",
-      updateError: "We could not update the quote. {{message}}",
+      updateError: "We could not update the quote. {message}",
       noQuoteSelected: "Select a quote before trying to update it.",
       recordLabel: "Quote to update",
       noQuotesOption: "There are no quotes yet",
@@ -490,8 +541,8 @@ const backofficeEn = {
         "Create a live quote first to unlock the update flow.",
       loadingDetailHint: "Loading the full detail for the selected quote.",
       loadingDetailError:
-        "We could not read the quote detail. {{message}}",
-      versionHint: "The next update will bump the version from v{{version}}.",
+        "We could not read the quote detail. {message}",
+      versionHint: "The next update will bump the version from v{version}.",
       recipientKindLabel: "Recipient type",
       recipientKinds: {
         customer: "Existing customer",
@@ -508,11 +559,11 @@ const backofficeEn = {
         "There are no saved leads yet. Capture them from CRM or quote as a fast lead instead.",
       quickRecipientTitle: "Fast quote without saving a lead",
       quickRecipientDescription:
-        "Use this mode when you need to issue a quote immediately and decide later whether the recipient should be promoted to a lead or customer.",
+        "Use this mode when you need to quote immediately and decide later whether the recipient belongs in CRM.",
       quoteNumberLabel: "Quote number",
       generatedNumberPlaceholder: "Assigned automatically after save",
       generatedNumberHint:
-        "Numbering now lives in Supabase and is assigned automatically to keep consistency and auditability.",
+        "Numbering is assigned automatically to keep order and traceability.",
       recipientDisplayNameLabel: "Company or reference",
       recipientDisplayNamePlaceholder: "Northline Industrial",
       recipientContactNameLabel: "Contact",
@@ -531,10 +582,10 @@ const backofficeEn = {
       validUntilLabel: "Valid until",
       lineItemsTitle: "Commercial detail",
       lineItemsDescription:
-        "Each row should represent one offered service or product with quantity, price, and visible adjustments.",
+        "Each line should make it clear what is being offered, how much it costs, and which adjustment applies.",
       addLineItemAction: "Add line",
       removeLineItemAction: "Remove line",
-      lineItemLabel: "Line {{index}}",
+      lineItemLabel: "Line {index}",
       catalogItemLabel: "Related catalog item",
       catalogItemPlaceholder: "Select a catalog item or capture it manually",
       catalogItemOnRequest: "On request",
@@ -593,19 +644,19 @@ const backofficeEn = {
       }
     },
     list: {
-      title: "Live quote list",
+      title: "Quote list",
       description:
-        "Live read from `quotes` with recipient snapshots, mobile-first cards, and PDF download.",
+        "Review recent quotes, check status, and download the PDF without leaving the module.",
       currentValueLabel: "Current value",
       noTenantTitle: "There is no active tenant to read quotes from",
       noTenantDescription:
-        "The shell needs an active tenant before reading commercial activity.",
+        "Select an active tenant before reviewing quotes.",
       loadingTitle: "Loading live quotes",
       loadingDescription:
-        "We are reading the `quotes` module with the current tenant context.",
+        "We are reading quotes for the active tenant.",
       errorTitle: "We could not load quotes",
       errorDescription:
-        "The live quotes read failed for now. {{message}}",
+        "The live quotes read failed for now. {message}",
       retryAction: "Retry load",
       emptyTitle: "There are no quotes yet",
       emptyDescription:
@@ -623,7 +674,7 @@ const backofficeEn = {
     pdf: {
       downloadAction: "Download PDF",
       generatingAction: "Generating PDF...",
-      downloadError: "We could not generate the PDF. {{message}}",
+      downloadError: "We could not generate the PDF. {message}",
       noTenantError: "You need an active tenant before generating the PDF."
     }
   },
@@ -710,7 +761,7 @@ const backofficeEn = {
       submitting: "Sending access...",
       emailSentTitle: "Check your inbox",
       emailSentText:
-        "We sent an access link to {{email}}. If you do not see it, check spam or try again.",
+        "We sent an access link to {email}. If you do not see it, check spam or try again.",
       noteTitle: "Current access mode",
       noteText:
         "We use email access so you can sign in quickly from any device."
@@ -759,7 +810,7 @@ const backofficeEn = {
     namePlaceholder: "OperaPyme Demo North",
     slugLabel: "Tenant slug",
     slugPlaceholder: "operapyme-demo-north",
-    slugHint: "Suggested operating URL: {{slug}}",
+    slugHint: "Suggested operating URL: {slug}",
     submit: "Create tenant and continue",
     submitting: "Creating tenant...",
     noteTitle: "Operating rule",

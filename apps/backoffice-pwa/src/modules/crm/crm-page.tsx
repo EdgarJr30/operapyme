@@ -1,4 +1,6 @@
-import { Clock3, MessageSquareMore, PhoneCall } from "lucide-react";
+import { CircleAlert, UserPlus, UsersRound } from "lucide-react";
+
+import { type ReactNode, useMemo } from "react";
 
 import { useTranslation } from "@operapyme/i18n";
 
@@ -16,24 +18,6 @@ import { CustomerOperationsPanel } from "@/modules/crm/customer-operations-panel
 import { LeadIntakeForm } from "@/modules/crm/lead-intake-form";
 import { useCustomersData } from "@/modules/crm/use-customers-data";
 
-const operatingRules = [
-  {
-    icon: MessageSquareMore,
-    titleKey: "crm.rules.captureTitle",
-    textKey: "crm.rules.captureText"
-  },
-  {
-    icon: PhoneCall,
-    titleKey: "crm.rules.followUpTitle",
-    textKey: "crm.rules.followUpText"
-  },
-  {
-    icon: Clock3,
-    titleKey: "crm.rules.responseTimeTitle",
-    textKey: "crm.rules.responseTimeText"
-  }
-];
-
 export function CrmPage() {
   const { t } = useTranslation("backoffice");
   const {
@@ -45,71 +29,176 @@ export function CrmPage() {
     refetch
   } = useCustomersData();
 
+  const customerSummary = useMemo(() => {
+    const customers = data ?? [];
+
+    return {
+      total: customers.length,
+      active: customers.filter((customer) => customer.status === "active").length,
+      inactive: customers.filter((customer) => customer.status === "inactive")
+        .length,
+      archived: customers.filter((customer) => customer.status === "archived")
+        .length
+    };
+  }, [data]);
+
   return (
-    <div className="space-y-5 lg:space-y-6">
-      <section className="space-y-2">
-        <p className="text-xs uppercase tracking-[0.24em] text-ink-muted">
-          {t("crm.header.eyebrow")}
-        </p>
-        <h1 className="text-3xl font-semibold tracking-tight text-ink">
-          {t("crm.header.title")}
-        </h1>
-        <p className="max-w-3xl text-sm leading-7 text-ink-soft">
-          {t("crm.header.description")}
-        </p>
-      </section>
+    <div className="space-y-6">
+      <section className="grid gap-4 xl:grid-cols-[minmax(0,1.35fr)_340px]">
+        <div className="rounded-3xl border border-line/70 bg-linear-to-br from-paper via-paper to-sage-200/45 p-5 shadow-panel sm:p-6">
+          <div className="space-y-5">
+            <div className="space-y-3">
+              <span className="inline-flex min-h-9 items-center rounded-full border border-line/70 bg-paper/85 px-3 text-xs font-semibold uppercase tracking-[0.18em] text-ink-muted">
+                {t("crm.header.eyebrow")}
+              </span>
+              <div className="space-y-2">
+                <h1 className="text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
+                  {t("crm.header.title")}
+                </h1>
+                <p className="max-w-2xl text-sm leading-7 text-ink-soft sm:text-base">
+                  {t("crm.header.description")}
+                </p>
+              </div>
+            </div>
 
-      <LeadIntakeForm />
+            <div className="flex flex-wrap gap-2">
+              <StatusPill tone="info">
+                {t("crm.overview.totalCustomers", {
+                  count: customerSummary.total
+                })}
+              </StatusPill>
+              <StatusPill tone="success">
+                {t("crm.overview.activeCustomers", {
+                  count: customerSummary.active
+                })}
+              </StatusPill>
+              <StatusPill tone="warning">
+                {t("crm.overview.inactiveCustomers", {
+                  count: customerSummary.inactive + customerSummary.archived
+                })}
+              </StatusPill>
+            </div>
 
-      <CustomerOperationsPanel customers={data ?? []} />
+            <div className="flex flex-wrap gap-3">
+              <a
+                href="#crm-lead-intake"
+                className="inline-flex min-h-12 items-center justify-center rounded-full bg-brand px-5 text-sm font-medium text-brand-contrast shadow-soft transition hover:bg-brand-hover"
+              >
+                {t("crm.actions.captureLead")}
+              </a>
+              <a
+                href="#crm-customer-operations"
+                className="inline-flex min-h-12 items-center justify-center rounded-full border border-line-strong bg-paper/95 px-5 text-sm font-medium text-ink shadow-panel transition hover:bg-sand/70"
+              >
+                {t("crm.actions.manageCustomers")}
+              </a>
+            </div>
+          </div>
+        </div>
 
-      <section className="grid gap-4 lg:grid-cols-[1fr_1fr]">
         <Card>
           <CardHeader>
-            <CardTitle>{t("crm.recent.title")}</CardTitle>
-            <CardDescription>
-              {t("crm.recent.description")}
-            </CardDescription>
+            <CardTitle>{t("crm.overview.title")}</CardTitle>
+            <CardDescription>{t("crm.overview.description")}</CardDescription>
           </CardHeader>
           <CardContent>
             {!hasTenantContext ? (
-              <div className="rounded-3xl border border-dashed border-line-strong bg-paper/70 p-5">
-                <p className="text-sm font-medium text-ink">
-                  {t("crm.recent.noTenantTitle")}
-                </p>
-                <p className="mt-2 text-sm leading-6 text-ink-soft">
-                  {t("crm.recent.noTenantDescription")}
-                </p>
-              </div>
+              <InlineStateCard
+                title={t("crm.recent.noTenantTitle")}
+                description={t("crm.recent.noTenantDescription")}
+              />
             ) : isLoading ? (
-              <div className="rounded-3xl border border-dashed border-line-strong bg-paper/70 p-5">
-                <p className="text-sm font-medium text-ink">
-                  {t("crm.recent.loadingTitle")}
-                </p>
-                <p className="mt-2 text-sm leading-6 text-ink-soft">
-                  {t("crm.recent.loadingDescription")}
-                </p>
-              </div>
+              <InlineStateCard
+                title={t("crm.recent.loadingTitle")}
+                description={t("crm.recent.loadingDescription")}
+              />
             ) : isError ? (
-              <div className="rounded-3xl border border-dashed border-line-strong bg-paper/70 p-5">
-                <p className="text-sm font-medium text-ink">
-                  {t("crm.recent.errorTitle")}
-                </p>
-                <p className="mt-2 text-sm leading-6 text-ink-soft">
-                  {t("crm.recent.errorDescription", {
-                    message: error instanceof Error ? error.message : ""
-                  })}
-                </p>
-                <Button
-                  className="mt-4"
-                  variant="secondary"
-                  onClick={() => {
-                    void refetch();
-                  }}
-                >
-                  {t("crm.recent.retryAction")}
-                </Button>
+              <InlineStateCard
+                title={t("crm.recent.errorTitle")}
+                description={t("crm.recent.errorDescription", {
+                  message: error instanceof Error ? error.message : ""
+                })}
+                action={
+                  <Button
+                    className="mt-4"
+                    variant="secondary"
+                    onClick={() => {
+                      void refetch();
+                    }}
+                  >
+                    {t("crm.recent.retryAction")}
+                  </Button>
+                }
+              />
+            ) : customerSummary.total > 0 ? (
+              <div className="space-y-3">
+                <SummaryRow
+                  icon={<UsersRound className="size-4" aria-hidden="true" />}
+                  label={t("crm.overview.totalLabel")}
+                  value={String(customerSummary.total)}
+                />
+                <SummaryRow
+                  icon={<UserPlus className="size-4" aria-hidden="true" />}
+                  label={t("crm.overview.activeLabel")}
+                  value={String(customerSummary.active)}
+                />
+                <SummaryRow
+                  icon={<CircleAlert className="size-4" aria-hidden="true" />}
+                  label={t("crm.overview.needsAttentionLabel")}
+                  value={String(
+                    customerSummary.inactive + customerSummary.archived
+                  )}
+                />
               </div>
+            ) : (
+              <InlineStateCard
+                title={t("crm.overview.emptyTitle")}
+                description={t("crm.overview.emptyDescription")}
+              />
+            )}
+          </CardContent>
+        </Card>
+      </section>
+
+      <section className="grid gap-4 xl:grid-cols-[minmax(0,1.05fr)_0.95fr]">
+        <div id="crm-lead-intake">
+          <LeadIntakeForm />
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("crm.recent.title")}</CardTitle>
+            <CardDescription>{t("crm.recent.description")}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {!hasTenantContext ? (
+              <InlineStateCard
+                title={t("crm.recent.noTenantTitle")}
+                description={t("crm.recent.noTenantDescription")}
+              />
+            ) : isLoading ? (
+              <InlineStateCard
+                title={t("crm.recent.loadingTitle")}
+                description={t("crm.recent.loadingDescription")}
+              />
+            ) : isError ? (
+              <InlineStateCard
+                title={t("crm.recent.errorTitle")}
+                description={t("crm.recent.errorDescription", {
+                  message: error instanceof Error ? error.message : ""
+                })}
+                action={
+                  <Button
+                    className="mt-4"
+                    variant="secondary"
+                    onClick={() => {
+                      void refetch();
+                    }}
+                  >
+                    {t("crm.recent.retryAction")}
+                  </Button>
+                }
+              />
             ) : data && data.length > 0 ? (
               <div className="space-y-3">
                 {data.slice(0, 6).map((customer) => (
@@ -117,42 +206,58 @@ export function CrmPage() {
                 ))}
               </div>
             ) : (
-              <div className="rounded-3xl border border-dashed border-line-strong bg-paper/70 p-5">
-                <p className="text-sm font-medium text-ink">
-                  {t("crm.recent.emptyTitle")}
-                </p>
-                <p className="mt-2 text-sm leading-6 text-ink-soft">
-                  {t("crm.recent.emptyDescription")}
-                </p>
-              </div>
+              <InlineStateCard
+                title={t("crm.recent.emptyTitle")}
+                description={t("crm.recent.emptyDescription")}
+              />
             )}
           </CardContent>
         </Card>
-
-        <Card className="bg-linear-to-br from-paper via-paper to-sky-200/50">
-          <CardHeader>
-            <CardTitle>{t("crm.rules.title")}</CardTitle>
-            <CardDescription>
-              {t("crm.rules.description")}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {operatingRules.map(({ icon: Icon, titleKey, textKey }) => (
-              <div key={titleKey} className="flex items-start gap-3">
-                <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-paper shadow-panel">
-                  <Icon className="size-4 text-ink" aria-hidden="true" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-ink">{t(titleKey)}</p>
-                  <p className="mt-1 text-sm leading-6 text-ink-soft">
-                    {t(textKey)}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
       </section>
+
+      <div id="crm-customer-operations">
+        <CustomerOperationsPanel customers={data ?? []} />
+      </div>
+    </div>
+  );
+}
+
+function InlineStateCard({
+  action,
+  description,
+  title
+}: {
+  action?: ReactNode;
+  description: string;
+  title: string;
+}) {
+  return (
+    <div className="rounded-3xl border border-dashed border-line-strong bg-paper/70 p-5">
+      <p className="text-sm font-medium text-ink">{title}</p>
+      <p className="mt-2 text-sm leading-6 text-ink-soft">{description}</p>
+      {action}
+    </div>
+  );
+}
+
+function SummaryRow({
+  icon,
+  label,
+  value
+}: {
+  icon: ReactNode;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-3 rounded-2xl border border-line/70 bg-sand/45 px-4 py-3">
+      <div className="flex items-center gap-3">
+        <span className="flex size-10 items-center justify-center rounded-2xl bg-paper text-ink shadow-panel">
+          {icon}
+        </span>
+        <span className="text-sm font-medium text-ink">{label}</span>
+      </div>
+      <span className="text-lg font-semibold tracking-tight text-ink">{value}</span>
     </div>
   );
 }
