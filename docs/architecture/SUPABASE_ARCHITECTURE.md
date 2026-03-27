@@ -83,6 +83,7 @@ La fase 2 ya deja listos estos bloques iniciales:
 - `quote_line_items` como detalle persistido del documento
 - snapshot documental del receptor dentro de `quotes` para soportar `customer`, `lead` y `ad_hoc`
 - escritura de cotizaciones concentrada en RPCs para evitar inconsistencias de line items y totales
+- endurecimiento de grants en RPCs de `quotes`: `create_quote` y `update_quote` quedan para `authenticated`, mientras `replace_quote_line_items` no se expone al cliente
 
 ## Primeras tablas operativas
 
