@@ -19,6 +19,10 @@ vi.mock("@/modules/crm/customer-operations-panel", () => ({
   CustomerOperationsPanel: () => <div>Customer operations stub</div>
 }));
 
+vi.mock("@/modules/crm/lead-intake-form", () => ({
+  LeadIntakeForm: () => <div>Lead intake stub</div>
+}));
+
 function renderPage() {
   const i18n = setupBackofficeI18n();
 

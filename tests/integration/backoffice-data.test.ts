@@ -191,6 +191,13 @@ describe("backoffice data access", () => {
         {
           id: "quote-1",
           customer_id: "customer-1",
+          lead_id: null,
+          recipient_kind: "customer",
+          recipient_display_name: "Northline Industrial",
+          recipient_contact_name: "Andrea Castillo",
+          recipient_email: "sales@northline.test",
+          recipient_whatsapp: null,
+          recipient_phone: null,
           quote_number: "COT-2026-000210",
           title: "Propuesta Northline",
           currency_code: "USD",
@@ -202,10 +209,9 @@ describe("backoffice data access", () => {
           version: 2,
           valid_until: null,
           notes: null,
+          created_at: "2026-03-25T00:00:00.000Z",
           updated_at: "2026-03-26T00:00:00.000Z",
-          customer: {
-            display_name: "Northline Industrial"
-          }
+          line_items: []
         }
       ],
       error: null
@@ -414,6 +420,13 @@ describe("backoffice data access", () => {
       data: {
         id: "quote-1",
         customer_id: "customer-1",
+        lead_id: null,
+        recipient_kind: "customer",
+        recipient_display_name: "Northline Industrial",
+        recipient_contact_name: "Andrea Castillo",
+        recipient_email: "sales@northline.test",
+        recipient_whatsapp: null,
+        recipient_phone: null,
         quote_number: "COT-2026-000001",
         title: "Propuesta Northline",
         currency_code: "USD",
@@ -425,10 +438,9 @@ describe("backoffice data access", () => {
         version: 1,
         valid_until: "2026-04-30",
         notes: "temporary qa check",
+        created_at: "2026-03-25T00:00:00.000Z",
         updated_at: "2026-03-26T00:00:00.000Z",
-        customer: {
-          display_name: "Northline Industrial"
-        }
+        line_items: []
       },
       error: null
     });
@@ -441,26 +453,58 @@ describe("backoffice data access", () => {
 
     const quote = await createQuote({
       tenantId: "tenant-1",
+      recipientKind: "customer",
       customerId: "customer-1",
+      leadId: null,
+      recipientDisplayName: "Northline Industrial",
+      recipientContactName: "Andrea Castillo",
+      recipientEmail: "sales@northline.test",
+      recipientWhatsApp: "",
+      recipientPhone: "",
       title: "  Propuesta Northline  ",
       status: "draft",
       currencyCode: "usd",
-      subtotal: 150,
-      discountTotal: 10,
-      taxTotal: 25.2,
       validUntil: "2026-04-30",
-      notes: " temporary qa check "
+      notes: " temporary qa check ",
+      lineItems: [
+        {
+          catalogItemId: "item-1",
+          itemName: "Mantenimiento preventivo",
+          itemDescription: "Visita tecnica trimestral",
+          quantity: 1,
+          unitLabel: "servicio",
+          unitPrice: 150,
+          discountTotal: 10,
+          taxTotal: 25.2
+        }
+      ]
     });
 
     expect(supabaseMocks.rpc).toHaveBeenCalledWith("create_quote", {
       target_tenant_id: "tenant-1",
-      target_customer_id: "customer-1",
       target_title: "Propuesta Northline",
       target_status: "draft",
       target_currency_code: "USD",
-      target_subtotal: 150,
-      target_discount_total: 10,
-      target_tax_total: 25.2,
+      target_recipient_kind: "customer",
+      target_line_items: [
+        {
+          catalogItemId: "item-1",
+          itemName: "Mantenimiento preventivo",
+          itemDescription: "Visita tecnica trimestral",
+          quantity: 1,
+          unitLabel: "servicio",
+          unitPrice: 150,
+          discountTotal: 10,
+          taxTotal: 25.2
+        }
+      ],
+      target_customer_id: "customer-1",
+      target_lead_id: null,
+      target_recipient_display_name: "Northline Industrial",
+      target_recipient_contact_name: "Andrea Castillo",
+      target_recipient_email: "sales@northline.test",
+      target_recipient_whatsapp: null,
+      target_recipient_phone: null,
       target_valid_until: "2026-04-30",
       target_notes: "temporary qa check"
     });
@@ -479,6 +523,13 @@ describe("backoffice data access", () => {
       data: {
         id: "quote-1",
         customer_id: "customer-1",
+        lead_id: null,
+        recipient_kind: "customer",
+        recipient_display_name: "Northline Industrial",
+        recipient_contact_name: "Andrea Castillo",
+        recipient_email: "sales@northline.test",
+        recipient_whatsapp: null,
+        recipient_phone: null,
         quote_number: "COT-2026-000001",
         title: "Propuesta Northline actualizada",
         currency_code: "DOP",
@@ -490,10 +541,9 @@ describe("backoffice data access", () => {
         version: 2,
         valid_until: "2026-05-15",
         notes: "temporary qa update",
+        created_at: "2026-03-25T00:00:00.000Z",
         updated_at: "2026-03-26T00:00:00.000Z",
-        customer: {
-          display_name: "Northline Industrial"
-        }
+        line_items: []
       },
       error: null
     });
@@ -508,28 +558,60 @@ describe("backoffice data access", () => {
       tenantId: "tenant-1",
       quoteId: "quote-1",
       version: 1,
+      recipientKind: "customer",
       customerId: "customer-1",
+      leadId: null,
+      recipientDisplayName: "Northline Industrial",
+      recipientContactName: "Andrea Castillo",
+      recipientEmail: "sales@northline.test",
+      recipientWhatsApp: "",
+      recipientPhone: "",
       title: "  Propuesta Northline actualizada  ",
       status: "sent",
       currencyCode: "dop",
-      subtotal: 210,
-      discountTotal: 20,
-      taxTotal: 34.2,
       validUntil: "2026-05-15",
-      notes: " temporary qa update "
+      notes: " temporary qa update ",
+      lineItems: [
+        {
+          catalogItemId: "item-1",
+          itemName: "Mantenimiento preventivo",
+          itemDescription: "Visita tecnica trimestral",
+          quantity: 1,
+          unitLabel: "servicio",
+          unitPrice: 210,
+          discountTotal: 20,
+          taxTotal: 34.2
+        }
+      ]
     });
 
     expect(supabaseMocks.rpc).toHaveBeenCalledWith("update_quote", {
       target_tenant_id: "tenant-1",
       target_quote_id: "quote-1",
       expected_version: 1,
-      target_customer_id: "customer-1",
       target_title: "Propuesta Northline actualizada",
       target_status: "sent",
       target_currency_code: "DOP",
-      target_subtotal: 210,
-      target_discount_total: 20,
-      target_tax_total: 34.2,
+      target_recipient_kind: "customer",
+      target_line_items: [
+        {
+          catalogItemId: "item-1",
+          itemName: "Mantenimiento preventivo",
+          itemDescription: "Visita tecnica trimestral",
+          quantity: 1,
+          unitLabel: "servicio",
+          unitPrice: 210,
+          discountTotal: 20,
+          taxTotal: 34.2
+        }
+      ],
+      target_customer_id: "customer-1",
+      target_lead_id: null,
+      target_recipient_display_name: "Northline Industrial",
+      target_recipient_contact_name: "Andrea Castillo",
+      target_recipient_email: "sales@northline.test",
+      target_recipient_whatsapp: null,
+      target_recipient_phone: null,
       target_valid_until: "2026-05-15",
       target_notes: "temporary qa update"
     });

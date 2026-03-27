@@ -140,7 +140,7 @@ const backofficeEs = {
     form: {
       title: "Captura rapida de lead",
       description:
-        "Usa esto como patron de referencia para formularios mobile-first: labels arriba, campos compactos y una accion primaria obvia.",
+        "Usa esta superficie para capturar leads reales del tenant activo sin perder el patron mobile-first.",
       companyLabel: "Empresa",
       companyPlaceholder: "Northline Industrial",
       contactNameLabel: "Nombre del contacto",
@@ -160,6 +160,10 @@ const backofficeEs = {
       submit: "Crear lead",
       submitting: "Guardando lead...",
       clear: "Limpiar formulario",
+      createSuccess: "Lead creado correctamente.",
+      createError: "No pudimos crear el lead. {{message}}",
+      noTenantHint:
+        "Necesitas un tenant activo antes de capturar leads reales para CRM.",
       previewTitle: "Vista previa del envio",
       previewDescription:
         "Este panel luego sirve para enriquecimiento con IA, reglas de asignacion y siguientes pasos sugeridos.",
@@ -432,43 +436,44 @@ const backofficeEs = {
   quotes: {
     header: {
       eyebrow: "Modulo cotizaciones",
-      title: "Base del flujo de cotizacion",
+      title: "Cotizaciones con receptor flexible y PDF comercial",
       description:
-        "Cotizar es el centro comercial del producto. La UX debe sentirse rapida, confiable y auditable."
+        "El cotizador debe servir para clientes, leads ya registrados y leads rapidos sin guardar, manteniendo versionado, trazabilidad y un PDF serio."
     },
     flow: {
       title: "Flujo de cotizacion a decision",
       description:
         "La secuencia debe seguir corta, visible y facil de retomar desde el telefono.",
       draftTitle: "Borrador",
-      draftText: "Reunir productos, logica de precio, notas y terminos.",
+      draftText:
+        "Definir receptor, line items y condiciones sin perder velocidad comercial.",
       reviewTitle: "Revision",
       reviewText:
-        "Revisar totales, margenes de control y aprobacion gerencial si aplica.",
+        "Revisar snapshots del receptor, totales calculados y narrativa comercial.",
       sendTitle: "Enviar",
-      sendText: "Generar PDF y enlace publico con tracking.",
+      sendText: "Generar un PDF limpio con branding, fechas y detalle del servicio.",
       decideTitle: "Decidir",
       decideText:
-        "Registrar abierta, aceptada, rechazada o pendiente de seguimiento."
+        "Mantener la cotizacion viva mientras escala a lead, cliente, proforma o cierre."
     },
     document: {
       title: "Principios de experiencia documental",
       description:
         "La cotizacion debe verse elegante pero operativa. La belleza tiene que apoyar confianza y velocidad.",
       structuredSections:
-        "El cotizador debe usar secciones estructuradas, no formularios gigantes.",
+        "El cotizador debe trabajar con receptor, line items, totales y notas en bloques claros.",
       versioning:
-        "Versionado, numeracion y visibilidad de aprobaciones son no negociables.",
+        "Versionado, numeracion y snapshot del receptor son no negociables.",
       publicLinks:
-        "Los enlaces publicos y estados de aceptacion deben sentirse simples para el cliente."
+        "El PDF debe poder enviarse rapido sin depender de un paso manual de maquetacion."
     },
     form: {
       createTitle: "Crear cotizacion real",
       createDescription:
-        "Esta superficie ya crea borradores reales en `quotes` y refresca el dashboard al guardar.",
+        "Crea cotizaciones reales con cliente, lead existente o lead rapido, y calcula totales desde line items.",
       updateTitle: "Actualizar cotizacion existente",
       updateDescription:
-        "Edita una cotizacion real del tenant activo sin romper el contexto protegido por RLS.",
+        "Edita una cotizacion real del tenant activo con versionado y detalle persistido por linea.",
       createAction: "Guardar cotizacion",
       createSubmitting: "Guardando cotizacion...",
       updateAction: "Actualizar cotizacion",
@@ -479,38 +484,109 @@ const backofficeEs = {
       updateSuccess: "Cotizacion actualizada correctamente.",
       updateError: "No pudimos actualizar la cotizacion. {{message}}",
       noQuoteSelected: "Selecciona una cotizacion antes de intentar actualizarla.",
-      needCustomerHint:
-        "Necesitas al menos un cliente real antes de emitir una cotizacion operativa.",
       recordLabel: "Cotizacion a actualizar",
       noQuotesOption: "No hay cotizaciones todavia",
       noQuotesHint:
         "Crea una cotizacion real para habilitar el flujo de actualizacion.",
+      loadingDetailHint: "Cargando el detalle completo de la cotizacion seleccionada.",
+      loadingDetailError:
+        "No pudimos leer el detalle de la cotizacion. {{message}}",
       versionHint: "La siguiente actualizacion incrementara la version desde v{{version}}.",
+      recipientKindLabel: "Tipo de receptor",
+      recipientKinds: {
+        customer: "Cliente existente",
+        lead: "Lead existente",
+        ad_hoc: "Lead rapido"
+      },
       customerLabel: "Cliente",
       customerPlaceholder: "Selecciona un cliente",
+      noCustomersHint:
+        "Aun no hay clientes reales. Puedes usar lead existente o lead rapido mientras tanto.",
+      leadLabel: "Lead",
+      leadPlaceholder: "Selecciona un lead",
+      noLeadsHint:
+        "Aun no hay leads persistidos. Puedes capturarlos desde CRM o cotizar como lead rapido.",
+      quickRecipientTitle: "Cotizacion rapida sin guardar lead",
+      quickRecipientDescription:
+        "Usa este modo cuando necesites emitir una cotizacion inmediata y decidir despues si el receptor debe escalarse a lead o cliente.",
       quoteNumberLabel: "Numero de cotizacion",
       generatedNumberPlaceholder: "Se asignara automaticamente al guardar",
       generatedNumberHint:
         "La numeracion vive en Supabase y se asigna automaticamente para mantener consistencia y auditoria.",
+      recipientDisplayNameLabel: "Empresa o referencia",
+      recipientDisplayNamePlaceholder: "Northline Industrial",
+      recipientContactNameLabel: "Contacto",
+      recipientContactNamePlaceholder: "Andrea Castillo",
+      recipientEmailLabel: "Correo",
+      recipientEmailPlaceholder: "andrea@northline.test",
+      recipientWhatsAppLabel: "WhatsApp",
+      recipientWhatsAppPlaceholder: "+1 809 555 0186",
+      recipientPhoneLabel: "Telefono alterno",
+      recipientPhonePlaceholder: "+1 809 555 0140",
       titleLabel: "Titulo",
       titlePlaceholder: "Propuesta de equipos y soporte",
       statusLabel: "Estado",
       currencyCodeLabel: "Moneda",
       currencyCodePlaceholder: "USD",
       validUntilLabel: "Valida hasta",
-      subtotalLabel: "Subtotal",
+      lineItemsTitle: "Detalle comercial",
+      lineItemsDescription:
+        "Cada linea debe reflejar un servicio o producto ofertado con cantidad, precio y ajustes visibles.",
+      addLineItemAction: "Agregar linea",
+      removeLineItemAction: "Eliminar linea",
+      lineItemLabel: "Detalle {{index}}",
+      catalogItemLabel: "Catalogo relacionado",
+      catalogItemPlaceholder: "Selecciona un item del catalogo o captura manual",
+      catalogItemOnRequest: "A solicitud",
+      lineItemNameLabel: "Nombre del servicio o producto",
+      lineItemNamePlaceholder: "Mantenimiento preventivo trimestral",
+      lineItemDescriptionLabel: "Descripcion",
+      lineItemDescriptionPlaceholder:
+        "Incluye alcance, entregables, cobertura o aclaraciones de esta linea.",
+      unitLabelLabel: "Unidad",
+      unitLabelPlaceholder: "servicio",
+      quantityLabel: "Cantidad",
+      unitPriceLabel: "Precio unitario",
       discountTotalLabel: "Descuento",
       taxTotalLabel: "Impuestos",
+      lineItemTotalLabel: "Total de la linea",
+      defaultServiceUnit: "servicio",
+      defaultProductUnit: "unidad",
       grandTotalLabel: "Total calculado",
+      subtotalSummaryLabel: "Subtotal",
+      discountSummaryLabel: "Descuentos",
+      taxSummaryLabel: "Impuestos",
       notesLabel: "Notas",
       notesPlaceholder:
         "Terminos comerciales, condiciones de entrega o aclaraciones internas.",
       validation: {
         customerRequired: "Selecciona un cliente antes de guardar.",
+        leadRequired: "Selecciona un lead antes de guardar.",
+        recipientDisplayNameMin: "Ingresa la empresa o referencia del receptor.",
+        recipientDisplayNameMax:
+          "Mantener la empresa o referencia por debajo de 120 caracteres.",
+        recipientContactNameMax:
+          "Mantener el contacto por debajo de 120 caracteres.",
+        recipientEmail:
+          "Ingresa un correo valido o deja el campo vacio.",
+        recipientEmailMax:
+          "Mantener el correo por debajo de 120 caracteres.",
+        recipientWhatsAppMax:
+          "Mantener el WhatsApp por debajo de 30 caracteres.",
+        recipientPhoneMax:
+          "Mantener el telefono por debajo de 30 caracteres.",
         titleMin: "Ingresa un titulo para la cotizacion.",
         titleMax: "Mantener el titulo por debajo de 160 caracteres.",
         currencyCode: "Usa un codigo de moneda de 3 letras.",
-        subtotal: "El subtotal no puede ser negativo.",
+        lineItemsMin: "Agrega al menos una linea a la cotizacion.",
+        lineItemNameMin: "Cada linea necesita un nombre visible.",
+        lineItemNameMax:
+          "Mantener el nombre de la linea por debajo de 160 caracteres.",
+        lineItemDescriptionMax:
+          "Mantener la descripcion de la linea por debajo de 500 caracteres.",
+        quantity: "La cantidad debe ser mayor que cero.",
+        unitLabelMax: "Mantener la unidad por debajo de 40 caracteres.",
+        unitPrice: "El precio unitario no puede ser negativo.",
         discountTotal: "El descuento no puede ser negativo.",
         taxTotal: "Los impuestos no pueden ser negativos.",
         notesMax: "Mantener las notas por debajo de 500 caracteres."
@@ -519,7 +595,7 @@ const backofficeEs = {
     list: {
       title: "Lista de cotizaciones reales",
       description:
-        "Lectura real desde `quotes` con cards mobile-first y visibilidad protegida por RLS.",
+        "Lectura real desde `quotes` con snapshot del receptor, cards mobile-first y descarga de PDF.",
       currentValueLabel: "Valor actual",
       noTenantTitle: "No hay tenant activo para consultar cotizaciones",
       noTenantDescription:
@@ -534,7 +610,7 @@ const backofficeEs = {
       emptyTitle: "Todavia no hay cotizaciones registradas",
       emptyDescription:
         "Las primeras cotizaciones reales apareceran aqui con su estado y valor actual.",
-      customerPending: "Cliente pendiente",
+      customerPending: "Receptor pendiente",
       status: {
         draft: "Borrador",
         sent: "Enviada",
@@ -543,6 +619,12 @@ const backofficeEs = {
         rejected: "Rechazada",
         expired: "Expirada"
       }
+    },
+    pdf: {
+      downloadAction: "Descargar PDF",
+      generatingAction: "Generando PDF...",
+      downloadError: "No pudimos generar el PDF. {{message}}",
+      noTenantError: "Necesitas un tenant activo para generar el PDF."
     }
   },
   admin: {

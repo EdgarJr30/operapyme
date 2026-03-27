@@ -68,3 +68,4 @@ Herramienta separada del backoffice para ejecutar pruebas masivas controladas co
 - fundacion segura de Supabase documentada y sembrada
 - superficies admin y stress tool reservadas
 - dashboard, CRM, catalogo y cotizaciones funcionando sobre datos reales por tenant con RBAC, RLS y auditoria
+- cotizaciones capaces de nacer desde cliente, lead o receptor rapido con snapshot documental y PDF profesional

@@ -79,12 +79,18 @@ La fase 2 ya deja listos estos bloques iniciales:
 - lectura real del backoffice sobre `customers` y `quotes` usando el tenant activo y RLS
 - mutaciones reales de `customers` y `quotes` desde el backoffice usando el tenant activo y las mismas politicas RLS
 - numeracion y versionado de `quotes` trasladados a funciones SQL para mantener consistencia y seguridad bajo concurrencia
+- `leads` como entidad minima de CRM para quoting y seguimiento comercial
+- `quote_line_items` como detalle persistido del documento
+- snapshot documental del receptor dentro de `quotes` para soportar `customer`, `lead` y `ad_hoc`
+- escritura de cotizaciones concentrada en RPCs para evitar inconsistencias de line items y totales
 
 ## Primeras tablas operativas
 
 - `customers`: base multi-tenant para clientes del CRM
 - `customers.contact_name`: contacto principal para los flujos comerciales del CRM
-- `quotes`: base multi-tenant para cotizaciones con version y totales
+- `leads`: base multi-tenant para oportunidades y receptores previos a cliente
+- `quotes`: base multi-tenant para cotizaciones con version, receptor flexible y snapshot documental
+- `quote_line_items`: detalle comercial persistido por cotizacion
 - `quote_number_sequences`: contador interno por tenant y anio para generar numeros `COT-YYYY-######`
 
 ## Estado del security advisor base

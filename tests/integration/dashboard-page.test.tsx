@@ -115,9 +115,15 @@ describe("dashboard page", () => {
           {
             id: "quote-1",
             customerId: "customer-1",
+            leadId: null,
+            recipientKind: "customer",
+            recipientDisplayName: "Northline Industrial",
+            recipientContactName: "Andrea Castillo",
+            recipientEmail: "sales@northline.test",
+            recipientWhatsApp: null,
+            recipientPhone: null,
             quoteNumber: "COT-2026-000210",
             title: "Propuesta Northline",
-            customerName: "Northline Industrial",
             currencyCode: "USD",
             subtotal: 12000,
             discountTotal: 200,
@@ -127,6 +133,7 @@ describe("dashboard page", () => {
             version: 1,
             validUntil: null,
             notes: null,
+            createdAt: "2026-03-26T00:00:00.000Z",
             updatedAt: "2026-03-26T00:00:00.000Z"
           }
         ]

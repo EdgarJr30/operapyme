@@ -13,6 +13,7 @@ import {
 import { StatusPill } from "@/components/ui/status-pill";
 import type { CustomerSummary } from "@/lib/supabase/backoffice-data";
 import { CustomerOperationsPanel } from "@/modules/crm/customer-operations-panel";
+import { LeadIntakeForm } from "@/modules/crm/lead-intake-form";
 import { useCustomersData } from "@/modules/crm/use-customers-data";
 
 const operatingRules = [
@@ -57,6 +58,8 @@ export function CrmPage() {
           {t("crm.header.description")}
         </p>
       </section>
+
+      <LeadIntakeForm />
 
       <CustomerOperationsPanel customers={data ?? []} />
 

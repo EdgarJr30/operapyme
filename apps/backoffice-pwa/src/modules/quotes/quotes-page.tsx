@@ -12,8 +12,11 @@ import {
 } from "@/components/ui/card";
 import { StatusPill } from "@/components/ui/status-pill";
 import type { QuoteStatus, QuoteSummary } from "@/lib/supabase/backoffice-data";
+import { useCatalogItemsData } from "@/modules/catalog/use-catalog-items-data";
 import { useCustomersData } from "@/modules/crm/use-customers-data";
+import { useLeadsData } from "@/modules/crm/use-leads-data";
 import { QuoteOperationsPanel } from "@/modules/quotes/quote-operations-panel";
+import { QuotePdfDownloadButton } from "@/modules/quotes/quote-pdf-download-button";
 import { useQuotesData } from "@/modules/quotes/use-quotes-data";
 
 const flowSteps = [
@@ -46,6 +49,8 @@ export function QuotesPage() {
     refetch
   } = useQuotesData();
   const { data: customers = [] } = useCustomersData();
+  const { data: leads = [] } = useLeadsData();
+  const { data: catalogItems = [] } = useCatalogItemsData();
 
   return (
     <div className="space-y-5 lg:space-y-6">
@@ -126,7 +131,12 @@ export function QuotesPage() {
         </Card>
       </section>
 
-      <QuoteOperationsPanel customers={customers} quotes={data ?? []} />
+      <QuoteOperationsPanel
+        catalogItems={catalogItems}
+        customers={customers}
+        leads={leads}
+        quotes={data ?? []}
+      />
 
       <Card>
         <CardHeader>
@@ -207,17 +217,23 @@ function QuoteCard({
         <div>
           <p className="font-semibold text-ink">{quote.quoteNumber}</p>
           <p className="text-sm text-ink-soft">
-            {quote.customerName || t("quotes.list.customerPending")}
+            {quote.recipientDisplayName || t("quotes.list.customerPending")}
           </p>
         </div>
         <StatusPill tone={getQuoteTone(quote.status)}>
           {t(`quotes.list.status.${quote.status}`)}
         </StatusPill>
       </div>
-      <p className="mt-3 text-sm leading-6 text-ink-soft">
-        {t("quotes.list.currentValueLabel")}:{" "}
-        {formatCurrency(quote.grandTotal, quote.currencyCode)}
-      </p>
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm leading-6 text-ink-soft">
+          {t("quotes.list.currentValueLabel")}:{" "}
+          {formatCurrency(quote.grandTotal, quote.currencyCode)}
+        </p>
+        <QuotePdfDownloadButton
+          quoteId={quote.id}
+          quoteNumber={quote.quoteNumber}
+        />
+      </div>
     </div>
   );
 }

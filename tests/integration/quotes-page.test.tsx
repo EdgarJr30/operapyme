@@ -9,7 +9,9 @@ import { QuotesPage } from "@/modules/quotes/quotes-page";
 
 const quotesMocks = vi.hoisted(() => ({
   useQuotesData: vi.fn(),
-  useCustomersData: vi.fn()
+  useCustomersData: vi.fn(),
+  useLeadsData: vi.fn(),
+  useCatalogItemsData: vi.fn()
 }));
 
 vi.mock("@/modules/quotes/use-quotes-data", () => ({
@@ -20,8 +22,20 @@ vi.mock("@/modules/crm/use-customers-data", () => ({
   useCustomersData: quotesMocks.useCustomersData
 }));
 
+vi.mock("@/modules/crm/use-leads-data", () => ({
+  useLeadsData: quotesMocks.useLeadsData
+}));
+
+vi.mock("@/modules/catalog/use-catalog-items-data", () => ({
+  useCatalogItemsData: quotesMocks.useCatalogItemsData
+}));
+
 vi.mock("@/modules/quotes/quote-operations-panel", () => ({
   QuoteOperationsPanel: () => <div>Quote operations stub</div>
+}));
+
+vi.mock("@/modules/quotes/quote-pdf-download-button", () => ({
+  QuotePdfDownloadButton: () => <div>Quote PDF stub</div>
 }));
 
 function renderPage() {
@@ -45,6 +59,22 @@ describe("quotes page", () => {
       refetch: vi.fn()
     });
     quotesMocks.useCustomersData.mockReturnValue({
+      data: [],
+      error: null,
+      hasTenantContext: true,
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn()
+    });
+    quotesMocks.useLeadsData.mockReturnValue({
+      data: [],
+      error: null,
+      hasTenantContext: true,
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn()
+    });
+    quotesMocks.useCatalogItemsData.mockReturnValue({
       data: [],
       error: null,
       hasTenantContext: true,
@@ -77,6 +107,22 @@ describe("quotes page", () => {
       isLoading: false,
       refetch: vi.fn()
     });
+    quotesMocks.useLeadsData.mockReturnValue({
+      data: [],
+      error: null,
+      hasTenantContext: false,
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn()
+    });
+    quotesMocks.useCatalogItemsData.mockReturnValue({
+      data: [],
+      error: null,
+      hasTenantContext: false,
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn()
+    });
 
     renderPage();
 
@@ -102,6 +148,22 @@ describe("quotes page", () => {
       isLoading: false,
       refetch: vi.fn()
     });
+    quotesMocks.useLeadsData.mockReturnValue({
+      data: [],
+      error: null,
+      hasTenantContext: true,
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn()
+    });
+    quotesMocks.useCatalogItemsData.mockReturnValue({
+      data: [],
+      error: null,
+      hasTenantContext: true,
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn()
+    });
 
     renderPage();
 
@@ -115,15 +177,45 @@ describe("quotes page", () => {
       data: [
         {
           id: "quote-1",
+          customerId: "customer-1",
+          leadId: null,
+          recipientKind: "customer",
+          recipientDisplayName: "Northline Industrial",
+          recipientContactName: "Andrea Castillo",
+          recipientEmail: "sales@northline.test",
+          recipientWhatsApp: null,
+          recipientPhone: null,
           quoteNumber: "COT-2026-000210",
           title: "Propuesta Northline",
-          customerName: "Northline Industrial",
           currencyCode: "USD",
+          subtotal: 12000,
+          discountTotal: 200,
+          taxTotal: 1040,
           grandTotal: 12840,
           status: "sent",
+          version: 1,
+          validUntil: null,
+          notes: null,
+          createdAt: "2026-03-26T00:00:00.000Z",
           updatedAt: "2026-03-26T00:00:00.000Z"
         }
       ],
+      error: null,
+      hasTenantContext: true,
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn()
+    });
+    quotesMocks.useLeadsData.mockReturnValue({
+      data: [],
+      error: null,
+      hasTenantContext: true,
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn()
+    });
+    quotesMocks.useCatalogItemsData.mockReturnValue({
+      data: [],
       error: null,
       hasTenantContext: true,
       isError: false,

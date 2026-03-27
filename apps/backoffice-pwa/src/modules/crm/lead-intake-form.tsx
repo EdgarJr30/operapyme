@@ -21,6 +21,8 @@ import {
   type LeadIntakeValues,
   leadSourceValues
 } from "@/lib/forms/lead-intake-schema";
+import { useBackofficeAuth } from "@/app/auth-provider";
+import { useLeadMutations } from "@/modules/crm/use-lead-mutations";
 
 const defaultValues: LeadIntakeValues = {
   company: "",
@@ -33,9 +35,12 @@ const defaultValues: LeadIntakeValues = {
 
 export function LeadIntakeForm() {
   const { t } = useTranslation("backoffice");
+  const { activeTenantId } = useBackofficeAuth();
+  const { createLeadMutation } = useLeadMutations();
   const [submittedLead, setSubmittedLead] = useState<LeadIntakeValues | null>(
     null
   );
+  const [createFeedback, setCreateFeedback] = useState<string | null>(null);
 
   const leadIntakeSchema = createLeadIntakeSchema(t);
 
@@ -60,13 +65,33 @@ export function LeadIntakeForm() {
       : null;
 
   const onSubmit = async (values: LeadIntakeValues) => {
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    setSubmittedLead(values);
-    reset(defaultValues);
+    setCreateFeedback(null);
+
+    try {
+      await createLeadMutation.mutateAsync({
+        displayName: values.company,
+        contactName: values.contactName,
+        email: values.email,
+        whatsapp: values.whatsapp,
+        source: values.source,
+        status: "new",
+        needSummary: values.needSummary
+      });
+      setSubmittedLead(values);
+      setCreateFeedback(t("crm.form.createSuccess"));
+      reset(defaultValues);
+    } catch (error) {
+      setCreateFeedback(
+        t("crm.form.createError", {
+          message: error instanceof Error ? error.message : ""
+        })
+      );
+    }
   };
 
   const handleClear = () => {
     setSubmittedLead(null);
+    setCreateFeedback(null);
     reset(defaultValues);
   };
 
@@ -191,8 +216,24 @@ export function LeadIntakeForm() {
               />
             </Field>
 
+            {!activeTenantId ? (
+              <FormBanner tone="neutral">{t("crm.form.noTenantHint")}</FormBanner>
+            ) : null}
+
+            {createFeedback ? (
+              <FormBanner
+                tone={createLeadMutation.isError ? "error" : "success"}
+              >
+                {createFeedback}
+              </FormBanner>
+            ) : null}
+
             <div className="flex flex-wrap gap-3 pt-2">
-              <Button type="submit" size="lg" disabled={isSubmitting}>
+              <Button
+                type="submit"
+                size="lg"
+                disabled={isSubmitting || !activeTenantId}
+              >
                 {isSubmitting ? t("crm.form.submitting") : t("crm.form.submit")}
               </Button>
               <Button
@@ -321,4 +362,21 @@ function getPreviewValue(
   t: ReturnType<typeof useTranslation<"backoffice">>["t"]
 ) {
   return value.trim() || t("crm.form.previewPendingValue");
+}
+
+function FormBanner({
+  children,
+  tone
+}: {
+  children: ReactNode;
+  tone: "error" | "neutral" | "success";
+}) {
+  const toneClass =
+    tone === "error"
+      ? "border-rose-300/80 bg-rose-100/80 text-rose-900"
+      : tone === "success"
+        ? "border-sage-300/80 bg-sage-100/80 text-ink"
+        : "border-line/70 bg-paper/70 text-ink-soft";
+
+  return <p className={`rounded-2xl border px-4 py-3 text-sm ${toneClass}`}>{children}</p>;
 }

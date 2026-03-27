@@ -15,9 +15,10 @@
 - clientes y contactos
 - pipeline CRM simple
 - cotizaciones y proformas
+- cotizaciones con receptor flexible, line items persistidos y PDF comercial
 - gastos y deudas
 - lectura real de dashboard, CRM y quotes sobre Supabase antes de ampliar mutaciones
-- create/update real de `customers` y `quotes` ya sembrado en el backoffice
+- create/update real de `customers`, `leads` y `quotes` ya sembrado en el backoffice
 
 ## Checkpoint QA 2026-03-26
 

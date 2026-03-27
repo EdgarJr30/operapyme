@@ -13,6 +13,7 @@
     "@hookform/resolvers": "^5.0.0",
     "@operapyme/domain": "file:../../packages/domain",
     "@operapyme/i18n": "file:../../packages/i18n",
+    "@react-pdf/renderer": "^4.3.2",
     "@supabase/supabase-js": "^2.0.0",
     "@tanstack/react-query": "^5.0.0",
     "@tanstack/react-query-devtools": "^5.0.0",

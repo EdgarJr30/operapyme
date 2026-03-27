@@ -24,6 +24,9 @@ const quoteNumberPolicyMigrationPath = path.resolve(
 const catalogItemsMigrationPath = path.resolve(
   "supabase/migrations/202603260006_catalog_items.sql"
 );
+const quoteRecipientsMigrationPath = path.resolve(
+  "supabase/migrations/202603270001_quote_recipients_leads_and_pdf_foundation.sql"
+);
 
 describe("supabase foundation contracts", () => {
   it("creates the required secure foundation tables", () => {
@@ -136,5 +139,22 @@ describe("supabase foundation contracts", () => {
     expect(migration).toContain(
       "public.has_tenant_permission(public.catalog_items.tenant_id, 'catalog.write')"
     );
+  });
+
+  it("adds leads, quote line items, and quote recipient snapshots for the quote builder", () => {
+    const migration = fs.readFileSync(quoteRecipientsMigrationPath, "utf8");
+
+    expect(migration).toContain("create table if not exists public.leads");
+    expect(migration).toContain("create table if not exists public.quote_line_items");
+    expect(migration).toContain("add column if not exists recipient_kind text");
+    expect(migration).toContain("add column if not exists recipient_display_name text");
+    expect(migration).toContain("create or replace function public.replace_quote_line_items");
+    expect(migration).toContain(
+      "create or replace function public.create_quote"
+    );
+    expect(migration).toContain(
+      "create or replace function public.update_quote"
+    );
+    expect(migration).toContain("jsonb_array_length(normalized_line_items) = 0");
   });
 });

@@ -36,3 +36,4 @@
 - `tenant_id` obligatorio salvo tablas globales justificadas
 - timestamps y actor de creacion/actualizacion obligatorios
 - borrar duro solo cuando este justificado y documentado
+- `quote` conserva snapshot del receptor aunque tambien apunte a `lead` o `customer`

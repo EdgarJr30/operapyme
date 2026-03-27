@@ -36,10 +36,11 @@ El `service role key` no vive aqui.
 - la navegacion movil deja los modulos principales en tabs inferiores y mueve configuracion o admin al menu extendido
 - la auditoria global sigue reservada para `global_admin`
 - `dashboard`, `crm`, `catalog` y `quotes` ya consumen lecturas reales desde Supabase con React Query
-- `crm`, `catalog` y `quotes` ya incluyen formularios reales de create/update sobre `customers`, `catalog_items` y `quotes`
+- `crm`, `catalog` y `quotes` ya incluyen formularios reales de create/update sobre `customers`, `leads`, `catalog_items` y `quotes`
 - las mutaciones siguen limitadas al tenant activo y dejan auditoria via triggers de base
 - `catalog` ya modela oferta comercial reusable con `product` o `service`, visibilidad `public/private`, pricing `fixed/on_request` y estados `active/draft/archived`
 - `quotes` ya delega la numeracion y el incremento de version a RPCs de Supabase para evitar inconsistencias por concurrencia
+- `quotes` ya soporta cliente, lead existente o lead rapido, mantiene snapshot del receptor, persiste line items y genera PDF con `@react-pdf/renderer`
 - el bundle base del backoffice ahora separa vendors por dominio y solo carga los namespaces de i18n que la app realmente necesita
 
 ## Shell y navegacion

@@ -102,6 +102,7 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 - [docs/domain/AUDIT_MODEL.md](./docs/domain/AUDIT_MODEL.md): modelo de auditoria y observabilidad.
 - [docs/governance/SUPABASE_RULES.md](./docs/governance/SUPABASE_RULES.md): reglas obligatorias para esquema, politicas y operaciones sensibles.
 - [docs/project-naming.md](./docs/project-naming.md): estado del nombre temporal y criterios para un renombre futuro.
+- [docs/product/QUOTE_MODULE_GUIDELINES.md](./docs/product/QUOTE_MODULE_GUIDELINES.md): criterio de producto, research y decisiones de implementacion para cotizaciones.
 - [docs/treinta-research-rd.md](./docs/treinta-research-rd.md): research de referencia sobre Treinta y los patrones que si conviene tomar.
 - [AGENTS.md](./AGENTS.md): reglas globales del repo.
 
@@ -132,11 +133,12 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 - fundacion Supabase segura sembrada con enfoque RBAC, RLS y auditoria
 - auth del backoffice sembrado con magic link
 - bootstrap inicial de tenant sembrado con membership `tenant_owner`
-- primeras tablas operativas `customers` y `quotes` sembradas con RLS y auditoria
+- primeras tablas operativas `customers`, `leads`, `quotes` y `quote_line_items` sembradas con RLS, RPC y auditoria
 - tabla operativa `catalog_items` sembrada con RLS, auditoria y reglas base de precios por tenant
 - hardening SQL aplicado para fijar `search_path` y dejar limpio el security advisor base
 - dashboard, CRM, catalogo y quotes ya leen datos reales de Supabase en modo read-first
 - CRM, catalogo y quotes ya pueden crear y actualizar registros reales dentro del tenant activo
+- quotes ya soporta cliente, lead existente o lead rapido, persiste line items y genera PDF profesional bajo demanda
 - rutas `/admin/*` reservadas para auditoria y errores globales
 
 ### Como correr el proyecto
@@ -162,9 +164,9 @@ Flujo funcional actual:
 Modulos operativos activos hoy:
 
 - `dashboard`: snapshot comercial con datos reales del tenant
-- `crm`: clientes reales con create/update
+- `crm`: clientes reales y leads minimos con create/update
 - `catalog`: items comerciales reales con create/update, visibilidad, pricing mode y estados base
-- `quotes`: cotizaciones reales con numeracion y versionado delegados a Supabase
+- `quotes`: cotizaciones reales con numeracion, versionado, snapshot del receptor, line items y PDF delegados a Supabase + `@react-pdf/renderer`
 
 Backoffice por defecto:
 
@@ -308,6 +310,7 @@ The current product focus is:
 - [docs/tenant-theming.md](./docs/tenant-theming.md): tenant branding and appearance strategy.
 - [docs/development-setup.md](./docs/development-setup.md): install and local development flow.
 - [docs/project-naming.md](./docs/project-naming.md): temporary naming status and future rename criteria.
+- [docs/product/QUOTE_MODULE_GUIDELINES.md](./docs/product/QUOTE_MODULE_GUIDELINES.md): product criteria, research, and implementation decisions for quoting.
 - [docs/treinta-research-rd.md](./docs/treinta-research-rd.md): reference research on Treinta and the patterns worth borrowing.
 - [AGENTS.md](./AGENTS.md): repo-wide working rules.
 

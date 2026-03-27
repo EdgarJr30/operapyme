@@ -3,10 +3,24 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase/client";
 
 export type CustomerStatus = "active" | "inactive" | "archived";
+export type LeadStatus =
+  | "new"
+  | "qualified"
+  | "proposal"
+  | "won"
+  | "lost"
+  | "archived";
+export type LeadSource =
+  | "manual"
+  | "website"
+  | "whatsapp"
+  | "walk-in"
+  | "repeat";
 export type CatalogItemStatus = "active" | "draft" | "archived";
 export type CatalogItemKind = "product" | "service";
 export type CatalogItemVisibility = "public" | "private";
 export type CatalogItemPricingMode = "fixed" | "on_request";
+export type QuoteRecipientKind = "customer" | "lead" | "ad_hoc";
 export type QuoteStatus =
   | "draft"
   | "sent"
@@ -31,6 +45,21 @@ export interface CustomerSummary {
   updatedAt: string;
 }
 
+export interface LeadSummary {
+  id: string;
+  leadCode: string | null;
+  displayName: string;
+  contactName: string | null;
+  email: string | null;
+  whatsapp: string | null;
+  phone: string | null;
+  source: LeadSource;
+  status: LeadStatus;
+  needSummary: string | null;
+  notes: string | null;
+  updatedAt: string;
+}
+
 export interface CatalogItemSummary {
   id: string;
   itemCode: string | null;
@@ -47,12 +76,33 @@ export interface CatalogItemSummary {
   updatedAt: string;
 }
 
+export interface QuoteLineItemSummary {
+  id: string;
+  catalogItemId: string | null;
+  sortOrder: number;
+  itemName: string;
+  itemDescription: string | null;
+  quantity: number;
+  unitLabel: string | null;
+  unitPrice: number;
+  discountTotal: number;
+  taxTotal: number;
+  lineSubtotal: number;
+  lineTotal: number;
+}
+
 export interface QuoteSummary {
   id: string;
-  customerId: string;
+  customerId: string | null;
+  leadId: string | null;
+  recipientKind: QuoteRecipientKind;
+  recipientDisplayName: string;
+  recipientContactName: string | null;
+  recipientEmail: string | null;
+  recipientWhatsApp: string | null;
+  recipientPhone: string | null;
   quoteNumber: string;
   title: string;
-  customerName: string;
   currencyCode: string;
   subtotal: number;
   discountTotal: number;
@@ -62,7 +112,12 @@ export interface QuoteSummary {
   version: number;
   validUntil: string | null;
   notes: string | null;
+  createdAt: string;
   updatedAt: string;
+}
+
+export interface QuoteDetail extends QuoteSummary {
+  lineItems: QuoteLineItemSummary[];
 }
 
 export interface DashboardSnapshot {
@@ -94,26 +149,19 @@ interface RawCustomerRow {
   updated_at: string;
 }
 
-interface RawQuoteCustomer {
-  display_name?: string | null;
-}
-
-interface RawQuoteRow {
+interface RawLeadRow {
   id: string;
-  customer_id: string;
-  quote_number: string;
-  title: string;
-  currency_code: string;
-  subtotal: number | string;
-  discount_total: number | string;
-  tax_total: number | string;
-  grand_total: number | string;
-  status: QuoteStatus;
-  version: number;
-  valid_until: string | null;
+  lead_code: string | null;
+  display_name: string;
+  contact_name: string | null;
+  email: string | null;
+  whatsapp: string | null;
+  phone: string | null;
+  source: LeadSource;
+  status: LeadStatus;
+  need_summary: string | null;
   notes: string | null;
   updated_at: string;
-  customer: RawQuoteCustomer | RawQuoteCustomer[] | null;
 }
 
 interface RawCatalogItemRow {
@@ -130,6 +178,47 @@ interface RawCatalogItemRow {
   status: CatalogItemStatus;
   notes: string | null;
   updated_at: string;
+}
+
+interface RawQuoteLineRow {
+  id: string;
+  catalog_item_id: string | null;
+  sort_order: number;
+  item_name: string;
+  item_description: string | null;
+  quantity: number | string;
+  unit_label: string | null;
+  unit_price: number | string;
+  discount_total: number | string;
+  tax_total: number | string;
+  line_subtotal: number | string;
+  line_total: number | string;
+}
+
+interface RawQuoteRow {
+  id: string;
+  customer_id: string | null;
+  lead_id: string | null;
+  recipient_kind: QuoteRecipientKind;
+  recipient_display_name: string;
+  recipient_contact_name: string | null;
+  recipient_email: string | null;
+  recipient_whatsapp: string | null;
+  recipient_phone: string | null;
+  quote_number: string;
+  title: string;
+  currency_code: string;
+  subtotal: number | string;
+  discount_total: number | string;
+  tax_total: number | string;
+  grand_total: number | string;
+  status: QuoteStatus;
+  version: number;
+  valid_until: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+  line_items?: RawQuoteLineRow[] | null;
 }
 
 export interface CreateCustomerInput {
@@ -163,6 +252,20 @@ export interface UpdateCustomerInput {
   notes?: string | null;
 }
 
+export interface CreateLeadInput {
+  tenantId: string;
+  leadCode?: string | null;
+  displayName: string;
+  contactName?: string | null;
+  email?: string | null;
+  whatsapp?: string | null;
+  phone?: string | null;
+  source: LeadSource;
+  status: LeadStatus;
+  needSummary?: string | null;
+  notes?: string | null;
+}
+
 export interface CreateCatalogItemInput {
   tenantId: string;
   itemCode?: string | null;
@@ -182,23 +285,56 @@ export interface UpdateCatalogItemInput extends CreateCatalogItemInput {
   itemId: string;
 }
 
+export interface QuoteLineInput {
+  catalogItemId?: string | null;
+  itemName: string;
+  itemDescription?: string | null;
+  quantity: number;
+  unitLabel?: string | null;
+  unitPrice: number;
+  discountTotal: number;
+  taxTotal: number;
+}
+
 export interface CreateQuoteInput {
   tenantId: string;
-  customerId: string;
+  customerId?: string | null;
+  leadId?: string | null;
+  recipientKind: QuoteRecipientKind;
+  recipientDisplayName: string;
+  recipientContactName?: string | null;
+  recipientEmail?: string | null;
+  recipientWhatsApp?: string | null;
+  recipientPhone?: string | null;
   title: string;
   status: QuoteStatus;
   currencyCode: string;
-  subtotal: number;
-  discountTotal: number;
-  taxTotal: number;
   notes?: string | null;
   validUntil?: string | null;
+  lineItems: QuoteLineInput[];
 }
 
 export interface UpdateQuoteInput extends CreateQuoteInput {
   quoteId: string;
   version: number;
 }
+
+const customerSelectFields =
+  "id, customer_code, display_name, contact_name, legal_name, email, whatsapp, phone, document_id, notes, source, status, updated_at";
+
+const leadSelectFields =
+  "id, lead_code, display_name, contact_name, email, whatsapp, phone, source, status, need_summary, notes, updated_at";
+
+const catalogItemSelectFields =
+  "id, item_code, name, description, category, kind, visibility, pricing_mode, currency_code, unit_price, status, notes, updated_at";
+
+const quoteLineSelectFields =
+  "id, catalog_item_id, sort_order, item_name, item_description, quantity, unit_label, unit_price, discount_total, tax_total, line_subtotal, line_total";
+
+const quoteSelectFields =
+  "id, customer_id, lead_id, recipient_kind, recipient_display_name, recipient_contact_name, recipient_email, recipient_whatsapp, recipient_phone, quote_number, title, currency_code, subtotal, discount_total, tax_total, grand_total, status, version, valid_until, notes, created_at, updated_at";
+
+const quoteDetailSelectFields = `${quoteSelectFields}, line_items:quote_line_items(${quoteLineSelectFields})`;
 
 function requireSupabaseClient(): SupabaseClient {
   if (!supabase) {
@@ -212,12 +348,34 @@ function unwrapCount(result: CountResult | null) {
   return typeof result?.count === "number" ? result.count : 0;
 }
 
-function getCustomerName(customer: RawQuoteRow["customer"]) {
-  if (Array.isArray(customer)) {
-    return customer[0]?.display_name ?? "";
+function normalizeOptionalValue(value: string | null | undefined) {
+  const nextValue = value?.trim();
+
+  return nextValue ? nextValue : null;
+}
+
+function normalizeCatalogPrice(
+  pricingMode: CatalogItemPricingMode,
+  unitPrice: number | null | undefined
+) {
+  if (pricingMode === "on_request") {
+    return null;
   }
 
-  return customer?.display_name ?? "";
+  return typeof unitPrice === "number" ? unitPrice : 0;
+}
+
+function normalizeQuoteLineItems(lineItems: QuoteLineInput[]) {
+  return lineItems.map((lineItem) => ({
+    catalogItemId: normalizeOptionalValue(lineItem.catalogItemId ?? null),
+    itemName: lineItem.itemName.trim(),
+    itemDescription: normalizeOptionalValue(lineItem.itemDescription),
+    quantity: lineItem.quantity,
+    unitLabel: normalizeOptionalValue(lineItem.unitLabel),
+    unitPrice: lineItem.unitPrice,
+    discountTotal: lineItem.discountTotal,
+    taxTotal: lineItem.taxTotal
+  }));
 }
 
 function mapCustomer(row: RawCustomerRow): CustomerSummary {
@@ -234,6 +392,23 @@ function mapCustomer(row: RawCustomerRow): CustomerSummary {
     notes: row.notes,
     source: row.source,
     status: row.status,
+    updatedAt: row.updated_at
+  };
+}
+
+function mapLead(row: RawLeadRow): LeadSummary {
+  return {
+    id: row.id,
+    leadCode: row.lead_code,
+    displayName: row.display_name,
+    contactName: row.contact_name,
+    email: row.email,
+    whatsapp: row.whatsapp,
+    phone: row.phone,
+    source: row.source,
+    status: row.status,
+    needSummary: row.need_summary,
+    notes: row.notes,
     updatedAt: row.updated_at
   };
 }
@@ -256,13 +431,36 @@ function mapCatalogItem(row: RawCatalogItemRow): CatalogItemSummary {
   };
 }
 
+function mapQuoteLine(row: RawQuoteLineRow): QuoteLineItemSummary {
+  return {
+    id: row.id,
+    catalogItemId: row.catalog_item_id,
+    sortOrder: row.sort_order,
+    itemName: row.item_name,
+    itemDescription: row.item_description,
+    quantity: Number(row.quantity ?? 0),
+    unitLabel: row.unit_label,
+    unitPrice: Number(row.unit_price ?? 0),
+    discountTotal: Number(row.discount_total ?? 0),
+    taxTotal: Number(row.tax_total ?? 0),
+    lineSubtotal: Number(row.line_subtotal ?? 0),
+    lineTotal: Number(row.line_total ?? 0)
+  };
+}
+
 function mapQuote(row: RawQuoteRow): QuoteSummary {
   return {
     id: row.id,
     customerId: row.customer_id,
+    leadId: row.lead_id,
+    recipientKind: row.recipient_kind,
+    recipientDisplayName: row.recipient_display_name,
+    recipientContactName: row.recipient_contact_name,
+    recipientEmail: row.recipient_email,
+    recipientWhatsApp: row.recipient_whatsapp,
+    recipientPhone: row.recipient_phone,
     quoteNumber: row.quote_number,
     title: row.title,
-    customerName: getCustomerName(row.customer),
     currencyCode: row.currency_code,
     subtotal: Number(row.subtotal ?? 0),
     discountTotal: Number(row.discount_total ?? 0),
@@ -272,7 +470,15 @@ function mapQuote(row: RawQuoteRow): QuoteSummary {
     version: row.version,
     validUntil: row.valid_until,
     notes: row.notes,
+    createdAt: row.created_at,
     updatedAt: row.updated_at
+  };
+}
+
+function mapQuoteDetail(row: RawQuoteRow): QuoteDetail {
+  return {
+    ...mapQuote(row),
+    lineItems: (row.line_items ?? []).map(mapQuoteLine)
   };
 }
 
@@ -283,9 +489,7 @@ export async function listCustomersForTenant(
   const client = requireSupabaseClient();
   const { data, error } = await client
     .from("customers")
-    .select(
-      "id, customer_code, display_name, contact_name, legal_name, email, whatsapp, phone, document_id, notes, source, status, updated_at"
-    )
+    .select(customerSelectFields)
     .eq("tenant_id", tenantId)
     .order("updated_at", { ascending: false })
     .limit(limit);
@@ -297,6 +501,25 @@ export async function listCustomersForTenant(
   return ((data ?? []) as RawCustomerRow[]).map(mapCustomer);
 }
 
+export async function listLeadsForTenant(
+  tenantId: string,
+  limit = 25
+): Promise<LeadSummary[]> {
+  const client = requireSupabaseClient();
+  const { data, error } = await client
+    .from("leads")
+    .select(leadSelectFields)
+    .eq("tenant_id", tenantId)
+    .order("updated_at", { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return ((data ?? []) as RawLeadRow[]).map(mapLead);
+}
+
 export async function listCatalogItemsForTenant(
   tenantId: string,
   limit = 25
@@ -304,9 +527,7 @@ export async function listCatalogItemsForTenant(
   const client = requireSupabaseClient();
   const { data, error } = await client
     .from("catalog_items")
-    .select(
-      "id, item_code, name, description, category, kind, visibility, pricing_mode, currency_code, unit_price, status, notes, updated_at"
-    )
+    .select(catalogItemSelectFields)
     .eq("tenant_id", tenantId)
     .order("updated_at", { ascending: false })
     .limit(limit);
@@ -325,9 +546,7 @@ export async function listQuotesForTenant(
   const client = requireSupabaseClient();
   const { data, error } = await client
     .from("quotes")
-    .select(
-      "id, customer_id, quote_number, title, currency_code, subtotal, discount_total, tax_total, grand_total, status, version, valid_until, notes, updated_at, customer:customers!quotes_customer_id_fkey(display_name)"
-    )
+    .select(quoteSelectFields)
     .eq("tenant_id", tenantId)
     .order("updated_at", { ascending: false })
     .limit(limit);
@@ -337,6 +556,25 @@ export async function listQuotesForTenant(
   }
 
   return ((data ?? []) as RawQuoteRow[]).map(mapQuote);
+}
+
+export async function getQuoteDetail(
+  tenantId: string,
+  quoteId: string
+): Promise<QuoteDetail> {
+  const client = requireSupabaseClient();
+  const { data, error } = await client
+    .from("quotes")
+    .select(quoteDetailSelectFields)
+    .eq("tenant_id", tenantId)
+    .eq("id", quoteId)
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return mapQuoteDetail(data as RawQuoteRow);
 }
 
 export async function getDashboardSnapshot(
@@ -395,23 +633,6 @@ export async function getDashboardSnapshot(
   };
 }
 
-function normalizeOptionalValue(value: string | null | undefined) {
-  const nextValue = value?.trim();
-
-  return nextValue ? nextValue : null;
-}
-
-function normalizeCatalogPrice(
-  pricingMode: CatalogItemPricingMode,
-  unitPrice: number | null | undefined
-) {
-  if (pricingMode === "on_request") {
-    return null;
-  }
-
-  return typeof unitPrice === "number" ? unitPrice : 0;
-}
-
 export async function createCustomer(input: CreateCustomerInput) {
   const client = requireSupabaseClient();
   const payload = {
@@ -432,9 +653,7 @@ export async function createCustomer(input: CreateCustomerInput) {
   const { data, error } = await client
     .from("customers")
     .insert(payload)
-    .select(
-      "id, customer_code, display_name, contact_name, legal_name, email, whatsapp, phone, document_id, notes, source, status, updated_at"
-    )
+    .select(customerSelectFields)
     .single();
 
   if (error) {
@@ -442,6 +661,35 @@ export async function createCustomer(input: CreateCustomerInput) {
   }
 
   return mapCustomer(data as RawCustomerRow);
+}
+
+export async function createLead(input: CreateLeadInput) {
+  const client = requireSupabaseClient();
+  const payload = {
+    tenant_id: input.tenantId,
+    lead_code: normalizeOptionalValue(input.leadCode),
+    display_name: input.displayName.trim(),
+    contact_name: normalizeOptionalValue(input.contactName),
+    email: normalizeOptionalValue(input.email),
+    whatsapp: normalizeOptionalValue(input.whatsapp),
+    phone: normalizeOptionalValue(input.phone),
+    source: input.source,
+    status: input.status,
+    need_summary: normalizeOptionalValue(input.needSummary),
+    notes: normalizeOptionalValue(input.notes)
+  };
+
+  const { data, error } = await client
+    .from("leads")
+    .insert(payload)
+    .select(leadSelectFields)
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return mapLead(data as RawLeadRow);
 }
 
 export async function createCatalogItem(input: CreateCatalogItemInput) {
@@ -464,9 +712,7 @@ export async function createCatalogItem(input: CreateCatalogItemInput) {
   const { data, error } = await client
     .from("catalog_items")
     .insert(payload)
-    .select(
-      "id, item_code, name, description, category, kind, visibility, pricing_mode, currency_code, unit_price, status, notes, updated_at"
-    )
+    .select(catalogItemSelectFields)
     .single();
 
   if (error) {
@@ -497,9 +743,7 @@ export async function updateCustomer(input: UpdateCustomerInput) {
     .update(payload)
     .eq("tenant_id", input.tenantId)
     .eq("id", input.customerId)
-    .select(
-      "id, customer_code, display_name, contact_name, legal_name, email, whatsapp, phone, document_id, notes, source, status, updated_at"
-    )
+    .select(customerSelectFields)
     .single();
 
   if (error) {
@@ -530,9 +774,7 @@ export async function updateCatalogItem(input: UpdateCatalogItemInput) {
     .update(payload)
     .eq("tenant_id", input.tenantId)
     .eq("id", input.itemId)
-    .select(
-      "id, item_code, name, description, category, kind, visibility, pricing_mode, currency_code, unit_price, status, notes, updated_at"
-    )
+    .select(catalogItemSelectFields)
     .single();
 
   if (error) {
@@ -546,13 +788,22 @@ export async function createQuote(input: CreateQuoteInput) {
   const client = requireSupabaseClient();
   const { data: quoteId, error } = await client.rpc("create_quote", {
     target_tenant_id: input.tenantId,
-    target_customer_id: input.customerId,
     target_title: input.title.trim(),
     target_status: input.status,
     target_currency_code: input.currencyCode.trim().toUpperCase(),
-    target_subtotal: input.subtotal,
-    target_discount_total: input.discountTotal,
-    target_tax_total: input.taxTotal,
+    target_recipient_kind: input.recipientKind,
+    target_line_items: normalizeQuoteLineItems(input.lineItems),
+    target_customer_id: input.customerId ?? null,
+    target_lead_id: input.leadId ?? null,
+    target_recipient_display_name: normalizeOptionalValue(
+      input.recipientDisplayName
+    ),
+    target_recipient_contact_name: normalizeOptionalValue(
+      input.recipientContactName
+    ),
+    target_recipient_email: normalizeOptionalValue(input.recipientEmail),
+    target_recipient_whatsapp: normalizeOptionalValue(input.recipientWhatsApp),
+    target_recipient_phone: normalizeOptionalValue(input.recipientPhone),
     target_valid_until: normalizeOptionalValue(input.validUntil),
     target_notes: normalizeOptionalValue(input.notes)
   });
@@ -563,9 +814,7 @@ export async function createQuote(input: CreateQuoteInput) {
 
   const { data, error: fetchError } = await client
     .from("quotes")
-    .select(
-      "id, customer_id, quote_number, title, currency_code, subtotal, discount_total, tax_total, grand_total, status, version, valid_until, notes, updated_at, customer:customers!quotes_customer_id_fkey(display_name)"
-    )
+    .select(quoteSelectFields)
     .eq("tenant_id", input.tenantId)
     .eq("id", quoteId)
     .single();
@@ -583,13 +832,22 @@ export async function updateQuote(input: UpdateQuoteInput) {
     target_tenant_id: input.tenantId,
     target_quote_id: input.quoteId,
     expected_version: input.version,
-    target_customer_id: input.customerId,
     target_title: input.title.trim(),
     target_status: input.status,
     target_currency_code: input.currencyCode.trim().toUpperCase(),
-    target_subtotal: input.subtotal,
-    target_discount_total: input.discountTotal,
-    target_tax_total: input.taxTotal,
+    target_recipient_kind: input.recipientKind,
+    target_line_items: normalizeQuoteLineItems(input.lineItems),
+    target_customer_id: input.customerId ?? null,
+    target_lead_id: input.leadId ?? null,
+    target_recipient_display_name: normalizeOptionalValue(
+      input.recipientDisplayName
+    ),
+    target_recipient_contact_name: normalizeOptionalValue(
+      input.recipientContactName
+    ),
+    target_recipient_email: normalizeOptionalValue(input.recipientEmail),
+    target_recipient_whatsapp: normalizeOptionalValue(input.recipientWhatsApp),
+    target_recipient_phone: normalizeOptionalValue(input.recipientPhone),
     target_valid_until: normalizeOptionalValue(input.validUntil),
     target_notes: normalizeOptionalValue(input.notes)
   });
@@ -600,9 +858,7 @@ export async function updateQuote(input: UpdateQuoteInput) {
 
   const { data, error: fetchError } = await client
     .from("quotes")
-    .select(
-      "id, customer_id, quote_number, title, currency_code, subtotal, discount_total, tax_total, grand_total, status, version, valid_until, notes, updated_at, customer:customers!quotes_customer_id_fkey(display_name)"
-    )
+    .select(quoteSelectFields)
     .eq("tenant_id", input.tenantId)
     .eq("id", quoteId)
     .single();

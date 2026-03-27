@@ -15,6 +15,7 @@ Esta carpeta contiene la documentacion canonica en Markdown para `OperaPyme`.
 - `product/PRD.md`
 - `product/ROADMAP.md`
 - `product/BENCHMARK.md`
+- `product/QUOTE_MODULE_GUIDELINES.md`
 
 ### `domain/`
 

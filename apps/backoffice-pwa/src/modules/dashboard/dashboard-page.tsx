@@ -362,7 +362,7 @@ function QuoteSnapshotCard({
         <div className="space-y-1">
           <p className="font-semibold text-ink">{quote.quoteNumber}</p>
           <p className="text-sm text-ink-soft">
-            {quote.customerName || t("dashboard.livePulse.contactPending")}
+            {quote.recipientDisplayName || t("dashboard.livePulse.contactPending")}
           </p>
         </div>
         <StatusPill tone={getQuoteTone(quote.status)}>

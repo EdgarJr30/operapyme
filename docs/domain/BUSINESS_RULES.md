@@ -17,6 +17,10 @@
 ## Cotizaciones y proformas
 
 - una cotizacion puede tener multiples versiones
+- una cotizacion puede iniciar desde cliente, lead o receptor rapido no persistido
+- toda cotizacion guarda snapshot del receptor aunque exista relacion con CRM
+- toda cotizacion necesita al menos una linea comercial persistida
+- subtotal, descuentos, impuestos y total del documento salen de las lineas
 - enviar o aprobar una cotizacion es evento auditable
 - una proforma nace desde una cotizacion o una base equivalente trazable
 

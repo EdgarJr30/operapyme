@@ -140,7 +140,7 @@ const backofficeEn = {
     form: {
       title: "Fast lead intake",
       description:
-        "Use this as the reference pattern for mobile-first forms: top labels, compact fields, and one obvious primary action.",
+        "Use this surface to capture live leads for the active tenant without losing the mobile-first pattern.",
       companyLabel: "Company",
       companyPlaceholder: "Northline Industrial",
       contactNameLabel: "Contact name",
@@ -160,6 +160,10 @@ const backofficeEn = {
       submit: "Create lead",
       submitting: "Saving lead...",
       clear: "Clear form",
+      createSuccess: "Lead created successfully.",
+      createError: "We could not create the lead. {{message}}",
+      noTenantHint:
+        "You need an active tenant before capturing live CRM leads.",
       previewTitle: "Submission preview",
       previewDescription:
         "This panel becomes useful later for AI enrichment, assignment rules, and suggested next steps.",
@@ -432,43 +436,44 @@ const backofficeEn = {
   quotes: {
     header: {
       eyebrow: "Quotes module",
-      title: "Quote workflow scaffold",
+      title: "Quotes with flexible recipients and commercial PDF output",
       description:
-        "Quoting is the commercial center of the product. The UX must feel fast, reliable, and auditable."
+        "The quote builder must work for customers, saved leads, and fast ad hoc leads while keeping versioning, traceability, and a serious PDF output."
     },
     flow: {
       title: "Quote-to-decision flow",
       description:
         "This sequence should stay short, visible, and easy to resume from a phone.",
       draftTitle: "Draft",
-      draftText: "Collect products, pricing logic, notes, and terms.",
+      draftText:
+        "Define the recipient, line items, and conditions without losing commercial speed.",
       reviewTitle: "Review",
       reviewText:
-        "Check totals, margin guardrails, and manager approval if needed.",
+        "Review recipient snapshots, computed totals, and the commercial narrative.",
       sendTitle: "Send",
-      sendText: "Generate PDF and public share link with tracking.",
+      sendText: "Generate a clean PDF with branding, dates, and service detail.",
       decideTitle: "Decide",
       decideText:
-        "Capture open, accepted, rejected, or follow-up needed."
+        "Keep the quote alive while it scales into a lead, customer, proforma, or close."
     },
     document: {
       title: "Document experience principles",
       description:
         "Keep quoting elegant but operational. Beauty should support trust and speed.",
       structuredSections:
-        "Quote builders should use structured sections, not giant forms.",
+        "The quote builder should work in clear recipient, line item, total, and notes blocks.",
       versioning:
-        "Versioning, numbering, and approval visibility are non-negotiable.",
+        "Versioning, numbering, and recipient snapshots are non-negotiable.",
       publicLinks:
-        "Public quote links and acceptance states should feel simple for the customer too."
+        "The PDF should be ready to send quickly without a manual layout step."
     },
     form: {
       createTitle: "Create live quote",
       createDescription:
-        "This surface now creates live rows in `quotes` and refreshes the dashboard after save.",
+        "Create live quotes with a customer, a saved lead, or a fast ad hoc lead, while totals are computed from line items.",
       updateTitle: "Update existing quote",
       updateDescription:
-        "Edit a live quote for the active tenant while keeping the RLS-protected context intact.",
+        "Edit a live quote for the active tenant with versioning and persisted line detail.",
       createAction: "Save quote",
       createSubmitting: "Saving quote...",
       updateAction: "Update quote",
@@ -479,38 +484,109 @@ const backofficeEn = {
       updateSuccess: "Quote updated successfully.",
       updateError: "We could not update the quote. {{message}}",
       noQuoteSelected: "Select a quote before trying to update it.",
-      needCustomerHint:
-        "You need at least one live customer before creating an operational quote.",
       recordLabel: "Quote to update",
       noQuotesOption: "There are no quotes yet",
       noQuotesHint:
         "Create a live quote first to unlock the update flow.",
+      loadingDetailHint: "Loading the full detail for the selected quote.",
+      loadingDetailError:
+        "We could not read the quote detail. {{message}}",
       versionHint: "The next update will bump the version from v{{version}}.",
+      recipientKindLabel: "Recipient type",
+      recipientKinds: {
+        customer: "Existing customer",
+        lead: "Existing lead",
+        ad_hoc: "Fast lead"
+      },
       customerLabel: "Customer",
       customerPlaceholder: "Select a customer",
+      noCustomersHint:
+        "There are no live customers yet. You can use an existing lead or a fast lead instead.",
+      leadLabel: "Lead",
+      leadPlaceholder: "Select a lead",
+      noLeadsHint:
+        "There are no saved leads yet. Capture them from CRM or quote as a fast lead instead.",
+      quickRecipientTitle: "Fast quote without saving a lead",
+      quickRecipientDescription:
+        "Use this mode when you need to issue a quote immediately and decide later whether the recipient should be promoted to a lead or customer.",
       quoteNumberLabel: "Quote number",
       generatedNumberPlaceholder: "Assigned automatically after save",
       generatedNumberHint:
         "Numbering now lives in Supabase and is assigned automatically to keep consistency and auditability.",
+      recipientDisplayNameLabel: "Company or reference",
+      recipientDisplayNamePlaceholder: "Northline Industrial",
+      recipientContactNameLabel: "Contact",
+      recipientContactNamePlaceholder: "Andrea Castillo",
+      recipientEmailLabel: "Email",
+      recipientEmailPlaceholder: "andrea@northline.test",
+      recipientWhatsAppLabel: "WhatsApp",
+      recipientWhatsAppPlaceholder: "+1 809 555 0186",
+      recipientPhoneLabel: "Alternate phone",
+      recipientPhonePlaceholder: "+1 809 555 0140",
       titleLabel: "Title",
       titlePlaceholder: "Equipment and support proposal",
       statusLabel: "Status",
       currencyCodeLabel: "Currency",
       currencyCodePlaceholder: "USD",
       validUntilLabel: "Valid until",
-      subtotalLabel: "Subtotal",
+      lineItemsTitle: "Commercial detail",
+      lineItemsDescription:
+        "Each row should represent one offered service or product with quantity, price, and visible adjustments.",
+      addLineItemAction: "Add line",
+      removeLineItemAction: "Remove line",
+      lineItemLabel: "Line {{index}}",
+      catalogItemLabel: "Related catalog item",
+      catalogItemPlaceholder: "Select a catalog item or capture it manually",
+      catalogItemOnRequest: "On request",
+      lineItemNameLabel: "Service or product name",
+      lineItemNamePlaceholder: "Quarterly preventive maintenance",
+      lineItemDescriptionLabel: "Description",
+      lineItemDescriptionPlaceholder:
+        "Include scope, deliverables, coverage, or clarifications for this line.",
+      unitLabelLabel: "Unit",
+      unitLabelPlaceholder: "service",
+      quantityLabel: "Quantity",
+      unitPriceLabel: "Unit price",
       discountTotalLabel: "Discount",
       taxTotalLabel: "Tax",
+      lineItemTotalLabel: "Line total",
+      defaultServiceUnit: "service",
+      defaultProductUnit: "unit",
       grandTotalLabel: "Calculated total",
+      subtotalSummaryLabel: "Subtotal",
+      discountSummaryLabel: "Discounts",
+      taxSummaryLabel: "Taxes",
       notesLabel: "Notes",
       notesPlaceholder:
         "Commercial terms, delivery conditions, or internal clarifications.",
       validation: {
         customerRequired: "Select a customer before saving.",
+        leadRequired: "Select a lead before saving.",
+        recipientDisplayNameMin: "Enter the company or reference for this recipient.",
+        recipientDisplayNameMax:
+          "Keep the company or reference under 120 characters.",
+        recipientContactNameMax:
+          "Keep the contact under 120 characters.",
+        recipientEmail:
+          "Enter a valid email or leave the field empty.",
+        recipientEmailMax:
+          "Keep the email under 120 characters.",
+        recipientWhatsAppMax:
+          "Keep the WhatsApp number under 30 characters.",
+        recipientPhoneMax:
+          "Keep the phone number under 30 characters.",
         titleMin: "Enter a title for the quote.",
         titleMax: "Keep the title under 160 characters.",
         currencyCode: "Use a 3-letter currency code.",
-        subtotal: "Subtotal cannot be negative.",
+        lineItemsMin: "Add at least one line item to the quote.",
+        lineItemNameMin: "Each line needs a visible name.",
+        lineItemNameMax:
+          "Keep the line item name under 160 characters.",
+        lineItemDescriptionMax:
+          "Keep the line item description under 500 characters.",
+        quantity: "Quantity must be greater than zero.",
+        unitLabelMax: "Keep the unit label under 40 characters.",
+        unitPrice: "Unit price cannot be negative.",
         discountTotal: "Discount cannot be negative.",
         taxTotal: "Tax cannot be negative.",
         notesMax: "Keep the notes under 500 characters."
@@ -519,7 +595,7 @@ const backofficeEn = {
     list: {
       title: "Live quote list",
       description:
-        "Live read from `quotes` with mobile-first cards and RLS-protected visibility.",
+        "Live read from `quotes` with recipient snapshots, mobile-first cards, and PDF download.",
       currentValueLabel: "Current value",
       noTenantTitle: "There is no active tenant to read quotes from",
       noTenantDescription:
@@ -534,7 +610,7 @@ const backofficeEn = {
       emptyTitle: "There are no quotes yet",
       emptyDescription:
         "The first live quotes will appear here with their state and current value.",
-      customerPending: "Pending customer",
+      customerPending: "Pending recipient",
       status: {
         draft: "Draft",
         sent: "Sent",
@@ -543,6 +619,12 @@ const backofficeEn = {
         rejected: "Rejected",
         expired: "Expired"
       }
+    },
+    pdf: {
+      downloadAction: "Download PDF",
+      generatingAction: "Generating PDF...",
+      downloadError: "We could not generate the PDF. {{message}}",
+      noTenantError: "You need an active tenant before generating the PDF."
     }
   },
   admin: {

@@ -13,7 +13,7 @@ Muchas pymes operan clientes, cotizaciones, gastos y seguimiento comercial entre
 Una sola plataforma ligera que permita:
 
 - captar clientes y oportunidades
-- construir cotizaciones y proformas rapido
+- construir cotizaciones y proformas rapido para clientes, leads o receptores rapidos
 - registrar gastos y deudas
 - consultar reportes operativos
 - mantener control de permisos y auditoria
@@ -28,6 +28,7 @@ Una sola plataforma ligera que permita:
 ## Jobs to be done
 
 - "Quiero cotizar rapido desde el telefono y dejar rastro"
+- "Quiero cotizar aunque el lead todavia no este creado y ordenar el CRM despues"
 - "Quiero ver quien cambio que y cuando"
 - "Quiero operar sin volver el sistema un ERP complejo"
 

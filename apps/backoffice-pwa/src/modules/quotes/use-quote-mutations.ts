@@ -23,7 +23,8 @@ export function useQuoteMutations() {
   const invalidate = async (tenantId: string) => {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: ["quotes", tenantId] }),
-      queryClient.invalidateQueries({ queryKey: ["dashboard-snapshot", tenantId] })
+      queryClient.invalidateQueries({ queryKey: ["dashboard-snapshot", tenantId] }),
+      queryClient.invalidateQueries({ queryKey: ["quote-detail", tenantId] })
     ]);
   };
 
