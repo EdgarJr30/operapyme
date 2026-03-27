@@ -49,6 +49,7 @@ const commonEs = {
     quotesManage: "Gestionar cotizaciones",
     learning: "Aprendizaje",
     admin: "Admin",
+    profile: "Perfil",
     settings: "Configuracion",
     errors: "Errores",
     more: "Mas"
@@ -98,6 +99,7 @@ const commonEs = {
     searchPlaceholder: "Buscar modulo o accion",
     openNotificationsLabel: "Abrir notificaciones",
     profileMenuLabel: "Abrir menu del usuario",
+    profileAction: "Abrir perfil",
     pageDescriptions: {
       dashboard: "Resumen operativo, accesos rapidos y actividad reciente.",
       crm: "Leads, clientes y seguimiento comercial en una misma vista.",
@@ -106,6 +108,7 @@ const commonEs = {
       quotesNew: "Wizard corto para crear una cotizacion sin perder contexto.",
       quotesManage: "Retoma cotizaciones existentes, ajusta detalles y conserva versionado.",
       learning: "Guias y ayuda rapida para operar con mas claridad.",
+      profile: "Cuenta, seguridad de acceso y datos basicos del usuario.",
       settings: "Configuracion transversal del tenant, branding y preferencias.",
       admin: "Auditoria global y controles reservados para perfiles autorizados.",
       errors: "Incidencias operativas y trazabilidad de errores visibles."

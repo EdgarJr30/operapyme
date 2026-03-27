@@ -17,6 +17,7 @@ import {
   LogOut,
   Menu,
   Package2,
+  UserRound,
   Search,
   Settings2,
   ShieldCheck,
@@ -34,7 +35,12 @@ import {
   MotionConfig,
   motion
 } from "motion/react";
-import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
+import {
+  NavLink,
+  Outlet,
+  useLocation,
+  useNavigate
+} from "react-router-dom";
 import { toast } from "sonner";
 
 import { useBackofficeAuth } from "@/app/auth-provider";
@@ -220,6 +226,13 @@ function getRouteMeta(pathname: string): RouteMeta {
     return {
       labelKey: "navigation.learning",
       descriptionKey: "shell.pageDescriptions.learning"
+    };
+  }
+
+  if (pathname.startsWith("/profile")) {
+    return {
+      labelKey: "navigation.profile",
+      descriptionKey: "shell.pageDescriptions.profile"
     };
   }
 
@@ -712,6 +725,7 @@ function SidebarContent({
 
 export function AppShell() {
   const { t } = useTranslation("common");
+  const navigate = useNavigate();
   const location = useLocation();
   const {
     accessContext,
@@ -804,6 +818,7 @@ export function AppShell() {
     })) ?? [];
   const isBottomMenuActive =
     location.pathname.startsWith("/catalog") ||
+    location.pathname.startsWith("/profile") ||
     location.pathname.startsWith("/settings") ||
     location.pathname.startsWith("/admin");
 
@@ -843,6 +858,11 @@ export function AppShell() {
     }
 
     toast.success(t("shell.signOutSuccess"));
+  };
+
+  const handleOpenProfile = () => {
+    setIsUserMenuOpen(false);
+    navigate("/profile");
   };
 
   const shellLayoutStyle = {
@@ -1086,6 +1106,15 @@ export function AppShell() {
                         <div className="mt-4 rounded-3xl border border-line/70 bg-sand/35 p-4">
                           <LanguageSwitcher />
                         </div>
+
+                        <button
+                          type="button"
+                          onClick={handleOpenProfile}
+                          className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-line-strong bg-paper px-4 text-sm font-medium text-ink shadow-panel transition hover:bg-sand/70"
+                        >
+                          <UserRound className="size-4" aria-hidden="true" />
+                          <span>{t("shell.profileAction")}</span>
+                        </button>
 
                         <button
                           type="button"

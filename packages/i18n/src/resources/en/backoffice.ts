@@ -972,16 +972,42 @@ const backofficeEn = {
       title: "Request access",
       emailLabel: "Work email",
       emailPlaceholder: "team@operapyme.com",
+      passwordLabel: "Password",
+      passwordPlaceholder: "Enter your password",
+      passwordTab: "Password",
+      magicLinkTab: "Magic link",
+      recoveryTab: "Recover",
+      passwordSubmit: "Sign in with password",
       submit: "Send access link",
       submitFirstTime: "Send link to get started",
+      recoverySubmit: "Send recovery link",
       submitting: "Sending access...",
+      passwordError: "We could not sign you in with password. {message}",
       emailSendError: "We could not send the access link. {message}",
+      recoveryError: "We could not send the recovery link. {message}",
       emailSentTitle: "Check your inbox",
       emailSentText:
         "We sent an access link to {email}. If you do not see it, check spam or try again.",
+      recoverySentTitle: "Recovery link sent",
+      recoverySentText:
+        "We sent a link to change the password to {email}. Check your inbox and come back here once you open it.",
+      passwordSuccessTitle: "Access validated",
+      passwordSuccessText:
+        "We are finishing your session so we can take you into the workspace.",
+      forgotPassword: "Forgot my password",
+      passwordHelper:
+        "Use your email and the password you already defined from your profile.",
+      magicLinkHelper:
+        "If you prefer not to remember a password, you can still use an email access link.",
+      recoveryHelper:
+        "We will send you a secure link so you can define a new password without losing your current account.",
+      firstAccessHelper:
+        "The first session still starts with magic link. After that you can create a password from the profile module.",
       noteTitle: "Current access mode",
       noteText:
-        "We use email access so you can sign in quickly from any device."
+        "We use email access so you can sign in quickly from any device.",
+      noteTextPassword:
+        "You can combine password and magic link on the same account to keep fast access plus a contingency path."
     },
     callback: {
       eyebrow: "Validating access",
@@ -992,7 +1018,26 @@ const backofficeEn = {
         "The access link is missing the required data or it was already consumed. Request a fresh one from sign in.",
       errorUnsupported:
         "The access link uses a format that this backoffice cannot validate yet.",
-      backToAuth: "Request another link"
+      backToAuth: "Request another link",
+      recoveryEyebrow: "Access recovery",
+      recoveryTitle: "Set a new password",
+      recoveryDescription:
+        "This temporary access already validated your identity. Create a new password so you can sign in later with email and password whenever you need it.",
+      newPasswordLabel: "New password",
+      newPasswordPlaceholder: "Create a secure password",
+      confirmPasswordLabel: "Confirm password",
+      confirmPasswordPlaceholder: "Repeat the new password",
+      passwordRule:
+        "Use at least 8 characters and save a combination you can remember or store in a secure credential manager.",
+      passwordSaving: "Saving password...",
+      passwordSubmit: "Save new password",
+      continueToWorkspace: "Continue to backoffice",
+      passwordTooShort: "Password must be at least 8 characters long.",
+      passwordMismatch: "Passwords do not match.",
+      passwordSaveError: "We could not save the new password. {message}",
+      passwordSavedTitle: "Password updated",
+      passwordSavedDescription:
+        "You can now sign in with email and password without losing magic link as an alternative."
     },
     unconfigured: {
       eyebrow: "Supabase pending",
@@ -1051,6 +1096,53 @@ const backofficeEn = {
     description:
       "Global auditing and operational errors are exclusive to the `global_admin` role in this phase.",
     backHome: "Back to home"
+  },
+  profile: {
+    header: {
+      eyebrow: "Profile",
+      title: "Account and access security",
+      description:
+        "Review your active identity and define this account's password without leaving the backoffice."
+    },
+    summary: {
+      title: "Account summary",
+      description:
+        "These details represent the authenticated account currently operating inside the active tenant.",
+      userLabel: "User",
+      emailLabel: "Email",
+      tenantLabel: "Active tenant",
+      roleLabel: "Visible role"
+    },
+    security: {
+      title: "Access password",
+      description:
+        "Enable or update email + password access. Magic link will remain available as an alternative.",
+      passwordLabel: "New password",
+      passwordPlaceholder: "Create or update your password",
+      confirmPasswordLabel: "Confirm password",
+      confirmPasswordPlaceholder: "Repeat the password",
+      helper:
+        "We recommend using at least 8 characters and storing it in a secure manager.",
+      submit: "Save password",
+      submitting: "Saving password...",
+      successTitle: "Password saved",
+      successDescription:
+        "Your account can now sign in with email and password in addition to magic link.",
+      error: "We could not save the password. {message}",
+      mismatch: "Passwords do not match.",
+      tooShort: "Password must be at least 8 characters long."
+    },
+    methods: {
+      title: "Available methods",
+      description:
+        "OperaPyme keeps more than one sign-in path available to reduce operational friction.",
+      magicLinkTitle: "Magic link by email",
+      magicLinkText:
+        "It remains active so you can sign in quickly from any device without depending only on a password.",
+      passwordTitle: "Email + password",
+      passwordText:
+        "Once the password is saved, you will be able to sign in from `/auth` using this second method."
+    }
   },
   settings: {
     header: {

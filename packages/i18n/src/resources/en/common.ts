@@ -49,6 +49,7 @@ const commonEn = {
     quotesManage: "Manage quotes",
     learning: "Learning",
     admin: "Admin",
+    profile: "Profile",
     settings: "Settings",
     errors: "Errors",
     more: "More"
@@ -97,6 +98,7 @@ const commonEn = {
     searchPlaceholder: "Search module or action",
     openNotificationsLabel: "Open notifications",
     profileMenuLabel: "Open user menu",
+    profileAction: "Open profile",
     pageDescriptions: {
       dashboard: "Operational summary, quick actions, and recent activity.",
       crm: "Leads, customers, and commercial follow-up in one view.",
@@ -105,6 +107,7 @@ const commonEn = {
       quotesNew: "Short wizard to create a quote without losing context.",
       quotesManage: "Resume existing quotes, adjust details, and keep versioning.",
       learning: "Guides and quick help to operate with more clarity.",
+      profile: "Account, access security, and basic user details.",
       settings: "Tenant-wide settings, branding, and appearance preferences.",
       admin: "Global audit and controls reserved for authorized profiles.",
       errors: "Operational incidents and visible error traceability."

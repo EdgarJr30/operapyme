@@ -1,5 +1,9 @@
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import {
+  render,
+  screen
+} from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import {
   MemoryRouter,
   Route,
@@ -44,7 +48,9 @@ describe("auth page", () => {
     authMocks.useBackofficeAuth.mockReturnValue({
       isConfigured: true,
       isBootstrapped: false,
+      requestPasswordReset: vi.fn(),
       signInWithOtp: vi.fn(),
+      signInWithPassword: vi.fn(),
       status: "signed_out"
     });
 
@@ -59,10 +65,13 @@ describe("auth page", () => {
       screen.getByRole("heading", { name: /Inicia sesión en tu cuenta/i })
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /Enviar enlace de acceso/i })
+      screen.getByRole("button", { name: /Entrar con contrasena/i })
     ).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /Crea tu cuenta/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /^Magic link$/i })
     ).toBeInTheDocument();
   });
 
@@ -70,7 +79,9 @@ describe("auth page", () => {
     authMocks.useBackofficeAuth.mockReturnValue({
       isConfigured: true,
       isBootstrapped: false,
+      requestPasswordReset: vi.fn(),
       signInWithOtp: vi.fn(),
+      signInWithPassword: vi.fn(),
       status: "signed_in"
     });
 
@@ -94,7 +105,9 @@ describe("auth page", () => {
     authMocks.useBackofficeAuth.mockReturnValue({
       isConfigured: false,
       isBootstrapped: false,
+      requestPasswordReset: vi.fn(),
       signInWithOtp: vi.fn(),
+      signInWithPassword: vi.fn(),
       status: "unconfigured"
     });
 
@@ -105,5 +118,34 @@ describe("auth page", () => {
         name: /El backoffice necesita conexión a Supabase/i
       })
     ).toBeInTheDocument();
+  });
+
+  it("switches to first access and keeps magic link as the onboarding path", async () => {
+    const user = userEvent.setup();
+
+    authMocks.useBackofficeAuth.mockReturnValue({
+      isConfigured: true,
+      isBootstrapped: false,
+      requestPasswordReset: vi.fn(),
+      signInWithOtp: vi.fn(),
+      signInWithPassword: vi.fn(),
+      status: "signed_out"
+    });
+
+    renderRoute();
+
+    await user.click(
+      await screen.findByRole("button", { name: /Crea tu cuenta/i })
+    );
+
+    expect(
+      await screen.findByRole("heading", { name: /Crea tu cuenta/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Enviar enlace para empezar/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /^Contrasena$/i })
+    ).not.toBeInTheDocument();
   });
 });

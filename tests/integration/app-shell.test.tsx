@@ -44,6 +44,7 @@ function renderRoute(route: string) {
             <Route path="quotes/manage" element={<div>Quotes manage stub</div>} />
             <Route path="admin" element={<AdminAuditPage />} />
             <Route path="admin/errors" element={<AdminErrorsPage />} />
+            <Route path="profile" element={<div>Profile stub</div>} />
             <Route path="settings" element={<div>Settings stub</div>} />
           </Route>
         </Routes>
@@ -199,5 +200,25 @@ describe("backoffice shell", () => {
       (await screen.findAllByRole("button", { name: /Open main menu/i })).length
     ).toBeGreaterThan(0);
     expect(document.documentElement.lang).toBe("en");
+  });
+
+  it("opens the profile route from the user menu", async () => {
+    const user = userEvent.setup();
+
+    renderRoute("/");
+
+    await user.click(
+      await screen.findByRole("button", {
+        name: /Abrir menu del usuario|Open user menu/i
+      })
+    );
+
+    await user.click(
+      await screen.findByRole("button", {
+        name: /Abrir perfil|Open profile/i
+      })
+    );
+
+    expect(await screen.findByText("Profile stub")).toBeInTheDocument();
   });
 });

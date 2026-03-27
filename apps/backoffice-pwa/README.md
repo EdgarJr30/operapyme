@@ -27,8 +27,11 @@ El `service role key` no vive aqui.
 
 - la entrada de fase 2 vive en `/auth`
 - `/auth` usa un layout split editorial con un panel de auth fijo y cambio entre acceso existente y primer ingreso desde el mismo panel
-- `/auth/callback` confirma sesiones tanto con `code` como con `token_hash` y devuelve al login si el enlace ya no sirve
+- el acceso existente ya soporta correo + contrasena, magic link alterno y recovery de contrasena desde la misma pantalla
+- el primer ingreso sigue naciendo por magic link para no duplicar cuentas ni romper el onboarding actual
+- `/auth/callback` confirma sesiones tanto con `code` como con `token_hash`, resuelve recovery de contrasena y devuelve al login si el enlace ya no sirve
 - el primer usuario autenticado pasa por `/setup`
+- el usuario autenticado ya tiene un modulo `/profile` para definir o actualizar su contrasena sin salir del backoffice
 - durante refresh o hidratacion de sesion, el router espera el `accessContext` antes de decidir entre shell o `/setup`, y muestra skeleton loaders de aplicacion en lugar de flashear la pantalla incorrecta
 - el bootstrap de auth ahora se apoya en eventos de Supabase + una hidratacion separada del `accessContext`, evitando trabajo duplicado en refresh
 - el shell principal solo abre cuando ya existe membership activa en un tenant

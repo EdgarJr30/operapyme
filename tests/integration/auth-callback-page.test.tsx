@@ -4,6 +4,7 @@ import {
   screen,
   waitFor
 } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import {
   MemoryRouter,
   Route,
@@ -62,6 +63,7 @@ function renderRoute() {
 
 describe("auth callback page", () => {
   const refreshAccessContext = vi.fn();
+  const setPassword = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -71,6 +73,7 @@ describe("auth callback page", () => {
       isBootstrapped: false,
       isConfigured: true,
       refreshAccessContext,
+      setPassword,
       status: "signed_out"
     });
 
@@ -144,5 +147,47 @@ describe("auth callback page", () => {
     renderRoute();
 
     expect(await screen.findByText("Auth destination")).toBeInTheDocument();
+  });
+
+  it("renders the recovery password form after validating a recovery token", async () => {
+    const user = userEvent.setup();
+
+    setPassword.mockResolvedValue(null);
+    authMocks.useBackofficeAuth.mockReturnValue({
+      isAccessContextLoading: false,
+      isBootstrapped: true,
+      isConfigured: true,
+      refreshAccessContext,
+      setPassword,
+      status: "signed_in"
+    });
+
+    window.history.replaceState(
+      {},
+      "",
+      "/auth/callback?token_hash=hash-123&type=recovery&flow=recovery"
+    );
+
+    renderRoute();
+
+    expect(
+      await screen.findByRole("heading", { name: /Define una nueva contrasena/i })
+    ).toBeInTheDocument();
+
+    await user.type(
+      screen.getByLabelText(/^Nueva contrasena$/i),
+      "NuevaClave123"
+    );
+    await user.type(
+      screen.getByLabelText(/^Confirmar contrasena$/i),
+      "NuevaClave123"
+    );
+    await user.click(
+      screen.getByRole("button", { name: /Guardar nueva contrasena/i })
+    );
+
+    await waitFor(() => {
+      expect(setPassword).toHaveBeenCalledWith("NuevaClave123");
+    });
   });
 });

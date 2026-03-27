@@ -133,8 +133,9 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 - refresh del backoffice aligerado con auth bootstrap deduplicado, rutas criticas diferidas, PDF fuera del bundle inicial y soporte global diferido para toast/permisos
 - baseline de testing y contratos del repo sembrados
 - fundacion Supabase segura sembrada con enfoque RBAC, RLS y auditoria
-- auth del backoffice sembrado con magic link
+- auth del backoffice ya soporta magic link, password login para cuentas existentes y recovery de contrasena
 - bootstrap inicial de tenant sembrado con membership `tenant_owner`
+- modulo `/profile` ya permite definir o actualizar la contrasena de la cuenta autenticada
 - primeras tablas operativas `customers`, `leads`, `quotes` y `quote_line_items` sembradas con RLS, RPC y auditoria
 - tabla operativa `catalog_items` sembrada con RLS, auditoria y reglas base de precios por tenant
 - hardening SQL aplicado para fijar `search_path` y dejar limpio el security advisor base
@@ -162,6 +163,8 @@ Flujo funcional actual:
 4. entrar por `/auth`
 5. completar `/setup` si el usuario aun no tiene tenant
 6. si el callback llega con `code` o con `token_hash` valido, el backoffice confirma la sesion y vuelve a `/auth` cuando el enlace ya no sirve o viene incompleto
+7. los usuarios que entren por magic link pueden luego ir a `/profile` para activar o cambiar su acceso por correo + contrasena
+8. `/auth` mantiene magic link para primer ingreso y acceso alterno, pero ya permite entrar por correo + contrasena y solicitar recovery
 
 Durante refresh o hidratacion de sesion, el backoffice espera el `accessContext` antes de decidir entre shell o `/setup`, y muestra skeleton loaders de aplicacion en lugar de flashear una pantalla incorrecta.
 

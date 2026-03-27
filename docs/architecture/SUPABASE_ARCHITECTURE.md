@@ -71,9 +71,11 @@ Toda tabla publica o expuesta debe definir:
 La fase 2 ya deja listos estos bloques iniciales:
 
 - acceso por magic link desde Supabase Auth
+- acceso mixto para cuentas existentes: magic link mas email y contrasena sobre la misma identidad
 - sincronizacion de sesion hacia `app_users`
 - RPC `get_my_access_context()` para hidratar roles, permisos y memberships
 - RPC `create_tenant_with_owner()` para bootstrap inicial del primer tenant
+- recovery de contrasena apoyado en callback de Supabase y actualizacion segura de credenciales desde sesion autenticada
 - tablas `customers` y `quotes` con tracking, RLS y auditoria
 - hardening de funciones SQL con `search_path` fijo para dejar limpia la linteria de seguridad base
 - lectura real del backoffice sobre `customers` y `quotes` usando el tenant activo y RLS

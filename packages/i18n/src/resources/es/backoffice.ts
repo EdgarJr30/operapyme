@@ -974,16 +974,42 @@ const backofficeEs = {
       title: "Solicita tu acceso",
       emailLabel: "Correo de trabajo",
       emailPlaceholder: "equipo@operapyme.com",
+      passwordLabel: "Contrasena",
+      passwordPlaceholder: "Ingresa tu contrasena",
+      passwordTab: "Contrasena",
+      magicLinkTab: "Magic link",
+      recoveryTab: "Recuperar",
+      passwordSubmit: "Entrar con contrasena",
       submit: "Enviar enlace de acceso",
       submitFirstTime: "Enviar enlace para empezar",
+      recoverySubmit: "Enviar enlace de recuperacion",
       submitting: "Enviando acceso...",
+      passwordError: "No pudimos iniciar sesion con contrasena. {message}",
       emailSendError: "No pudimos enviar el enlace de acceso. {message}",
+      recoveryError: "No pudimos enviar el enlace de recuperacion. {message}",
       emailSentTitle: "Revisa tu correo",
       emailSentText:
         "Enviamos un enlace de acceso a {email}. Si no lo ves, revisa spam o vuelve a intentarlo.",
+      recoverySentTitle: "Enlace de recuperacion enviado",
+      recoverySentText:
+        "Enviamos un enlace para cambiar la contrasena a {email}. Revisa tu correo y vuelve aqui cuando abras el enlace.",
+      passwordSuccessTitle: "Acceso validado",
+      passwordSuccessText:
+        "Estamos terminando de abrir tu sesion para llevarte a tu espacio de trabajo.",
+      forgotPassword: "Olvide mi contrasena",
+      passwordHelper:
+        "Usa tu correo y la contrasena que hayas definido desde tu perfil.",
+      magicLinkHelper:
+        "Si prefieres no recordar una contrasena, tambien puedes entrar con un enlace de acceso por correo.",
+      recoveryHelper:
+        "Te enviaremos un enlace seguro para definir una nueva contrasena sin perder tu cuenta actual.",
+      firstAccessHelper:
+        "El primer ingreso sigue por magic link. Luego podras crear tu contrasena desde el modulo de perfil.",
       noteTitle: "Modo actual de acceso",
       noteText:
-        "Usamos acceso por correo para que entres rapido desde cualquier dispositivo."
+        "Usamos acceso por correo para que entres rapido desde cualquier dispositivo.",
+      noteTextPassword:
+        "Puedes combinar contrasena y magic link sobre la misma cuenta para tener acceso rapido y una via de contingencia."
     },
     callback: {
       eyebrow: "Validando acceso",
@@ -994,7 +1020,26 @@ const backofficeEs = {
         "El enlace de acceso no tiene los datos necesarios o ya fue consumido. Solicita uno nuevo desde el inicio de sesión.",
       errorUnsupported:
         "El enlace de acceso usa un formato que este backoffice todavía no puede validar.",
-      backToAuth: "Solicitar otro enlace"
+      backToAuth: "Solicitar otro enlace",
+      recoveryEyebrow: "Recuperacion de acceso",
+      recoveryTitle: "Define una nueva contrasena",
+      recoveryDescription:
+        "Este acceso temporal ya valido tu identidad. Crea una nueva contrasena para volver a entrar con correo y contrasena cuando lo necesites.",
+      newPasswordLabel: "Nueva contrasena",
+      newPasswordPlaceholder: "Crea una contrasena segura",
+      confirmPasswordLabel: "Confirmar contrasena",
+      confirmPasswordPlaceholder: "Repite la nueva contrasena",
+      passwordRule:
+        "Usa al menos 8 caracteres y guarda una combinacion que puedas recordar o custodiar en tu gestor de credenciales.",
+      passwordSaving: "Guardando contrasena...",
+      passwordSubmit: "Guardar nueva contrasena",
+      continueToWorkspace: "Continuar al backoffice",
+      passwordTooShort: "La contrasena debe tener al menos 8 caracteres.",
+      passwordMismatch: "Las contrasenas no coinciden.",
+      passwordSaveError: "No pudimos guardar la nueva contrasena. {message}",
+      passwordSavedTitle: "Contrasena actualizada",
+      passwordSavedDescription:
+        "Ya puedes entrar con correo y contrasena, sin perder magic link como alternativa."
     },
     unconfigured: {
       eyebrow: "Supabase pendiente",
@@ -1053,6 +1098,53 @@ const backofficeEs = {
     description:
       "La auditoría global y los errores operativos son exclusivos del rol `global_admin` en esta fase.",
     backHome: "Volver al inicio"
+  },
+  profile: {
+    header: {
+      eyebrow: "Perfil",
+      title: "Cuenta y seguridad de acceso",
+      description:
+        "Revisa tu identidad activa y define la contrasena de esta cuenta sin salir del backoffice."
+    },
+    summary: {
+      title: "Resumen de cuenta",
+      description:
+        "Estos datos representan la cuenta autenticada que opera dentro del tenant actual.",
+      userLabel: "Usuario",
+      emailLabel: "Correo",
+      tenantLabel: "Tenant activo",
+      roleLabel: "Rol visible"
+    },
+    security: {
+      title: "Contrasena de acceso",
+      description:
+        "Activa o actualiza el acceso por correo y contrasena. Magic link seguira disponible como alternativa.",
+      passwordLabel: "Nueva contrasena",
+      passwordPlaceholder: "Crea o actualiza tu contrasena",
+      confirmPasswordLabel: "Confirmar contrasena",
+      confirmPasswordPlaceholder: "Repite la contrasena",
+      helper:
+        "Recomendamos una contrasena de al menos 8 caracteres y guardarla en un gestor seguro.",
+      submit: "Guardar contrasena",
+      submitting: "Guardando contrasena...",
+      successTitle: "Contrasena guardada",
+      successDescription:
+        "Tu cuenta ya puede entrar por correo y contrasena, ademas de magic link.",
+      error: "No pudimos guardar la contrasena. {message}",
+      mismatch: "Las contrasenas no coinciden.",
+      tooShort: "La contrasena debe tener al menos 8 caracteres."
+    },
+    methods: {
+      title: "Metodos disponibles",
+      description:
+        "OperaPyme mantiene mas de una via de acceso para reducir friccion operativa.",
+      magicLinkTitle: "Magic link por correo",
+      magicLinkText:
+        "Sigue activo para entrar rapido desde cualquier dispositivo sin depender solo de la contrasena.",
+      passwordTitle: "Correo + contrasena",
+      passwordText:
+        "Una vez guardada la contrasena, podras entrar desde `/auth` con este segundo metodo."
+    }
   },
   settings: {
     header: {

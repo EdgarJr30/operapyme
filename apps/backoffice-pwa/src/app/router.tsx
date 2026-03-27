@@ -252,6 +252,20 @@ async function loadSettingsRoute() {
   };
 }
 
+async function loadProfileRoute() {
+  const { ProfilePage } = await import("@/modules/profile/profile-page");
+
+  return {
+    Component: function ProfileRoute() {
+      return (
+        <Suspense fallback={<RouteLoader />}>
+          <ProfilePage />
+        </Suspense>
+      );
+    }
+  };
+}
+
 async function loadAdminAuditRoute() {
   const { AdminAuditPage } = await import("@/modules/admin/admin-audit-page");
 
@@ -379,6 +393,10 @@ export const appRoutes: RouteObject[] = [
       {
         path: "settings",
         lazy: loadSettingsRoute
+      },
+      {
+        path: "profile",
+        lazy: loadProfileRoute
       }
     ]
   }

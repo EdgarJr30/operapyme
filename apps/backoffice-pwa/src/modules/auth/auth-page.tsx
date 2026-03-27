@@ -1,74 +1,136 @@
-import { FormEvent, useRef, useState } from 'react';
+import { FormEvent, useRef, useState } from "react";
 
-import { ShieldCheck } from 'lucide-react';
+import { ShieldCheck } from "lucide-react";
 
-import { useTranslation } from '@operapyme/i18n';
-import { Navigate } from 'react-router-dom';
-import { toast } from 'sonner';
+import { useTranslation } from "@operapyme/i18n";
+import { Navigate } from "react-router-dom";
+import { toast } from "sonner";
 
-import { useBackofficeAuth } from '@/app/auth-provider';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { UnconfiguredPage } from '@/modules/auth/unconfigured-page';
+import { useBackofficeAuth } from "@/app/auth-provider";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { UnconfiguredPage } from "@/modules/auth/unconfigured-page";
 
-type AuthMode = 'signin' | 'signup';
+type AuthMode = "signin" | "signup";
+type SignInView = "password" | "magic_link" | "recovery";
 
 export function AuthPage() {
-  const { t } = useTranslation('backoffice');
-  const { isConfigured, isBootstrapped, signInWithOtp, status } =
-    useBackofficeAuth();
+  const { t } = useTranslation("backoffice");
+  const {
+    isConfigured,
+    isBootstrapped,
+    requestPasswordReset,
+    signInWithOtp,
+    signInWithPassword,
+    status
+  } = useBackofficeAuth();
   const emailInputRef = useRef<HTMLInputElement>(null);
-  const [email, setEmail] = useState('');
-  const [mode, setMode] = useState<AuthMode>('signin');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [mode, setMode] = useState<AuthMode>("signin");
+  const [signInView, setSignInView] = useState<SignInView>("password");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isConfigured) {
     return <UnconfiguredPage />;
   }
 
-  if (status === 'signed_in') {
-    return <Navigate to={isBootstrapped ? '/' : '/setup'} replace />;
+  if (status === "signed_in") {
+    return <Navigate to={isBootstrapped ? "/" : "/setup"} replace />;
   }
 
+  const isFirstAccess = mode === "signup";
+  const isPasswordView = !isFirstAccess && signInView === "password";
+  const isRecoveryView = !isFirstAccess && signInView === "recovery";
+  const isMagicLinkView = isFirstAccess || signInView === "magic_link";
+
   const entryContent =
-    mode === 'signin'
+    mode === "signin"
       ? {
-          title: t('auth.entry.signinPanelTitle'),
-          switchLead: t('auth.entry.signinSwitchLead'),
-          switchAction: t('auth.entry.signinSwitchAction'),
-          description: t('auth.entry.signinDescription'),
-          submitLabel: t('auth.form.submit'),
+          title: t("auth.entry.signinPanelTitle"),
+          switchLead: t("auth.entry.signinSwitchLead"),
+          switchAction: t("auth.entry.signinSwitchAction"),
+          description: t("auth.entry.signinDescription"),
+          submitLabel: isRecoveryView
+            ? t("auth.form.recoverySubmit")
+            : isPasswordView
+              ? t("auth.form.passwordSubmit")
+              : t("auth.form.submit")
         }
       : {
-          title: t('auth.entry.signupPanelTitle'),
-          switchLead: t('auth.entry.signupSwitchLead'),
-          switchAction: t('auth.entry.signupSwitchAction'),
-          description: t('auth.entry.signupDescription'),
-          submitLabel: t('auth.form.submitFirstTime'),
+          title: t("auth.entry.signupPanelTitle"),
+          switchLead: t("auth.entry.signupSwitchLead"),
+          switchAction: t("auth.entry.signupSwitchAction"),
+          description: t("auth.entry.signupDescription"),
+          submitLabel: t("auth.form.submitFirstTime")
         };
 
-  function setAuthMode(nextMode: AuthMode) {
-    setMode(nextMode);
+  function focusEmailField() {
     requestAnimationFrame(() => {
       emailInputRef.current?.focus();
     });
+  }
+
+  function setAuthMode(nextMode: AuthMode) {
+    setMode(nextMode);
+    setSignInView(nextMode === "signin" ? "password" : "magic_link");
+    setPassword("");
+    focusEmailField();
+  }
+
+  function handleSignInViewChange(nextView: SignInView) {
+    setSignInView(nextView);
+    if (nextView !== "password") {
+      setPassword("");
+    }
+    focusEmailField();
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSubmitting(true);
 
-    const nextError = await signInWithOtp(email.trim());
+    const trimmedEmail = email.trim();
+    let nextError: string | null = null;
+
+    if (isPasswordView) {
+      nextError = await signInWithPassword(trimmedEmail, password);
+    } else if (isRecoveryView) {
+      nextError = await requestPasswordReset(trimmedEmail);
+    } else {
+      nextError = await signInWithOtp(trimmedEmail);
+    }
 
     setIsSubmitting(false);
 
     if (nextError) {
-      toast.error(t('auth.form.emailSendError', { message: nextError }));
+      const errorKey = isRecoveryView
+        ? "auth.form.recoveryError"
+        : isPasswordView
+          ? "auth.form.passwordError"
+          : "auth.form.emailSendError";
+
+      toast.error(t(errorKey, { message: nextError }));
       return;
     }
 
-    toast.success(t('auth.form.emailSentTitle'), {
-      description: t('auth.form.emailSentText', { email: email.trim() }),
+    if (isRecoveryView) {
+      toast.success(t("auth.form.recoverySentTitle"), {
+        description: t("auth.form.recoverySentText", { email: trimmedEmail })
+      });
+      handleSignInViewChange("password");
+      return;
+    }
+
+    if (isPasswordView) {
+      toast.success(t("auth.form.passwordSuccessTitle"), {
+        description: t("auth.form.passwordSuccessText")
+      });
+      return;
+    }
+
+    toast.success(t("auth.form.emailSentTitle"), {
+      description: t("auth.form.emailSentText", { email: trimmedEmail })
     });
   }
 
@@ -81,17 +143,17 @@ export function AuthPage() {
               <img
                 src="/favicon.svg"
                 alt="OperaPyme"
-                className="h-10 w-auto rounded-[14px]"
+                className="h-10 w-auto rounded-xl"
               />
               <h1 className="mt-6 text-2xl font-bold tracking-tight text-ink sm:text-3xl">
                 {entryContent.title}
               </h1>
               <p className="mt-2 text-sm leading-6 text-ink-soft">
-                {entryContent.switchLead}{' '}
+                {entryContent.switchLead}{" "}
                 <button
                   type="button"
                   onClick={() =>
-                    setAuthMode(mode === 'signin' ? 'signup' : 'signin')
+                    setAuthMode(mode === "signin" ? "signup" : "signin")
                   }
                   className="font-semibold text-[#1f2c38] transition hover:text-[#17212b]"
                 >
@@ -103,14 +165,56 @@ export function AuthPage() {
               </p>
             </div>
 
+            {!isFirstAccess ? (
+              <div className="mt-6 grid grid-cols-3 gap-2 rounded-2xl border border-line/70 bg-sand/35 p-1">
+                <button
+                  type="button"
+                  onClick={() => handleSignInViewChange("password")}
+                  className={
+                    signInView === "password"
+                      ? "min-h-11 rounded-xl bg-paper px-3 text-sm font-semibold text-ink shadow-panel"
+                      : "min-h-11 rounded-xl px-3 text-sm font-medium text-ink-soft transition hover:bg-paper/70 hover:text-ink"
+                  }
+                >
+                  {t("auth.form.passwordTab")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleSignInViewChange("magic_link")}
+                  className={
+                    signInView === "magic_link"
+                      ? "min-h-11 rounded-xl bg-paper px-3 text-sm font-semibold text-ink shadow-panel"
+                      : "min-h-11 rounded-xl px-3 text-sm font-medium text-ink-soft transition hover:bg-paper/70 hover:text-ink"
+                  }
+                >
+                  {t("auth.form.magicLinkTab")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleSignInViewChange("recovery")}
+                  className={
+                    signInView === "recovery"
+                      ? "min-h-11 rounded-xl bg-paper px-3 text-sm font-semibold text-ink shadow-panel"
+                      : "min-h-11 rounded-xl px-3 text-sm font-medium text-ink-soft transition hover:bg-paper/70 hover:text-ink"
+                  }
+                >
+                  {t("auth.form.recoveryTab")}
+                </button>
+              </div>
+            ) : null}
+
             <div className="mt-8">
-              <form className="space-y-5" onSubmit={handleSubmit}>
+              <form
+                className="space-y-5"
+                onSubmit={handleSubmit}
+                autoComplete={isPasswordView ? "on" : "off"}
+              >
                 <div>
                   <label
                     htmlFor="auth-email"
                     className="block text-sm font-medium text-ink"
                   >
-                    {t('auth.form.emailLabel')}
+                    {t("auth.form.emailLabel")}
                   </label>
                   <div className="mt-2">
                     <Input
@@ -120,11 +224,55 @@ export function AuthPage() {
                       autoComplete="email"
                       value={email}
                       onChange={(event) => setEmail(event.target.value)}
-                      placeholder={t('auth.form.emailPlaceholder')}
+                      placeholder={t("auth.form.emailPlaceholder")}
                       required
                       className="rounded-xl border-line/80 bg-white"
                     />
                   </div>
+                </div>
+
+                {isPasswordView ? (
+                  <div>
+                    <div className="flex items-center justify-between gap-3">
+                      <label
+                        htmlFor="auth-password"
+                        className="block text-sm font-medium text-ink"
+                      >
+                        {t("auth.form.passwordLabel")}
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => handleSignInViewChange("recovery")}
+                        className="text-xs font-semibold text-[#1f2c38] transition hover:text-[#17212b]"
+                      >
+                        {t("auth.form.forgotPassword")}
+                      </button>
+                    </div>
+                    <div className="mt-2">
+                      <Input
+                        id="auth-password"
+                        type="password"
+                        autoComplete="current-password"
+                        value={password}
+                        onChange={(event) => setPassword(event.target.value)}
+                        placeholder={t("auth.form.passwordPlaceholder")}
+                        required
+                        className="rounded-xl border-line/80 bg-white"
+                      />
+                    </div>
+                  </div>
+                ) : null}
+
+                <div className="rounded-2xl border border-line/70 bg-sand/35 px-4 py-3">
+                  <p className="text-sm leading-6 text-ink-soft">
+                    {isRecoveryView
+                      ? t("auth.form.recoveryHelper")
+                      : isPasswordView
+                        ? t("auth.form.passwordHelper")
+                        : isFirstAccess
+                          ? t("auth.form.firstAccessHelper")
+                          : t("auth.form.magicLinkHelper")}
+                  </p>
                 </div>
 
                 <div>
@@ -134,7 +282,7 @@ export function AuthPage() {
                     disabled={isSubmitting}
                   >
                     {isSubmitting
-                      ? t('auth.form.submitting')
+                      ? t("auth.form.submitting")
                       : entryContent.submitLabel}
                   </Button>
                 </div>
@@ -150,14 +298,16 @@ export function AuthPage() {
                   </div>
                   <div className="relative flex justify-center text-sm font-medium">
                     <span className="bg-white px-6 text-ink">
-                      {t('auth.form.noteTitle')}
+                      {t("auth.form.noteTitle")}
                     </span>
                   </div>
                 </div>
 
                 <div className="mt-5 rounded-2xl border border-line/70 bg-white px-4 py-3">
                   <p className="text-sm leading-6 text-ink-soft">
-                    {t('auth.form.noteText')}
+                    {isPasswordView
+                      ? t("auth.form.noteTextPassword")
+                      : t("auth.form.noteText")}
                   </p>
                 </div>
               </div>
@@ -203,9 +353,9 @@ export function AuthPage() {
               </div>
 
               <div className="absolute -left-5 bottom-5 w-24 rounded-3xl border border-line/70 bg-paper/95 p-3 shadow-panel">
-                <div className="rounded-[14px] bg-butter-200 px-3 py-3" />
+                <div className="rounded-xl bg-butter-200 px-3 py-3" />
                 <div className="mt-3 space-y-2">
-                  <div className="h-7 rounded-[14px] bg-sand-strong/75" />
+                  <div className="h-7 rounded-xl bg-sand-strong/75" />
                   <div className="h-2 rounded-full bg-line/80" />
                   <div className="h-2 w-4/5 rounded-full bg-line/60" />
                 </div>
@@ -218,10 +368,10 @@ export function AuthPage() {
 
             <div className="mt-10 text-center">
               <h2 className="text-4xl font-semibold tracking-tight text-ink xl:text-5xl">
-                {t('auth.hero.title')}
+                {t("auth.hero.title")}
               </h2>
               <p className="mt-4 text-lg text-ink-soft">
-                {t('auth.hero.description')}
+                {t("auth.hero.description")}
               </p>
               <div className="mt-10 flex items-center justify-center gap-2">
                 <span className="h-1.5 w-6 rounded-full bg-[#ab8500]" />

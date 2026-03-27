@@ -45,6 +45,9 @@ interface BackofficeAuthContextValue {
   isAccessContextLoading: boolean;
   isConfigured: boolean;
   signInWithOtp: (email: string) => Promise<string | null>;
+  signInWithPassword: (email: string, password: string) => Promise<string | null>;
+  requestPasswordReset: (email: string) => Promise<string | null>;
+  setPassword: (password: string) => Promise<string | null>;
   signOut: () => Promise<string | null>;
   refreshAccessContext: () => Promise<void>;
   setActiveTenantId: (tenantId: string) => void;
@@ -356,6 +359,46 @@ export function BackofficeAuthProvider({ children }: PropsWithChildren) {
     return error?.message ?? null;
   }, []);
 
+  const signInWithPassword = useCallback(
+    async (email: string, password: string) => {
+      if (!supabase) {
+        return "Supabase no esta configurado para este entorno.";
+      }
+
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      return error?.message ?? null;
+    },
+    []
+  );
+
+  const requestPasswordReset = useCallback(async (email: string) => {
+    if (!supabase) {
+      return "Supabase no esta configurado para este entorno.";
+    }
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/callback?flow=recovery`
+    });
+
+    return error?.message ?? null;
+  }, []);
+
+  const setPassword = useCallback(async (password: string) => {
+    if (!supabase) {
+      return "Supabase no esta configurado para este entorno.";
+    }
+
+    const { error } = await supabase.auth.updateUser({
+      password
+    });
+
+    return error?.message ?? null;
+  }, []);
+
   const signOut = useCallback(async () => {
     if (!supabase) {
       return "Supabase no esta configurado para este entorno.";
@@ -389,6 +432,9 @@ export function BackofficeAuthProvider({ children }: PropsWithChildren) {
       isAccessContextLoading,
       isConfigured: isSupabaseConfigured,
       signInWithOtp,
+      signInWithPassword,
+      requestPasswordReset,
+      setPassword,
       signOut,
       refreshAccessContext,
       setActiveTenantId
@@ -401,6 +447,9 @@ export function BackofficeAuthProvider({ children }: PropsWithChildren) {
       activeTenantId,
       isAccessContextLoading,
       signInWithOtp,
+      signInWithPassword,
+      requestPasswordReset,
+      setPassword,
       signOut,
       refreshAccessContext,
       setActiveTenantId
