@@ -95,6 +95,7 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 
 - [docs/saas-blueprint.md](./docs/saas-blueprint.md): alcance actual, modulos core y roadmap del producto.
 - [docs/ui-ux-direction.md](./docs/ui-ux-direction.md): direccion visual y reglas de UX mobile-first.
+- [docs/governance/UI_UX_RULES.md](./docs/governance/UI_UX_RULES.md): contrato obligatorio de UX/UI, mobile-first, accesibilidad, espaciado y navegacion.
 - [docs/tenant-theming.md](./docs/tenant-theming.md): estrategia de branding por tenant y appearance modes.
 - [docs/development-setup.md](./docs/development-setup.md): instalacion, scripts y flujo local.
 - [docs/architecture/SUPABASE_ARCHITECTURE.md](./docs/architecture/SUPABASE_ARCHITECTURE.md): fundacion segura de backend con RBAC, RLS y auditoria.

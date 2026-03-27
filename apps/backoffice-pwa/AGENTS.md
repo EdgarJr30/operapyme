@@ -17,8 +17,10 @@
 ## Reglas de UI
 
 - Mobile-first de verdad: disenar primero en 390px-430px.
+- `docs/governance/UI_UX_RULES.md` es obligatorio para cualquier cambio visual o de UX en esta app.
 - No usar layouts desktop-first encogidos.
 - Bottom navigation en movil; sidebar solo en desktop amplio.
+- El sidebar desktop debe quedar fijo e independiente del scroll del contenido; no se permite usar scroll del rail como solucion de layout.
 - CTA principal visible sin tener que buscarlo.
 - Touch targets minimos de 44px.
 - Inputs con label arriba, nunca solo placeholder.

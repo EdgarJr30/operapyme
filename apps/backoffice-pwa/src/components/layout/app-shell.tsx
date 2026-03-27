@@ -1,4 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  type CSSProperties,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from "react";
 
 import {
   Bell,
@@ -287,36 +293,40 @@ function SidebarContent({
   const showCollapsedLabels = isDesktop && isCollapsed;
   const showTenantSwitcher = memberships.length > 1 && !showCollapsedLabels;
   const footerYear = new Date().getFullYear();
+  const footerLegalLabel = t("shell.sidebarFooterLegal")
+    .replace("{{year}}", String(footerYear))
+    .replace("{{tenant}}", activeTenantName);
 
   return (
-    <div className="flex h-full flex-col bg-sidebar-surface text-sidebar-text">
-      <div className="border-b border-sidebar-border px-4 pb-4 pt-5">
-        <div className="flex items-start gap-3">
-          <div className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-sidebar-border bg-sidebar-elevated shadow-panel">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden bg-sidebar-surface text-sidebar-text">
+      <div className="border-b border-sidebar-border px-4 py-4">
+        <div
+          className={cn(
+            "flex items-center",
+            showCollapsedLabels ? "justify-center" : "gap-3"
+          )}
+        >
+          <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-sidebar-border bg-sidebar-elevated shadow-panel">
             <img
               src="/pwa-icon.svg"
               alt={t("shell.productName")}
-              className="size-8"
+              className="size-7"
             />
           </div>
-          <div className="min-w-0 flex-1">
-            {!showCollapsedLabels ? (
-              <>
-                <p className="truncate text-base font-semibold tracking-tight text-sidebar-text">
-                  {t("shell.productName")}
-                </p>
-                <p className="truncate text-sm text-sidebar-muted">
-                  {activeTenantName}
-                </p>
-              </>
-            ) : (
-              <span className="sr-only">{t("shell.productName")}</span>
-            )}
-          </div>
+          {!showCollapsedLabels ? (
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-lg leading-6 font-semibold tracking-tight text-sidebar-text">
+                {t("shell.productName")}
+              </p>
+              <p className="mt-0.5 truncate text-sm leading-6 text-sidebar-muted">
+                {activeTenantName}
+              </p>
+            </div>
+          ) : null}
           <button
             type="button"
             onClick={onToggleSidebar}
-            className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl border border-sidebar-border bg-sidebar-elevated text-sidebar-text transition hover:bg-sidebar-border"
+            className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl border border-sidebar-border bg-sidebar-elevated text-sidebar-text transition hover:border-sidebar-muted hover:bg-sidebar-border"
             aria-label={
               isDesktop
                 ? isCollapsed
@@ -344,155 +354,143 @@ function SidebarContent({
           </button>
         </div>
 
-        {!showCollapsedLabels ? (
-          <div className="mt-4 rounded-2xl border border-sidebar-border bg-sidebar-elevated px-3 py-3">
-            <p className="truncate text-xs font-semibold uppercase tracking-[0.18em] text-sidebar-muted">
+        {showCollapsedLabels ? (
+          <span className="sr-only">{activeTenantName}</span>
+        ) : null}
+
+        {showTenantSwitcher ? (
+          <>
+            <label
+              htmlFor="tenant-switcher-sidebar"
+              className="mt-4 block text-xs font-semibold uppercase tracking-[0.18em] text-sidebar-muted"
+            >
               {t("shell.tenantLabel")}
-            </p>
-            <div className="mt-3 flex items-center gap-3">
-              <div className="flex size-10 items-center justify-center rounded-full bg-brand text-xs font-semibold text-brand-contrast">
-                {getInitials(activeTenantName)}
+            </label>
+            <Select
+              id="tenant-switcher-sidebar"
+              value={activeTenantId}
+              className="mt-2 h-10 rounded-xl border-sidebar-border bg-sidebar-elevated text-sm text-sidebar-text"
+              onChange={(event) => onTenantChange(event.target.value)}
+            >
+              {memberships.map((membership) => (
+                <option key={membership.tenantId} value={membership.tenantId}>
+                  {membership.tenantName}
+                </option>
+              ))}
+            </Select>
+          </>
+        ) : null}
+      </div>
+
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        <nav
+          aria-label={t("shell.primaryNavigationLabel")}
+          className="flex-1 px-3 py-4"
+        >
+          {sections.map((section, sectionIndex) => (
+            <div
+              key={section.labelKey}
+              className={cn(
+                sectionIndex === 0
+                  ? ""
+                  : "mt-4 border-t border-sidebar-border pt-4"
+              )}
+            >
+              <div className="space-y-1">
+                {section.items.map(({ to, key, icon: Icon }) => (
+                  <NavLink
+                    key={to}
+                    to={to}
+                    end={to === "/"}
+                    onClick={onNavigate}
+                    className={({ isActive }) =>
+                      cn(
+                        "group relative flex min-h-12 items-center rounded-xl text-[16px] font-medium transition",
+                        showCollapsedLabels
+                          ? "justify-center px-2"
+                          : "gap-3 px-3",
+                        isActive
+                          ? "bg-sidebar-accent text-sidebar-accent-contrast"
+                          : "text-sidebar-text hover:bg-sidebar-elevated hover:text-sidebar-text"
+                      )
+                    }
+                    aria-label={t(`navigation.${key}`)}
+                    title={showCollapsedLabels ? t(`navigation.${key}`) : undefined}
+                  >
+                    <span
+                      className={cn(
+                        "flex size-10 shrink-0 items-center justify-center rounded-lg transition",
+                        showCollapsedLabels ? "" : "group-hover:bg-sidebar-border/55"
+                      )}
+                    >
+                      <Icon className="size-4.5" aria-hidden="true" />
+                    </span>
+                    {!showCollapsedLabels ? (
+                      <span className="truncate">{t(`navigation.${key}`)}</span>
+                    ) : (
+                      <span className="sr-only">{t(`navigation.${key}`)}</span>
+                    )}
+                  </NavLink>
+                ))}
               </div>
+            </div>
+          ))}
+        </nav>
+
+        <div className="border-t border-sidebar-border px-3 py-4">
+          <div
+            className={cn(
+              "flex items-center",
+              showCollapsedLabels ? "justify-center" : "gap-3"
+            )}
+            title={showCollapsedLabels ? userLabel : undefined}
+          >
+            <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-sidebar-accent text-xs font-semibold text-sidebar-accent-contrast">
+              {getInitials(userLabel)}
+            </div>
+            {!showCollapsedLabels ? (
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold text-sidebar-text">
-                  {activeTenantName}
+                  {userLabel}
                 </p>
                 <p className="truncate text-xs text-sidebar-muted">
                   {businessRoleLabel}
                 </p>
               </div>
-            </div>
-          </div>
-        ) : null}
-
-        {showTenantSwitcher ? (
-          <label
-            htmlFor="tenant-switcher-sidebar"
-            className="mt-4 block text-xs font-semibold uppercase tracking-[0.18em] text-sidebar-muted"
-          >
-            {t("shell.tenantSwitcherLabel")}
-          </label>
-        ) : null}
-
-        {showTenantSwitcher ? (
-          <Select
-            id="tenant-switcher-sidebar"
-            value={activeTenantId}
-            className="mt-2 h-11 rounded-xl border-sidebar-border bg-sidebar-elevated text-sm text-sidebar-text"
-            onChange={(event) => onTenantChange(event.target.value)}
-          >
-            {memberships.map((membership) => (
-              <option key={membership.tenantId} value={membership.tenantId}>
-                {membership.tenantName}
-              </option>
-            ))}
-          </Select>
-        ) : null}
-      </div>
-
-      <nav
-        aria-label={t("shell.primaryNavigationLabel")}
-        className="flex-1 overflow-y-auto px-3 py-4"
-      >
-        {sections.map((section, sectionIndex) => (
-          <div
-            key={section.labelKey}
-            className={cn(
-              sectionIndex === 0
-                ? ""
-                : "mt-4 border-t border-sidebar-border pt-4"
+            ) : (
+              <span className="sr-only">{userLabel}</span>
             )}
+          </div>
+
+          <button
+            type="button"
+            onClick={onSignOut}
+            className={cn(
+              "mt-4 flex min-h-11 w-full items-center rounded-xl text-left text-[15px] font-medium text-red-400 transition hover:bg-red-500/10 hover:text-red-300",
+              showCollapsedLabels ? "justify-center px-2" : "gap-3 px-2.5"
+            )}
+            aria-label={t("shell.signOut")}
+            title={showCollapsedLabels ? t("shell.signOut") : undefined}
           >
-            <div className="space-y-1">
-              {section.items.map(({ to, key, icon: Icon }) => (
-                <NavLink
-                  key={to}
-                  to={to}
-                  end={to === "/"}
-                  onClick={onNavigate}
-                  className={({ isActive }) =>
-                    cn(
-                      "group relative flex min-h-11 items-center rounded-xl px-3 py-2.5 text-[15px] font-medium transition",
-                      showCollapsedLabels
-                        ? "justify-center px-2"
-                        : "gap-3",
-                      isActive
-                        ? "bg-brand text-brand-contrast shadow-panel"
-                        : "text-sidebar-text hover:bg-sidebar-elevated"
-                    )
-                  }
-                  aria-label={t(`navigation.${key}`)}
-                  title={showCollapsedLabels ? t(`navigation.${key}`) : undefined}
-                >
-                  <span
-                    className={cn(
-                      "flex size-9 shrink-0 items-center justify-center rounded-lg transition",
-                      showCollapsedLabels ? "" : "group-hover:bg-sidebar-border/60",
-                      "text-sidebar-muted group-hover:text-sidebar-text"
-                    )}
-                  >
-                    <Icon className="size-4.5" aria-hidden="true" />
-                  </span>
-                  {!showCollapsedLabels ? (
-                    <span className="truncate">{t(`navigation.${key}`)}</span>
-                  ) : (
-                    <span className="sr-only">{t(`navigation.${key}`)}</span>
-                  )}
-                </NavLink>
-              ))}
-            </div>
-          </div>
-        ))}
-      </nav>
+            <LogOut className="size-4.5" aria-hidden="true" />
+            {!showCollapsedLabels ? (
+              <span>{t("shell.signOut")}</span>
+            ) : (
+              <span className="sr-only">{t("shell.signOut")}</span>
+            )}
+          </button>
 
-      <div className="border-t border-sidebar-border px-3 py-4">
-        <div
-          className={cn(
-            "flex items-center",
-            showCollapsedLabels ? "justify-center" : "gap-3"
-          )}
-          title={showCollapsedLabels ? userLabel : undefined}
-        >
-          <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-brand text-[11px] font-semibold text-brand-contrast">
-            {getInitials(userLabel)}
-          </div>
           {!showCollapsedLabels ? (
-            <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-sidebar-text">
-                {userLabel}
+            <div className="mt-4 border-t border-sidebar-border pt-4 text-center">
+              <p className="text-xs leading-5 text-sidebar-muted">
+                {footerLegalLabel}
               </p>
-              <p className="truncate text-xs text-sidebar-muted">
-                {businessRoleLabel}
+              <p className="mt-1 text-xs font-medium text-sidebar-muted">
+                {t("shell.sidebarFooterProduct")}
               </p>
             </div>
-          ) : (
-            <span className="sr-only">{userLabel}</span>
-          )}
+          ) : null}
         </div>
-
-        <button
-          type="button"
-          onClick={onSignOut}
-          className={cn(
-            "mt-4 flex min-h-11 w-full items-center rounded-xl px-3 py-2.5 text-left text-[15px] font-medium text-red-400 transition hover:bg-red-500/10 hover:text-red-300",
-            showCollapsedLabels ? "justify-center px-2" : "gap-3"
-          )}
-          aria-label={t("shell.signOut")}
-          title={showCollapsedLabels ? t("shell.signOut") : undefined}
-        >
-          <LogOut className="size-4.5" aria-hidden="true" />
-          {!showCollapsedLabels ? (
-            <span>{t("shell.signOut")}</span>
-          ) : (
-            <span className="sr-only">{t("shell.signOut")}</span>
-          )}
-        </button>
-
-        {!showCollapsedLabels ? (
-          <p className="mt-4 text-xs leading-5 text-sidebar-muted">
-            {footerYear} {t("shell.productName")} · {t("shell.badge")}
-          </p>
-        ) : null}
       </div>
     </div>
   );
@@ -625,8 +623,16 @@ export function AppShell() {
     void signOut();
   };
 
+  const shellLayoutStyle = {
+    ["--shell-sidebar-width" as string]: `${
+      isDesktopSidebarCollapsed
+        ? DESKTOP_SIDEBAR_COLLAPSED_WIDTH
+        : DESKTOP_SIDEBAR_EXPANDED_WIDTH
+    }px`
+  } as CSSProperties;
+
   return (
-    <div className="min-h-screen bg-sand/40">
+    <div className="min-h-screen bg-paper" style={shellLayoutStyle}>
       <AnimatePresence>
         {isSidebarOpen ? (
           <div className="fixed inset-0 z-50 lg:hidden">
@@ -667,17 +673,17 @@ export function AppShell() {
         ) : null}
       </AnimatePresence>
 
-      <div className="flex min-h-screen">
-        <motion.aside
-          className="hidden shrink-0 lg:block"
-          animate={{
-            width: isDesktopSidebarCollapsed
-              ? DESKTOP_SIDEBAR_COLLAPSED_WIDTH
-              : DESKTOP_SIDEBAR_EXPANDED_WIDTH
-          }}
-          initial={false}
-          transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-        >
+      <motion.aside
+        className="fixed inset-y-0 left-0 z-40 hidden overflow-hidden border-r border-sidebar-border bg-sidebar-surface lg:block"
+        animate={{
+          width: isDesktopSidebarCollapsed
+            ? DESKTOP_SIDEBAR_COLLAPSED_WIDTH
+            : DESKTOP_SIDEBAR_EXPANDED_WIDTH
+        }}
+        initial={false}
+        transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <div className="h-full">
           <SidebarContent
             sections={sections}
             activeTenantId={activeTenantMembership?.tenantId ?? ""}
@@ -695,8 +701,10 @@ export function AppShell() {
             userLabel={userLabel}
             t={t}
           />
-        </motion.aside>
+        </div>
+      </motion.aside>
 
+      <div className="flex min-h-screen min-w-0 flex-col lg:pl-[var(--shell-sidebar-width)] lg:transition-[padding-left] lg:duration-200">
         <div className="flex min-h-screen min-w-0 flex-1 flex-col">
           <header className="sticky top-0 z-30 border-b border-line/70 bg-paper/95 backdrop-blur">
             <div className="mx-auto flex w-full max-w-screen-2xl items-center gap-4 px-4 py-4 sm:px-6 lg:px-8">

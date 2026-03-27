@@ -13,6 +13,7 @@ Separar claramente:
 - Toda UI usa tokens semanticos, no colores hardcodeados por cliente.
 - El contraste minimo debe mantenerse en todas las paletas.
 - Las paletas del tenant deben sentirse serias, comerciales y legibles.
+- La base operativa en light mode debe mantenerse blanca o casi blanca; los acentos vivos y los railes oscuros son apoyo jerarquico, no fondo dominante de toda la app.
 - No usar el branding para alterar jerarquia de informacion, espaciado o accesibilidad.
 
 ## Modelo

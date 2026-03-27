@@ -79,6 +79,8 @@ const commonEn = {
     closeMenuLabel: "Close main menu",
     collapseSidebarLabel: "Collapse sidebar",
     expandSidebarLabel: "Expand sidebar",
+    sidebarFooterLegal: "© {{year}} {{tenant}}. All rights reserved.",
+    sidebarFooterProduct: "OperaPyme backoffice",
     breadcrumbsLabel: "Current route",
     searchLabel: "Search the workspace",
     searchPlaceholder: "Search module or action",

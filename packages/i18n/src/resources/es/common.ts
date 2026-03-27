@@ -79,6 +79,9 @@ const commonEs = {
     closeMenuLabel: "Cerrar menu principal",
     collapseSidebarLabel: "Colapsar menu lateral",
     expandSidebarLabel: "Expandir menu lateral",
+    sidebarFooterLegal:
+      "© {{year}} {{tenant}}. Todos los derechos reservados.",
+    sidebarFooterProduct: "OperaPyme backoffice",
     breadcrumbsLabel: "Ruta actual",
     searchLabel: "Buscar en el workspace",
     searchPlaceholder: "Buscar modulo o accion",

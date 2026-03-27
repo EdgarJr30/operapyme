@@ -31,6 +31,7 @@ Antes de proponer arquitectura, modelo de datos o UX, revisar:
 
 - `docs/saas-blueprint.md`
 - `docs/ui-ux-direction.md`
+- `docs/governance/UI_UX_RULES.md`
 - `docs/tenant-theming.md`
 - `README.md`
 
@@ -73,6 +74,7 @@ Acceso canonico a Supabase para este repo:
 - Todo modulo nuevo debe poder activarse o desactivarse por plan o feature flag.
 - El idioma base del producto es espanol.
 - Toda UI nueva debe salir con soporte `es` y `en` desde `packages/i18n`, no con strings hardcodeados en componentes.
+- Toda UI nueva o cambio visual relevante debe cumplir `docs/governance/UI_UX_RULES.md` como contrato obligatorio de producto.
 - La apariencia visual se divide en dos capas: modo de usuario o dispositivo (`light`, `dark`, `system`) y branding por tenant con paletas curadas.
 - Todo cambio visual debe apoyarse en tokens semanticos y mantener contraste, calma visual e identidad consistente.
 - El estandar de animacion del producto es `motion.dev` (`motion`). No introducir otra libreria de animacion para transiciones, overlays, drawers, modales o microinteracciones sin una decision documentada.
