@@ -1032,15 +1032,100 @@ const backofficeEs = {
   auth: {
     hero: {
       eyebrow: "OperaPyme en la web",
-      title: "Sincronizado en todos tus dispositivos.",
+      title: "Activa tu operacion comercial desde el primer acceso.",
       description:
-        "Usa OperaPyme en tu celular o en tu PC con la misma experiencia de trabajo.",
-      cardRbacTitle: "RBAC desde el inicio",
-      cardRbacText:
-        "El acceso se decide por roles y permisos del tenant, no por visibilidad en la UI.",
-      cardAuditTitle: "Auditoría obligatoria",
-      cardAuditText:
-        "Toda acción sensible nace con tracking de actor, timestamps y trazabilidad."
+        "Entra desde movil o desktop con una experiencia clara para CRM, cotizaciones, clientes y control operativo del tenant.",
+      cards: {
+        rbac: {
+          title: "RBAC desde el inicio",
+          text:
+            "Cada acceso responde al rol y al tenant activo para proteger datos y acciones clave."
+        },
+        audit: {
+          title: "Auditoria obligatoria",
+          text:
+            "Eventos sensibles, cambios funcionales y auth quedan trazados con actor y contexto."
+        }
+      },
+      operatingTitle: "Listo para operar",
+      operating: {
+        customers: {
+          title: "Clientes y leads con contexto",
+          text:
+            "Captura rapido, sigue la relacion comercial y entra a la siguiente accion sin ruido."
+        },
+        documents: {
+          title: "Cotizaciones y factura interna",
+          text:
+            "Documentos claros, compartibles y preparados para avanzar de propuesta a cierre."
+        },
+        roles: {
+          title: "Acceso seguro por tenant",
+          text:
+            "OperaPyme abre el espacio correcto segun tu sesion, tu pertenencia y tu nivel de permiso."
+        }
+      }
+    },
+    capabilities: {
+      mobile: {
+        title: "Movil primero",
+        text:
+          "Consulta actividad, entra al CRM y responde rapido desde el telefono sin perder jerarquia."
+      },
+      desktop: {
+        title: "Desktop con contexto",
+        text:
+          "En pantallas amplias ves onboarding, beneficios y acceso en una sola composicion limpia."
+      },
+      security: {
+        title: "Acceso flexible",
+        text:
+          "Combina magic link, contrasena y recovery sin multiplicar cuentas ni perder control."
+      }
+    },
+    story: {
+      capture: {
+        title: "Captura leads y clientes",
+        text:
+          "Empieza por la oportunidad comercial y conviertela en una cartera accionable."
+      },
+      quote: {
+        title: "Cotiza con ritmo operativo",
+        text:
+          "Pasa de una necesidad detectada a una propuesta lista para compartir y dar seguimiento."
+      },
+      access: {
+        title: "Controla permisos y trazabilidad",
+        text:
+          "El tenant, los roles y la auditoria viven en la base del producto, no como capas extras."
+      }
+    },
+    metrics: {
+      title: "Vista de activacion",
+      crm: {
+        value: "CRM",
+        label: "Leads, clientes y seguimiento en el mismo flujo"
+      },
+      quotes: {
+        value: "Docs",
+        label: "Cotizaciones, proformas y factura interna no fiscal"
+      },
+      team: {
+        value: "RBAC",
+        label: "Acceso por tenant con roles y permisos coherentes"
+      }
+    },
+    preview: {
+      title: "Asi se siente OperaPyme",
+      description:
+        "Una entrada de producto que ya anticipa el ritmo real del backoffice.",
+      badge: "Mobile y desktop",
+      pipelineLabel: "Flujo comercial",
+      pipelineTitle: "De lead a documento sin perder contexto",
+      pipelineBadge: "Tenant listo",
+      accessTitle: "Acceso sin friccion",
+      accessText:
+        "Entra por correo, contrasena o recovery y sigue al setup inicial o al espacio ya activo."
     },
     entry: {
       brandLabel: "Backoffice operativo",
@@ -1104,6 +1189,18 @@ const backofficeEs = {
         "Usamos acceso por correo para que entres rapido desde cualquier dispositivo.",
       noteTextPassword:
         "Puedes combinar contrasena y magic link sobre la misma cuenta para tener acceso rapido y una via de contingencia."
+    },
+    footer: {
+      secure: {
+        title: "Arranque seguro",
+        text:
+          "Tu sesion valida el tenant correcto antes de abrir datos, acciones o modulos sensibles."
+      },
+      setup: {
+        title: "Setup guiado",
+        text:
+          "Si todavia no existe espacio operativo, el flujo te lleva directo al wizard inicial del tenant."
+      }
     },
     callback: {
       eyebrow: "Validando acceso",

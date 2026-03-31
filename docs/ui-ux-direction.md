@@ -67,6 +67,7 @@ La interfaz debe sentirse:
 
 - dashboard con proximas acciones
 - acceso y auth con layout dividido: contexto visual en un lado, decision primaria en el otro
+- el onboarding de acceso debe sentirse como producto SaaS, no como login generico: beneficios claros, preview operativo y una sola decision primaria visible en movil y desktop
 - formularios de captura rapida
 - listados con filtros cortos y legibles
 - modulo admin separado del backoffice comercial

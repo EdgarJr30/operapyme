@@ -1030,15 +1030,100 @@ const backofficeEn = {
   auth: {
     hero: {
       eyebrow: "OperaPyme on the web",
-      title: "Synced across all your devices.",
+      title: "Turn on your commercial operation from the very first access.",
       description:
-        "Use OperaPyme on your phone or your computer with the same work experience.",
-      cardRbacTitle: "RBAC from day one",
-      cardRbacText:
-        "Access is decided by tenant roles and permissions, not by UI visibility.",
-      cardAuditTitle: "Required auditing",
-      cardAuditText:
-        "Every sensitive action starts with actor tracking, timestamps, and traceability."
+        "Sign in from mobile or desktop with a clear experience for CRM, quotes, customers, and tenant operations.",
+      cards: {
+        rbac: {
+          title: "RBAC from day one",
+          text:
+            "Every access responds to the active role and tenant so key data and actions stay protected."
+        },
+        audit: {
+          title: "Required auditing",
+          text:
+            "Sensitive events, functional changes, and auth flows stay traceable with actor and context."
+        }
+      },
+      operatingTitle: "Ready to operate",
+      operating: {
+        customers: {
+          title: "Customers and leads with context",
+          text:
+            "Capture quickly, follow the commercial relationship, and move into the next action without noise."
+        },
+        documents: {
+          title: "Quotes and internal invoice",
+          text:
+            "Clear, shareable documents prepared to move from proposal to close."
+        },
+        roles: {
+          title: "Secure tenant access",
+          text:
+            "OperaPyme opens the right workspace based on your session, membership, and permission level."
+        }
+      }
+    },
+    capabilities: {
+      mobile: {
+        title: "Mobile first",
+        text:
+          "Review activity, jump into CRM, and respond fast from your phone without losing hierarchy."
+      },
+      desktop: {
+        title: "Desktop with context",
+        text:
+          "On larger screens you see onboarding, benefits, and access in one clean composition."
+      },
+      security: {
+        title: "Flexible access",
+        text:
+          "Combine magic link, password, and recovery without multiplying accounts or losing control."
+      }
+    },
+    story: {
+      capture: {
+        title: "Capture leads and customers",
+        text:
+          "Start from the sales opportunity and turn it into an actionable portfolio."
+      },
+      quote: {
+        title: "Quote with operating rhythm",
+        text:
+          "Move from a detected need into a proposal that is ready to share and follow up."
+      },
+      access: {
+        title: "Control permissions and traceability",
+        text:
+          "Tenant scope, roles, and auditing live in the product foundation, not as extra layers."
+      }
+    },
+    metrics: {
+      title: "Activation view",
+      crm: {
+        value: "CRM",
+        label: "Leads, customers, and follow-up in the same flow"
+      },
+      quotes: {
+        value: "Docs",
+        label: "Quotes, proformas, and non-fiscal internal invoice"
+      },
+      team: {
+        value: "RBAC",
+        label: "Tenant access with coherent roles and permissions"
+      }
+    },
+    preview: {
+      title: "How OperaPyme feels",
+      description:
+        "A product entrypoint that already previews the real backoffice rhythm.",
+      badge: "Mobile and desktop",
+      pipelineLabel: "Commercial flow",
+      pipelineTitle: "From lead to document without losing context",
+      pipelineBadge: "Tenant ready",
+      accessTitle: "Low-friction access",
+      accessText:
+        "Sign in by email, password, or recovery and continue to the initial setup or the active workspace."
     },
     entry: {
       brandLabel: "Operational backoffice",
@@ -1102,6 +1187,18 @@ const backofficeEn = {
         "We use email access so you can sign in quickly from any device.",
       noteTextPassword:
         "You can combine password and magic link on the same account to keep fast access plus a contingency path."
+    },
+    footer: {
+      secure: {
+        title: "Secure start",
+        text:
+          "Your session validates the correct tenant before opening data, actions, or sensitive modules."
+      },
+      setup: {
+        title: "Guided setup",
+        text:
+          "If no operating workspace exists yet, the flow takes you directly into the tenant bootstrap wizard."
+      }
     },
     callback: {
       eyebrow: "Validating access",

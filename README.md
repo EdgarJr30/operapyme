@@ -135,6 +135,7 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 - baseline de testing y contratos del repo sembrados
 - fundacion Supabase segura sembrada con enfoque RBAC, RLS y auditoria
 - auth del backoffice ya soporta magic link, password login para cuentas existentes y recovery de contrasena
+- `/auth` ahora usa un onboarding de acceso mobile-first con narrativa de producto y composicion adaptada tambien para desktop
 - bootstrap inicial de tenant sembrado con membership `tenant_owner`
 - `/setup` ya corre como wizard multipaso con validacion remota de slug unico antes de crear el tenant
 - modulo `/profile` ya permite definir o actualizar la contrasena de la cuenta autenticada
