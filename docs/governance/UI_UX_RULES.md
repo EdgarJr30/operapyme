@@ -47,6 +47,7 @@ Mandatory choices:
 
 - **Icons: `lucide-react`**
 - **Component foundation: `shadcn/ui`**
+- **Default primitive base for `shadcn/ui`: `Radix UI`**
 - **Toast feedback: `sonner`**
 
 Enforcement rules:
@@ -54,11 +55,12 @@ Enforcement rules:
 1. Do not introduce additional general-purpose icon libraries such as `react-icons`, Heroicons, Phosphor, Tabler, or Iconify for product UI.
 2. All reusable UI primitives and composed design-system components must live under `src/components/ui`, following the `shadcn/ui` local-ownership model.
 3. `shadcn/ui` components may be customized to match the product visual language, but the project must not mix multiple component-library foundations for the same problem space.
-4. If a needed pattern does not yet exist, prefer adding or adapting a `shadcn/ui`-aligned component before creating a feature-local one-off implementation.
-5. Icons should default to Lucide stroke icons unless a documented brand or product exception requires a custom asset.
-6. Do not introduce alternate toast/alert libraries such as `react-toastify`, `sweetalert2`, or similar packages for app feedback.
-7. Use `sonner` only for transient feedback such as success, lightweight errors, and non-blocking status messages.
-8. Confirmation flows, destructive actions, and multi-step decisions must use shared dialogs, sheets, or full-page flows instead of toast-only patterns or browser alerts.
+4. For `OperaPyme`, `shadcn/ui` should default to `Radix UI` primitives unless a documented exception approves `Base UI` for a specific case.
+5. If a needed pattern does not yet exist, prefer adding or adapting a `shadcn/ui`-aligned component before creating a feature-local one-off implementation.
+6. Icons should default to Lucide stroke icons unless a documented brand or product exception requires a custom asset.
+7. Do not introduce alternate toast/alert libraries such as `react-toastify`, `sweetalert2`, or similar packages for app feedback.
+8. Use `sonner` only for transient feedback such as success, lightweight errors, and non-blocking status messages.
+9. Confirmation flows, destructive actions, and multi-step decisions must use shared dialogs, sheets, or full-page flows instead of toast-only patterns or browser alerts.
 
 ## 4. Apple UI design dos and don'ts
 

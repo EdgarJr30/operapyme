@@ -78,5 +78,6 @@ Esta app usa Tailwind v4 en modo CSS-first.
 - Esta app ya queda preparada para `shadcn` CLI y su MCP con `components.json` en `apps/backoffice-pwa/components.json`.
 - En este repo, cualquier `add` de `shadcn` para el backoffice debe ejecutarse con `--cwd apps/backoffice-pwa`.
 - El destino canonico de componentes UI generados es `apps/backoffice-pwa/src/components/ui`.
+- La base por defecto para componentes `shadcn` en `OperaPyme` es `Radix UI`; no mezclar con `Base UI` en la misma superficie sin decision documentada.
 - Los aliases esperados por `shadcn` en esta app son `@/components`, `@/components/ui`, `@/lib` y `@/lib/utils`.
 - Para Codex, el servidor MCP de `shadcn` se declara en `~/.codex/config.toml`; no se autogenera desde el CLI segun la documentacion oficial.

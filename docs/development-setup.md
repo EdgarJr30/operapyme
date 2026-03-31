@@ -69,6 +69,8 @@ En `OperaPyme`:
 - la app preparada para `shadcn` es `apps/backoffice-pwa`
 - el archivo canonico es `apps/backoffice-pwa/components.json`
 - cualquier comando de `shadcn` para el backoffice debe correrse con `--cwd apps/backoffice-pwa`
+- la base por defecto para primitives de `shadcn` en este repo es `Radix UI`
+- no mezclar `Radix UI` y `Base UI` dentro de la misma superficie sin una decision documentada
 
 Configuracion MCP recomendada para Codex:
 
