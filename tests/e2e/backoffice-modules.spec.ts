@@ -624,6 +624,9 @@ test.describe("backoffice modules", () => {
     await expect(
       page.getByRole("heading", { name: /Pipeline de cotizaciones/i })
     ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: /Descargar PDF/i }).first()
+    ).toBeVisible();
     await page
       .getByRole("button", { name: /Mover a Vista/i })
       .first()

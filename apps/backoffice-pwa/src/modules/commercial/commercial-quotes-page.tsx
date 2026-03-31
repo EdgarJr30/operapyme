@@ -16,6 +16,7 @@ import {
   QuoteCreateWorkspace,
   QuoteManageWorkspace
 } from "@/modules/quotes/quote-operations-panel";
+import { QuotePdfDownloadButton } from "@/modules/quotes/quote-pdf-download-button";
 import { useQuoteMutations } from "@/modules/quotes/use-quote-mutations";
 import { useQuotesData } from "@/modules/quotes/use-quotes-data";
 
@@ -209,6 +210,11 @@ export function CommercialQuotesPage() {
                           </div>
 
                           <div className="flex flex-wrap gap-2">
+                            <QuotePdfDownloadButton
+                              quoteId={quote.id}
+                              quoteNumber={quote.quoteNumber}
+                            />
+
                             {getNextQuoteStatuses(quote.status).map((targetStatus) => {
                               const pendingKey = `${quote.id}:${targetStatus}`;
 

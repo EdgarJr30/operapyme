@@ -40,10 +40,12 @@ function warmQuotePdfRuntime() {
 export function QuotePdfDownloadButton({
   quoteId,
   quoteNumber,
+  size = "sm",
   variant = "secondary"
 }: {
   quoteId: string;
   quoteNumber: string;
+  size?: ButtonProps["size"];
   variant?: ButtonProps["variant"];
 }) {
   const { t } = useTranslation("backoffice");
@@ -99,6 +101,7 @@ export function QuotePdfDownloadButton({
   return (
     <Button
       type="button"
+      size={size}
       variant={variant}
       onFocus={warmQuotePdfRuntime}
       onClick={() => {
