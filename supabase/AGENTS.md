@@ -19,6 +19,8 @@ La prioridad tecnica de esta carpeta es:
 - RLS debe negar por defecto y abrir solo lo necesario.
 - No confiar en permisos de frontend.
 - Politicas y funciones deben ser explicitamente multi-tenant.
+- `tenant_id` no se reasigna por `update` en tablas tenant-scoped.
+- Toda relacion entre tablas tenant-scoped debe incluir integridad referencial compuesta con `tenant_id`.
 - Si un cambio afecta integridad o seguridad, documentarlo.
 - Cambios de permisos, membresias, cotizaciones, errores y auth events deben ser auditables.
 

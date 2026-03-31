@@ -17,6 +17,7 @@ import {
   createCustomer,
   createQuote,
   getDashboardSnapshot,
+  getQuoteDetail,
   listCatalogItemsForTenant,
   listCustomersForTenant,
   updateCatalogItem,
@@ -95,6 +96,14 @@ describe("backoffice data access", () => {
         updatedAt: "2026-03-26T00:00:00.000Z"
       }
     ]);
+  });
+
+  it("rejects tenant-scoped reads without an active tenant", async () => {
+    await expect(listCustomersForTenant("   ", 10)).rejects.toThrow(
+      "An active tenant is required for tenant-scoped operations."
+    );
+
+    expect(supabaseMocks.from).not.toHaveBeenCalled();
   });
 
   it("maps live catalog items for the active tenant", async () => {
@@ -518,6 +527,17 @@ describe("backoffice data access", () => {
         version: 1
       })
     );
+  });
+
+  it("rejects quote detail reads without tenant or quote ids", async () => {
+    await expect(getQuoteDetail("", "quote-1")).rejects.toThrow(
+      "An active tenant is required for tenant-scoped operations."
+    );
+    await expect(getQuoteDetail("tenant-1", " ")).rejects.toThrow(
+      "Quote id is required."
+    );
+
+    expect(supabaseMocks.from).not.toHaveBeenCalled();
   });
 
   it("sends fast lead quotes without linked customer or lead ids", async () => {

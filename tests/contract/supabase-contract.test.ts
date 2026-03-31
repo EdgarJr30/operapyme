@@ -30,6 +30,9 @@ const quoteRecipientsMigrationPath = path.resolve(
 const quoteDocumentDiscountMigrationPath = path.resolve(
   "supabase/migrations/202603270003_quote_document_discount.sql"
 );
+const tenantIsolationHardeningMigrationPath = path.resolve(
+  "supabase/migrations/202603300001_tenant_isolation_hardening.sql"
+);
 
 describe("supabase foundation contracts", () => {
   it("creates the required secure foundation tables", () => {
@@ -169,5 +172,31 @@ describe("supabase foundation contracts", () => {
       "Document discount cannot exceed quote subtotal after line discounts"
     );
     expect(migration).toContain("discount_total = computed_total_discount");
+  });
+
+  it("hardens tenant isolation with composite tenant foreign keys and immutable tenant scope", () => {
+    const migration = fs.readFileSync(
+      tenantIsolationHardeningMigrationPath,
+      "utf8"
+    );
+
+    expect(migration).toContain(
+      "create or replace function public.prevent_tenant_reassignment"
+    );
+    expect(migration).toContain(
+      "add constraint customers_tenant_id_id_key unique (tenant_id, id)"
+    );
+    expect(migration).toContain(
+      "add constraint quotes_customer_id_tenant_id_fkey"
+    );
+    expect(migration).toContain(
+      "foreign key (tenant_id, customer_id)"
+    );
+    expect(migration).toContain(
+      "add constraint quote_line_items_quote_id_tenant_id_fkey"
+    );
+    expect(migration).toContain(
+      "raise exception 'tenant_id is immutable once inserted'"
+    );
   });
 });

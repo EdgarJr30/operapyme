@@ -66,6 +66,8 @@ Acceso canonico a Supabase para este repo:
 - Multi-tenant desde la base.
 - RBAC obligatorio.
 - `tenant_id` + RLS son parte del diseno, no un extra.
+- `tenant_id` es inmutable en tablas tenant-scoped; los registros no se mueven entre tenants por `update`.
+- Toda relacion entre tablas tenant-scoped debe amarrarse con integridad referencial compuesta por `tenant_id`.
 - Auditoria obligatoria para cambios funcionales, errores operativos y eventos de auth.
 - Toda tabla expuesta debe nacer con `created_at`, `updated_at`, `created_by` y `updated_by`.
 - No construir un ERP pesado.

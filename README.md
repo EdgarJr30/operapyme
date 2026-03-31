@@ -139,6 +139,7 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 - primeras tablas operativas `customers`, `leads`, `quotes` y `quote_line_items` sembradas con RLS, RPC y auditoria
 - tabla operativa `catalog_items` sembrada con RLS, auditoria y reglas base de precios por tenant
 - hardening SQL aplicado para fijar `search_path` y dejar limpio el security advisor base
+- hardening adicional de aislamiento multi-tenant aplicado con `tenant_id` obligatorio en la capa cliente, `tenant_id` inmutable en tablas tenant-scoped y foreign keys compuestas para bloquear referencias cruzadas entre tenants
 - dashboard, CRM, catalogo y quotes ya leen datos reales de Supabase en modo read-first
 - CRM, catalogo y quotes ya pueden crear y actualizar registros reales dentro del tenant activo
 - quotes ya soporta cliente, lead existente o lead rapido, persiste line items y genera PDF profesional bajo demanda

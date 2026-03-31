@@ -345,6 +345,28 @@ function requireSupabaseClient(): SupabaseClient {
   return supabase;
 }
 
+function requireTenantScope(tenantId: string) {
+  const normalizedTenantId = tenantId.trim();
+
+  if (!normalizedTenantId) {
+    throw new Error(
+      "An active tenant is required for tenant-scoped operations."
+    );
+  }
+
+  return normalizedTenantId;
+}
+
+function requireRecordId(value: string, label: string) {
+  const normalizedValue = value.trim();
+
+  if (!normalizedValue) {
+    throw new Error(`${label} is required.`);
+  }
+
+  return normalizedValue;
+}
+
 function unwrapCount(result: CountResult | null) {
   return typeof result?.count === "number" ? result.count : 0;
 }
@@ -488,10 +510,11 @@ export async function listCustomersForTenant(
   limit = 6
 ): Promise<CustomerSummary[]> {
   const client = requireSupabaseClient();
+  const scopedTenantId = requireTenantScope(tenantId);
   const { data, error } = await client
     .from("customers")
     .select(customerSelectFields)
-    .eq("tenant_id", tenantId)
+    .eq("tenant_id", scopedTenantId)
     .order("updated_at", { ascending: false })
     .limit(limit);
 
@@ -507,10 +530,11 @@ export async function listLeadsForTenant(
   limit = 25
 ): Promise<LeadSummary[]> {
   const client = requireSupabaseClient();
+  const scopedTenantId = requireTenantScope(tenantId);
   const { data, error } = await client
     .from("leads")
     .select(leadSelectFields)
-    .eq("tenant_id", tenantId)
+    .eq("tenant_id", scopedTenantId)
     .order("updated_at", { ascending: false })
     .limit(limit);
 
@@ -526,10 +550,11 @@ export async function listCatalogItemsForTenant(
   limit = 25
 ): Promise<CatalogItemSummary[]> {
   const client = requireSupabaseClient();
+  const scopedTenantId = requireTenantScope(tenantId);
   const { data, error } = await client
     .from("catalog_items")
     .select(catalogItemSelectFields)
-    .eq("tenant_id", tenantId)
+    .eq("tenant_id", scopedTenantId)
     .order("updated_at", { ascending: false })
     .limit(limit);
 
@@ -545,10 +570,11 @@ export async function listQuotesForTenant(
   limit = 6
 ): Promise<QuoteSummary[]> {
   const client = requireSupabaseClient();
+  const scopedTenantId = requireTenantScope(tenantId);
   const { data, error } = await client
     .from("quotes")
     .select(quoteSelectFields)
-    .eq("tenant_id", tenantId)
+    .eq("tenant_id", scopedTenantId)
     .order("updated_at", { ascending: false })
     .limit(limit);
 
@@ -564,11 +590,13 @@ export async function getQuoteDetail(
   quoteId: string
 ): Promise<QuoteDetail> {
   const client = requireSupabaseClient();
+  const scopedTenantId = requireTenantScope(tenantId);
+  const scopedQuoteId = requireRecordId(quoteId, "Quote id");
   const { data, error } = await client
     .from("quotes")
     .select(quoteDetailSelectFields)
-    .eq("tenant_id", tenantId)
-    .eq("id", quoteId)
+    .eq("tenant_id", scopedTenantId)
+    .eq("id", scopedQuoteId)
     .single();
 
   if (error) {
@@ -582,6 +610,7 @@ export async function getDashboardSnapshot(
   tenantId: string
 ): Promise<DashboardSnapshot> {
   const client = requireSupabaseClient();
+  const scopedTenantId = requireTenantScope(tenantId);
 
   const [
     customerCountResult,
@@ -594,23 +623,23 @@ export async function getDashboardSnapshot(
     client
       .from("customers")
       .select("id", { count: "exact", head: true })
-      .eq("tenant_id", tenantId),
+      .eq("tenant_id", scopedTenantId),
     client
       .from("customers")
       .select("id", { count: "exact", head: true })
-      .eq("tenant_id", tenantId)
+      .eq("tenant_id", scopedTenantId)
       .eq("status", "active"),
     client
       .from("quotes")
       .select("id", { count: "exact", head: true })
-      .eq("tenant_id", tenantId),
+      .eq("tenant_id", scopedTenantId),
     client
       .from("quotes")
       .select("id", { count: "exact", head: true })
-      .eq("tenant_id", tenantId)
+      .eq("tenant_id", scopedTenantId)
       .in("status", ["draft", "sent", "viewed"]),
-    listCustomersForTenant(tenantId, 3),
-    listQuotesForTenant(tenantId, 3)
+    listCustomersForTenant(scopedTenantId, 3),
+    listQuotesForTenant(scopedTenantId, 3)
   ]);
 
   for (const result of [
@@ -636,8 +665,9 @@ export async function getDashboardSnapshot(
 
 export async function createCustomer(input: CreateCustomerInput) {
   const client = requireSupabaseClient();
+  const scopedTenantId = requireTenantScope(input.tenantId);
   const payload = {
-    tenant_id: input.tenantId,
+    tenant_id: scopedTenantId,
     customer_code: normalizeOptionalValue(input.customerCode),
     display_name: input.displayName.trim(),
     contact_name: input.contactName.trim(),
@@ -666,8 +696,9 @@ export async function createCustomer(input: CreateCustomerInput) {
 
 export async function createLead(input: CreateLeadInput) {
   const client = requireSupabaseClient();
+  const scopedTenantId = requireTenantScope(input.tenantId);
   const payload = {
-    tenant_id: input.tenantId,
+    tenant_id: scopedTenantId,
     lead_code: normalizeOptionalValue(input.leadCode),
     display_name: input.displayName.trim(),
     contact_name: normalizeOptionalValue(input.contactName),
@@ -695,8 +726,9 @@ export async function createLead(input: CreateLeadInput) {
 
 export async function createCatalogItem(input: CreateCatalogItemInput) {
   const client = requireSupabaseClient();
+  const scopedTenantId = requireTenantScope(input.tenantId);
   const payload = {
-    tenant_id: input.tenantId,
+    tenant_id: scopedTenantId,
     item_code: normalizeOptionalValue(input.itemCode),
     name: input.name.trim(),
     description: normalizeOptionalValue(input.description),
@@ -725,6 +757,8 @@ export async function createCatalogItem(input: CreateCatalogItemInput) {
 
 export async function updateCustomer(input: UpdateCustomerInput) {
   const client = requireSupabaseClient();
+  const scopedTenantId = requireTenantScope(input.tenantId);
+  const scopedCustomerId = requireRecordId(input.customerId, "Customer id");
   const payload = {
     customer_code: normalizeOptionalValue(input.customerCode),
     display_name: input.displayName.trim(),
@@ -742,8 +776,8 @@ export async function updateCustomer(input: UpdateCustomerInput) {
   const { data, error } = await client
     .from("customers")
     .update(payload)
-    .eq("tenant_id", input.tenantId)
-    .eq("id", input.customerId)
+    .eq("tenant_id", scopedTenantId)
+    .eq("id", scopedCustomerId)
     .select(customerSelectFields)
     .single();
 
@@ -756,6 +790,8 @@ export async function updateCustomer(input: UpdateCustomerInput) {
 
 export async function updateCatalogItem(input: UpdateCatalogItemInput) {
   const client = requireSupabaseClient();
+  const scopedTenantId = requireTenantScope(input.tenantId);
+  const scopedItemId = requireRecordId(input.itemId, "Catalog item id");
   const payload = {
     item_code: normalizeOptionalValue(input.itemCode),
     name: input.name.trim(),
@@ -773,8 +809,8 @@ export async function updateCatalogItem(input: UpdateCatalogItemInput) {
   const { data, error } = await client
     .from("catalog_items")
     .update(payload)
-    .eq("tenant_id", input.tenantId)
-    .eq("id", input.itemId)
+    .eq("tenant_id", scopedTenantId)
+    .eq("id", scopedItemId)
     .select(catalogItemSelectFields)
     .single();
 
@@ -787,13 +823,14 @@ export async function updateCatalogItem(input: UpdateCatalogItemInput) {
 
 export async function createQuote(input: CreateQuoteInput) {
   const client = requireSupabaseClient();
+  const scopedTenantId = requireTenantScope(input.tenantId);
   const normalizedCustomerId =
     input.recipientKind === "customer" ? input.customerId ?? null : null;
   const normalizedLeadId =
     input.recipientKind === "lead" ? input.leadId ?? null : null;
 
   const { data: quoteId, error } = await client.rpc("create_quote", {
-    target_tenant_id: input.tenantId,
+    target_tenant_id: scopedTenantId,
     target_title: input.title.trim(),
     target_status: input.status,
     target_currency_code: input.currencyCode.trim().toUpperCase(),
@@ -822,7 +859,7 @@ export async function createQuote(input: CreateQuoteInput) {
   const { data, error: fetchError } = await client
     .from("quotes")
     .select(quoteSelectFields)
-    .eq("tenant_id", input.tenantId)
+    .eq("tenant_id", scopedTenantId)
     .eq("id", quoteId)
     .single();
 
@@ -835,14 +872,16 @@ export async function createQuote(input: CreateQuoteInput) {
 
 export async function updateQuote(input: UpdateQuoteInput) {
   const client = requireSupabaseClient();
+  const scopedTenantId = requireTenantScope(input.tenantId);
+  const scopedQuoteId = requireRecordId(input.quoteId, "Quote id");
   const normalizedCustomerId =
     input.recipientKind === "customer" ? input.customerId ?? null : null;
   const normalizedLeadId =
     input.recipientKind === "lead" ? input.leadId ?? null : null;
 
   const { data: quoteId, error } = await client.rpc("update_quote", {
-    target_tenant_id: input.tenantId,
-    target_quote_id: input.quoteId,
+    target_tenant_id: scopedTenantId,
+    target_quote_id: scopedQuoteId,
     expected_version: input.version,
     target_title: input.title.trim(),
     target_status: input.status,
@@ -872,7 +911,7 @@ export async function updateQuote(input: UpdateQuoteInput) {
   const { data, error: fetchError } = await client
     .from("quotes")
     .select(quoteSelectFields)
-    .eq("tenant_id", input.tenantId)
+    .eq("tenant_id", scopedTenantId)
     .eq("id", quoteId)
     .single();
 

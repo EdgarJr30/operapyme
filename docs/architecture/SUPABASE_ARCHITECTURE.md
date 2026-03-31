@@ -52,6 +52,7 @@ Toda tabla publica o expuesta debe definir:
 - politicas deny-by-default
 - acceso por claims y helpers SQL
 - el frontend nunca sustituye RLS
+- el aislamiento entre tenants se cierra tambien con integridad referencial por `tenant_id`, no solo con politicas
 
 ## Funciones helper esperadas
 
@@ -95,6 +96,19 @@ La fase 2 ya deja listos estos bloques iniciales:
 - `quotes`: base multi-tenant para cotizaciones con version, receptor flexible y snapshot documental
 - `quote_line_items`: detalle comercial persistido por cotizacion
 - `quote_number_sequences`: contador interno por tenant y anio para generar numeros `COT-YYYY-######`
+
+## Reglas duras de aislamiento
+
+- toda query del backoffice debe partir del tenant activo de la sesion
+- toda operacion tenant-scoped falla si no recibe tenant activo valido
+- `tenant_id` es inmutable despues del insert en `customers`, `leads`, `catalog_items`, `quotes`, `quote_line_items` y `quote_number_sequences`
+- toda relacion entre tablas tenant-scoped debe incluir `tenant_id` en la integridad referencial, no solo el `id`
+- ejemplos obligatorios:
+  - `quotes (tenant_id, customer_id) -> customers (tenant_id, id)`
+  - `quotes (tenant_id, lead_id) -> leads (tenant_id, id)`
+  - `quote_line_items (tenant_id, quote_id) -> quotes (tenant_id, id)`
+  - `quote_line_items (tenant_id, catalog_item_id) -> catalog_items (tenant_id, id)`
+- RLS controla visibilidad y permiso; las claves compuestas impiden cruces accidentales o maliciosos entre tenants
 
 ## Estado del security advisor base
 
