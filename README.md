@@ -141,9 +141,11 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 - tabla operativa `catalog_items` sembrada con RLS, auditoria y reglas base de precios por tenant
 - hardening SQL aplicado para fijar `search_path` y dejar limpio el security advisor base
 - hardening adicional de aislamiento multi-tenant aplicado con `tenant_id` obligatorio en la capa cliente, `tenant_id` inmutable en tablas tenant-scoped y foreign keys compuestas para bloquear referencias cruzadas entre tenants
-- dashboard, CRM, catalogo y quotes ya leen datos reales de Supabase en modo read-first
-- CRM, catalogo y quotes ya pueden crear y actualizar registros reales dentro del tenant activo
-- quotes ya soporta cliente, lead existente o lead rapido, persiste line items y genera PDF profesional bajo demanda
+- dashboard, Gestion Comercial y catalogo ya leen datos reales de Supabase en modo read-first
+- Gestion Comercial y catalogo ya pueden crear y actualizar registros reales dentro del tenant activo
+- Gestion Comercial ya concentra leads, clientes, cotizaciones y facturas documentales internas dentro del tenant activo
+- cotizaciones ya soportan cliente, lead existente o lead rapido, persisten line items y generan PDF profesional bajo demanda
+- facturas documentales internas ya soportan articulos o servicios, origen opcional en cotizacion y line items reales en Supabase
 - rutas `/admin/*` reservadas para auditoria y errores globales
 
 ### Como correr el proyecto
@@ -173,9 +175,8 @@ Durante refresh o hidratacion de sesion, el backoffice espera el `accessContext`
 Modulos operativos activos hoy:
 
 - `dashboard`: snapshot comercial con datos reales del tenant
-- `crm`: clientes reales y leads minimos con create/update
+- `commercial`: resumen comercial, leads, clientes, cotizaciones y facturas documentales internas
 - `catalog`: items comerciales reales con create/update, visibilidad, pricing mode y estados base
-- `quotes`: cotizaciones reales con numeracion, versionado, snapshot del receptor, line items y PDF delegados a Supabase + `@react-pdf/renderer`
 
 Backoffice por defecto:
 

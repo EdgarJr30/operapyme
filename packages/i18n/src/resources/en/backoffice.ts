@@ -894,6 +894,100 @@ const backofficeEn = {
       noTenantError: "You need an active tenant before generating the PDF."
     }
   },
+  commercial: {
+    summary: {
+      title: "Commercial Management",
+      description:
+        "Unify leads, customers, quotes, and documentary invoices in one operational module.",
+      pipelineTitle: "Active pipeline",
+      pipelineDescription:
+        "Capture, qualify, quote, and invoice without opening unnecessary routes.",
+      stages: {
+        leads: "Leads in capture",
+        customers: "Customers ready",
+        quotes: "Open quotes",
+        invoices: "Documentary invoices"
+      },
+      cards: {
+        leads: "Capture and prioritize new opportunities.",
+        customers: "Consolidate an active customer base with ready-to-use data.",
+        quotes: "Issue proposals for items or services.",
+        invoices: "Convert closed work into an internal documentary invoice."
+      },
+      recentTitle: "Recent activity",
+      recentDescription:
+        "Latest useful movements to resume the commercial pipeline.",
+      recentEmpty: "There is no recent activity in this module yet."
+    },
+    leads: {
+      tableTitle: "Recent leads",
+      tableDescription:
+        "Convert to customer only when the lead is already ready to operate.",
+      emptyTitle: "There are no captured leads yet",
+      emptyDescription:
+        "The first commercial opportunity will appear here for follow-up and conversion.",
+      noContact: "No contact",
+      convertAction: "Move to customers",
+      convertSuccess: "{lead} is now in customers.",
+      convertError: "We could not convert the lead. {message}"
+    },
+    customers: {
+      tableTitle: "Recent customers",
+      tableDescription:
+        "A clean customer base speeds up quotes, invoices, and follow-up.",
+      emptyTitle: "There are no customers yet",
+      emptyDescription:
+        "Once you close a lead or register the first customer, it will show here."
+    },
+    quotes: {
+      title: "Quotes",
+      description:
+        "Work proposals for items or services with a short and focused flow.",
+      createTab: "New",
+      manageTab: "Manage"
+    },
+    invoices: {
+      title: "Invoices",
+      description:
+        "Issue internal documentary invoices from a quote or from scratch.",
+      formTitle: "New invoice",
+      formDescription:
+        "Complete recipient, detail, and essential dates. Everything else stays out of the way.",
+      historyTitle: "Recent invoices",
+      historyDescription:
+        "Review status, total, and document origin without opening unnecessary screens.",
+      historyEmpty: "There are no invoices for this tenant yet.",
+      sourceQuoteLabel: "Source quote",
+      sourceQuotePlaceholder: "Select an approved or sent quote",
+      sourceQuoteEmpty: "No quotes available",
+      sourceQuoteHint:
+        "If you choose a quote, you can import recipient and lines to avoid repeating work.",
+      importQuoteAction: "Use quote data",
+      recipientTitle: "Recipient",
+      documentTitle: "Document",
+      linesTitle: "Billable detail",
+      lineHint:
+        "Each line should make clear what is being billed and how much it costs, whether it is an item or a service.",
+      statusLabel: "Status",
+      issuedOnLabel: "Issue date",
+      dueOnLabel: "Due date",
+      documentKindLabel: "Invoice type",
+      documentKinds: {
+        items: "Items",
+        services: "Services"
+      },
+      statuses: {
+        draft: "Draft",
+        issued: "Issued",
+        paid: "Paid",
+        void: "Void"
+      },
+      createAction: "Save invoice",
+      createSubmitting: "Saving invoice...",
+      createSuccess: "Invoice created successfully as {invoiceNumber}.",
+      createError: "We could not create the invoice. {message}"
+    }
+  },
   admin: {
     audit: {
       eyebrow: "Global admin",

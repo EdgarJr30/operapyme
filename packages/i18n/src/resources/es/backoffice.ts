@@ -896,6 +896,100 @@ const backofficeEs = {
       noTenantError: "Necesitas un tenant activo para generar el PDF."
     }
   },
+  commercial: {
+    summary: {
+      title: "Gestion Comercial",
+      description:
+        "Unifica leads, clientes, cotizaciones y facturas documentales en un solo modulo operativo.",
+      pipelineTitle: "Pipeline activo",
+      pipelineDescription:
+        "Captura, califica, cotiza y factura sin abrir rutas innecesarias.",
+      stages: {
+        leads: "Leads en captura",
+        customers: "Clientes listos",
+        quotes: "Cotizaciones abiertas",
+        invoices: "Facturas documentales"
+      },
+      cards: {
+        leads: "Captura y prioriza oportunidades nuevas.",
+        customers: "Consolida cartera activa y datos listos para operar.",
+        quotes: "Emite propuestas por articulos o servicios.",
+        invoices: "Convierte cierres en factura documental interna."
+      },
+      recentTitle: "Actividad reciente",
+      recentDescription:
+        "Ultimos movimientos utiles para retomar el pipeline comercial.",
+      recentEmpty: "Todavia no hay registros recientes en este modulo."
+    },
+    leads: {
+      tableTitle: "Leads recientes",
+      tableDescription:
+        "Convierte a cliente solo cuando el lead ya este listo para operar.",
+      emptyTitle: "Todavia no hay leads capturados",
+      emptyDescription:
+        "La primera oportunidad comercial aparecera aqui para seguimiento y conversion.",
+      noContact: "Sin contacto",
+      convertAction: "Pasar a cliente",
+      convertSuccess: "{lead} ya paso a clientes.",
+      convertError: "No pudimos convertir el lead. {message}"
+    },
+    customers: {
+      tableTitle: "Clientes recientes",
+      tableDescription:
+        "Mantener cartera limpia acelera cotizaciones, facturas y seguimiento.",
+      emptyTitle: "Todavia no hay clientes",
+      emptyDescription:
+        "Cuando cierres un lead o registres el primer cliente, aparecera aqui."
+    },
+    quotes: {
+      title: "Cotizaciones",
+      description:
+        "Trabaja propuestas por articulos o servicios con un flujo corto y sin ruido.",
+      createTab: "Nueva",
+      manageTab: "Gestionar"
+    },
+    invoices: {
+      title: "Facturas",
+      description:
+        "Emite facturas documentales internas desde una cotizacion o desde cero.",
+      formTitle: "Nueva factura",
+      formDescription:
+        "Completa receptor, detalle y fechas esenciales. Lo demas debe quedar fuera del camino.",
+      historyTitle: "Facturas recientes",
+      historyDescription:
+        "Consulta estado, total y origen documental sin abrir pantallas innecesarias.",
+      historyEmpty: "Todavia no hay facturas creadas en este tenant.",
+      sourceQuoteLabel: "Cotizacion origen",
+      sourceQuotePlaceholder: "Selecciona una cotizacion aprobada o enviada",
+      sourceQuoteEmpty: "Sin cotizaciones disponibles",
+      sourceQuoteHint:
+        "Si eliges una cotizacion, puedes traer receptor y lineas para no repetir trabajo.",
+      importQuoteAction: "Usar datos de la cotizacion",
+      recipientTitle: "Receptor",
+      documentTitle: "Documento",
+      linesTitle: "Detalle facturable",
+      lineHint:
+        "Cada linea debe dejar claro que se factura y cuanto vale, ya sea articulo o servicio.",
+      statusLabel: "Estado",
+      issuedOnLabel: "Fecha de emision",
+      dueOnLabel: "Fecha limite",
+      documentKindLabel: "Tipo de factura",
+      documentKinds: {
+        items: "Articulos",
+        services: "Servicios"
+      },
+      statuses: {
+        draft: "Borrador",
+        issued: "Emitida",
+        paid: "Pagada",
+        void: "Anulada"
+      },
+      createAction: "Guardar factura",
+      createSubmitting: "Guardando factura...",
+      createSuccess: "Factura creada correctamente como {invoiceNumber}.",
+      createError: "No pudimos crear la factura. {message}"
+    }
+  },
   admin: {
     audit: {
       eyebrow: "Admin global",

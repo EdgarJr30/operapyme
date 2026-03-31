@@ -154,14 +154,78 @@ async function loadDashboardRoute() {
   };
 }
 
-async function loadCrmRoute() {
-  const { CrmPage } = await import("@/modules/crm/crm-page");
+async function loadCommercialRoute() {
+  const { CommercialPage } = await import("@/modules/commercial/commercial-page");
 
   return {
-    Component: function CrmRoute() {
+    Component: function CommercialRoute() {
       return (
         <Suspense fallback={<RouteLoader />}>
-          <CrmPage />
+          <CommercialPage />
+        </Suspense>
+      );
+    }
+  };
+}
+
+async function loadCommercialLeadsRoute() {
+  const { CommercialLeadsPage } = await import(
+    "@/modules/commercial/commercial-leads-page"
+  );
+
+  return {
+    Component: function CommercialLeadsRoute() {
+      return (
+        <Suspense fallback={<RouteLoader />}>
+          <CommercialLeadsPage />
+        </Suspense>
+      );
+    }
+  };
+}
+
+async function loadCommercialCustomersRoute() {
+  const { CommercialCustomersPage } = await import(
+    "@/modules/commercial/commercial-customers-page"
+  );
+
+  return {
+    Component: function CommercialCustomersRoute() {
+      return (
+        <Suspense fallback={<RouteLoader />}>
+          <CommercialCustomersPage />
+        </Suspense>
+      );
+    }
+  };
+}
+
+async function loadCommercialQuotesRoute() {
+  const { CommercialQuotesPage } = await import(
+    "@/modules/commercial/commercial-quotes-page"
+  );
+
+  return {
+    Component: function CommercialQuotesRoute() {
+      return (
+        <Suspense fallback={<RouteLoader />}>
+          <CommercialQuotesPage />
+        </Suspense>
+      );
+    }
+  };
+}
+
+async function loadCommercialInvoicesRoute() {
+  const { CommercialInvoicesPage } = await import(
+    "@/modules/commercial/commercial-invoices-page"
+  );
+
+  return {
+    Component: function CommercialInvoicesRoute() {
+      return (
+        <Suspense fallback={<RouteLoader />}>
+          <CommercialInvoicesPage />
         </Suspense>
       );
     }
@@ -176,48 +240,6 @@ async function loadCatalogRoute() {
       return (
         <Suspense fallback={<RouteLoader />}>
           <CatalogPage />
-        </Suspense>
-      );
-    }
-  };
-}
-
-async function loadQuotesRoute() {
-  const { QuotesPage } = await import("@/modules/quotes/quotes-page");
-
-  return {
-    Component: function QuotesRoute() {
-      return (
-        <Suspense fallback={<RouteLoader />}>
-          <QuotesPage />
-        </Suspense>
-      );
-    }
-  };
-}
-
-async function loadQuotesCreateRoute() {
-  const { QuotesCreatePage } = await import("@/modules/quotes/quotes-create-page");
-
-  return {
-    Component: function QuotesCreateRoute() {
-      return (
-        <Suspense fallback={<RouteLoader />}>
-          <QuotesCreatePage />
-        </Suspense>
-      );
-    }
-  };
-}
-
-async function loadQuotesManageRoute() {
-  const { QuotesManagePage } = await import("@/modules/quotes/quotes-manage-page");
-
-  return {
-    Component: function QuotesManageRoute() {
-      return (
-        <Suspense fallback={<RouteLoader />}>
-          <QuotesManagePage />
         </Suspense>
       );
     }
@@ -331,8 +353,28 @@ export const appRoutes: RouteObject[] = [
         lazy: loadDashboardRoute
       },
       {
+        path: "commercial",
+        lazy: loadCommercialRoute
+      },
+      {
+        path: "commercial/leads",
+        lazy: loadCommercialLeadsRoute
+      },
+      {
+        path: "commercial/customers",
+        lazy: loadCommercialCustomersRoute
+      },
+      {
+        path: "commercial/quotes",
+        lazy: loadCommercialQuotesRoute
+      },
+      {
+        path: "commercial/invoices",
+        lazy: loadCommercialInvoicesRoute
+      },
+      {
         path: "crm",
-        lazy: loadCrmRoute
+        element: <Navigate replace to="/commercial/leads" />
       },
       {
         path: "catalog",
@@ -340,15 +382,15 @@ export const appRoutes: RouteObject[] = [
       },
       {
         path: "quotes",
-        lazy: loadQuotesRoute
+        element: <Navigate replace to="/commercial/quotes" />
       },
       {
         path: "quotes/new",
-        lazy: loadQuotesCreateRoute
+        element: <Navigate replace to="/commercial/quotes?tab=create" />
       },
       {
         path: "quotes/manage",
-        lazy: loadQuotesManageRoute
+        element: <Navigate replace to="/commercial/quotes?tab=manage" />
       },
       {
         path: "learning",

@@ -45,7 +45,7 @@ const statCards = [
 const nextStepItems = [
   {
     key: "captureLead" as const,
-    to: "/crm",
+    to: "/commercial/leads",
     icon: UsersRound
   },
   {
@@ -55,7 +55,7 @@ const nextStepItems = [
   },
   {
     key: "sendQuote" as const,
-    to: "/quotes",
+    to: "/commercial/quotes",
     icon: FileText
   },
   {
@@ -130,13 +130,13 @@ export function DashboardPage() {
 
             <div className="flex flex-wrap gap-3">
               <NavLink
-                to="/crm"
+                to="/commercial/leads"
                 className="inline-flex min-h-11 items-center justify-center rounded-full border border-line-strong bg-paper/95 px-4 text-sm font-medium text-ink shadow-panel transition hover:bg-sand/70"
               >
                 {t("dashboard.actions.newLead")}
               </NavLink>
               <NavLink
-                to="/quotes"
+                to="/commercial/quotes?tab=create"
                 className="inline-flex min-h-11 items-center justify-center rounded-full bg-brand px-4 text-sm font-medium text-brand-contrast shadow-soft transition hover:bg-brand-hover"
               >
                 {t("dashboard.actions.newQuote")}
@@ -358,7 +358,7 @@ function EmptyStatePanel() {
 
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <NavLink
-            to="/crm"
+            to="/commercial/leads"
             className="inline-flex min-h-12 items-center justify-center rounded-full border border-line-strong bg-paper px-5 text-sm font-medium text-ink shadow-panel transition hover:bg-sand/70"
           >
             {t("dashboard.actions.newLead")}
@@ -370,7 +370,7 @@ function EmptyStatePanel() {
             {t("dashboard.actions.reviewCatalog")}
           </NavLink>
           <NavLink
-            to="/quotes"
+            to="/commercial/quotes?tab=create"
             className="inline-flex min-h-12 items-center justify-center rounded-full bg-brand px-5 text-sm font-medium text-brand-contrast shadow-soft transition hover:bg-brand-hover"
           >
             {t("dashboard.actions.newQuote")}

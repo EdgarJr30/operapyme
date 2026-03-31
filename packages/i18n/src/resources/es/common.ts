@@ -40,6 +40,13 @@ const commonEs = {
   },
   navigation: {
     dashboard: "Inicio",
+    commercial: "Gestion Comercial",
+    commercialShort: "Comercial",
+    commercialSummary: "Resumen",
+    commercialLeads: "Leads",
+    commercialCustomers: "Clientes",
+    commercialQuotes: "Cotizaciones",
+    commercialInvoices: "Facturas",
     crm: "CRM",
     catalog: "Catalogo",
     quotes: "Cotizaciones",
@@ -102,6 +109,18 @@ const commonEs = {
     profileAction: "Abrir perfil",
     pageDescriptions: {
       dashboard: "Resumen operativo, accesos rapidos y actividad reciente.",
+      commercial:
+        "Pipeline comercial completo: leads, clientes, cotizaciones y facturas.",
+      commercialSummary:
+        "Pulso general del pipeline comercial y accesos directos para avanzar.",
+      commercialLeads:
+        "Captura y seguimiento inicial de oportunidades comerciales.",
+      commercialCustomers:
+        "Clientes listos para seguimiento, cotizacion y facturacion documental.",
+      commercialQuotes:
+        "Cotizaciones por articulos o servicios con seguimiento y versionado.",
+      commercialInvoices:
+        "Facturas documentales internas creadas desde cotizaciones o desde cero.",
       crm: "Leads, clientes y seguimiento comercial en una misma vista.",
       catalog: "Productos y servicios listos para cotizar.",
       quotes: "Cotizaciones activas y documentos listos para enviar.",
@@ -119,7 +138,7 @@ const commonEs = {
       newBadge: "Nuevo",
       tenantTitle: "Contexto del tenant",
       tenantDescription:
-        "Estas trabajando dentro de {tenant}. Todo lo que guardes en CRM, catalogo y cotizaciones usara este contexto.",
+        "Estas trabajando dentro de {tenant}. Todo lo que guardes en gestion comercial, catalogo y cotizaciones usara este contexto.",
       tenantFallback:
         "Todavia no vemos un tenant activo. Revisa el contexto antes de operar datos comerciales.",
       appearanceTitle: "Apariencia sincronizada",

@@ -15,6 +15,7 @@ export const auditEntityKeys = [
   "customer",
   "catalog_item",
   "quote",
+  "invoice",
   "expense",
   "error_log",
   "auth_event"

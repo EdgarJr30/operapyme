@@ -23,17 +23,17 @@ import {
 const guideDefinitions = [
   {
     key: "quotesFast",
-    href: "/quotes/new",
+    href: "/commercial/quotes?tab=create",
     icon: FileText
   },
   {
     key: "quotesManage",
-    href: "/quotes/manage",
+    href: "/commercial/quotes?tab=manage",
     icon: BookOpenText
   },
   {
     key: "crmLead",
-    href: "/crm",
+    href: "/commercial/leads",
     icon: UsersRound
   },
   {

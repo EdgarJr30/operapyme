@@ -5,6 +5,7 @@ import { cva } from "class-variance-authority";
 import { PanelLeft } from "lucide-react";
 
 import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { Separator } from "@/components/ui/separator";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
@@ -388,6 +389,8 @@ export const SidebarFooter = React.forwardRef<
 ));
 
 SidebarFooter.displayName = "SidebarFooter";
+
+export const SidebarSeparator = Separator;
 
 export const SidebarContent = React.forwardRef<
   HTMLDivElement,

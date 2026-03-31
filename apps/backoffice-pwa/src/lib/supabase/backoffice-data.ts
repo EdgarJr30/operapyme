@@ -28,6 +28,8 @@ export type QuoteStatus =
   | "approved"
   | "rejected"
   | "expired";
+export type SalesDocumentKind = "items" | "services";
+export type InvoiceStatus = "draft" | "issued" | "paid" | "void";
 
 export interface CustomerSummary {
   id: string;
@@ -117,6 +119,37 @@ export interface QuoteSummary {
 }
 
 export interface QuoteDetail extends QuoteSummary {
+  lineItems: QuoteLineItemSummary[];
+}
+
+export interface InvoiceSummary {
+  id: string;
+  sourceQuoteId: string | null;
+  customerId: string | null;
+  leadId: string | null;
+  recipientKind: QuoteRecipientKind;
+  recipientDisplayName: string;
+  recipientContactName: string | null;
+  recipientEmail: string | null;
+  recipientWhatsApp: string | null;
+  recipientPhone: string | null;
+  invoiceNumber: string;
+  title: string;
+  documentKind: SalesDocumentKind;
+  currencyCode: string;
+  subtotal: number;
+  discountTotal: number;
+  taxTotal: number;
+  grandTotal: number;
+  status: InvoiceStatus;
+  issuedOn: string | null;
+  dueOn: string | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface InvoiceDetail extends InvoiceSummary {
   lineItems: QuoteLineItemSummary[];
 }
 
@@ -215,6 +248,34 @@ interface RawQuoteRow {
   status: QuoteStatus;
   version: number;
   valid_until: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+  line_items?: RawQuoteLineRow[] | null;
+}
+
+interface RawInvoiceRow {
+  id: string;
+  source_quote_id: string | null;
+  customer_id: string | null;
+  lead_id: string | null;
+  recipient_kind: QuoteRecipientKind;
+  recipient_display_name: string;
+  recipient_contact_name: string | null;
+  recipient_email: string | null;
+  recipient_whatsapp: string | null;
+  recipient_phone: string | null;
+  invoice_number: string;
+  title: string;
+  document_kind: SalesDocumentKind;
+  currency_code: string;
+  subtotal: number | string;
+  discount_total: number | string;
+  tax_total: number | string;
+  grand_total: number | string;
+  status: InvoiceStatus;
+  issued_on: string | null;
+  due_on: string | null;
   notes: string | null;
   created_at: string;
   updated_at: string;
@@ -320,6 +381,28 @@ export interface UpdateQuoteInput extends CreateQuoteInput {
   version: number;
 }
 
+export interface CreateInvoiceInput {
+  tenantId: string;
+  sourceQuoteId?: string | null;
+  customerId?: string | null;
+  leadId?: string | null;
+  recipientKind: QuoteRecipientKind;
+  recipientDisplayName: string;
+  recipientContactName?: string | null;
+  recipientEmail?: string | null;
+  recipientWhatsApp?: string | null;
+  recipientPhone?: string | null;
+  title: string;
+  documentKind: SalesDocumentKind;
+  status: InvoiceStatus;
+  currencyCode: string;
+  documentDiscountTotal: number;
+  notes?: string | null;
+  issuedOn?: string | null;
+  dueOn?: string | null;
+  lineItems: QuoteLineInput[];
+}
+
 const customerSelectFields =
   "id, customer_code, display_name, contact_name, legal_name, email, whatsapp, phone, document_id, notes, source, status, updated_at";
 
@@ -336,6 +419,11 @@ const quoteSelectFields =
   "id, customer_id, lead_id, recipient_kind, recipient_display_name, recipient_contact_name, recipient_email, recipient_whatsapp, recipient_phone, quote_number, title, currency_code, subtotal, discount_total, tax_total, grand_total, status, version, valid_until, notes, created_at, updated_at";
 
 const quoteDetailSelectFields = `${quoteSelectFields}, line_items:quote_line_items(${quoteLineSelectFields})`;
+
+const invoiceSelectFields =
+  "id, source_quote_id, customer_id, lead_id, recipient_kind, recipient_display_name, recipient_contact_name, recipient_email, recipient_whatsapp, recipient_phone, invoice_number, title, document_kind, currency_code, subtotal, discount_total, tax_total, grand_total, status, issued_on, due_on, notes, created_at, updated_at";
+
+const invoiceDetailSelectFields = `${invoiceSelectFields}, line_items:invoice_line_items(${quoteLineSelectFields})`;
 
 function requireSupabaseClient(): SupabaseClient {
   if (!supabase) {
@@ -505,6 +593,42 @@ function mapQuoteDetail(row: RawQuoteRow): QuoteDetail {
   };
 }
 
+function mapInvoice(row: RawInvoiceRow): InvoiceSummary {
+  return {
+    id: row.id,
+    sourceQuoteId: row.source_quote_id,
+    customerId: row.customer_id,
+    leadId: row.lead_id,
+    recipientKind: row.recipient_kind,
+    recipientDisplayName: row.recipient_display_name,
+    recipientContactName: row.recipient_contact_name,
+    recipientEmail: row.recipient_email,
+    recipientWhatsApp: row.recipient_whatsapp,
+    recipientPhone: row.recipient_phone,
+    invoiceNumber: row.invoice_number,
+    title: row.title,
+    documentKind: row.document_kind,
+    currencyCode: row.currency_code,
+    subtotal: Number(row.subtotal ?? 0),
+    discountTotal: Number(row.discount_total ?? 0),
+    taxTotal: Number(row.tax_total ?? 0),
+    grandTotal: Number(row.grand_total ?? 0),
+    status: row.status,
+    issuedOn: row.issued_on,
+    dueOn: row.due_on,
+    notes: row.notes,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at
+  };
+}
+
+function mapInvoiceDetail(row: RawInvoiceRow): InvoiceDetail {
+  return {
+    ...mapInvoice(row),
+    lineItems: (row.line_items ?? []).map(mapQuoteLine)
+  };
+}
+
 export async function listCustomersForTenant(
   tenantId: string,
   limit = 6
@@ -604,6 +728,47 @@ export async function getQuoteDetail(
   }
 
   return mapQuoteDetail(data as RawQuoteRow);
+}
+
+export async function listInvoicesForTenant(
+  tenantId: string,
+  limit = 25
+): Promise<InvoiceSummary[]> {
+  const client = requireSupabaseClient();
+  const scopedTenantId = requireTenantScope(tenantId);
+  const { data, error } = await client
+    .from("invoices")
+    .select(invoiceSelectFields)
+    .eq("tenant_id", scopedTenantId)
+    .order("updated_at", { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return ((data ?? []) as RawInvoiceRow[]).map(mapInvoice);
+}
+
+export async function getInvoiceDetail(
+  tenantId: string,
+  invoiceId: string
+): Promise<InvoiceDetail> {
+  const client = requireSupabaseClient();
+  const scopedTenantId = requireTenantScope(tenantId);
+  const scopedInvoiceId = requireRecordId(invoiceId, "Invoice id");
+  const { data, error } = await client
+    .from("invoices")
+    .select(invoiceDetailSelectFields)
+    .eq("tenant_id", scopedTenantId)
+    .eq("id", scopedInvoiceId)
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return mapInvoiceDetail(data as RawInvoiceRow);
 }
 
 export async function getDashboardSnapshot(
@@ -920,4 +1085,56 @@ export async function updateQuote(input: UpdateQuoteInput) {
   }
 
   return mapQuote(data as RawQuoteRow);
+}
+
+export async function createInvoice(input: CreateInvoiceInput) {
+  const client = requireSupabaseClient();
+  const scopedTenantId = requireTenantScope(input.tenantId);
+  const normalizedCustomerId =
+    input.recipientKind === "customer" ? input.customerId ?? null : null;
+  const normalizedLeadId =
+    input.recipientKind === "lead" ? input.leadId ?? null : null;
+
+  const { data: invoiceId, error } = await client.rpc("create_invoice", {
+    target_tenant_id: scopedTenantId,
+    target_title: input.title.trim(),
+    target_status: input.status,
+    target_document_kind: input.documentKind,
+    target_currency_code: input.currencyCode.trim().toUpperCase(),
+    target_recipient_kind: input.recipientKind,
+    target_line_items: normalizeQuoteLineItems(input.lineItems),
+    target_document_discount_total: input.documentDiscountTotal,
+    target_source_quote_id: normalizeOptionalValue(input.sourceQuoteId),
+    target_customer_id: normalizedCustomerId,
+    target_lead_id: normalizedLeadId,
+    target_recipient_display_name: normalizeOptionalValue(
+      input.recipientDisplayName
+    ),
+    target_recipient_contact_name: normalizeOptionalValue(
+      input.recipientContactName
+    ),
+    target_recipient_email: normalizeOptionalValue(input.recipientEmail),
+    target_recipient_whatsapp: normalizeOptionalValue(input.recipientWhatsApp),
+    target_recipient_phone: normalizeOptionalValue(input.recipientPhone),
+    target_issued_on: normalizeOptionalValue(input.issuedOn),
+    target_due_on: normalizeOptionalValue(input.dueOn),
+    target_notes: normalizeOptionalValue(input.notes)
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const { data, error: fetchError } = await client
+    .from("invoices")
+    .select(invoiceSelectFields)
+    .eq("tenant_id", scopedTenantId)
+    .eq("id", invoiceId)
+    .single();
+
+  if (fetchError) {
+    throw new Error(fetchError.message);
+  }
+
+  return mapInvoice(data as RawInvoiceRow);
 }

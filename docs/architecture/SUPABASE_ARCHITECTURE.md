@@ -77,15 +77,19 @@ La fase 2 ya deja listos estos bloques iniciales:
 - RPC `get_my_access_context()` para hidratar roles, permisos y memberships
 - RPC `create_tenant_with_owner()` para bootstrap inicial del primer tenant
 - recovery de contrasena apoyado en callback de Supabase y actualizacion segura de credenciales desde sesion autenticada
-- tablas `customers` y `quotes` con tracking, RLS y auditoria
+- tablas `customers`, `quotes` e `invoices` con tracking, RLS y auditoria
 - hardening de funciones SQL con `search_path` fijo para dejar limpia la linteria de seguridad base
-- lectura real del backoffice sobre `customers` y `quotes` usando el tenant activo y RLS
-- mutaciones reales de `customers` y `quotes` desde el backoffice usando el tenant activo y las mismas politicas RLS
+- lectura real del backoffice sobre `customers`, `quotes` e `invoices` usando el tenant activo y RLS
+- mutaciones reales de `customers`, `quotes` e `invoices` desde el backoffice usando el tenant activo y las mismas politicas RLS
 - numeracion y versionado de `quotes` trasladados a funciones SQL para mantener consistencia y seguridad bajo concurrencia
+- numeracion documental de `invoices` trasladada a funciones SQL para mantener consistencia y seguridad bajo concurrencia
 - `leads` como entidad minima de CRM para quoting y seguimiento comercial
 - `quote_line_items` como detalle persistido del documento
+- `invoice_line_items` como detalle persistido de la factura documental
 - snapshot documental del receptor dentro de `quotes` para soportar `customer`, `lead` y `ad_hoc`
+- snapshot documental del receptor dentro de `invoices` para soportar `customer`, `lead` y `ad_hoc`
 - escritura de cotizaciones concentrada en RPCs para evitar inconsistencias de line items y totales
+- escritura de facturas concentrada en RPCs para evitar inconsistencias de line items, totales y numeracion
 - endurecimiento de grants en RPCs de `quotes`: `create_quote` y `update_quote` quedan para `authenticated`, mientras `replace_quote_line_items` no se expone al cliente
 
 ## Primeras tablas operativas
@@ -96,18 +100,26 @@ La fase 2 ya deja listos estos bloques iniciales:
 - `quotes`: base multi-tenant para cotizaciones con version, receptor flexible y snapshot documental
 - `quote_line_items`: detalle comercial persistido por cotizacion
 - `quote_number_sequences`: contador interno por tenant y anio para generar numeros `COT-YYYY-######`
+- `invoices`: base multi-tenant para facturas documentales internas con receptor flexible y origen opcional en cotizacion
+- `invoice_line_items`: detalle facturable persistido por factura
+- `invoice_number_sequences`: contador interno por tenant y anio para generar numeros `FAC-YYYY-######`
 
 ## Reglas duras de aislamiento
 
 - toda query del backoffice debe partir del tenant activo de la sesion
 - toda operacion tenant-scoped falla si no recibe tenant activo valido
-- `tenant_id` es inmutable despues del insert en `customers`, `leads`, `catalog_items`, `quotes`, `quote_line_items` y `quote_number_sequences`
+- `tenant_id` es inmutable despues del insert en `customers`, `leads`, `catalog_items`, `quotes`, `quote_line_items`, `quote_number_sequences`, `invoices`, `invoice_line_items` e `invoice_number_sequences`
 - toda relacion entre tablas tenant-scoped debe incluir `tenant_id` en la integridad referencial, no solo el `id`
 - ejemplos obligatorios:
   - `quotes (tenant_id, customer_id) -> customers (tenant_id, id)`
   - `quotes (tenant_id, lead_id) -> leads (tenant_id, id)`
   - `quote_line_items (tenant_id, quote_id) -> quotes (tenant_id, id)`
   - `quote_line_items (tenant_id, catalog_item_id) -> catalog_items (tenant_id, id)`
+  - `invoices (tenant_id, customer_id) -> customers (tenant_id, id)`
+  - `invoices (tenant_id, lead_id) -> leads (tenant_id, id)`
+  - `invoices (tenant_id, source_quote_id) -> quotes (tenant_id, id)`
+  - `invoice_line_items (tenant_id, invoice_id) -> invoices (tenant_id, id)`
+  - `invoice_line_items (tenant_id, catalog_item_id) -> catalog_items (tenant_id, id)`
 - RLS controla visibilidad y permiso; las claves compuestas impiden cruces accidentales o maliciosos entre tenants
 
 ## Estado del security advisor base

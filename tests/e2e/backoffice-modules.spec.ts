@@ -55,7 +55,9 @@ const accessContext = {
     "catalog.read",
     "catalog.write",
     "quote.read",
-    "quote.write"
+    "quote.write",
+    "invoice.read",
+    "invoice.write"
   ]
 };
 
@@ -276,6 +278,36 @@ const quoteDetail = {
   ]
 };
 
+const invoiceRows = [
+  {
+    id: "invoice-1",
+    tenant_id: tenantId,
+    source_quote_id: "quote-1",
+    customer_id: "customer-1",
+    lead_id: null,
+    recipient_kind: "customer",
+    recipient_display_name: "Northline Industrial",
+    recipient_contact_name: "Andrea Castillo",
+    recipient_email: "andrea@northline.test",
+    recipient_whatsapp: "+1 809 555 0186",
+    recipient_phone: null,
+    invoice_number: "FAC-2026-000041",
+    title: "Factura Northline marzo",
+    document_kind: "services",
+    currency_code: "USD",
+    subtotal: 12000,
+    discount_total: 200,
+    tax_total: 1040,
+    grand_total: 12840,
+    status: "issued",
+    issued_on: "2026-03-27",
+    due_on: "2026-04-03",
+    notes: "Factura documental interna.",
+    created_at: "2026-03-27T12:00:00.000Z",
+    updated_at: "2026-03-27T12:00:00.000Z"
+  }
+];
+
 async function mockBackoffice(page: Page) {
   await page.addInitScript(
     ({ mainStorageKey, nextSession, nextUser, nextTenantId }) => {
@@ -324,6 +356,11 @@ async function mockBackoffice(page: Page) {
 
     if (pathname.endsWith("/quotes")) {
       await fulfillTableRoute(route, quoteRows, quoteDetail);
+      return;
+    }
+
+    if (pathname.endsWith("/invoices")) {
+      await fulfillTableRoute(route, invoiceRows);
       return;
     }
 
@@ -437,16 +474,16 @@ test.describe("backoffice modules", () => {
       fullPage: true
     });
 
-    await page.goto("/quotes");
+    await page.goto("/commercial");
     await expect(
-      page.getByRole("heading", { name: /Cotizaciones y documentos comerciales/i })
+      page.getByRole("heading", { name: /Gestion Comercial/i })
     ).toBeVisible();
     await page.screenshot({
-      path: testInfo.outputPath("quotes-desktop.png"),
+      path: testInfo.outputPath("commercial-desktop.png"),
       fullPage: true
     });
 
-    await page.getByRole("link", { name: /Crear cotizacion/i }).first().click();
+    await page.goto("/commercial/quotes?tab=create");
     await expect(
       page.getByRole("heading", { name: /Crear cotizacion/i })
     ).toBeVisible();
@@ -455,13 +492,21 @@ test.describe("backoffice modules", () => {
       fullPage: true
     });
 
-    await page.goto("/quotes");
-    await page.getByRole("link", { name: /Revisar cotizaciones/i }).first().click();
+    await page.goto("/commercial/quotes?tab=manage");
     await expect(
       page.getByRole("heading", { name: /Gestionar cotizaciones/i })
     ).toBeVisible();
     await page.screenshot({
       path: testInfo.outputPath("quotes-manage-desktop.png"),
+      fullPage: true
+    });
+
+    await page.goto("/commercial/invoices");
+    await expect(
+      page.getByRole("heading", { name: /^Facturas$/i })
+    ).toBeVisible();
+    await page.screenshot({
+      path: testInfo.outputPath("invoices-desktop.png"),
       fullPage: true
     });
   });
@@ -473,10 +518,10 @@ test.describe("backoffice modules", () => {
     const page = await context.newPage();
 
     await mockBackoffice(page);
-    await page.goto("/quotes");
+    await page.goto("/commercial/quotes");
 
     await expect(
-      page.getByRole("heading", { name: /Cotizaciones y documentos comerciales/i })
+      page.getByRole("heading", { name: /Cotizaciones/i })
     ).toBeVisible();
     await expect(
       page.getByRole("navigation", { name: /Navegacion movil/i })
@@ -487,7 +532,7 @@ test.describe("backoffice modules", () => {
       fullPage: true
     });
 
-    await page.getByRole("link", { name: /Crear cotizacion/i }).first().click();
+    await page.getByRole("tab", { name: /Nueva/i }).click();
     await expect(
       page.getByRole("heading", { name: /Crear cotizacion/i })
     ).toBeVisible();

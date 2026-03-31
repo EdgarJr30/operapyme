@@ -42,11 +42,12 @@ El `service role key` no vive aqui.
 - la navegacion movil deja los modulos principales en tabs inferiores y mueve configuracion o admin al menu extendido
 - el modulo `Aprendizaje` vive fuera del runtime operativo para concentrar guias y paso a paso sin contaminar flujos como crear cotizacion
 - la auditoria global sigue reservada para `global_admin`
-- `dashboard`, `crm`, `catalog` y `quotes` ya consumen lecturas reales desde Supabase con React Query
-- `crm`, `catalog` y `quotes` ya incluyen formularios reales de create/update sobre `customers`, `leads`, `catalog_items` y `quotes`
+- `dashboard`, `commercial` y `catalog` ya consumen lecturas reales desde Supabase con React Query
+- `commercial` y `catalog` ya incluyen formularios reales de create/update sobre `customers`, `leads`, `quotes`, `invoices`, `catalog_items` y sus line items
 - las mutaciones siguen limitadas al tenant activo y dejan auditoria via triggers de base
 - `catalog` ya modela oferta comercial reusable con `product` o `service`, visibilidad `public/private`, pricing `fixed/on_request` y estados `active/draft/archived`
 - `quotes` ya delega la numeracion y el incremento de version a RPCs de Supabase para evitar inconsistencias por concurrencia
+- `invoices` ya delegan la numeracion documental a RPCs de Supabase, soportan articulos o servicios y pueden nacer desde una cotizacion o desde cero
 - `quotes` ya soporta cliente, lead existente o lead rapido, mantiene snapshot del receptor, persiste line items y genera PDF con `@react-pdf/renderer`
 - el cotizador declara `autocomplete` semantico y marca sus campos operativos para que extensiones de autofill o password managers no intenten tratarlos como un formulario de login
 - la generacion PDF ya no forma parte del bundle inicial; se carga bajo demanda y se precalienta al enfocar o apuntar la accion de descarga
@@ -60,7 +61,7 @@ El `service role key` no vive aqui.
 - desktop: sidebar fijo, sin scroll, compacto y utility-first; el contenido principal nunca mueve el rail al hacer scroll
 - desktop: tipografia, controles y bloques con densidad mas compacta para evitar cards infladas y mantener una lectura mas sobria y profesional
 - header: breadcrumbs, busqueda corta, notificaciones operativas, toggle de tema y menu de usuario
-- mobile: tab bar inferior para `Inicio`, `CRM` y `Cotizaciones`, con el resto en un drawer lateral mas directo y consistente con el sidebar desktop
+- mobile: tab bar inferior para `Inicio`, `Gestion Comercial` y `Catalogo`, con el resto en un drawer lateral mas directo y consistente con el sidebar desktop
 - `Catalogo` vive en el menu extendido para priorizar captura y seguimiento comercial rapido en movil
 - `Aprendizaje` vive en el menu extendido como espacio separado para onboarding, guias y buenas practicas de uso
 - todo el copy del shell sigue saliendo desde `@operapyme/i18n`

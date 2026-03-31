@@ -40,6 +40,13 @@ const commonEn = {
   },
   navigation: {
     dashboard: "Home",
+    commercial: "Commercial",
+    commercialShort: "Sales",
+    commercialSummary: "Overview",
+    commercialLeads: "Leads",
+    commercialCustomers: "Customers",
+    commercialQuotes: "Quotes",
+    commercialInvoices: "Invoices",
     crm: "CRM",
     catalog: "Catalog",
     quotes: "Quotes",
@@ -101,6 +108,18 @@ const commonEn = {
     profileAction: "Open profile",
     pageDescriptions: {
       dashboard: "Operational summary, quick actions, and recent activity.",
+      commercial:
+        "Full commercial pipeline: leads, customers, quotes, and invoices.",
+      commercialSummary:
+        "General pulse of the commercial pipeline and direct actions to move it forward.",
+      commercialLeads:
+        "Initial opportunity capture and early-stage commercial follow-up.",
+      commercialCustomers:
+        "Customers ready for follow-up, quoting, and documentary invoicing.",
+      commercialQuotes:
+        "Quotes for items or services with follow-up and versioning.",
+      commercialInvoices:
+        "Internal documentary invoices created from quotes or from scratch.",
       crm: "Leads, customers, and commercial follow-up in one view.",
       catalog: "Products and services ready to quote.",
       quotes: "Active quotes and documents ready to send.",
@@ -118,7 +137,7 @@ const commonEn = {
       newBadge: "New",
       tenantTitle: "Tenant context",
       tenantDescription:
-        "You are working inside {tenant}. Everything you save in CRM, catalog, and quotes will use this context.",
+        "You are working inside {tenant}. Everything you save in commercial management, catalog, and quotes will use this context.",
       tenantFallback:
         "We do not see an active tenant yet. Review the context before operating on commercial data.",
       appearanceTitle: "Appearance synced",

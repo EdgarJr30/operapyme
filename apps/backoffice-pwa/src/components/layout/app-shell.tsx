@@ -92,8 +92,13 @@ function getInitials(value: string) {
 
 function getUserLabel(
   displayName: string | null | undefined,
+  fullName: string | undefined,
   email: string | null | undefined
 ) {
+  if (fullName && fullName.trim().length > 0) {
+    return fullName;
+  }
+
   if (displayName && displayName.trim().length > 0) {
     return displayName;
   }
@@ -183,7 +188,13 @@ export function AppShell() {
     activeTenantMembership?.tenantRoleKeys,
     t
   );
-  const userLabel = getUserLabel(accessContext?.displayName, user?.email);
+  const userLabel = getUserLabel(
+    accessContext?.displayName,
+    typeof user?.user_metadata?.full_name === "string"
+      ? user.user_metadata.full_name
+      : undefined,
+    user?.email
+  );
   const userEmail = user?.email ?? t("shell.emailFallback");
   const userInitials = getInitials(userLabel);
   const notificationItems = useMemo(
@@ -262,6 +273,7 @@ export function AppShell() {
       <SidebarProvider
         open={!isDesktopSidebarCollapsed}
         onOpenChange={(open) => setIsDesktopSidebarCollapsed(!open)}
+        className="bg-paper"
       >
         <BackofficeSidebar
           sections={sections}
@@ -271,6 +283,8 @@ export function AppShell() {
           memberships={memberships}
           onTenantChange={setActiveTenantId}
           onSignOut={handleSignOut}
+          onOpenProfile={handleOpenProfile}
+          userEmail={userEmail}
           userLabel={userLabel}
           t={t}
         />
@@ -282,6 +296,11 @@ export function AppShell() {
                 <SidebarTrigger
                   className="lg:hidden"
                   aria-label={t("shell.mobileMenuLabel")}
+                />
+
+                <SidebarTrigger
+                  className="ml-1 hidden size-9 rounded-lg lg:inline-flex"
+                  aria-label={t("shell.collapseSidebarLabel")}
                 />
 
                 <div className="min-w-0 flex-1">

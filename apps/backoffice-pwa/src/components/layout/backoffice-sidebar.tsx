@@ -3,8 +3,7 @@ import { useEffect, useState } from "react";
 import {
   BookOpenText,
   ChevronDown,
-  ChevronLeft,
-  ChevronRight,
+  ChevronsUpDown,
   FileText,
   House,
   LogOut,
@@ -17,6 +16,13 @@ import {
 import { AnimatePresence, motion } from "motion/react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
 import { Select } from "@/components/ui/select";
 import {
   Sidebar,
@@ -29,16 +35,27 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarSeparator,
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-  SidebarRail,
   useSidebar
 } from "@/components/ui/sidebar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 export type ShellNavItemKey =
   | "dashboard"
+  | "commercial"
+  | "commercialSummary"
+  | "commercialLeads"
+  | "commercialCustomers"
+  | "commercialQuotes"
+  | "commercialInvoices"
   | "crm"
   | "catalog"
   | "quotes"
@@ -73,36 +90,41 @@ export const businessNavItems: ShellNavItem[] = [
     icon: House
   },
   {
-    to: "/crm",
-    key: "crm",
-    icon: UsersRound
+    to: "/commercial",
+    key: "commercial",
+    icon: FileText,
+    children: [
+      {
+        to: "/commercial",
+        key: "commercialSummary",
+        icon: FileText
+      },
+      {
+        to: "/commercial/leads",
+        key: "commercialLeads",
+        icon: UsersRound
+      },
+      {
+        to: "/commercial/customers",
+        key: "commercialCustomers",
+        icon: UsersRound
+      },
+      {
+        to: "/commercial/quotes",
+        key: "commercialQuotes",
+        icon: FileText
+      },
+      {
+        to: "/commercial/invoices",
+        key: "commercialInvoices",
+        icon: FileText
+      }
+    ]
   },
   {
     to: "/catalog",
     key: "catalog",
     icon: Package2
-  },
-  {
-    to: "/quotes",
-    key: "quotes",
-    icon: FileText,
-    children: [
-      {
-        to: "/quotes",
-        key: "quotesOverview",
-        icon: FileText
-      },
-      {
-        to: "/quotes/new",
-        key: "quotesNew",
-        icon: FileText
-      },
-      {
-        to: "/quotes/manage",
-        key: "quotesManage",
-        icon: FileText
-      }
-    ]
   }
 ];
 
@@ -147,7 +169,7 @@ function getInitialNavGroups(items: SidebarSection[], pathname: string) {
 
       accumulator[item.key] = item.children.some(
         (child) =>
-          pathname === child.to || pathname.startsWith(`${child.to}/`)
+          pathname === child.to
       );
     });
 
@@ -163,13 +185,73 @@ function isItemPathActive(pathname: string, to: string) {
   return pathname === to || pathname.startsWith(`${to}/`);
 }
 
+function isExactItemPathActive(pathname: string, to: string) {
+  return pathname === to;
+}
+
+function wrapWithTooltip(
+  collapsed: boolean,
+  label: string,
+  element: React.ReactElement
+) {
+  if (!collapsed) {
+    return element;
+  }
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{element}</TooltipTrigger>
+      <TooltipContent side="right">{label}</TooltipContent>
+    </Tooltip>
+  );
+}
+
 export function getBottomTabItems(navItems: ShellNavItem[]) {
-  const bottomKeys: ShellNavItemKey[] = ["dashboard", "crm", "quotes"];
+  const bottomKeys: ShellNavItemKey[] = [
+    "dashboard",
+    "commercial",
+    "catalog"
+  ];
 
   return navItems.filter((item) => bottomKeys.includes(item.key));
 }
 
 export function getRouteMeta(pathname: string): RouteMeta {
+  if (pathname === "/commercial" || pathname.startsWith("/commercial/")) {
+    if (pathname.startsWith("/commercial/leads")) {
+      return {
+        labelKey: "navigation.commercialLeads",
+        descriptionKey: "shell.pageDescriptions.commercialLeads"
+      };
+    }
+
+    if (pathname.startsWith("/commercial/customers")) {
+      return {
+        labelKey: "navigation.commercialCustomers",
+        descriptionKey: "shell.pageDescriptions.commercialCustomers"
+      };
+    }
+
+    if (pathname.startsWith("/commercial/quotes")) {
+      return {
+        labelKey: "navigation.commercialQuotes",
+        descriptionKey: "shell.pageDescriptions.commercialQuotes"
+      };
+    }
+
+    if (pathname.startsWith("/commercial/invoices")) {
+      return {
+        labelKey: "navigation.commercialInvoices",
+        descriptionKey: "shell.pageDescriptions.commercialInvoices"
+      };
+    }
+
+    return {
+      labelKey: "navigation.commercialSummary",
+      descriptionKey: "shell.pageDescriptions.commercialSummary"
+    };
+  }
+
   if (pathname.startsWith("/crm")) {
     return {
       labelKey: "navigation.crm",
@@ -254,6 +336,8 @@ export function BackofficeSidebar({
   memberships,
   onTenantChange,
   onSignOut,
+  onOpenProfile,
+  userEmail,
   userLabel,
   t
 }: {
@@ -264,12 +348,14 @@ export function BackofficeSidebar({
   memberships: Array<{ tenantId: string; tenantName: string }>;
   onTenantChange: (tenantId: string) => void;
   onSignOut: () => void;
+  onOpenProfile: () => void;
+  userEmail: string;
   userLabel: string;
   t: (key: string) => string;
 }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isMobile, setOpenMobile, state, toggleSidebar } = useSidebar();
+  const { isMobile, setOpenMobile, state } = useSidebar();
   const isCollapsed = !isMobile && state === "collapsed";
   const showTenantSwitcher = memberships.length > 1 && !isCollapsed;
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() =>
@@ -291,110 +377,104 @@ export function BackofficeSidebar({
   };
 
   return (
-    <Sidebar collapsible="icon">
-      <SidebarHeader className="gap-0 border-b border-sidebar-border px-3 py-3.5">
-        <div
-          className={cn(
-            "flex items-center",
-            isCollapsed ? "justify-center" : "gap-3"
-          )}
-        >
-          <div className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-sidebar-border bg-sidebar-elevated shadow-panel">
-            <img
-              src="/pwa-icon.svg"
-              alt={t("shell.productName")}
-              className="size-6"
-            />
-          </div>
+    <Sidebar
+      variant="sidebar"
+      collapsible="icon"
+    >
+      <SidebarHeader className="gap-3 px-3 py-3">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              className={cn(
+                "h-auto min-h-0 rounded-2xl border border-sidebar-border bg-sidebar-elevated px-3 py-3 hover:bg-sidebar-border/80 data-[active=true]:shadow-none",
+                isCollapsed ? "justify-center px-2 py-2.5" : ""
+              )}
+              title={isCollapsed ? activeTenantName : undefined}
+            >
+              <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-[#2f5cff] text-white shadow-soft">
+                <img
+                  src="/pwa-icon.svg"
+                  alt={t("shell.productName")}
+                  className="size-6"
+                />
+              </div>
 
-          {!isCollapsed ? (
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-base leading-6 font-semibold tracking-tight text-sidebar-text">
-                {t("shell.productName")}
-              </p>
-              <p className="mt-0.5 truncate text-xs leading-5 text-sidebar-muted">
-                {activeTenantName}
-              </p>
-            </div>
-          ) : (
-            <span className="sr-only">{activeTenantName}</span>
-          )}
-
-          <button
-            type="button"
-            onClick={toggleSidebar}
-            className="inline-flex size-9 shrink-0 items-center justify-center rounded-xl border border-sidebar-border bg-sidebar-elevated text-sidebar-text transition hover:border-sidebar-muted hover:bg-sidebar-border"
-            aria-label={
-              isMobile
-                ? t("shell.closeMenuLabel")
-                : isCollapsed
-                  ? t("shell.expandSidebarLabel")
-                  : t("shell.collapseSidebarLabel")
-            }
-            title={
-              isMobile
-                ? t("shell.closeMenuLabel")
-                : isCollapsed
-                  ? t("shell.expandSidebarLabel")
-                  : t("shell.collapseSidebarLabel")
-            }
-          >
-            {isMobile ? (
-              <X className="size-4.5" aria-hidden="true" />
-            ) : isCollapsed ? (
-              <ChevronRight className="size-4.5" aria-hidden="true" />
-            ) : (
-              <ChevronLeft className="size-4.5" aria-hidden="true" />
-            )}
-          </button>
-        </div>
+              {!isCollapsed ? (
+                <>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[15px] font-semibold text-sidebar-text">
+                      {activeTenantName}
+                    </p>
+                    <p className="truncate text-sm text-sidebar-muted">
+                      {businessRoleLabel}
+                    </p>
+                  </div>
+                  {isMobile ? (
+                    <X className="size-4.5 shrink-0 text-sidebar-muted" aria-hidden="true" />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center text-sidebar-muted">
+                      <ChevronsUpDown className="size-4.5" aria-hidden="true" />
+                    </div>
+                  )}
+                </>
+              ) : (
+                <span className="sr-only">{activeTenantName}</span>
+              )}
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
 
         {showTenantSwitcher ? (
-          <>
+          <div className="px-1">
             <label
               htmlFor="tenant-switcher-sidebar"
-              className="mt-3 block px-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-sidebar-muted"
+              className="mb-2 block px-2 text-xs font-medium text-sidebar-muted"
             >
               {t("shell.tenantLabel")}
             </label>
-            <div className="px-3">
-              <Select
-                id="tenant-switcher-sidebar"
-                value={activeTenantId}
-                className="mt-2 h-9 rounded-xl border-sidebar-border bg-sidebar-elevated text-sm text-sidebar-text"
-                onChange={(event) => onTenantChange(event.target.value)}
-              >
-                {memberships.map((membership) => (
-                  <option key={membership.tenantId} value={membership.tenantId}>
-                    {membership.tenantName}
-                  </option>
-                ))}
-              </Select>
-            </div>
-          </>
+            <Select
+              id="tenant-switcher-sidebar"
+              value={activeTenantId}
+              className="h-10 rounded-xl border-sidebar-border bg-sidebar-elevated text-sm text-sidebar-text"
+              onChange={(event) => onTenantChange(event.target.value)}
+            >
+              {memberships.map((membership) => (
+                <option key={membership.tenantId} value={membership.tenantId}>
+                  {membership.tenantName}
+                </option>
+              ))}
+            </Select>
+          </div>
         ) : null}
       </SidebarHeader>
 
-      <SidebarContent className="px-2.5 py-3">
+      <SidebarContent className="px-3 py-2">
         <nav aria-label={t("shell.primaryNavigationLabel")} className="space-y-3">
           {sections.map((section, sectionIndex) => (
             <SidebarGroup
               key={section.labelKey}
               className={cn(
-                sectionIndex === 0 ? "" : "border-t border-sidebar-border pt-3"
+                sectionIndex === 0 ? "" : "pt-4"
               )}
             >
               {!isCollapsed ? (
-                <SidebarGroupLabel>{t(section.labelKey)}</SidebarGroupLabel>
+                <SidebarGroupLabel className="px-2 pb-1 text-sm font-medium normal-case tracking-normal text-sidebar-muted">
+                  {t(section.labelKey)}
+                </SidebarGroupLabel>
               ) : null}
 
               <SidebarGroupContent>
                 <SidebarMenu>
                   {section.items.map(({ children, to, key, icon: Icon }) => {
-                    const isGroupActive =
-                      children?.some((child) =>
-                        isItemPathActive(location.pathname, child.to)
-                      ) ?? false;
+                    const activeChildKey =
+                      children?.find((child) =>
+                        isExactItemPathActive(location.pathname, child.to)
+                      )?.key ?? null;
+                    const isGroupActive = activeChildKey !== null;
+                    const isParentCurrentRoute = isExactItemPathActive(
+                      location.pathname,
+                      to
+                    );
                     const showChildren =
                       Boolean(children?.length) && !isCollapsed && openGroups[key];
 
@@ -402,66 +482,74 @@ export function BackofficeSidebar({
                       <SidebarMenuItem key={to}>
                         {children?.length ? (
                           <>
-                            <SidebarMenuButton
-                              isActive={isGroupActive || openGroups[key]}
-                              className={cn(
-                                isCollapsed ? "justify-center px-0" : ""
-                              )}
-                              onClick={() => {
-                                if (!isGroupActive) {
+                            {wrapWithTooltip(
+                              isCollapsed,
+                              t(`navigation.${key}`),
+                              <SidebarMenuButton
+                                isActive={
+                                  isParentCurrentRoute ||
+                                  (isCollapsed && isGroupActive)
+                                }
+                                className={cn(
+                                  "rounded-xl",
+                                  isCollapsed ? "justify-center px-0" : ""
+                                )}
+                                onClick={() => {
+                                  if (!isGroupActive) {
+                                    setOpenGroups((currentValue) => ({
+                                      ...currentValue,
+                                      [key]: true
+                                    }));
+                                    handleNavigate();
+                                    navigate(to);
+                                    return;
+                                  }
+
                                   setOpenGroups((currentValue) => ({
                                     ...currentValue,
-                                    [key]: true
+                                    [key]: !currentValue[key]
                                   }));
-                                  handleNavigate();
-                                  navigate(to);
-                                  return;
-                                }
-
-                                setOpenGroups((currentValue) => ({
-                                  ...currentValue,
-                                  [key]: !currentValue[key]
-                                }));
-                              }}
-                              aria-label={t(`navigation.${key}`)}
-                              aria-expanded={openGroups[key]}
-                              aria-controls={`sidebar-group-${key}`}
-                              title={isCollapsed ? t(`navigation.${key}`) : undefined}
-                            >
-                              <span
-                                className={cn(
-                                  "flex size-9 shrink-0 items-center justify-center rounded-lg transition",
-                                  isCollapsed
-                                    ? ""
-                                    : isGroupActive || openGroups[key]
-                                      ? "bg-white/12"
-                                      : "group-hover:bg-sidebar-border/55"
-                                )}
+                                }}
+                                aria-label={t(`navigation.${key}`)}
+                                aria-expanded={openGroups[key]}
+                                aria-controls={`sidebar-group-${key}`}
+                                title={isCollapsed ? t(`navigation.${key}`) : undefined}
                               >
-                                <Icon className="size-4.5" aria-hidden="true" />
-                              </span>
+                                <span
+                                  className={cn(
+                                    "flex size-9 shrink-0 items-center justify-center rounded-lg transition",
+                                    isCollapsed
+                                      ? ""
+                                      : isGroupActive || openGroups[key]
+                                        ? "bg-white/12"
+                                        : "group-hover:bg-sidebar-border/55"
+                                  )}
+                                >
+                                  <Icon className="size-4.5" aria-hidden="true" />
+                                </span>
 
-                              {!isCollapsed ? (
-                                <>
-                                  <span className="truncate">{t(`navigation.${key}`)}</span>
-                                  <motion.span
-                                    className="ml-auto flex size-6 items-center justify-center rounded-full bg-white/10"
-                                    animate={{ rotate: openGroups[key] ? 180 : 0 }}
-                                    transition={{
-                                      duration: 0.22,
-                                      ease: [0.22, 1, 0.36, 1]
-                                    }}
-                                  >
-                                    <ChevronDown
-                                      className="size-4 opacity-90"
-                                      aria-hidden="true"
-                                    />
-                                  </motion.span>
-                                </>
-                              ) : (
-                                <span className="sr-only">{t(`navigation.${key}`)}</span>
-                              )}
-                            </SidebarMenuButton>
+                                {!isCollapsed ? (
+                                  <>
+                                    <span className="truncate">{t(`navigation.${key}`)}</span>
+                                    <motion.span
+                                      className="ml-auto flex size-6 items-center justify-center rounded-full bg-white/10"
+                                      animate={{ rotate: openGroups[key] ? 180 : 0 }}
+                                      transition={{
+                                        duration: 0.22,
+                                        ease: [0.22, 1, 0.36, 1]
+                                      }}
+                                    >
+                                      <ChevronDown
+                                        className="size-4 opacity-90"
+                                        aria-hidden="true"
+                                      />
+                                    </motion.span>
+                                  </>
+                                ) : (
+                                  <span className="sr-only">{t(`navigation.${key}`)}</span>
+                                )}
+                              </SidebarMenuButton>
+                            )}
 
                             <AnimatePresence initial={false}>
                               {showChildren ? (
@@ -502,7 +590,7 @@ export function BackofficeSidebar({
                                           <SidebarMenuSubItem>
                                             <SidebarMenuSubButton
                                               asChild
-                                              isActive={isItemPathActive(
+                                              isActive={isExactItemPathActive(
                                                 location.pathname,
                                                 child.to
                                               )}
@@ -521,33 +609,40 @@ export function BackofficeSidebar({
                             </AnimatePresence>
                           </>
                         ) : (
-                          <SidebarMenuButton
-                            asChild
-                            isActive={isItemPathActive(location.pathname, to)}
-                            className={cn(isCollapsed ? "justify-center px-0" : "")}
-                          >
-                            <NavLink
-                              to={to}
-                              end={to === "/"}
-                              onClick={handleNavigate}
-                              aria-label={t(`navigation.${key}`)}
-                              title={isCollapsed ? t(`navigation.${key}`) : undefined}
-                            >
-                              <span
-                                className={cn(
-                                  "flex size-9 shrink-0 items-center justify-center rounded-lg transition",
-                                  isCollapsed ? "" : "group-hover:bg-sidebar-border/55"
-                                )}
-                              >
-                                <Icon className="size-4.5" aria-hidden="true" />
-                              </span>
-                              {!isCollapsed ? (
-                                <span className="truncate">{t(`navigation.${key}`)}</span>
-                              ) : (
-                                <span className="sr-only">{t(`navigation.${key}`)}</span>
+                          wrapWithTooltip(
+                            isCollapsed,
+                            t(`navigation.${key}`),
+                            <SidebarMenuButton
+                              asChild
+                              isActive={isItemPathActive(location.pathname, to)}
+                              className={cn(
+                                "rounded-xl",
+                                isCollapsed ? "justify-center px-0" : ""
                               )}
-                            </NavLink>
-                          </SidebarMenuButton>
+                            >
+                              <NavLink
+                                to={to}
+                                end={to === "/"}
+                                onClick={handleNavigate}
+                                aria-label={t(`navigation.${key}`)}
+                                title={isCollapsed ? t(`navigation.${key}`) : undefined}
+                              >
+                                <span
+                                  className={cn(
+                                    "flex size-9 shrink-0 items-center justify-center rounded-lg transition",
+                                    isCollapsed ? "" : "group-hover:bg-sidebar-border/55"
+                                  )}
+                                >
+                                  <Icon className="size-4.5" aria-hidden="true" />
+                                </span>
+                                {!isCollapsed ? (
+                                  <span className="truncate">{t(`navigation.${key}`)}</span>
+                                ) : (
+                                  <span className="sr-only">{t(`navigation.${key}`)}</span>
+                                )}
+                              </NavLink>
+                            </SidebarMenuButton>
+                          )
                         )}
                       </SidebarMenuItem>
                     );
@@ -559,37 +654,83 @@ export function BackofficeSidebar({
         </nav>
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-sidebar-border px-2.5 py-3">
-        <div
-          className={cn(
-            "flex items-center",
-            isCollapsed ? "justify-center" : "gap-3"
-          )}
-          title={isCollapsed ? userLabel : undefined}
-        >
-          <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-sidebar-accent text-[11px] font-semibold text-sidebar-accent-contrast">
-            {getInitials(userLabel)}
-          </div>
+      <SidebarFooter className="px-3 pb-3 pt-2">
+        <SidebarSeparator className="bg-sidebar-border/80" />
 
-          {!isCollapsed ? (
-            <div className="min-w-0">
-              <p className="truncate text-[13px] font-semibold text-sidebar-text">
-                {userLabel}
-              </p>
-              <p className="truncate text-[11px] text-sidebar-muted">
-                {businessRoleLabel}
-              </p>
+        <DropdownMenu>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <DropdownMenuTrigger asChild>
+                {wrapWithTooltip(
+                  isCollapsed,
+                  userLabel,
+                  <SidebarMenuButton
+                    className={cn(
+                      "mt-2 h-auto min-h-0 rounded-2xl px-3 py-3",
+                      isCollapsed ? "justify-center px-0" : ""
+                    )}
+                    title={isCollapsed ? userLabel : undefined}
+                  >
+                    <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-sidebar-accent text-[11px] font-semibold text-sidebar-accent-contrast">
+                      {getInitials(userLabel)}
+                    </div>
+
+                    {!isCollapsed ? (
+                      <>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-[15px] font-semibold text-sidebar-text">
+                            {userLabel}
+                          </p>
+                          <p className="truncate text-sm text-sidebar-muted">
+                            {businessRoleLabel}
+                          </p>
+                        </div>
+                        <ChevronsUpDown className="size-4.5 shrink-0 text-sidebar-muted" aria-hidden="true" />
+                      </>
+                    ) : (
+                      <span className="sr-only">{userLabel}</span>
+                    )}
+                  </SidebarMenuButton>
+                )}
+              </DropdownMenuTrigger>
+            </SidebarMenuItem>
+          </SidebarMenu>
+
+          <DropdownMenuContent
+            align={isCollapsed ? "start" : "end"}
+            side={isCollapsed ? "right" : "top"}
+            className="w-64 rounded-2xl border-line/70 bg-paper p-2 text-ink shadow-soft"
+          >
+            <div className="flex items-center gap-3 px-2 py-2">
+              <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-sidebar-accent text-[11px] font-semibold text-sidebar-accent-contrast">
+                {getInitials(userLabel)}
+              </div>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold text-ink">{userLabel}</p>
+                <p className="truncate text-sm text-ink-soft">{userEmail}</p>
+              </div>
             </div>
-          ) : (
-            <span className="sr-only">{userLabel}</span>
-          )}
-        </div>
+            <DropdownMenuSeparator className="bg-line/70" />
+            <DropdownMenuItem
+              className="rounded-xl px-3 py-2.5 text-sm text-ink focus:bg-sand focus:text-ink"
+              onClick={onOpenProfile}
+            >
+              Perfil
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="rounded-xl px-3 py-2.5 text-sm text-red-500 focus:bg-red-50 focus:text-red-600"
+              onClick={onSignOut}
+            >
+              {t("shell.signOut")}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
               className={cn(
-                "text-red-300 hover:bg-red-500/10 hover:text-red-200 data-[active=true]:bg-red-500/10 data-[active=true]:text-red-200",
+                "rounded-xl text-red-300 hover:bg-red-500/10 hover:text-red-200 data-[active=true]:bg-red-500/10 data-[active=true]:text-red-200",
                 isCollapsed ? "justify-center px-0" : ""
               )}
               onClick={onSignOut}
@@ -607,7 +748,7 @@ export function BackofficeSidebar({
         </SidebarMenu>
 
         {!isCollapsed ? (
-          <div className="border-t border-sidebar-border pt-4 text-center">
+          <div className="px-2 pt-1 text-left">
             <p className="text-xs leading-5 text-sidebar-muted">
               {footerLegalLabel}
             </p>
@@ -617,8 +758,6 @@ export function BackofficeSidebar({
           </div>
         ) : null}
       </SidebarFooter>
-
-      <SidebarRail />
     </Sidebar>
   );
 }

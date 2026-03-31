@@ -31,6 +31,8 @@ export const tenantPermissionKeys = [
   "catalog.write",
   "quote.read",
   "quote.write",
+  "invoice.read",
+  "invoice.write",
   "expense.read",
   "expense.write",
   "audit.read.tenant"
