@@ -261,13 +261,13 @@ function buildSidebarVariables(
   if (isCustomThemePalette(palette)) {
     return {
       "--vf-light-sidebar-surface": palette.seeds.primary,
-      "--vf-light-sidebar-elevated": palette.seeds.secondary,
-      "--vf-light-sidebar-border": palette.seeds.secondary,
+      "--vf-light-sidebar-elevated": mixHex(palette.seeds.primary, "#ffffff", 0.12),
+      "--vf-light-sidebar-border": mixHex(palette.seeds.primary, "#ffffff", 0.2),
       "--vf-light-sidebar-text": pickBestContrastColor(palette.seeds.primary),
-      "--vf-light-sidebar-muted": pickBestContrastColor(palette.seeds.secondary),
-      "--vf-light-sidebar-accent": palette.seeds.tertiary,
-      "--vf-light-sidebar-accent-hover": palette.seeds.tertiary,
-      "--vf-light-sidebar-accent-contrast": pickBestContrastColor(palette.seeds.tertiary),
+      "--vf-light-sidebar-muted": mixHex(pickBestContrastColor(palette.seeds.primary), "#a7b6c6", 0.24),
+      "--vf-light-sidebar-accent": mixHex(palette.seeds.secondary, "#ffffff", 0.22),
+      "--vf-light-sidebar-accent-hover": mixHex(palette.seeds.secondary, "#ffffff", 0.34),
+      "--vf-light-sidebar-accent-contrast": pickBestContrastColor(palette.seeds.secondary),
       "--vf-dark-sidebar-surface": "#151515",
       "--vf-dark-sidebar-elevated": "#1d1d1d",
       "--vf-dark-sidebar-border": "#303030",
@@ -315,10 +315,10 @@ export function buildTenantThemeVariables(
   const darkPalette = buildDarkThemePalette(palette);
   const sidebarVariables = buildSidebarVariables(palette, darkPalette);
   const lightBrand = isCustomThemePalette(palette)
-    ? palette.seeds.primary
+    ? palette.seeds.secondary
     : palette.colors.primary400;
   const darkBrand = isCustomThemePalette(palette)
-    ? darkPalette.primary400
+    ? darkPalette.secondary400
     : darkPalette.primary400;
 
   return {
@@ -342,10 +342,10 @@ export function buildTenantThemeVariables(
     "--vf-light-highlight-200": palette.colors.highlight200,
     "--vf-light-brand": lightBrand,
     "--vf-light-brand-hover": isCustomThemePalette(palette)
-      ? lightBrand
+      ? mixHex(lightBrand, palette.colors.ink, 0.14)
       : mixHex(lightBrand, palette.colors.ink, 0.14),
     "--vf-light-brand-soft": isCustomThemePalette(palette)
-      ? palette.seeds.primary
+      ? palette.colors.secondary200
       : palette.colors.primary200,
     "--vf-light-brand-contrast": pickBestContrastColor(lightBrand),
     "--vf-light-app-background": buildLightAppBackground(palette, appMode),
@@ -378,10 +378,10 @@ export function buildTenantThemeVariables(
     "--vf-dark-highlight-200": darkPalette.highlight200,
     "--vf-dark-brand": darkBrand,
     "--vf-dark-brand-hover": isCustomThemePalette(palette)
-      ? darkBrand
+      ? mixHex(darkBrand, darkPalette.ink, 0.12)
       : mixHex(darkBrand, darkPalette.ink, 0.12),
     "--vf-dark-brand-soft": isCustomThemePalette(palette)
-      ? darkBrand
+      ? darkPalette.secondary200
       : darkPalette.primary200,
     "--vf-dark-brand-contrast": pickBestContrastColor(darkBrand),
     "--vf-dark-app-background": buildDarkAppBackground(

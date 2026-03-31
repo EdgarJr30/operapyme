@@ -142,6 +142,11 @@ function PaletteSelectionGrid({ compact = false }: { compact?: boolean }) {
     palette: ThemePaletteDefinition;
     contrastRatio: number;
   }> = [
+    {
+      id: "custom",
+      palette: customPalette,
+      contrastRatio: customContrastRatio
+    },
     ...palettes.map((palette) => ({
       id: palette.id,
       palette,
@@ -149,12 +154,7 @@ function PaletteSelectionGrid({ compact = false }: { compact?: boolean }) {
         pickBestContrastColor(palette.colors.primary400),
         palette.colors.primary400
       )
-    })),
-    {
-      id: "custom",
-      palette: customPalette,
-      contrastRatio: customContrastRatio
-    }
+    }))
   ];
 
   function showPaletteToast(nextPaletteId: ThemePaletteSelectionId) {

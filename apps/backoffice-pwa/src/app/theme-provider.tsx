@@ -54,8 +54,7 @@ export function BackofficeThemeProvider({ children }: PropsWithChildren) {
       defaultTheme="light"
       disableTransitionOnChange
       enableColorScheme
-      enableSystem={false}
-      forcedTheme="light"
+      enableSystem
       storageKey="operapyme-backoffice-theme-v2"
     >
       <TenantThemeProvider

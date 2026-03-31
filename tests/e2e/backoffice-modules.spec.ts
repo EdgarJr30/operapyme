@@ -487,6 +487,9 @@ test.describe("backoffice modules", () => {
     await expect(
       page.getByRole("heading", { name: /Crear cotizacion/i })
     ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: /Activar tema oscuro/i })
+    ).toBeVisible();
     await page.screenshot({
       path: testInfo.outputPath("quotes-create-desktop.png"),
       fullPage: true
@@ -507,6 +510,18 @@ test.describe("backoffice modules", () => {
     ).toBeVisible();
     await page.screenshot({
       path: testInfo.outputPath("invoices-desktop.png"),
+      fullPage: true
+    });
+
+    await page.goto("/settings");
+    await expect(
+      page.getByText(/Paleta propia/i).first()
+    ).toBeVisible();
+    await expect(
+      page.getByText(/Paleta activa/i).first()
+    ).toBeVisible();
+    await page.screenshot({
+      path: testInfo.outputPath("settings-desktop.png"),
       fullPage: true
     });
   });
