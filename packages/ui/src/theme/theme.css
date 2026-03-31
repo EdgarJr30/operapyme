@@ -68,9 +68,9 @@
   --vf-light-sidebar-border: #50687f;
   --vf-light-sidebar-text: #f4f7f9;
   --vf-light-sidebar-muted: #d0dae4;
-  --vf-light-sidebar-accent: #ffb97f;
-  --vf-light-sidebar-accent-hover: #ffc996;
-  --vf-light-sidebar-accent-contrast: #2d3e50;
+  --vf-light-sidebar-accent: #4b7a9e;
+  --vf-light-sidebar-accent-hover: #5a8db3;
+  --vf-light-sidebar-accent-contrast: #f4f7f9;
   --vf-light-app-background:
     radial-gradient(circle at top left, rgba(75, 99, 122, 0.12), transparent 32%),
     radial-gradient(circle at top right, rgba(255, 122, 0, 0.12), transparent 24%),
