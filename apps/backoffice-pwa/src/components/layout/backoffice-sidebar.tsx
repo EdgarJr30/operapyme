@@ -6,7 +6,6 @@ import {
   ChevronsUpDown,
   FileText,
   House,
-  LogOut,
   Package2,
   Settings2,
   ShieldCheck,
@@ -726,26 +725,7 @@ export function BackofficeSidebar({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              className={cn(
-                "rounded-xl text-red-300 hover:bg-red-500/10 hover:text-red-200 data-[active=true]:bg-red-500/10 data-[active=true]:text-red-200",
-                isCollapsed ? "justify-center px-0" : ""
-              )}
-              onClick={onSignOut}
-              aria-label={t("shell.signOut")}
-              title={isCollapsed ? t("shell.signOut") : undefined}
-            >
-              <LogOut className="size-4.5 shrink-0" aria-hidden="true" />
-              {!isCollapsed ? (
-                <span>{t("shell.signOut")}</span>
-              ) : (
-                <span className="sr-only">{t("shell.signOut")}</span>
-              )}
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+
 
         {!isCollapsed ? (
           <div className="px-2 pt-1 text-left">

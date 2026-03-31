@@ -1,4 +1,4 @@
-export type ThemePaletteId = "linen" | "mist" | "clay" | "dusk";
+export type ThemePaletteId = "slate" | "linen" | "mist" | "clay" | "dusk";
 
 export type ThemePaletteSelectionId = ThemePaletteId | "custom";
 
@@ -130,7 +130,7 @@ function buildDerivedPaletteColors(seeds: ThemePaletteSeedColors): ThemePaletteC
   };
 }
 
-export const defaultThemePaletteId: ThemePaletteSelectionId = "custom";
+export const defaultThemePaletteId: ThemePaletteSelectionId = "slate";
 
 export const defaultCustomThemePaletteSeeds: ThemePaletteSeedColors = {
   paper: "#f4f7f9",
@@ -140,6 +140,29 @@ export const defaultCustomThemePaletteSeeds: ThemePaletteSeedColors = {
 };
 
 export const tenantThemePalettes = [
+  {
+    id: "slate",
+    colors: {
+      paper: "#f4f7f9",
+      sand: "#e8edf1",
+      sandStrong: "#dce3e9",
+      line: "#c4ced8",
+      lineStrong: "#aab8c4",
+      ink: "#1a2430",
+      inkSoft: "#3d4f5e",
+      inkMuted: "#5e7282",
+      primary200: "#c8d3dd",
+      primary300: "#a8bacb",
+      primary400: "#2d3e50",
+      secondary200: "#ffe0b3",
+      secondary300: "#ffbf66",
+      secondary400: "#ff7a00",
+      tertiary200: "#c8d5e0",
+      tertiary300: "#a8bccf",
+      tertiary400: "#4b637a",
+      highlight200: "#e8d4b8"
+    }
+  },
   {
     id: "linen",
     colors: {

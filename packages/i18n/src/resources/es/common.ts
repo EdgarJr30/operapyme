@@ -11,6 +11,11 @@ const commonEs = {
     switchToDark: "Activar tema oscuro",
     aaReady: "AA validada",
     palettes: {
+      slate: {
+        name: "Slate operativo",
+        description:
+          "Azul pizarra, naranja vibrante y gris azulado para una identidad moderna, clara y con fuerza."
+      },
       linen: {
         name: "Lino editorial",
         description:

@@ -11,6 +11,11 @@ const commonEn = {
     switchToDark: "Switch to dark theme",
     aaReady: "AA validated",
     palettes: {
+      slate: {
+        name: "Operational Slate",
+        description:
+          "Slate blue, vibrant orange, and steely grey for a modern, clear, and bold identity."
+      },
       linen: {
         name: "Editorial Linen",
         description:
