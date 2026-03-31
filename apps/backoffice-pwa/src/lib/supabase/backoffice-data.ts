@@ -381,6 +381,13 @@ export interface UpdateQuoteInput extends CreateQuoteInput {
   version: number;
 }
 
+export interface MoveQuoteStatusInput {
+  tenantId: string;
+  quoteId: string;
+  version: number;
+  status: QuoteStatus;
+}
+
 export interface CreateInvoiceInput {
   tenantId: string;
   sourceQuoteId?: string | null;
@@ -401,6 +408,12 @@ export interface CreateInvoiceInput {
   issuedOn?: string | null;
   dueOn?: string | null;
   lineItems: QuoteLineInput[];
+}
+
+export interface MoveInvoiceStatusInput {
+  tenantId: string;
+  invoiceId: string;
+  status: InvoiceStatus;
 }
 
 const customerSelectFields =
@@ -1087,6 +1100,36 @@ export async function updateQuote(input: UpdateQuoteInput) {
   return mapQuote(data as RawQuoteRow);
 }
 
+export async function moveQuoteStatus(input: MoveQuoteStatusInput) {
+  const client = requireSupabaseClient();
+  const scopedTenantId = requireTenantScope(input.tenantId);
+  const scopedQuoteId = requireRecordId(input.quoteId, "Quote id");
+
+  const { data: quoteId, error } = await client.rpc("move_quote_status", {
+    target_tenant_id: scopedTenantId,
+    target_quote_id: scopedQuoteId,
+    expected_version: input.version,
+    target_status: input.status
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const { data, error: fetchError } = await client
+    .from("quotes")
+    .select(quoteSelectFields)
+    .eq("tenant_id", scopedTenantId)
+    .eq("id", quoteId)
+    .single();
+
+  if (fetchError) {
+    throw new Error(fetchError.message);
+  }
+
+  return mapQuote(data as RawQuoteRow);
+}
+
 export async function createInvoice(input: CreateInvoiceInput) {
   const client = requireSupabaseClient();
   const scopedTenantId = requireTenantScope(input.tenantId);
@@ -1119,6 +1162,35 @@ export async function createInvoice(input: CreateInvoiceInput) {
     target_issued_on: normalizeOptionalValue(input.issuedOn),
     target_due_on: normalizeOptionalValue(input.dueOn),
     target_notes: normalizeOptionalValue(input.notes)
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const { data, error: fetchError } = await client
+    .from("invoices")
+    .select(invoiceSelectFields)
+    .eq("tenant_id", scopedTenantId)
+    .eq("id", invoiceId)
+    .single();
+
+  if (fetchError) {
+    throw new Error(fetchError.message);
+  }
+
+  return mapInvoice(data as RawInvoiceRow);
+}
+
+export async function moveInvoiceStatus(input: MoveInvoiceStatusInput) {
+  const client = requireSupabaseClient();
+  const scopedTenantId = requireTenantScope(input.tenantId);
+  const scopedInvoiceId = requireRecordId(input.invoiceId, "Invoice id");
+
+  const { data: invoiceId, error } = await client.rpc("move_invoice_status", {
+    target_tenant_id: scopedTenantId,
+    target_invoice_id: scopedInvoiceId,
+    target_status: input.status
   });
 
   if (error) {

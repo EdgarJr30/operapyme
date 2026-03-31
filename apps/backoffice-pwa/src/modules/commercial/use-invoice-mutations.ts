@@ -3,7 +3,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useBackofficeAuth } from "@/app/auth-provider";
 import {
   createInvoice,
-  type CreateInvoiceInput
+  moveInvoiceStatus,
+  type CreateInvoiceInput,
+  type MoveInvoiceStatusInput
 } from "@/lib/supabase/backoffice-data";
 
 function ensureTenantId(tenantId: string | null) {
@@ -36,7 +38,19 @@ export function useInvoiceMutations() {
     }
   });
 
+  const moveInvoiceStatusMutation = useMutation({
+    mutationFn: (input: Omit<MoveInvoiceStatusInput, "tenantId">) =>
+      moveInvoiceStatus({
+        ...input,
+        tenantId: ensureTenantId(activeTenantId)
+      }),
+    onSuccess: async () => {
+      await invalidate(ensureTenantId(activeTenantId));
+    }
+  });
+
   return {
-    createInvoiceMutation
+    createInvoiceMutation,
+    moveInvoiceStatusMutation
   };
 }

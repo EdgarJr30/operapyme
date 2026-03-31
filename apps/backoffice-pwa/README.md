@@ -49,10 +49,11 @@ El `service role key` no vive aqui.
 - las mutaciones siguen limitadas al tenant activo y dejan auditoria via triggers de base
 - `catalog` ya modela oferta comercial reusable con `product` o `service`, visibilidad `public/private`, pricing `fixed/on_request` y estados `active/draft/archived`
 - `quotes` ya delega la numeracion y el incremento de version a RPCs de Supabase para evitar inconsistencias por concurrencia
-- `invoices` ya delegan la numeracion documental a RPCs de Supabase, soportan articulos o servicios y pueden nacer desde una cotizacion o desde cero
-- `quotes` ya soporta cliente, lead existente o lead rapido, mantiene snapshot del receptor, persiste line items y genera PDF con `@react-pdf/renderer`
+- `invoices` ya delegan la numeracion documental a RPCs de Supabase, soportan articulos o servicios, pueden nacer desde una cotizacion o desde cero y generan PDF documental bajo demanda
+- `quotes` ya soporta cliente, lead existente o lead rapido, mantiene snapshot del receptor, persiste line items, genera PDF con `@react-pdf/renderer` y se mueve por pipeline de estados desde la misma pantalla
 - el cotizador declara `autocomplete` semantico y marca sus campos operativos para que extensiones de autofill o password managers no intenten tratarlos como un formulario de login
 - la generacion PDF ya no forma parte del bundle inicial; se carga bajo demanda y se precalienta al enfocar o apuntar la accion de descarga
+- el formato PDF actual vive en [quote-pdf-document.tsx](./src/modules/quotes/quote-pdf-document.tsx) para cotizaciones y [invoice-pdf-document.tsx](./src/modules/commercial/invoice-pdf-document.tsx) para facturas
 - el bootstrap de i18n ahora usa interpolacion nativa de i18next con placeholders simples y evita pagar `i18next-icu` en el primer paint
 - el toaster global y la pantalla de acceso denegado salen por carga diferida, dejando `feedback-vendor` e `icons-vendor` fuera del bundle inicial
 - el bundle base del backoffice ahora separa vendors por dominio, difiere `auth`, `setup`, shell y capa de queries, agrega resource hints hacia Supabase y protege el arranque con un check automatico de presupuesto en `tools/performance/check-backoffice-bundle.mjs`

@@ -944,7 +944,11 @@ const backofficeEn = {
       description:
         "Work proposals for items or services with a short and focused flow.",
       createTab: "New",
-      manageTab: "Manage"
+      manageTab: "Manage",
+      pipelineTitle: "Quote pipeline",
+      pipelineDescription:
+        "Move each document through its operating state without opening the full editor for simple changes.",
+      createInvoiceAction: "Convert to invoice"
     },
     invoices: {
       title: "Invoices",
@@ -956,6 +960,9 @@ const backofficeEn = {
       historyTitle: "Recent invoices",
       historyDescription:
         "Review status, total, and document origin without opening unnecessary screens.",
+      pipelineTitle: "Invoice pipeline",
+      pipelineDescription:
+        "Control issuing, collection, and voiding from one operating view with PDF output.",
       historyEmpty: "There are no invoices for this tenant yet.",
       sourceQuoteLabel: "Source quote",
       sourceQuotePlaceholder: "Select an approved or sent quote",
@@ -985,7 +992,21 @@ const backofficeEn = {
       createAction: "Save invoice",
       createSubmitting: "Saving invoice...",
       createSuccess: "Invoice created successfully as {invoiceNumber}.",
-      createError: "We could not create the invoice. {message}"
+      createError: "We could not create the invoice. {message}",
+      pdf: {
+        downloadAction: "Download PDF",
+        generatingAction: "Generating PDF...",
+        downloadSuccess: "Invoice PDF is ready to download.",
+        downloadError: "We could not generate the PDF. {message}",
+        noTenantError: "You need an active tenant to download the invoice."
+      }
+    },
+    documents: {
+      moveTo: "Move to {status}",
+      moving: "Moving...",
+      moveSuccess: "{document} is now in {status}.",
+      moveError: "We could not move the document. {message}",
+      emptyStatus: "There are no documents in this state."
     }
   },
   admin: {

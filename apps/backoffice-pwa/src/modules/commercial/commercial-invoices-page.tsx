@@ -1,21 +1,14 @@
-import { type ReactNode, useEffect, useMemo } from "react";
+import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useTranslation } from "@operapyme/i18n";
 import { toast } from "sonner";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -28,15 +21,35 @@ import {
 import { buildOperationalAutofillProps } from "@/lib/forms/autofill";
 import type {
   CatalogItemSummary,
+  InvoiceStatus,
+  InvoiceSummary,
   QuoteDetail
 } from "@/lib/supabase/backoffice-data";
 import { useCatalogItemsData } from "@/modules/catalog/use-catalog-items-data";
+import { InvoicePdfDownloadButton } from "@/modules/commercial/invoice-pdf-download-button";
 import { useInvoicesData } from "@/modules/commercial/use-invoices-data";
 import { useInvoiceMutations } from "@/modules/commercial/use-invoice-mutations";
 import { useCustomersData } from "@/modules/crm/use-customers-data";
 import { useLeadsData } from "@/modules/crm/use-leads-data";
 import { useQuoteDetailData } from "@/modules/quotes/use-quote-detail-data";
 import { useQuotesData } from "@/modules/quotes/use-quotes-data";
+
+const invoiceStatusOrder: InvoiceStatus[] = ["draft", "issued", "paid", "void"];
+
+function getNextInvoiceStatuses(status: InvoiceStatus): InvoiceStatus[] {
+  switch (status) {
+    case "draft":
+      return ["issued", "void"];
+    case "issued":
+      return ["paid", "void"];
+    case "paid":
+      return [];
+    case "void":
+      return ["draft"];
+    default:
+      return [];
+  }
+}
 
 function formatMoney(amount: number, currencyCode: string) {
   return new Intl.NumberFormat("es-DO", {
@@ -114,13 +127,16 @@ function getCatalogOptions(
 
 export function CommercialInvoicesPage() {
   const { t } = useTranslation("backoffice");
+  const [searchParams] = useSearchParams();
+  const [pendingMove, setPendingMove] = useState<string | null>(null);
+  const importedQuoteIdRef = useRef<string | null>(null);
   const invoiceSchema = createInvoiceFormSchema(t);
   const { data: customers = [] } = useCustomersData();
   const { data: leads = [] } = useLeadsData();
   const { data: quotes = [] } = useQuotesData();
   const { data: catalogItems = [] } = useCatalogItemsData();
   const { data: invoices = [] } = useInvoicesData();
-  const { createInvoiceMutation } = useInvoiceMutations();
+  const { createInvoiceMutation, moveInvoiceStatusMutation } = useInvoiceMutations();
 
   const form = useForm<InvoiceFormValues>({
     resolver: zodResolver(invoiceSchema),
@@ -134,6 +150,7 @@ export function CommercialInvoicesPage() {
   const sourceQuoteId = form.watch("sourceQuoteId");
   const documentKind = form.watch("documentKind");
   const recipientKind = form.watch("recipientKind");
+  const requestedSourceQuoteId = searchParams.get("sourceQuoteId")?.trim() ?? "";
   const selectedQuoteDetail = useQuoteDetailData(
     sourceQuoteId?.trim() ? sourceQuoteId : null
   );
@@ -142,6 +159,29 @@ export function CommercialInvoicesPage() {
     () => getCatalogOptions(catalogItems, documentKind),
     [catalogItems, documentKind]
   );
+
+  const invoicesByStatus = useMemo(
+    () =>
+      invoiceStatusOrder.map((status) => ({
+        status,
+        invoices: invoices.filter((invoice) => invoice.status === status)
+      })),
+    [invoices]
+  );
+
+  useEffect(() => {
+    if (!requestedSourceQuoteId) {
+      return;
+    }
+
+    if (requestedSourceQuoteId === form.getValues("sourceQuoteId")) {
+      return;
+    }
+
+    form.setValue("sourceQuoteId", requestedSourceQuoteId, {
+      shouldDirty: true
+    });
+  }, [form, requestedSourceQuoteId]);
 
   useEffect(() => {
     if (!selectedQuoteDetail.data) {
@@ -160,7 +200,23 @@ export function CommercialInvoicesPage() {
     form.setValue("title", `Factura ${quote.title}`);
     form.setValue("currencyCode", quote.currencyCode);
     form.setValue("documentKind", inferDocumentKindFromQuote(quote, catalogItems));
-  }, [catalogItems, form, selectedQuoteDetail.data]);
+
+    if (importedQuoteIdRef.current !== quote.id) {
+      replace(
+        quote.lineItems.map((lineItem) => ({
+          catalogItemId: lineItem.catalogItemId ?? "",
+          itemName: lineItem.itemName,
+          itemDescription: lineItem.itemDescription ?? "",
+          quantity: lineItem.quantity,
+          unitLabel: lineItem.unitLabel ?? "",
+          unitPrice: lineItem.unitPrice,
+          discountTotal: lineItem.discountTotal,
+          taxTotal: lineItem.taxTotal
+        }))
+      );
+      importedQuoteIdRef.current = quote.id;
+    }
+  }, [catalogItems, form, replace, selectedQuoteDetail.data]);
 
   function importQuoteLines() {
     if (!selectedQuoteDetail.data) {
@@ -216,6 +272,35 @@ export function CommercialInvoicesPage() {
           message: error instanceof Error ? error.message : ""
         })
       );
+    }
+  }
+
+  async function handleMoveInvoiceStatus(
+    invoice: InvoiceSummary,
+    status: InvoiceStatus
+  ) {
+    const pendingKey = `${invoice.id}:${status}`;
+    setPendingMove(pendingKey);
+
+    try {
+      await moveInvoiceStatusMutation.mutateAsync({
+        invoiceId: invoice.id,
+        status
+      });
+      toast.success(
+        t("commercial.documents.moveSuccess", {
+          document: invoice.invoiceNumber,
+          status: t(`commercial.invoices.statuses.${status}`)
+        })
+      );
+    } catch (error) {
+      toast.error(
+        t("commercial.documents.moveError", {
+          message: error instanceof Error ? error.message : ""
+        })
+      );
+    } finally {
+      setPendingMove(null);
     }
   }
 
@@ -706,50 +791,98 @@ export function CommercialInvoicesPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>{t("commercial.invoices.historyTitle")}</CardTitle>
+            <CardTitle>{t("commercial.invoices.pipelineTitle")}</CardTitle>
             <p className="text-sm leading-6 text-ink-soft">
-              {t("commercial.invoices.historyDescription")}
+              {t("commercial.invoices.pipelineDescription")}
             </p>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
             {invoices.length === 0 ? (
               <p className="text-sm text-ink-soft">
                 {t("commercial.invoices.historyEmpty")}
               </p>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>{t("navigation.commercialInvoices")}</TableHead>
-                    <TableHead>{t("commercial.invoices.statusLabel")}</TableHead>
-                    <TableHead className="text-right">
-                      {t("quotes.form.grandTotalLabel")}
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {invoices.slice(0, 10).map((invoice) => (
-                    <TableRow key={invoice.id}>
-                      <TableCell>
-                        <div>
-                          <p className="font-medium text-ink">{invoice.title}</p>
-                          <p className="text-xs uppercase tracking-[0.12em] text-ink-muted">
-                            {invoice.invoiceNumber}
+              invoicesByStatus.map(({ status, invoices: invoicesInStatus }) => (
+                <section key={status} className="space-y-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <Badge variant="outline">
+                      {t(`commercial.invoices.statuses.${status}`)}
+                    </Badge>
+                    <span className="text-xs uppercase tracking-[0.14em] text-ink-muted">
+                      {invoicesInStatus.length}
+                    </span>
+                  </div>
+
+                  {invoicesInStatus.length === 0 ? (
+                    <p className="text-sm text-ink-soft">
+                      {t("commercial.documents.emptyStatus")}
+                    </p>
+                  ) : (
+                    invoicesInStatus.map((invoice) => (
+                      <div
+                        key={invoice.id}
+                        className="space-y-3 rounded-2xl border border-line/70 bg-paper/80 p-4"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold text-ink">
+                              {invoice.title}
+                            </p>
+                            <p className="text-xs uppercase tracking-[0.12em] text-ink-muted">
+                              {invoice.invoiceNumber}
+                            </p>
+                            <p className="mt-1 text-sm text-ink-soft">
+                              {invoice.recipientDisplayName}
+                            </p>
+                          </div>
+                          <p className="text-sm font-semibold text-ink">
+                            {formatMoney(invoice.grandTotal, invoice.currencyCode)}
                           </p>
                         </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">
-                          {t(`commercial.invoices.statuses.${invoice.status}`)}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {formatMoney(invoice.grandTotal, invoice.currencyCode)}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+
+                        <div className="flex flex-wrap gap-2">
+                          <InvoicePdfDownloadButton
+                            invoiceId={invoice.id}
+                            invoiceNumber={invoice.invoiceNumber}
+                          />
+
+                          {getNextInvoiceStatuses(invoice.status).map((targetStatus) => {
+                            const pendingKey = `${invoice.id}:${targetStatus}`;
+
+                            return (
+                              <Button
+                                key={targetStatus}
+                                type="button"
+                                size="sm"
+                                variant="secondary"
+                                disabled={
+                                  moveInvoiceStatusMutation.isPending &&
+                                  pendingMove === pendingKey
+                                }
+                                onClick={() => {
+                                  void handleMoveInvoiceStatus(
+                                    invoice,
+                                    targetStatus
+                                  );
+                                }}
+                              >
+                                {moveInvoiceStatusMutation.isPending &&
+                                pendingMove === pendingKey
+                                  ? t("commercial.documents.moving")
+                                  : t("commercial.documents.moveTo", {
+                                      status: t(
+                                        `commercial.invoices.statuses.${targetStatus}`
+                                      )
+                                    })}
+                              </Button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </section>
+              ))
             )}
           </CardContent>
         </Card>

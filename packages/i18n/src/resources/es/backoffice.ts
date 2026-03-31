@@ -946,7 +946,11 @@ const backofficeEs = {
       description:
         "Trabaja propuestas por articulos o servicios con un flujo corto y sin ruido.",
       createTab: "Nueva",
-      manageTab: "Gestionar"
+      manageTab: "Gestionar",
+      pipelineTitle: "Pipeline de cotizaciones",
+      pipelineDescription:
+        "Mueve cada documento por su estado operativo sin abrir el editor completo para cambios simples.",
+      createInvoiceAction: "Pasar a factura"
     },
     invoices: {
       title: "Facturas",
@@ -958,6 +962,9 @@ const backofficeEs = {
       historyTitle: "Facturas recientes",
       historyDescription:
         "Consulta estado, total y origen documental sin abrir pantallas innecesarias.",
+      pipelineTitle: "Pipeline de facturas",
+      pipelineDescription:
+        "Controla emision, cobro y anulacion desde una sola vista operativa con salida a PDF.",
       historyEmpty: "Todavia no hay facturas creadas en este tenant.",
       sourceQuoteLabel: "Cotizacion origen",
       sourceQuotePlaceholder: "Selecciona una cotizacion aprobada o enviada",
@@ -987,7 +994,21 @@ const backofficeEs = {
       createAction: "Guardar factura",
       createSubmitting: "Guardando factura...",
       createSuccess: "Factura creada correctamente como {invoiceNumber}.",
-      createError: "No pudimos crear la factura. {message}"
+      createError: "No pudimos crear la factura. {message}",
+      pdf: {
+        downloadAction: "Descargar PDF",
+        generatingAction: "Generando PDF...",
+        downloadSuccess: "PDF de factura listo para descargar.",
+        downloadError: "No pudimos generar el PDF. {message}",
+        noTenantError: "Necesitas un tenant activo para descargar la factura."
+      }
+    },
+    documents: {
+      moveTo: "Mover a {status}",
+      moving: "Moviendo...",
+      moveSuccess: "{document} ahora esta en {status}.",
+      moveError: "No pudimos mover el documento. {message}",
+      emptyStatus: "No hay documentos en este estado."
     }
   },
   admin: {

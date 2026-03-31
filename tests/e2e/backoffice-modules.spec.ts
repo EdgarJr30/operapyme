@@ -278,6 +278,48 @@ const quoteDetail = {
   ]
 };
 
+const quoteDetailsById = {
+  "quote-1": quoteDetail,
+  "quote-2": {
+    ...quoteRows[1],
+    line_items: [
+      {
+        id: "line-2",
+        catalog_item_id: "item-1",
+        sort_order: 0,
+        item_name: "Kit de mantenimiento preventivo",
+        item_description: "Levantamiento inicial del caso.",
+        quantity: 2,
+        unit_label: "servicio",
+        unit_price: 4300,
+        discount_total: 0,
+        tax_total: 0,
+        line_subtotal: 8600,
+        line_total: 8600
+      }
+    ]
+  },
+  "quote-3": {
+    ...quoteRows[2],
+    line_items: [
+      {
+        id: "line-3",
+        catalog_item_id: "item-2",
+        sort_order: 0,
+        item_name: "Paquete de tablets rugerizadas",
+        item_description: "Entrega con configuracion inicial.",
+        quantity: 3,
+        unit_label: "unidad",
+        unit_price: 1800,
+        discount_total: 200,
+        tax_total: 0,
+        line_subtotal: 5400,
+        line_total: 5200
+      }
+    ]
+  }
+};
+
 const invoiceRows = [
   {
     id: "invoice-1",
@@ -308,7 +350,19 @@ const invoiceRows = [
   }
 ];
 
+const invoiceDetailsById = {
+  "invoice-1": {
+    ...invoiceRows[0],
+    line_items: quoteDetail.line_items
+  }
+};
+
 async function mockBackoffice(page: Page) {
+  const mutableQuotes = structuredClone(quoteRows);
+  const mutableQuoteDetails = structuredClone(quoteDetailsById);
+  const mutableInvoices = structuredClone(invoiceRows);
+  const mutableInvoiceDetails = structuredClone(invoiceDetailsById);
+
   await page.addInitScript(
     ({ mainStorageKey, nextSession, nextUser, nextTenantId }) => {
       window.localStorage.setItem(mainStorageKey, JSON.stringify(nextSession));
@@ -339,6 +393,52 @@ async function mockBackoffice(page: Page) {
       return;
     }
 
+    if (pathname.endsWith("/rpc/move_quote_status")) {
+      const payload = JSON.parse(route.request().postData() ?? "{}");
+      const quote = mutableQuotes.find((entry) => entry.id === payload.target_quote_id);
+
+      if (quote) {
+        quote.status = payload.target_status;
+        quote.version += 1;
+        quote.updated_at = "2026-03-31T12:00:00.000Z";
+        mutableQuoteDetails[quote.id as keyof typeof mutableQuoteDetails].status =
+          payload.target_status;
+        mutableQuoteDetails[quote.id as keyof typeof mutableQuoteDetails].version =
+          quote.version;
+      }
+
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(quote?.id ?? null)
+      });
+      return;
+    }
+
+    if (pathname.endsWith("/rpc/move_invoice_status")) {
+      const payload = JSON.parse(route.request().postData() ?? "{}");
+      const invoice = mutableInvoices.find(
+        (entry) => entry.id === payload.target_invoice_id
+      );
+
+      if (invoice) {
+        invoice.status = payload.target_status;
+        invoice.updated_at = "2026-03-31T12:00:00.000Z";
+        if (payload.target_status === "issued" && !invoice.issued_on) {
+          invoice.issued_on = "2026-03-31";
+        }
+        mutableInvoiceDetails[invoice.id as keyof typeof mutableInvoiceDetails].status =
+          payload.target_status;
+      }
+
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(invoice?.id ?? null)
+      });
+      return;
+    }
+
     if (pathname.endsWith("/customers")) {
       await fulfillTableRoute(route, customers);
       return;
@@ -355,12 +455,28 @@ async function mockBackoffice(page: Page) {
     }
 
     if (pathname.endsWith("/quotes")) {
-      await fulfillTableRoute(route, quoteRows, quoteDetail);
+      await fulfillTableRoute(route, mutableQuotes, (filteredRows) => {
+        const row = filteredRows[0];
+
+        return row
+          ? mutableQuoteDetails[
+              row.id as keyof typeof mutableQuoteDetails
+            ] ?? row
+          : null;
+      });
       return;
     }
 
     if (pathname.endsWith("/invoices")) {
-      await fulfillTableRoute(route, invoiceRows);
+      await fulfillTableRoute(route, mutableInvoices, (filteredRows) => {
+        const row = filteredRows[0];
+
+        return row
+          ? mutableInvoiceDetails[
+              row.id as keyof typeof mutableInvoiceDetails
+            ] ?? row
+          : null;
+      });
       return;
     }
 
@@ -371,7 +487,9 @@ async function mockBackoffice(page: Page) {
 async function fulfillTableRoute(
   route: Route,
   rows: Record<string, unknown>[],
-  singleRow?: Record<string, unknown>
+  singleRow?:
+    | Record<string, unknown>
+    | ((filteredRows: Record<string, unknown>[]) => Record<string, unknown> | null)
 ) {
   const request = route.request();
   const url = new URL(request.url());
@@ -398,7 +516,11 @@ async function fulfillTableRoute(
       "content-range": buildContentRange(filteredRows.length)
     },
     body: JSON.stringify(
-      isSingleObjectRequest ? singleRow ?? limitedRows[0] ?? null : limitedRows
+      isSingleObjectRequest
+        ? typeof singleRow === "function"
+          ? singleRow(filteredRows)
+          : singleRow ?? limitedRows[0] ?? null
+        : limitedRows
     )
   });
 }
@@ -499,6 +621,19 @@ test.describe("backoffice modules", () => {
     await expect(
       page.getByRole("heading", { name: /Gestionar cotizaciones/i })
     ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /Pipeline de cotizaciones/i })
+    ).toBeVisible();
+    await page
+      .getByRole("button", { name: /Mover a Vista/i })
+      .first()
+      .click();
+    await expect(
+      page.getByText(/COT-2026-000210 ahora esta en Vista\./i)
+    ).toBeVisible();
+    await page.getByRole("button", { name: /Pasar a factura/i }).click();
+    await expect(page).toHaveURL(/\/commercial\/invoices\?sourceQuoteId=quote-3/);
+    await expect(page.locator("#invoice-source-quote")).toHaveValue("quote-3");
     await page.screenshot({
       path: testInfo.outputPath("quotes-manage-desktop.png"),
       fullPage: true
@@ -507,6 +642,13 @@ test.describe("backoffice modules", () => {
     await page.goto("/commercial/invoices");
     await expect(
       page.getByRole("heading", { name: /^Facturas$/i })
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: /Descargar PDF/i }).first()
+    ).toBeVisible();
+    await page.getByRole("button", { name: /Mover a Pagada/i }).click();
+    await expect(
+      page.getByText(/FAC-2026-000041 ahora esta en Pagada\./i)
     ).toBeVisible();
     await page.screenshot({
       path: testInfo.outputPath("invoices-desktop.png"),

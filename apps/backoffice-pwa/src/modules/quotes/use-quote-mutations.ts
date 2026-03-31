@@ -3,8 +3,10 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useBackofficeAuth } from "@/app/auth-provider";
 import {
   createQuote,
+  moveQuoteStatus,
   updateQuote,
   type CreateQuoteInput,
+  type MoveQuoteStatusInput,
   type UpdateQuoteInput
 } from "@/lib/supabase/backoffice-data";
 
@@ -50,8 +52,20 @@ export function useQuoteMutations() {
     }
   });
 
+  const moveQuoteStatusMutation = useMutation({
+    mutationFn: (input: Omit<MoveQuoteStatusInput, "tenantId">) =>
+      moveQuoteStatus({
+        ...input,
+        tenantId: ensureTenantId(activeTenantId)
+      }),
+    onSuccess: async () => {
+      await invalidate(ensureTenantId(activeTenantId));
+    }
+  });
+
   return {
     createQuoteMutation,
-    updateQuoteMutation
+    updateQuoteMutation,
+    moveQuoteStatusMutation
   };
 }

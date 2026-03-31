@@ -147,7 +147,8 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 - Gestion Comercial y catalogo ya pueden crear y actualizar registros reales dentro del tenant activo
 - Gestion Comercial ya concentra leads, clientes, cotizaciones y facturas documentales internas dentro del tenant activo
 - cotizaciones ya soportan cliente, lead existente o lead rapido, persisten line items y generan PDF profesional bajo demanda
-- facturas documentales internas ya soportan articulos o servicios, origen opcional en cotizacion y line items reales en Supabase
+- facturas documentales internas ya soportan articulos o servicios, origen opcional en cotizacion, line items reales en Supabase y descarga PDF bajo demanda
+- Gestion Comercial ya expone pipelines operativos para mover cotizaciones y facturas entre estados sin abrir siempre el editor completo
 - rutas `/admin/*` reservadas para auditoria y errores globales
 
 ### Como correr el proyecto
