@@ -243,219 +243,170 @@ export function SetupTenantPage() {
   }
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-7xl items-center px-4 py-8 sm:px-6 lg:px-8">
-      <div className="grid w-full gap-5 xl:grid-cols-[0.94fr_1.06fr]">
-        <Card className="overflow-hidden bg-paper xl:sticky xl:top-8 xl:self-start">
-          <CardContent className="space-y-6 p-5 sm:p-6">
-            <div className="space-y-3">
-              <Badge variant="outline" className="rounded-full px-3 py-1 text-[11px] uppercase tracking-[0.2em]">
-                {t("setup.eyebrow")}
-              </Badge>
-              <div className="space-y-2">
-                <h1 className="max-w-xl text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
+    <div className="min-h-screen bg-[linear-gradient(180deg,theme(colors.paper)_0%,theme(colors.sand/35)_100%)]">
+      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <Badge variant="outline" className="rounded-full px-3 py-1 text-[11px] uppercase tracking-[0.2em]">
+            {t("setup.eyebrow")}
+          </Badge>
+          <p className="text-sm text-ink-soft">
+            <span className="font-semibold text-ink">
+              {t("setup.progressLabel", {
+                current: currentStepIndex + 1,
+                total: setupSteps.length
+              })}
+            </span>{" "}
+            {t(`setup.steps.${currentStep}.title`)}
+          </p>
+        </div>
+
+        <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
+          <Card className="overflow-hidden border-line/80 bg-paper shadow-panel">
+            <div className="border-b border-line/70 bg-[linear-gradient(180deg,theme(colors.paper)_0%,theme(colors.sand/45)_100%)] px-5 py-6 sm:px-6">
+              <div className="space-y-3">
+                <h1 className="max-w-3xl text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
                   {t("setup.title")}
                 </h1>
                 <p className="max-w-2xl text-sm leading-6 text-ink-soft">
                   {t("setup.description")}
                 </p>
               </div>
-            </div>
 
-            <div className="grid gap-3 sm:grid-cols-3">
-              {setupSteps.map((step, index) => {
-                const isActive = step === currentStep;
-                const isCompleted = index < currentStepIndex;
-
-                return (
-                  <div
+              <div className="mt-6 grid gap-3 md:grid-cols-3">
+                {setupSteps.map((step, index) => (
+                  <StepCard
                     key={step}
-                    className={cn(
-                      "rounded-3xl border p-4 transition",
-                      isActive
-                        ? "border-brand bg-brand-soft/20 shadow-panel"
-                        : "border-line/70 bg-paper/80",
-                      isCompleted && "border-brand/40"
-                    )}
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-ink-muted">
-                        {t("setup.stepNumber", { count: index + 1 })}
-                      </span>
-                      {isCompleted ? (
-                        <Badge variant="outline" className="rounded-full border-brand/40 text-brand">
-                          {t("setup.completed")}
-                        </Badge>
-                      ) : null}
-                    </div>
-                    <p className="mt-3 text-sm font-semibold text-ink">
-                      {t(`setup.steps.${step}.title`)}
-                    </p>
-                    <p className="mt-1 text-sm leading-6 text-ink-soft">
-                      {t(`setup.steps.${step}.description`)}
-                    </p>
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="rounded-4xl border border-line/70 bg-sand/45 p-5">
-              <div className="flex items-start gap-3">
-                <Sparkles className="mt-1 size-5 shrink-0 text-brand" />
-                <div>
-                  <p className="text-sm font-semibold text-ink">
-                    {t("setup.previewTitle")}
-                  </p>
-                  <p className="mt-2 text-sm leading-6 text-ink-soft">
-                    {t("setup.previewDescription")}
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-5 grid gap-3">
-                {launchCards.map(({ icon: Icon, text, title }) => (
-                  <div
-                    key={title}
-                    className="rounded-3xl border border-line/70 bg-paper/90 p-4"
-                  >
-                    <div className="flex items-start gap-3">
-                      <span className="flex size-10 items-center justify-center rounded-2xl bg-brand-soft/25 text-brand">
-                        <Icon className="size-4.5" aria-hidden="true" />
-                      </span>
-                      <div>
-                        <p className="text-sm font-semibold text-ink">{title}</p>
-                        <p className="mt-1 text-sm leading-6 text-ink-soft">{text}</p>
-                      </div>
-                    </div>
-                  </div>
+                    index={index}
+                    isActive={step === currentStep}
+                    isCompleted={index < currentStepIndex}
+                    title={t(`setup.steps.${step}.title`)}
+                    description={t(`setup.steps.${step}.description`)}
+                    t={t}
+                  />
                 ))}
               </div>
             </div>
-          </CardContent>
-        </Card>
 
-        <Card className="overflow-hidden">
-          <CardHeader className="border-b border-line/70 bg-paper/90">
-            <div className="space-y-1">
-              <CardTitle>{t(`setup.steps.${currentStep}.title`)}</CardTitle>
-              <p className="text-sm leading-6 text-ink-soft">
-                {t(`setup.steps.${currentStep}.helper`)}
-              </p>
-            </div>
-          </CardHeader>
+            <form onSubmit={handleSubmit(onSubmit)} noValidate>
+              <div className="space-y-6 px-5 py-6 sm:px-6">
+                <div className="space-y-1">
+                  <h2 className="text-xl font-semibold text-ink">
+                    {t(`setup.steps.${currentStep}.title`)}
+                  </h2>
+                  <p className="text-sm leading-6 text-ink-soft">
+                    {t(`setup.steps.${currentStep}.helper`)}
+                  </p>
+                </div>
 
-          <CardContent className="p-5 sm:p-6">
-            <form className="space-y-6" onSubmit={handleSubmit(onSubmit)} noValidate>
-              {currentStep === "workspace" ? (
-                <div className="space-y-6">
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <Field
-                      error={errors.name?.message}
-                      htmlFor="tenant-name"
-                      label={t("setup.nameLabel")}
+                {currentStep === "workspace" ? (
+                  <div className="space-y-6">
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <Field
+                        error={errors.name?.message}
+                        htmlFor="tenant-name"
+                        label={t("setup.nameLabel")}
+                      >
+                        <Input
+                          id="tenant-name"
+                          placeholder={t("setup.namePlaceholder")}
+                          className="h-12 rounded-2xl"
+                          {...register("name")}
+                        />
+                      </Field>
+
+                      <Field
+                        error={errors.slug?.message}
+                        htmlFor="tenant-slug"
+                        label={t("setup.slugLabel")}
+                      >
+                        <Input
+                          id="tenant-slug"
+                          placeholder={t("setup.slugPlaceholder")}
+                          className="h-12 rounded-2xl"
+                          {...register("slug", {
+                            onChange: () => {
+                              setSlugTouched(true);
+                              lastCheckedSlugRef.current = "";
+                            }
+                          })}
+                        />
+                      </Field>
+                    </div>
+
+                    <div
+                      className="rounded-2xl border border-line/70 bg-sand/45 p-4"
+                      aria-live="polite"
                     >
-                      <Input
-                        id="tenant-name"
-                        placeholder={t("setup.namePlaceholder")}
-                        {...register("name")}
-                      />
-                    </Field>
-
-                    <Field
-                      error={errors.slug?.message}
-                      htmlFor="tenant-slug"
-                      label={t("setup.slugLabel")}
-                    >
-                      <Input
-                        id="tenant-slug"
-                        placeholder={t("setup.slugPlaceholder")}
-                        {...register("slug", {
-                          onChange: () => {
-                            setSlugTouched(true);
-                            lastCheckedSlugRef.current = "";
-                          }
-                        })}
-                      />
-                    </Field>
-                  </div>
-
-                  <div
-                    className="rounded-3xl border border-line/70 bg-paper/80 p-4"
-                    aria-live="polite"
-                  >
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <div>
-                        <p className="text-sm font-semibold text-ink">
-                          {t("setup.slugPreviewTitle")}
-                        </p>
-                        <p className="mt-1 text-sm leading-6 text-ink-soft">
-                          {tenantSlug
-                            ? t("setup.slugHint", { slug: tenantSlug })
-                            : t("setup.slugPreviewEmpty")}
-                        </p>
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div className="space-y-1">
+                          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-muted">
+                            {t("setup.slugPreviewTitle")}
+                          </p>
+                          <p className="text-base font-semibold text-ink">
+                            {tenantSlug || "operapyme-demo"}
+                          </p>
+                          <p className="text-sm leading-6 text-ink-soft">
+                            {tenantSlug
+                              ? t("setup.slugHint", { slug: tenantSlug })
+                              : t("setup.slugPreviewEmpty")}
+                          </p>
+                        </div>
+                        <SlugAvailabilityBadge state={slugAvailability} t={t} />
                       </div>
-                      <SlugAvailabilityBadge
-                        state={slugAvailability}
-                        t={t}
+                    </div>
+
+                    <div className="grid gap-3 md:grid-cols-2">
+                      <InfoCard
+                        icon={Building2}
+                        title={t("setup.workspaceCards.tenantTitle")}
+                        text={t("setup.workspaceCards.tenantText")}
+                      />
+                      <InfoCard
+                        icon={Globe2}
+                        title={t("setup.workspaceCards.slugTitle")}
+                        text={t("setup.workspaceCards.slugText")}
                       />
                     </div>
                   </div>
+                ) : null}
 
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <InfoCard
-                      icon={Building2}
-                      title={t("setup.workspaceCards.tenantTitle")}
-                      text={t("setup.workspaceCards.tenantText")}
-                    />
-                    <InfoCard
-                      icon={Globe2}
-                      title={t("setup.workspaceCards.slugTitle")}
-                      text={t("setup.workspaceCards.slugText")}
-                    />
+                {currentStep === "branding" ? (
+                  <div className="space-y-5">
+                    <CompactTenantPaletteSelector />
+
+                    <div className="grid gap-3 md:grid-cols-2">
+                      <InfoCard
+                        icon={Layers3}
+                        title={t("setup.brandingCards.focusTitle")}
+                        text={t("setup.brandingCards.focusText")}
+                      />
+                      <InfoCard
+                        icon={Palette}
+                        title={t("setup.brandingCards.identityTitle")}
+                        text={t("setup.brandingCards.identityText")}
+                      />
+                    </div>
                   </div>
-                </div>
-              ) : null}
+                ) : null}
 
-              {currentStep === "branding" ? (
-                <div className="space-y-6">
-                  <CompactTenantPaletteSelector />
+                {currentStep === "review" ? (
+                  <div className="space-y-5">
+                    <div className="grid gap-3 sm:grid-cols-3">
+                      <ReviewCard
+                        label={t("setup.review.businessLabel")}
+                        value={tenantName || t("setup.review.pending")}
+                      />
+                      <ReviewCard
+                        label={t("setup.review.slugLabel")}
+                        value={tenantSlug || t("setup.review.pending")}
+                      />
+                      <ReviewCard
+                        label={t("setup.review.paletteLabel")}
+                        value={paletteName}
+                      />
+                    </div>
 
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <InfoCard
-                      icon={Layers3}
-                      title={t("setup.brandingCards.focusTitle")}
-                      text={t("setup.brandingCards.focusText")}
-                    />
-                    <InfoCard
-                      icon={Palette}
-                      title={t("setup.brandingCards.identityTitle")}
-                      text={t("setup.brandingCards.identityText")}
-                    />
-                  </div>
-                </div>
-              ) : null}
-
-              {currentStep === "review" ? (
-                <div className="space-y-6">
-                  <div className="grid gap-3 sm:grid-cols-3">
-                    <ReviewCard
-                      label={t("setup.review.businessLabel")}
-                      value={tenantName || t("setup.review.pending")}
-                    />
-                    <ReviewCard
-                      label={t("setup.review.slugLabel")}
-                      value={tenantSlug || t("setup.review.pending")}
-                    />
-                    <ReviewCard
-                      label={t("setup.review.paletteLabel")}
-                      value={paletteName}
-                    />
-                  </div>
-
-                  <div className="rounded-4xl border border-line/70 bg-sand/45 p-5">
-                    <p className="text-sm font-semibold text-ink">
-                      {t("setup.review.nextTitle")}
-                    </p>
-                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    <div className="grid gap-3 md:grid-cols-2">
                       <ReviewChecklistItem
                         title={t("setup.review.checklist.membershipTitle")}
                         text={t("setup.review.checklist.membershipText")}
@@ -476,19 +427,19 @@ export function SetupTenantPage() {
                       />
                     </div>
                   </div>
-                </div>
-              ) : null}
+                ) : null}
+              </div>
 
-              <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line/70 pt-5">
-                <div className="flex items-center gap-2 text-sm text-ink-soft">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line/70 bg-paper/90 px-5 py-4 sm:px-6">
+                <p className="text-sm text-ink-soft">
                   <span className="font-medium text-ink">
                     {t("setup.progressLabel", {
                       current: currentStepIndex + 1,
                       total: setupSteps.length
                     })}
-                  </span>
-                  <span>{t(`setup.steps.${currentStep}.title`)}</span>
-                </div>
+                  </span>{" "}
+                  {t(`setup.steps.${currentStep}.title`)}
+                </p>
 
                 <div className="flex flex-wrap gap-3">
                   {currentStepIndex > 0 ? (
@@ -532,9 +483,105 @@ export function SetupTenantPage() {
                 </div>
               </div>
             </form>
-          </CardContent>
-        </Card>
+          </Card>
+
+          <div className="space-y-4 xl:sticky xl:top-6 xl:self-start">
+            <Card className="border-line/80 bg-paper shadow-sm">
+              <CardHeader className="space-y-1 pb-3">
+                <CardTitle className="text-base">{t("setup.previewTitle")}</CardTitle>
+                <p className="text-sm leading-6 text-ink-soft">
+                  {t("setup.previewDescription")}
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <SummaryRow
+                  label={t("setup.review.businessLabel")}
+                  value={tenantName || t("setup.review.pending")}
+                />
+                <SummaryRow
+                  label={t("setup.review.slugLabel")}
+                  value={tenantSlug || t("setup.review.pending")}
+                />
+                <SummaryRow
+                  label={t("setup.review.paletteLabel")}
+                  value={paletteName}
+                />
+              </CardContent>
+            </Card>
+
+            <Card className="border-line/80 bg-paper shadow-sm">
+              <CardContent className="space-y-3 p-4">
+                {launchCards.map(({ icon: Icon, text, title }) => (
+                  <div
+                    key={title}
+                    className="rounded-2xl border border-line/70 bg-sand/35 p-4"
+                  >
+                    <div className="flex items-start gap-3">
+                      <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-brand-soft/20 text-brand">
+                        <Icon className="size-4" aria-hidden="true" />
+                      </span>
+                      <div className="space-y-1">
+                        <p className="text-sm font-semibold text-ink">{title}</p>
+                        <p className="text-sm leading-6 text-ink-soft">{text}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
+    </div>
+  );
+}
+
+function StepCard({
+  description,
+  index,
+  isActive,
+  isCompleted,
+  t,
+  title
+}: {
+  description: string;
+  index: number;
+  isActive: boolean;
+  isCompleted: boolean;
+  t: (key: string, options?: Record<string, unknown>) => string;
+  title: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "rounded-2xl border px-4 py-3 transition",
+        isActive
+          ? "border-brand bg-brand-soft/14 shadow-sm"
+          : "border-line/70 bg-paper/80",
+        isCompleted ? "border-brand/40" : ""
+      )}
+    >
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <span
+            className={cn(
+              "flex size-8 items-center justify-center rounded-full border text-sm font-semibold",
+              isActive || isCompleted
+                ? "border-brand/30 bg-brand text-brand-contrast"
+                : "border-line/80 bg-paper text-ink-soft"
+            )}
+          >
+            {index + 1}
+          </span>
+          <p className="text-sm font-semibold text-ink">{title}</p>
+        </div>
+        {isCompleted ? (
+          <Badge variant="outline" className="rounded-full border-brand/30 text-brand">
+            {t("setup.completed")}
+          </Badge>
+        ) : null}
+      </div>
+      <p className="mt-3 text-sm leading-6 text-ink-soft">{description}</p>
     </div>
   );
 }
@@ -551,12 +598,12 @@ function Field({
   label: string;
 }) {
   return (
-    <div className="space-y-2">
+    <div className="space-y-2.5">
       <label className="text-sm font-medium text-ink" htmlFor={htmlFor}>
         {label}
       </label>
       {children}
-      {error ? <p className="text-sm text-rose-900">{error}</p> : null}
+      {error ? <p className="text-sm text-rose-700">{error}</p> : null}
     </div>
   );
 }
@@ -571,10 +618,10 @@ function InfoCard({
   title: string;
 }) {
   return (
-    <div className="rounded-3xl border border-line/70 bg-paper/80 p-4">
+    <div className="rounded-2xl border border-line/70 bg-paper p-4">
       <div className="flex items-start gap-3">
-        <span className="flex size-10 items-center justify-center rounded-2xl bg-brand-soft/25 text-brand">
-          <Icon className="size-4.5" aria-hidden="true" />
+        <span className="flex size-10 items-center justify-center rounded-xl bg-brand-soft/16 text-brand">
+          <Icon className="size-4" aria-hidden="true" />
         </span>
         <div>
           <p className="text-sm font-semibold text-ink">{title}</p>
@@ -593,7 +640,7 @@ function ReviewCard({
   value: string;
 }) {
   return (
-    <div className="rounded-3xl border border-line/70 bg-paper/85 p-4">
+    <div className="rounded-2xl border border-line/70 bg-paper p-4">
       <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-ink-muted">
         {label}
       </p>
@@ -610,9 +657,26 @@ function ReviewChecklistItem({
   title: string;
 }) {
   return (
-    <div className="rounded-3xl border border-line/70 bg-paper/85 p-4">
+    <div className="rounded-2xl border border-line/70 bg-sand/35 p-4">
       <p className="text-sm font-semibold text-ink">{title}</p>
       <p className="mt-1 text-sm leading-6 text-ink-soft">{text}</p>
+    </div>
+  );
+}
+
+function SummaryRow({
+  label,
+  value
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-line/70 bg-sand/35 px-4 py-3">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-muted">
+        {label}
+      </p>
+      <p className="mt-2 text-sm font-semibold text-ink">{value}</p>
     </div>
   );
 }

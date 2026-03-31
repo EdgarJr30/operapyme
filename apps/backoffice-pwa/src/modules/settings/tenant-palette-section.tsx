@@ -89,9 +89,44 @@ export function TenantPaletteSection() {
 
 export function CompactTenantPaletteSelector() {
   const { t } = useTranslation("backoffice");
+  const { paletteId, palettes, customPalette, setPaletteId } = useTenantTheme();
+
+  const items: Array<{
+    id: ThemePaletteSelectionId;
+    palette: ThemePaletteDefinition;
+    contrastRatio: number;
+  }> = [
+    {
+      id: "custom",
+      palette: customPalette,
+      contrastRatio: getContrastRatio(
+        pickBestContrastColor(customPalette.colors.primary400),
+        customPalette.colors.primary400
+      )
+    },
+    ...palettes.map((palette) => ({
+      id: palette.id,
+      palette,
+      contrastRatio: getContrastRatio(
+        pickBestContrastColor(palette.colors.primary400),
+        palette.colors.primary400
+      )
+    }))
+  ];
+
+  const activeItem =
+    items.find((item) => item.id === paletteId) ?? items[0];
+
+  function showPaletteToast(nextPaletteId: ThemePaletteSelectionId) {
+    toast.success(t("settings.palette.toastTitle"), {
+      description: t("settings.palette.toastDescription", {
+        palette: t(`theme.palettes.${nextPaletteId}.name`, { ns: "common" })
+      })
+    });
+  }
 
   return (
-    <div className="space-y-3 rounded-3xl border border-line/70 bg-paper/76 p-4">
+    <div className="space-y-4 rounded-2xl border border-line/70 bg-paper p-5">
       <div className="space-y-1">
         <p className="text-sm font-semibold text-ink">
           {t("setup.paletteTitle")}
@@ -100,7 +135,85 @@ export function CompactTenantPaletteSelector() {
           {t("setup.paletteDescription")}
         </p>
       </div>
-      <PaletteSelectionGrid compact />
+
+      <div className="rounded-2xl border border-line/70 bg-sand/35 p-4">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="space-y-1">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-muted">
+              {t("setup.review.paletteLabel")}
+            </p>
+            <p className="text-base font-semibold text-ink">
+              {t(`theme.palettes.${activeItem.id}.name`, { ns: "common" })}
+            </p>
+            <p className="text-sm leading-6 text-ink-soft">
+              {t(`theme.palettes.${activeItem.id}.description`, {
+                ns: "common"
+              })}
+            </p>
+          </div>
+          <StatusPill tone="success">{t("settings.palette.active")}</StatusPill>
+        </div>
+
+        <div className="mt-4 flex items-center gap-2">
+          <PaletteSwatch color={activeItem.palette.colors.primary400} />
+          <PaletteSwatch color={activeItem.palette.colors.secondary400} />
+          <PaletteSwatch color={activeItem.palette.colors.tertiary400} />
+          <PaletteSwatch color={activeItem.palette.colors.paper} bordered />
+        </div>
+      </div>
+
+      <div className="grid gap-3 lg:grid-cols-2">
+        {items.map(({ id, palette, contrastRatio }) => {
+          const isSelected = id === paletteId;
+
+          return (
+            <button
+              key={id}
+              type="button"
+              aria-pressed={isSelected}
+              onClick={() => {
+                if (id !== paletteId) {
+                  setPaletteId(id);
+                  showPaletteToast(id);
+                }
+              }}
+              className={cn(
+                "rounded-2xl border p-4 text-left transition",
+                isSelected
+                  ? "border-brand bg-brand-soft/12 shadow-sm"
+                  : "border-line/70 bg-paper hover:border-brand/30 hover:bg-sand/28"
+              )}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="space-y-1">
+                  <p className="text-sm font-semibold text-ink">
+                    {t(`theme.palettes.${id}.name`, { ns: "common" })}
+                  </p>
+                  <p className="text-sm leading-6 text-ink-soft">
+                    {t(`theme.palettes.${id}.description`, { ns: "common" })}
+                  </p>
+                </div>
+                {isSelected ? (
+                  <span className="flex size-6 items-center justify-center rounded-full bg-brand text-brand-contrast">
+                    <Check className="size-3.5" aria-hidden="true" />
+                  </span>
+                ) : null}
+              </div>
+
+              <div className="mt-4 flex items-center gap-2">
+                <PaletteSwatch color={palette.colors.primary400} />
+                <PaletteSwatch color={palette.colors.secondary400} />
+                <PaletteSwatch color={palette.colors.tertiary400} />
+                <PaletteSwatch color={palette.colors.paper} bordered />
+              </div>
+
+              <p className="mt-4 text-xs font-medium text-ink-soft">
+                {t("settings.palette.contrastLabel")} {formatContrastRatio(contrastRatio)}
+              </p>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
