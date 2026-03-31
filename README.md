@@ -136,6 +136,7 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 - fundacion Supabase segura sembrada con enfoque RBAC, RLS y auditoria
 - auth del backoffice ya soporta magic link, password login para cuentas existentes y recovery de contrasena
 - bootstrap inicial de tenant sembrado con membership `tenant_owner`
+- `/setup` ya corre como wizard multipaso con validacion remota de slug unico antes de crear el tenant
 - modulo `/profile` ya permite definir o actualizar la contrasena de la cuenta autenticada
 - primeras tablas operativas `customers`, `leads`, `quotes` y `quote_line_items` sembradas con RLS, RPC y auditoria
 - tabla operativa `catalog_items` sembrada con RLS, auditoria y reglas base de precios por tenant

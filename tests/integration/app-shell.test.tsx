@@ -37,7 +37,12 @@ function renderRoute(route: string) {
       <MemoryRouter initialEntries={[route]}>
         <Routes>
           <Route path="/" element={<AppShell />}>
-          <Route index element={<div>Dashboard stub</div>} />
+            <Route index element={<div>Dashboard stub</div>} />
+            <Route path="commercial" element={<div>Commercial summary stub</div>} />
+            <Route path="commercial/leads" element={<div>Commercial leads stub</div>} />
+            <Route path="commercial/customers" element={<div>Commercial customers stub</div>} />
+            <Route path="commercial/quotes" element={<div>Commercial quotes stub</div>} />
+            <Route path="commercial/invoices" element={<div>Commercial invoices stub</div>} />
             <Route path="learning" element={<div>Learning stub</div>} />
             <Route path="quotes" element={<div>Quotes overview stub</div>} />
             <Route path="quotes/new" element={<div>Quotes new stub</div>} />
@@ -113,13 +118,16 @@ describe("backoffice shell", () => {
   });
 
   it("shows quote subroutes when the quotes module is active", async () => {
-    renderRoute("/quotes/manage");
+    renderRoute("/commercial/quotes");
 
     expect(
-      await screen.findByRole("link", { name: /^Gestionar cotizaciones$/i })
+      await screen.findByRole("link", { name: /^Resumen$/i })
     ).toBeInTheDocument();
     expect(
-      await screen.findByRole("link", { name: /^Nueva cotizacion$/i })
+      await screen.findByRole("link", { name: /^Cotizaciones$/i })
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByRole("link", { name: /^Facturas$/i })
     ).toBeInTheDocument();
   });
 
@@ -154,12 +162,8 @@ describe("backoffice shell", () => {
     renderRoute("/");
 
     expect(screen.queryByRole("link", { name: /^Admin$/i })).not.toBeInTheDocument();
-    expect(
-      await screen.findByRole("link", { name: /^Catalogo$/i })
-    ).toBeInTheDocument();
-    expect(
-      await screen.findByRole("link", { name: /^Configuracion$/i })
-    ).toBeInTheDocument();
+    expect((await screen.findAllByRole("link", { name: /^Catalogo$/i })).length).toBeGreaterThan(0);
+    expect((await screen.findAllByRole("link", { name: /^Configuracion$/i })).length).toBeGreaterThan(0);
     expect(
       (
         await screen.findAllByRole("button", {

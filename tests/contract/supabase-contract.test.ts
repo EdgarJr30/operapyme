@@ -33,6 +33,9 @@ const quoteDocumentDiscountMigrationPath = path.resolve(
 const tenantIsolationHardeningMigrationPath = path.resolve(
   "supabase/migrations/202603300001_tenant_isolation_hardening.sql"
 );
+const setupSlugValidationMigrationPath = path.resolve(
+  "supabase/migrations/20260331152000_setup_slug_validation.sql"
+);
 
 describe("supabase foundation contracts", () => {
   it("creates the required secure foundation tables", () => {
@@ -197,6 +200,23 @@ describe("supabase foundation contracts", () => {
     );
     expect(migration).toContain(
       "raise exception 'tenant_id is immutable once inserted'"
+    );
+  });
+
+  it("adds slug availability validation before bootstrapping the first tenant", () => {
+    const migration = fs.readFileSync(setupSlugValidationMigrationPath, "utf8");
+
+    expect(migration).toContain(
+      "create or replace function public.is_tenant_slug_available"
+    );
+    expect(migration).toContain(
+      "grant execute on function public.is_tenant_slug_available(text) to authenticated"
+    );
+    expect(migration).toContain(
+      "if not public.is_tenant_slug_available(normalized_slug) then"
+    );
+    expect(migration).toContain(
+      "raise exception 'Tenant slug is already in use'"
     );
   });
 });

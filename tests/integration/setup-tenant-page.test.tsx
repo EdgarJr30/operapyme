@@ -74,8 +74,17 @@ describe("setup tenant page", () => {
       status: "signed_in"
     });
 
-    supabaseMocks.rpc.mockResolvedValue({
-      error: null
+    supabaseMocks.rpc.mockImplementation(async (fn: string) => {
+      if (fn === "is_tenant_slug_available") {
+        return {
+          data: true,
+          error: null
+        };
+      }
+
+      return {
+        error: null
+      };
     });
   });
 
@@ -93,11 +102,24 @@ describe("setup tenant page", () => {
       expect(screen.getByLabelText(/Slug del tenant/i)).toHaveValue("opera-norte");
     });
 
+    await user.click(screen.getByRole("button", { name: /Continuar/i }));
+    expect(
+      await screen.findByRole("heading", { name: /Identidad inicial/i })
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /Continuar/i }));
+    expect(
+      await screen.findByRole("heading", { name: /Revisión final/i })
+    ).toBeInTheDocument();
+
     await user.click(
       screen.getByRole("button", { name: /Crear tenant y continuar/i })
     );
 
     await waitFor(() => {
+      expect(supabaseMocks.rpc).toHaveBeenCalledWith("is_tenant_slug_available", {
+        target_slug: "opera-norte"
+      });
       expect(supabaseMocks.rpc).toHaveBeenCalledWith("create_tenant_with_owner", {
         target_name: "Opera Norte",
         target_slug: "opera-norte"
@@ -107,13 +129,20 @@ describe("setup tenant page", () => {
     expect(await screen.findByText("Dashboard destination")).toBeInTheDocument();
   });
 
-  it("surfaces backend errors during bootstrap", async () => {
+  it("blocks the flow when the slug is already taken", async () => {
     const user = userEvent.setup();
 
-    supabaseMocks.rpc.mockResolvedValue({
-      error: {
-        message: "El slug ya existe"
+    supabaseMocks.rpc.mockImplementation(async (fn: string) => {
+      if (fn === "is_tenant_slug_available") {
+        return {
+          data: false,
+          error: null
+        };
       }
+
+      return {
+        error: null
+      };
     });
 
     renderRoute();
@@ -122,13 +151,13 @@ describe("setup tenant page", () => {
       screen.getByLabelText(/Nombre comercial/i),
       "Opera Norte"
     );
-    await user.click(
-      screen.getByRole("button", { name: /Crear tenant y continuar/i })
-    );
+    await user.click(screen.getByRole("button", { name: /Continuar/i }));
 
     await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith(
-        expect.stringContaining("El slug ya existe")
+      expect(screen.getByText(/ya está en uso/i)).toBeInTheDocument();
+      expect(supabaseMocks.rpc).not.toHaveBeenCalledWith(
+        "create_tenant_with_owner",
+        expect.anything()
       );
     });
   });

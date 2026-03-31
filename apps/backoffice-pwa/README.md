@@ -31,6 +31,8 @@ El `service role key` no vive aqui.
 - el primer ingreso sigue naciendo por magic link para no duplicar cuentas ni romper el onboarding actual
 - `/auth/callback` confirma sesiones tanto con `code` como con `token_hash`, resuelve recovery de contrasena y devuelve al login si el enlace ya no sirve
 - el primer usuario autenticado pasa por `/setup`
+- `/setup` ahora usa un wizard multipaso mobile-first para definir negocio, slug y branding inicial antes de abrir el shell
+- el slug del tenant se autogenera desde el nombre, puede editarse manualmente y valida disponibilidad real contra Supabase antes de avanzar o crear el tenant
 - el usuario autenticado ya tiene un modulo `/profile` para definir o actualizar su contrasena sin salir del backoffice
 - durante refresh o hidratacion de sesion, el router espera el `accessContext` antes de decidir entre shell o `/setup`, y muestra skeleton loaders de aplicacion en lugar de flashear la pantalla incorrecta
 - el bootstrap de auth ahora se apoya en eventos de Supabase + una hidratacion separada del `accessContext`, evitando trabajo duplicado en refresh
