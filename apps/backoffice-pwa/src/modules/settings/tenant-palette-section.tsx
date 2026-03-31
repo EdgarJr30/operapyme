@@ -162,7 +162,7 @@ export function CompactTenantPaletteSelector() {
         </div>
       </div>
 
-      <div className="grid gap-3 lg:grid-cols-2">
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {items.map(({ id, palette, contrastRatio }) => {
           const isSelected = id === paletteId;
 

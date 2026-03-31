@@ -244,7 +244,7 @@ export function SetupTenantPage() {
 
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,theme(colors.paper)_0%,theme(colors.sand/35)_100%)]">
-      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <Badge variant="outline" className="rounded-full px-3 py-1 text-[11px] uppercase tracking-[0.2em]">
             {t("setup.eyebrow")}
@@ -260,7 +260,7 @@ export function SetupTenantPage() {
           </p>
         </div>
 
-        <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="grid gap-4 xl:grid-cols-[minmax(0,1.45fr)_380px]">
           <Card className="overflow-hidden border-line/80 bg-paper shadow-panel">
             <div className="border-b border-line/70 bg-[linear-gradient(180deg,theme(colors.paper)_0%,theme(colors.sand/45)_100%)] px-5 py-6 sm:px-6">
               <div className="space-y-3">
@@ -300,58 +300,60 @@ export function SetupTenantPage() {
 
                 {currentStep === "workspace" ? (
                   <div className="space-y-6">
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <Field
-                        error={errors.name?.message}
-                        htmlFor="tenant-name"
-                        label={t("setup.nameLabel")}
-                      >
-                        <Input
-                          id="tenant-name"
-                          placeholder={t("setup.namePlaceholder")}
-                          className="h-12 rounded-2xl"
-                          {...register("name")}
-                        />
-                      </Field>
+                    <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
+                      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-2">
+                        <Field
+                          error={errors.name?.message}
+                          htmlFor="tenant-name"
+                          label={t("setup.nameLabel")}
+                        >
+                          <Input
+                            id="tenant-name"
+                            placeholder={t("setup.namePlaceholder")}
+                            className="h-12 rounded-2xl"
+                            {...register("name")}
+                          />
+                        </Field>
 
-                      <Field
-                        error={errors.slug?.message}
-                        htmlFor="tenant-slug"
-                        label={t("setup.slugLabel")}
-                      >
-                        <Input
-                          id="tenant-slug"
-                          placeholder={t("setup.slugPlaceholder")}
-                          className="h-12 rounded-2xl"
-                          {...register("slug", {
-                            onChange: () => {
-                              setSlugTouched(true);
-                              lastCheckedSlugRef.current = "";
-                            }
-                          })}
-                        />
-                      </Field>
-                    </div>
+                        <Field
+                          error={errors.slug?.message}
+                          htmlFor="tenant-slug"
+                          label={t("setup.slugLabel")}
+                        >
+                          <Input
+                            id="tenant-slug"
+                            placeholder={t("setup.slugPlaceholder")}
+                            className="h-12 rounded-2xl"
+                            {...register("slug", {
+                              onChange: () => {
+                                setSlugTouched(true);
+                                lastCheckedSlugRef.current = "";
+                              }
+                            })}
+                          />
+                        </Field>
+                      </div>
 
-                    <div
-                      className="rounded-2xl border border-line/70 bg-sand/45 p-4"
-                      aria-live="polite"
-                    >
-                      <div className="flex flex-wrap items-start justify-between gap-3">
-                        <div className="space-y-1">
-                          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-muted">
-                            {t("setup.slugPreviewTitle")}
-                          </p>
-                          <p className="text-base font-semibold text-ink">
-                            {tenantSlug || "operapyme-demo"}
-                          </p>
-                          <p className="text-sm leading-6 text-ink-soft">
-                            {tenantSlug
-                              ? t("setup.slugHint", { slug: tenantSlug })
-                              : t("setup.slugPreviewEmpty")}
-                          </p>
+                      <div
+                        className="rounded-2xl border border-line/70 bg-sand/45 p-4"
+                        aria-live="polite"
+                      >
+                        <div className="flex h-full flex-wrap items-start justify-between gap-3">
+                          <div className="space-y-1">
+                            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-muted">
+                              {t("setup.slugPreviewTitle")}
+                            </p>
+                            <p className="text-base font-semibold text-ink">
+                              {tenantSlug || "operapyme-demo"}
+                            </p>
+                            <p className="text-sm leading-6 text-ink-soft">
+                              {tenantSlug
+                                ? t("setup.slugHint", { slug: tenantSlug })
+                                : t("setup.slugPreviewEmpty")}
+                            </p>
+                          </div>
+                          <SlugAvailabilityBadge state={slugAvailability} t={t} />
                         </div>
-                        <SlugAvailabilityBadge state={slugAvailability} t={t} />
                       </div>
                     </div>
 
@@ -372,19 +374,23 @@ export function SetupTenantPage() {
 
                 {currentStep === "branding" ? (
                   <div className="space-y-5">
-                    <CompactTenantPaletteSelector />
+                    <div
+                      className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_260px]"
+                    >
+                      <CompactTenantPaletteSelector />
 
-                    <div className="grid gap-3 md:grid-cols-2">
-                      <InfoCard
-                        icon={Layers3}
-                        title={t("setup.brandingCards.focusTitle")}
-                        text={t("setup.brandingCards.focusText")}
-                      />
-                      <InfoCard
-                        icon={Palette}
-                        title={t("setup.brandingCards.identityTitle")}
-                        text={t("setup.brandingCards.identityText")}
-                      />
+                      <div className="grid gap-3">
+                        <InfoCard
+                          icon={Layers3}
+                          title={t("setup.brandingCards.focusTitle")}
+                          text={t("setup.brandingCards.focusText")}
+                        />
+                        <InfoCard
+                          icon={Palette}
+                          title={t("setup.brandingCards.identityTitle")}
+                          text={t("setup.brandingCards.identityText")}
+                        />
+                      </div>
                     </div>
                   </div>
                 ) : null}
