@@ -129,6 +129,7 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 - Linear alineado con el nuevo nombre temporal
 - scaffold inicial del backoffice en progreso
 - shell operativo del backoffice alineado con sidebar desktop, navbar superior y bottom navigation movil
+- shell del backoffice ya migrado a `shadcn/ui` sidebar con base `Radix UI`, manteniendo la misma estructura operativa de navegacion
 - soporte `light` / `dark` / `system` activo en el backoffice
 - refresh del backoffice aligerado con auth bootstrap deduplicado, rutas criticas diferidas, PDF fuera del bundle inicial y soporte global diferido para toast/permisos
 - baseline de testing y contratos del repo sembrados

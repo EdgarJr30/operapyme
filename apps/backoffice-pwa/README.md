@@ -36,6 +36,7 @@ El `service role key` no vive aqui.
 - el bootstrap de auth ahora se apoya en eventos de Supabase + una hidratacion separada del `accessContext`, evitando trabajo duplicado en refresh
 - el shell principal solo abre cuando ya existe membership activa en un tenant
 - el shell principal del backoffice ahora usa sidebar persistente en desktop, navbar superior con breadcrumbs y acciones globales, drawer movil y bottom navigation tipo app
+- el sidebar del shell ahora corre sobre `shadcn/ui` con base `Radix UI`, reemplazando la implementacion custom anterior sin cambiar la estructura operativa del menu
 - el shell usa `motion.dev` para transiciones de pagina, drawer movil, panel de notificaciones y menu de usuario
 - el cambio de tenant vive en el shell para mantener el contexto multi-tenant visible en toda la operacion
 - la navegacion movil deja los modulos principales en tabs inferiores y mueve configuracion o admin al menu extendido
