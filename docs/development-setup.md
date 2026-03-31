@@ -60,6 +60,26 @@ Reglas:
 - Despues de editar `~/.codex/config.toml`, recargar Codex o VS Code para que relea la configuracion.
 - Si una automatizacion no sabe que alias usar, debe usar `supabase_operapyme`.
 
+## shadcn/ui CLI y MCP
+
+Segun la documentacion oficial de `shadcn`, el MCP usa `components.json` para entender donde instalar componentes y, en Codex, el servidor debe declararse manualmente en `~/.codex/config.toml`.
+
+En `OperaPyme`:
+
+- la app preparada para `shadcn` es `apps/backoffice-pwa`
+- el archivo canonico es `apps/backoffice-pwa/components.json`
+- cualquier comando de `shadcn` para el backoffice debe correrse con `--cwd apps/backoffice-pwa`
+
+Configuracion MCP recomendada para Codex:
+
+```toml
+[mcp_servers.shadcn]
+command = "npx"
+args = ["shadcn@latest", "mcp"]
+```
+
+Despues de editar `~/.codex/config.toml`, reiniciar Codex para que cargue el servidor nuevo.
+
 ## Flujo local recomendado
 
 1. Instalar dependencias.

@@ -72,3 +72,11 @@ Esta app usa Tailwind v4 en modo CSS-first.
 - import base en `src/app/styles.css`
 - tema compartido en `../../packages/ui/src/theme/theme.css`
 - usar utilidades canónicas de Tailwind cuando existan equivalentes; no dejar clases arbitrarias como `h-[46px]`, `max-w-[32rem]`, `rounded-[24px]` o `[background-size:18px_18px]` si el framework ya ofrece `h-11.5`, `max-w-lg`, `rounded-3xl` o `bg-size-[18px_18px]`
+
+## shadcn/ui y MCP
+
+- Esta app ya queda preparada para `shadcn` CLI y su MCP con `components.json` en `apps/backoffice-pwa/components.json`.
+- En este repo, cualquier `add` de `shadcn` para el backoffice debe ejecutarse con `--cwd apps/backoffice-pwa`.
+- El destino canonico de componentes UI generados es `apps/backoffice-pwa/src/components/ui`.
+- Los aliases esperados por `shadcn` en esta app son `@/components`, `@/components/ui`, `@/lib` y `@/lib/utils`.
+- Para Codex, el servidor MCP de `shadcn` se declara en `~/.codex/config.toml`; no se autogenera desde el CLI segun la documentacion oficial.

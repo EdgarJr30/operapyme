@@ -58,6 +58,7 @@
 - Evitar utilidades arbitrarias de tamano, radio, ancho o propiedades inline cuando Tailwind ya tenga una clase estandar.
 - Antes de dejar una clase como `h-[46px]`, `max-w-[32rem]`, `rounded-[24px]` o `[background-size:18px_18px]`, comprobar si existe una forma canonica como `h-11.5`, `max-w-lg`, `rounded-3xl` o `bg-size-[18px_18px]`.
 - Si el editor sugiere `suggestCanonicalClasses`, tomarlo como correccion esperada y no como warning opcional.
+- Los componentes generados con `shadcn` CLI o MCP para esta app deben instalarse bajo `src/components/ui` usando `apps/backoffice-pwa/components.json` como fuente de verdad.
 
 ## Reglas de producto
 
