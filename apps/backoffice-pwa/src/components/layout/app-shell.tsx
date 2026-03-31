@@ -26,7 +26,6 @@ import {
   type SidebarSection
 } from "@/components/layout/backoffice-sidebar";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
-import { ThemeToggleButton } from "@/components/layout/theme-toggle-button";
 import {
   pageTransitionVariants,
   popoverVariants
@@ -391,8 +390,6 @@ export function AppShell() {
                       ) : null}
                     </AnimatePresence>
                   </div>
-
-                  <ThemeToggleButton />
 
                   <div ref={userLayerRef} className="relative">
                     <button

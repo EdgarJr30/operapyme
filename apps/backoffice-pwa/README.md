@@ -54,13 +54,13 @@ El `service role key` no vive aqui.
 - el bootstrap de i18n ahora usa interpolacion nativa de i18next con placeholders simples y evita pagar `i18next-icu` en el primer paint
 - el toaster global y la pantalla de acceso denegado salen por carga diferida, dejando `feedback-vendor` e `icons-vendor` fuera del bundle inicial
 - el bundle base del backoffice ahora separa vendors por dominio, difiere `auth`, `setup`, shell y capa de queries, agrega resource hints hacia Supabase y protege el arranque con un check automatico de presupuesto en `tools/performance/check-backoffice-bundle.mjs`
-- `settings` y `/setup` ya permiten elegir presets de branding y una paleta propia basica desde cuatro colores base, con preview en vivo para backoffice y storefront
+- el backoffice queda fijado en `light` y toma como base visual activa `#2D3E50 / #FF7A00 / #4B637A / #F4F7F9`
 
 ## Shell y navegacion
 
 - desktop: sidebar fijo, sin scroll, compacto y utility-first; el contenido principal nunca mueve el rail al hacer scroll
 - desktop: tipografia, controles y bloques con densidad mas compacta para evitar cards infladas y mantener una lectura mas sobria y profesional
-- header: breadcrumbs, busqueda corta, notificaciones operativas, toggle de tema y menu de usuario
+- header: breadcrumbs, busqueda corta, notificaciones operativas y menu de usuario
 - mobile: tab bar inferior para `Inicio`, `Gestion Comercial` y `Catalogo`, con el resto en un drawer lateral mas directo y consistente con el sidebar desktop
 - `Catalogo` vive en el menu extendido para priorizar captura y seguimiento comercial rapido en movil
 - `Aprendizaje` vive en el menu extendido como espacio separado para onboarding, guias y buenas practicas de uso

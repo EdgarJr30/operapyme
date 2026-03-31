@@ -48,7 +48,7 @@ La interfaz debe sentirse:
 
 - el shell principal debe dar contexto antes que decoracion
 - usar navbar superior fija con breadcrumbs, busqueda corta y acciones globales de alto valor
-- dejar notificaciones, cambio de tema y menu de usuario en la barra superior, no escondidos dentro del contenido
+- dejar notificaciones y menu de usuario en la barra superior, no escondidos dentro del contenido
 - en desktop, el sidebar puede ser mas utilitario y denso si mejora orientacion y velocidad de acceso
 - el sidebar desktop puede usar una superficie contrastada y compacta siempre que conserve legibilidad, tenant visible y estado colapsado opcional
 - el sidebar desktop del backoffice debe comportarse como un rail fijo; el scroll del contenido no puede desplazar ni convertir el rail en un panel scrolleable

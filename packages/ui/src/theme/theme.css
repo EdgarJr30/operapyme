@@ -41,43 +41,43 @@
 
 :root {
   color-scheme: light;
-  --vf-light-paper: #fffaf6;
-  --vf-light-sand: #f6eee8;
-  --vf-light-sand-strong: #eee1d7;
-  --vf-light-line: #d9c9bd;
-  --vf-light-line-strong: #c7b5a7;
-  --vf-light-ink: #201914;
-  --vf-light-ink-soft: #574b42;
-  --vf-light-ink-muted: #7d6f66;
-  --vf-light-primary-200: #d9e4d8;
-  --vf-light-primary-300: #c3d4c2;
-  --vf-light-primary-400: #9fb59e;
-  --vf-light-secondary-200: #dce5ee;
-  --vf-light-secondary-300: #c6d5e3;
-  --vf-light-secondary-400: #a6bace;
-  --vf-light-tertiary-200: #efd8d0;
-  --vf-light-tertiary-300: #e3c0b7;
-  --vf-light-tertiary-400: #cda091;
-  --vf-light-highlight-200: #eadfbf;
+  --vf-light-paper: #f4f7f9;
+  --vf-light-sand: #ecf1f5;
+  --vf-light-sand-strong: #e0e7ee;
+  --vf-light-line: #c8d2dc;
+  --vf-light-line-strong: #b2bfcb;
+  --vf-light-ink: #1f2b37;
+  --vf-light-ink-soft: #4b637a;
+  --vf-light-ink-muted: #6e8296;
+  --vf-light-primary-200: #c6d1dc;
+  --vf-light-primary-300: #9fafbf;
+  --vf-light-primary-400: #2d3e50;
+  --vf-light-secondary-200: #ffd4b3;
+  --vf-light-secondary-300: #ffb97f;
+  --vf-light-secondary-400: #ff7a00;
+  --vf-light-tertiary-200: #d6dee6;
+  --vf-light-tertiary-300: #a4b3c2;
+  --vf-light-tertiary-400: #4b637a;
+  --vf-light-highlight-200: #ffe7cf;
   --vf-light-brand: var(--vf-light-primary-400);
-  --vf-light-brand-hover: #8ba28a;
+  --vf-light-brand-hover: #243445;
   --vf-light-brand-soft: var(--vf-light-primary-200);
-  --vf-light-brand-contrast: #201914;
-  --vf-light-sidebar-surface: #343a38;
-  --vf-light-sidebar-elevated: #49565f;
-  --vf-light-sidebar-border: #4b514f;
-  --vf-light-sidebar-text: #f7f3ee;
-  --vf-light-sidebar-muted: #bec9d0;
-  --vf-light-sidebar-accent: #a0b6aa;
-  --vf-light-sidebar-accent-hover: #aabeb3;
-  --vf-light-sidebar-accent-contrast: #201914;
+  --vf-light-brand-contrast: #f4f7f9;
+  --vf-light-sidebar-surface: #2d3e50;
+  --vf-light-sidebar-elevated: #395066;
+  --vf-light-sidebar-border: #50687f;
+  --vf-light-sidebar-text: #f4f7f9;
+  --vf-light-sidebar-muted: #d0dae4;
+  --vf-light-sidebar-accent: #ffb97f;
+  --vf-light-sidebar-accent-hover: #ffc996;
+  --vf-light-sidebar-accent-contrast: #2d3e50;
   --vf-light-app-background:
-    radial-gradient(circle at top left, rgba(220, 229, 238, 0.62), transparent 32%),
-    radial-gradient(circle at top right, rgba(217, 228, 216, 0.72), transparent 28%),
-    radial-gradient(circle at bottom left, rgba(239, 216, 208, 0.66), transparent 34%),
-    #f6eee8;
+    radial-gradient(circle at top left, rgba(75, 99, 122, 0.12), transparent 32%),
+    radial-gradient(circle at top right, rgba(255, 122, 0, 0.12), transparent 24%),
+    radial-gradient(circle at bottom left, rgba(45, 62, 80, 0.08), transparent 30%),
+    #f4f7f9;
   --vf-light-hero-background:
-    linear-gradient(135deg, rgba(217, 228, 216, 0.82), rgba(255, 250, 246, 0.92) 42%, rgba(220, 229, 238, 0.84));
+    linear-gradient(135deg, rgba(198, 209, 220, 0.92), rgba(244, 247, 249, 0.98) 42%, rgba(255, 212, 179, 0.9));
   --vf-dark-paper: #20201d;
   --vf-dark-sand: #1d1d1b;
   --vf-dark-sand-strong: #363834;
@@ -115,8 +115,8 @@
     #1d1d1b;
   --vf-dark-hero-background:
     linear-gradient(135deg, rgba(105, 129, 119, 0.42), rgba(32, 32, 29, 0.92) 42%, rgba(113, 136, 158, 0.38));
-  --vf-shadow-soft: 0 24px 80px -42px rgba(63, 43, 24, 0.28);
-  --vf-shadow-panel: 0 18px 45px -34px rgba(43, 24, 7, 0.22);
+  --vf-shadow-soft: 0 24px 80px -42px rgba(31, 43, 55, 0.18);
+  --vf-shadow-panel: 0 18px 45px -34px rgba(31, 43, 55, 0.12);
   --vf-shadow-soft-dark: 0 24px 80px -46px rgba(0, 0, 0, 0.72);
   --vf-shadow-panel-dark: 0 18px 45px -30px rgba(0, 0, 0, 0.58);
   --vf-active-paper: var(--vf-light-paper);

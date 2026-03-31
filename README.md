@@ -130,7 +130,7 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 - scaffold inicial del backoffice en progreso
 - shell operativo del backoffice alineado con sidebar desktop, navbar superior y bottom navigation movil
 - shell del backoffice ya migrado a `shadcn/ui` sidebar con base `Radix UI`, manteniendo la misma estructura operativa de navegacion
-- soporte `light` / `dark` / `system` activo en el backoffice
+- backoffice fijado en `light` con paleta operativa `#2D3E50 / #FF7A00 / #4B637A / #F4F7F9`
 - refresh del backoffice aligerado con auth bootstrap deduplicado, rutas criticas diferidas, PDF fuera del bundle inicial y soporte global diferido para toast/permisos
 - baseline de testing y contratos del repo sembrados
 - fundacion Supabase segura sembrada con enfoque RBAC, RLS y auditoria

@@ -130,13 +130,13 @@ function buildDerivedPaletteColors(seeds: ThemePaletteSeedColors): ThemePaletteC
   };
 }
 
-export const defaultThemePaletteId: ThemePaletteId = "linen";
+export const defaultThemePaletteId: ThemePaletteSelectionId = "custom";
 
 export const defaultCustomThemePaletteSeeds: ThemePaletteSeedColors = {
-  paper: "#fff8f3",
-  primary: "#8aa08f",
-  secondary: "#97abc2",
-  tertiary: "#c58f7f"
+  paper: "#f4f7f9",
+  primary: "#2d3e50",
+  secondary: "#ff7a00",
+  tertiary: "#4b637a"
 };
 
 export const tenantThemePalettes = [

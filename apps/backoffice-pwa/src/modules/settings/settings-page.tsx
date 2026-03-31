@@ -3,7 +3,6 @@ import { Shield, SmartphoneCharging, Webhook } from "lucide-react";
 import { useTranslation } from "@operapyme/i18n";
 
 import { TenantPaletteSection } from "@/modules/settings/tenant-palette-section";
-import { ThemeSwitcher } from "@/components/layout/theme-switcher";
 import {
   Card,
   CardContent,
@@ -84,23 +83,6 @@ export function SettingsPage() {
                 </li>
               ))}
             </ol>
-          </CardContent>
-        </Card>
-      </section>
-
-      <section>
-        <Card className="bg-paper">
-          <CardHeader>
-            <CardTitle>{t("settings.theme.title")}</CardTitle>
-            <CardDescription>
-              {t("settings.theme.description")}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ThemeSwitcher />
-            <p className="text-sm leading-6 text-ink-soft">
-              {t("settings.theme.helper")}
-            </p>
           </CardContent>
         </Card>
       </section>

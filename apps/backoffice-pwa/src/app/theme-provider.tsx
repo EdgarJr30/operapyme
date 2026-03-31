@@ -51,15 +51,17 @@ export function BackofficeThemeProvider({ children }: PropsWithChildren) {
   return (
     <NextThemesProvider
       attribute="class"
-      defaultTheme="system"
+      defaultTheme="light"
       disableTransitionOnChange
       enableColorScheme
-      enableSystem
-      storageKey="operapyme-backoffice-theme"
+      enableSystem={false}
+      forcedTheme="light"
+      storageKey="operapyme-backoffice-theme-v2"
     >
       <TenantThemeProvider
         appMode="backoffice"
-        storageKey="operapyme.demo-tenant.palette"
+        defaultPaletteId="custom"
+        storageKey="operapyme.backoffice.palette.v2"
       >
         <ThemeMetaSync />
         {children}
