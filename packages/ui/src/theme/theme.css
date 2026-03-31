@@ -100,14 +100,14 @@
   --vf-dark-brand-hover: #9bb9a3;
   --vf-dark-brand-soft: var(--vf-dark-primary-200);
   --vf-dark-brand-contrast: #201914;
-  --vf-dark-sidebar-surface: #20231f;
-  --vf-dark-sidebar-elevated: #354149;
-  --vf-dark-sidebar-border: #363936;
-  --vf-dark-sidebar-text: #f6f1ea;
-  --vf-dark-sidebar-muted: #a9afbb;
-  --vf-dark-sidebar-accent: #92b5a9;
-  --vf-dark-sidebar-accent-hover: #9ec0b5;
-  --vf-dark-sidebar-accent-contrast: #201914;
+  --vf-dark-sidebar-surface: #1a2636;
+  --vf-dark-sidebar-elevated: #253546;
+  --vf-dark-sidebar-border: #344b5e;
+  --vf-dark-sidebar-text: #e8eef4;
+  --vf-dark-sidebar-muted: #8fa3b8;
+  --vf-dark-sidebar-accent: #4b7a9e;
+  --vf-dark-sidebar-accent-hover: #5a8db3;
+  --vf-dark-sidebar-accent-contrast: #e8eef4;
   --vf-dark-app-background:
     radial-gradient(circle at top left, rgba(113, 136, 158, 0.42), transparent 32%),
     radial-gradient(circle at top right, rgba(105, 129, 119, 0.46), transparent 28%),
