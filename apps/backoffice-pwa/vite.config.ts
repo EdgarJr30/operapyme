@@ -87,8 +87,19 @@ export default defineConfig(({ mode }) => {
               return "supabase-vendor";
             }
 
+            if (id.includes("next-themes")) {
+              return "theme-vendor";
+            }
+
             if (id.includes("@tanstack/react-query")) {
               return "query-vendor";
+            }
+
+            if (
+              id.includes("/clsx/") ||
+              id.includes("/tailwind-merge/")
+            ) {
+              return "class-utils-vendor";
             }
 
             if (
@@ -116,6 +127,21 @@ export default defineConfig(({ mode }) => {
 
             if (id.includes("/sonner/")) {
               return "feedback-vendor";
+            }
+
+            if (
+              id.includes("/motion/") ||
+              id.includes("/motion-dom/") ||
+              id.includes("/framer-motion/")
+            ) {
+              return "motion-vendor";
+            }
+
+            if (
+              id.includes("/@radix-ui/") ||
+              id.includes("/@floating-ui/")
+            ) {
+              return "radix-vendor";
             }
 
             if (id.includes("react-router")) {
