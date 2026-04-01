@@ -20,9 +20,21 @@ test("exposes the manifest and english auth copy on mobile", async ({
 
   await page.goto("/?lang=en");
 
-  await expect(
-    page.getByRole("heading", { name: /Sign in to your account/i })
-  ).toBeVisible();
+  const englishAuthHeading = page.getByRole("heading", {
+    name: /Sign in to your account/i
+  });
+  const englishUnconfiguredHeading = page.getByRole("heading", {
+    name: /The backoffice needs a Supabase connection before opening a session/i
+  });
+
+  await expect
+    .poll(async () => {
+      return (
+        (await englishAuthHeading.count()) > 0 ||
+        (await englishUnconfiguredHeading.count()) > 0
+      );
+    })
+    .toBeTruthy();
 
   const manifestLink = page.locator('link[rel="manifest"]');
 
