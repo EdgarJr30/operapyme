@@ -23,6 +23,14 @@ VITE_SUPABASE_PUBLISHABLE_KEY=
 
 El `service role key` no vive aqui.
 
+## Deploy
+
+- el deploy del backoffice queda preparado para Netlify con [netlify.toml](../../netlify.toml)
+- el directorio publicado es `apps/backoffice-pwa/dist`
+- la app se publica como SPA y redirige rutas a `index.html`
+- la CD de produccion vive en [netlify-deploy.yml](../../.github/workflows/netlify-deploy.yml)
+- la CI del repo vive en [ci.yml](../../.github/workflows/ci.yml)
+
 ## Acceso y bootstrap
 
 - la entrada de fase 2 vive en `/auth`

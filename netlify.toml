@@ -1,0 +1,13 @@
+[build]
+  base = "."
+  command = "npm run build:backoffice"
+  publish = "apps/backoffice-pwa/dist"
+
+[build.environment]
+  NODE_VERSION = "24"
+  NPM_VERSION = "11"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

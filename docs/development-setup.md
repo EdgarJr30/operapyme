@@ -27,6 +27,25 @@ npm run test:e2e:smoke
 npm run verify
 ```
 
+## CI/CD
+
+El repo ya queda preparado con:
+
+- CI en `.github/workflows/ci.yml`
+- CD a Netlify en `.github/workflows/netlify-deploy.yml`
+- configuracion de build en `netlify.toml`
+
+Secrets esperados en GitHub para deploy:
+
+```bash
+NETLIFY_AUTH_TOKEN=
+NETLIFY_SITE_ID=
+VITE_SUPABASE_URL=
+VITE_SUPABASE_PUBLISHABLE_KEY=
+```
+
+El detalle operativo vive en `docs/deployment/netlify-cicd.md`.
+
 ## Variables de entorno
 
 Crear `apps/backoffice-pwa/.env.local` usando como base:

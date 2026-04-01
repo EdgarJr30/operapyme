@@ -104,6 +104,7 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 - [docs/governance/SUPABASE_RULES.md](./docs/governance/SUPABASE_RULES.md): reglas obligatorias para esquema, politicas y operaciones sensibles.
 - [docs/project-naming.md](./docs/project-naming.md): estado del nombre temporal y criterios para un renombre futuro.
 - [docs/product/QUOTE_MODULE_GUIDELINES.md](./docs/product/QUOTE_MODULE_GUIDELINES.md): criterio de producto, research y decisiones de implementacion para cotizaciones.
+- [docs/deployment/netlify-cicd.md](./docs/deployment/netlify-cicd.md): CI en GitHub Actions y CD del backoffice en Netlify.
 - [docs/treinta-research-rd.md](./docs/treinta-research-rd.md): research de referencia sobre Treinta y los patrones que si conviene tomar.
 - [AGENTS.md](./AGENTS.md): reglas globales del repo.
 
@@ -131,6 +132,8 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 - shell operativo del backoffice alineado con sidebar desktop, navbar superior y bottom navigation movil
 - shell del backoffice ya migrado a `shadcn/ui` sidebar con base `Radix UI`, manteniendo la misma estructura operativa de navegacion
 - backoffice fijado en `light` con paleta operativa `#2D3E50 / #FF7A00 / #4B637A / #F4F7F9`
+- CI sembrado en GitHub Actions con quality checks y smoke E2E
+- CD sembrado hacia Netlify para publicar `apps/backoffice-pwa` cuando `main` pasa CI
 - refresh del backoffice aligerado con auth bootstrap deduplicado, rutas criticas diferidas, PDF fuera del bundle inicial y soporte global diferido para toast/permisos
 - baseline de testing y contratos del repo sembrados
 - fundacion Supabase segura sembrada con enfoque RBAC, RLS y auditoria
