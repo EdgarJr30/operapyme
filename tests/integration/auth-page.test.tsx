@@ -58,7 +58,7 @@ describe("auth page", () => {
 
     expect(
       await screen.findByRole("heading", {
-        name: /Sincronizado en todos tus dispositivos/i
+        name: /Activa tu operacion comercial desde el primer acceso/i
       })
     ).toBeInTheDocument();
     expect(
@@ -68,8 +68,8 @@ describe("auth page", () => {
       screen.getByRole("button", { name: /Entrar con contrasena/i })
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /Crea tu cuenta/i })
-    ).toBeInTheDocument();
+      screen.getAllByRole("button", { name: /Crea tu cuenta/i }).length
+    ).toBeGreaterThan(0);
     expect(
       screen.getByRole("button", { name: /^Magic link$/i })
     ).toBeInTheDocument();
@@ -135,7 +135,7 @@ describe("auth page", () => {
     renderRoute();
 
     await user.click(
-      await screen.findByRole("button", { name: /Crea tu cuenta/i })
+      (await screen.findAllByRole("button", { name: /Crea tu cuenta/i }))[0]
     );
 
     expect(
