@@ -280,11 +280,11 @@ function buildSidebarVariables(
   }
 
   const lightSidebarSurface = mixHex("#111217", palette.colors.primary400, 0.26);
-  const lightSidebarElevated = mixHex(lightSidebarSurface, palette.colors.secondary400, 0.18);
-  const lightSidebarAccent = mixHex(palette.colors.primary400, palette.colors.secondary400, 0.18);
+  const lightSidebarElevated = mixHex(lightSidebarSurface, "#ffffff", 0.08);
+  const lightSidebarAccent = palette.colors.primary400;
   const darkSidebarSurface = mixHex("#0a0d12", darkPalette.primary300, 0.22);
-  const darkSidebarElevated = mixHex(darkSidebarSurface, darkPalette.secondary300, 0.2);
-  const darkSidebarAccent = mixHex(darkPalette.primary400, darkPalette.secondary400, 0.18);
+  const darkSidebarElevated = mixHex(darkSidebarSurface, "#ffffff", 0.12);
+  const darkSidebarAccent = darkPalette.primary400;
 
   return {
     "--vf-light-sidebar-surface": lightSidebarSurface,
