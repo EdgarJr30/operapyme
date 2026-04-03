@@ -326,7 +326,7 @@ export function CommercialCustomersPage() {
               }
             />
           ) : (
-            <Table className="min-w-[760px]">
+            <Table className="min-w-190">
               <TableHeader>
                 <TableRow>
                   <TableHead className="pl-0">

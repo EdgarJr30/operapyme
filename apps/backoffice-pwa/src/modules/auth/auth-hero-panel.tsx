@@ -546,7 +546,7 @@ export function AuthHeroPanel({ aside }: AuthHeroPanelProps) {
                   {t('auth.landing.primaryFeatures.description')}
                 </p>
               </div>
-              <div className="relative -z-20 min-h-[26rem] overflow-hidden rounded-2xl bg-gradient-to-br from-slate-800 via-slate-900 to-indigo-950 p-6 shadow-xl ring-1 ring-white/10 lg:row-span-4">
+              <div className="relative -z-20 min-h-104 overflow-hidden rounded-2xl bg-linear-to-br from-slate-800 via-slate-900 to-indigo-950 p-6 shadow-xl ring-1 ring-white/10 lg:row-span-4">
                 <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur">
                   <div className="flex items-center justify-between">
                     <div>
