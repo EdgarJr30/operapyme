@@ -6,7 +6,10 @@ import {
   ChevronRight,
   LogOut,
   Menu,
+  Monitor,
+  MoonStar,
   Search,
+  SunMedium,
   UserRound
 } from "lucide-react";
 import { getPrimaryTenantMembership, isGlobalAuditVisible } from "@operapyme/domain";
@@ -26,7 +29,8 @@ import {
   type SidebarSection
 } from "@/components/layout/backoffice-sidebar";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
-import { ThemeToggleButton } from "@/components/layout/theme-toggle-button";
+import { useTheme } from "next-themes";
+
 import {
   pageTransitionVariants,
   popoverVariants
@@ -140,6 +144,11 @@ export function AppShell() {
   const { t } = useTranslation("common");
   const navigate = useNavigate();
   const location = useLocation();
+  const { resolvedTheme, setTheme, theme } = useTheme();
+  const activeTheme = theme === "light" || theme === "dark" || theme === "system" ? theme : "system";
+  const activeResolvedTheme = resolvedTheme === "dark" ? "dark" : "light";
+  const nextTheme = activeTheme === "dark" ? "light" : activeTheme === "light" ? "dark" : activeResolvedTheme === "dark" ? "light" : "dark";
+  const ThemeIcon = activeTheme === "system" ? Monitor : activeResolvedTheme === "dark" ? MoonStar : SunMedium;
   const {
     accessContext,
     activeTenantId,
@@ -298,11 +307,6 @@ export function AppShell() {
                   aria-label={t("shell.mobileMenuLabel")}
                 />
 
-                <SidebarTrigger
-                  className="ml-1 hidden size-9 rounded-lg lg:inline-flex"
-                  aria-label={t("shell.collapseSidebarLabel")}
-                />
-
                 <div className="min-w-0 flex-1">
                   <div className="flex min-w-0 items-center gap-1 text-sm text-ink-soft">
                     <NavLink to="/" className="truncate transition hover:text-ink">
@@ -392,8 +396,6 @@ export function AppShell() {
                     </AnimatePresence>
                   </div>
 
-                  <ThemeToggleButton />
-
                   <div ref={userLayerRef} className="relative">
                     <button
                       type="button"
@@ -449,6 +451,15 @@ export function AppShell() {
                           <div className="mt-4 rounded-3xl border border-line/70 bg-sand/35 p-4">
                             <LanguageSwitcher />
                           </div>
+
+                          <button
+                            type="button"
+                            onClick={() => setTheme(nextTheme)}
+                            className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-line-strong bg-paper px-4 text-sm font-medium text-ink shadow-panel transition hover:bg-sand/70"
+                          >
+                            <ThemeIcon className="size-4" aria-hidden="true" />
+                            <span>{t(nextTheme === "dark" ? "theme.switchToDark" : "theme.switchToLight")}</span>
+                          </button>
 
                           <button
                             type="button"
