@@ -165,7 +165,7 @@ export function AuthPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ ...backofficeTransition, delay: 0.08 }}
           >
-            <div className="flex flex-col gap-7 rounded-[2rem] border border-line/60 bg-white px-6 py-6 shadow-soft sm:px-8 sm:py-8 lg:sticky lg:top-8 lg:min-h-[calc(100vh-4rem)]">
+            <div className="flex flex-col gap-7 rounded-4xl border border-line/60 bg-white px-6 py-6 shadow-soft sm:px-8 sm:py-8 lg:sticky lg:top-8 lg:min-h-[calc(100vh-4rem)]">
 
               {/* Top bar */}
               <div className="flex items-center justify-between gap-4">
