@@ -37,9 +37,9 @@ const commonEn = {
           "Grey lavender, smoke teal, and blush sand for a contemporary identity without noise."
       },
       custom: {
-        name: "Custom palette",
+        name: "Tenant custom palette",
         description:
-          "Start from a professional base and adjust four key colors to shape your own brand."
+          "Adjust four seed colors to create a tenant-exclusive identity that does not get shared with other businesses."
       }
     }
   },

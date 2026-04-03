@@ -37,9 +37,9 @@ const commonEs = {
           "Lavanda gris, teal humo y arena rosada para una identidad contemporanea sin ruido."
       },
       custom: {
-        name: "Paleta propia",
+        name: "Paleta propia del tenant",
         description:
-          "Parte de una base profesional y ajusta cuatro colores clave para crear una identidad propia."
+          "Ajusta cuatro colores semilla para crear una identidad exclusiva de este tenant sin compartirla con otras empresas."
       }
     }
   },

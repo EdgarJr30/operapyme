@@ -129,7 +129,7 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 - scaffold inicial del backoffice en progreso
 - shell operativo del backoffice alineado con sidebar desktop, navbar superior y bottom navigation movil
 - shell del backoffice ya migrado a `shadcn/ui` sidebar con base `Radix UI`, manteniendo la misma estructura operativa de navegacion
-- baseline visual del backoffice hoy es light-first con paleta operativa `#2D3E50 / #FF7A00 / #4B637A / #F4F7F9`
+- baseline visual del backoffice hoy es light-first con `Slate operativo` como paleta por defecto `#2D3E50 / #FF7A00 / #4B637A / #F4F7F9`
 - dashboard del backoffice ya usa composicion desktop mas horizontal, con overview 8/4, KPIs dentro del first fold y columna lateral de foco operativo
 - landing publica compactada como experiencia one-page, con hero editorial y contexto clave visible sin depender del scroll
 - CI sembrado en GitHub Actions con quality checks y smoke E2E
@@ -252,7 +252,7 @@ Para variables backend u operativas de Supabase, usar `supabase/.env.example` co
 - El backoffice soporta `light`, `dark` y `system`.
 - La preferencia de apariencia se persiste por dispositivo.
 - La apariencia personal y el branding por tenant son capas distintas.
-- El branding actual incluye paletas curadas de tono refinado y una paleta propia basica generada desde colores semilla.
+- El branding actual incluye paletas curadas de tono refinado y una paleta propia aislada por tenant generada desde colores semilla.
 - Las reglas canonicas de theming y direccion visual viven en [docs/governance/UI_UX_RULES.md](./docs/governance/UI_UX_RULES.md).
 
 ### Donde vive la app React real

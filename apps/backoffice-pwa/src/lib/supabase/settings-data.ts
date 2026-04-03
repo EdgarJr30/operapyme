@@ -5,7 +5,10 @@ import type {
   ThemePaletteSelectionId
 } from "@operapyme/ui";
 
-import { defaultCustomThemePaletteSeeds } from "@operapyme/ui";
+import {
+  defaultCustomThemePaletteSeeds,
+  defaultThemePaletteId
+} from "@operapyme/ui";
 
 import { supabase } from "@/lib/supabase/client";
 
@@ -119,7 +122,7 @@ function mapTenantBrandingSettings(
     name: row.name,
     slug: row.slug,
     status: row.status,
-    paletteId: row.palette_id ?? "custom",
+    paletteId: row.palette_id ?? defaultThemePaletteId,
     paletteSeedColors: parsePaletteSeedColors(row.palette_seed_colors),
     createdAt: row.created_at,
     updatedAt: row.updated_at

@@ -7,6 +7,8 @@ import {
   useTheme
 } from "next-themes";
 
+import { useBackofficeAuth } from "@/app/auth-provider";
+
 function ThemeMetaSync() {
   const { resolvedTheme } = useTheme();
 
@@ -47,6 +49,25 @@ function ThemeMetaSync() {
   return null;
 }
 
+function TenantScopedThemeProvider({ children }: PropsWithChildren) {
+  const { activeTenantId } = useBackofficeAuth();
+  const storageKey = activeTenantId
+    ? `operapyme.backoffice.palette.v2.${activeTenantId}`
+    : "operapyme.backoffice.palette.v2.default";
+
+  return (
+    <TenantThemeProvider
+      key={storageKey}
+      appMode="backoffice"
+      defaultPaletteId="slate"
+      storageKey={storageKey}
+    >
+      <ThemeMetaSync />
+      {children}
+    </TenantThemeProvider>
+  );
+}
+
 export function BackofficeThemeProvider({ children }: PropsWithChildren) {
   return (
     <NextThemesProvider
@@ -57,14 +78,7 @@ export function BackofficeThemeProvider({ children }: PropsWithChildren) {
       enableSystem
       storageKey="operapyme-backoffice-theme-v2"
     >
-      <TenantThemeProvider
-        appMode="backoffice"
-        defaultPaletteId="custom"
-        storageKey="operapyme.backoffice.palette.v2"
-      >
-        <ThemeMetaSync />
-        {children}
-      </TenantThemeProvider>
+      <TenantScopedThemeProvider>{children}</TenantScopedThemeProvider>
     </NextThemesProvider>
   );
 }

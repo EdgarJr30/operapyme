@@ -294,8 +294,9 @@ Modelo esperado:
 
 Reglas:
 
-1. La libreria base ofrece presets curados y una paleta propia basica generada desde semillas.
-2. La paleta propia no es un editor libre de todos los tokens; el sistema debe derivar superficies, bordes, fondos, CTA y variantes oscuras para proteger consistencia.
+1. La libreria base ofrece presets curados y `Slate operativo` es el preset por defecto del producto.
+2. La paleta propia del tenant no es un editor libre de todos los tokens; el sistema debe derivar superficies, bordes, fondos, CTA y variantes oscuras para proteger consistencia.
+3. Toda paleta propia debe quedar aislada por tenant en persistencia y cache local; una empresa no puede ver ni heredar la configuracion de otra.
 
 ## 9. Tipografia y copy
 

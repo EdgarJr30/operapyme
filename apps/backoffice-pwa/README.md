@@ -68,7 +68,8 @@ Para magic link y recovery en produccion, `VITE_PUBLIC_SITE_URL` debe apuntar a 
 - el bootstrap de i18n ahora usa interpolacion nativa de i18next con placeholders simples y evita pagar `i18next-icu` en el primer paint
 - el toaster global y la pantalla de acceso denegado salen por carga diferida, dejando `feedback-vendor` e `icons-vendor` fuera del bundle inicial
 - el bundle base del backoffice ahora separa vendors por dominio, difiere `auth`, `setup`, shell y capa de queries, agrega resource hints hacia Supabase y protege el arranque con un check automatico de presupuesto en `tools/performance/check-backoffice-bundle.mjs`
-- el backoffice queda fijado en `light` y toma como base visual activa `#2D3E50 / #FF7A00 / #4B637A / #F4F7F9`
+- el backoffice queda fijado en `light` y toma `Slate operativo` como base visual por defecto `#2D3E50 / #FF7A00 / #4B637A / #F4F7F9`
+- la paleta propia deja de comportarse como preset global y queda aislada por tenant tanto en persistencia como en cache local del navegador
 
 ## Shell y navegacion
 

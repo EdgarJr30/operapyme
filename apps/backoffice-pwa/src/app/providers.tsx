@@ -24,15 +24,15 @@ interface AppProvidersProps extends PropsWithChildren {
 
 export function AppProviders({ children, i18n }: AppProvidersProps) {
   return (
-    <BackofficeThemeProvider>
-      <I18nextProvider i18n={i18n}>
-        <BackofficeAuthProvider>
+    <I18nextProvider i18n={i18n}>
+      <BackofficeAuthProvider>
+        <BackofficeThemeProvider>
           {children}
           <Suspense fallback={null}>
             <GlobalToaster />
           </Suspense>
-        </BackofficeAuthProvider>
-      </I18nextProvider>
-    </BackofficeThemeProvider>
+        </BackofficeThemeProvider>
+      </BackofficeAuthProvider>
+    </I18nextProvider>
   );
 }

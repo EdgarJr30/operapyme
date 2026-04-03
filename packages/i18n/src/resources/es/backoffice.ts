@@ -1770,7 +1770,7 @@ const backofficeEs = {
       "Tu espacio operativo ya está listo para abrir Gestión Comercial, catálogo y configuración.",
     paletteTitle: "Identidad visual inicial",
     paletteDescription:
-      "Puedes arrancar con una paleta curada o con la paleta propia del negocio. Después la ajustas con más calma en configuración."
+      "Puedes arrancar con una paleta curada o crear una paleta propia solo para este negocio. Después la ajustas con más calma en configuración."
   },
   accessDenied: {
     eyebrow: "Acceso restringido",
@@ -1919,16 +1919,16 @@ const backofficeEs = {
     palette: {
       title: "Paleta visual del tenant",
       description:
-        "Elige una paleta curada o arma una propia para que todo el tenant comparta una identidad consistente en backoffice y superficies futuras.",
+        "Elige una paleta curada o arma una propia para que todo el tenant comparta una identidad consistente en backoffice y superficies futuras, sin mezclarla con otras empresas.",
       sharedBadge: "Una marca, dos apps",
       previewBadge: "Preview en vivo",
       readOnlyBadge: "Solo lectura",
       ruleTitle: "Branding simple, consistente y usable",
       ruleText:
-        "Las paletas base ya nacen equilibradas y la paleta propia solo pide cuatro colores semilla para mantener contraste, velocidad de configuracion y coherencia operativa.",
+        "Las paletas base ya nacen equilibradas y la paleta propia del tenant solo pide cuatro colores semilla para mantener contraste, velocidad de configuracion y coherencia operativa.",
       storageTitle: "Persistencia del tenant",
       storageText:
-        "La paleta y sus semillas quedan guardadas sobre el tenant activo para que la identidad compartida no dependa del dispositivo actual.",
+        "La paleta y sus semillas quedan guardadas sobre el tenant activo para que la identidad compartida no dependa del dispositivo actual ni se mezcle con otros tenants.",
       backofficeTitle: "Backoffice operativo",
       backofficeDescription:
         "Mas estructura, mas densidad util y un fondo contenido para trabajo diario.",
@@ -1954,7 +1954,7 @@ const backofficeEs = {
         tertiaryLabel: "Color de apoyo",
         helperTitle: "Como funciona la paleta propia",
         helperText:
-          "Estos cuatro colores generan superficies, bordes, fondos y estados para mantener una identidad profesional sin abrir un editor avanzado.",
+          "Estos cuatro colores generan superficies, bordes, fondos y estados para mantener una identidad profesional sin abrir un editor avanzado. La configuracion queda aislada dentro del tenant activo.",
         reset: "Restaurar base"
       }
     },

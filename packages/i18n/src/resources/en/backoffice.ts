@@ -1769,7 +1769,7 @@ const backofficeEn = {
       "Your operating workspace is now ready for Commercial Management, catalog, and settings.",
     paletteTitle: "Initial visual identity",
     paletteDescription:
-      "You can start with a curated palette or with the business custom palette, then refine it later in settings."
+      "You can start with a curated palette or create a custom palette only for this business, then refine it later in settings."
   },
   accessDenied: {
     eyebrow: "Restricted access",
@@ -1920,16 +1920,16 @@ const backofficeEn = {
     palette: {
       title: "Tenant visual palette",
       description:
-        "Choose a curated palette or build your own so the whole tenant shares a consistent identity across backoffice and future surfaces.",
+        "Choose a curated palette or build your own so the whole tenant shares a consistent identity across backoffice and future surfaces without leaking into other businesses.",
       sharedBadge: "One brand, two apps",
       previewBadge: "Live preview",
       readOnlyBadge: "Read only",
       ruleTitle: "Simple, consistent, usable branding",
       ruleText:
-        "The base palettes already start balanced, and the custom palette only asks for four seed colors to preserve contrast, setup speed, and operational consistency.",
+        "The base palettes already start balanced, and the tenant custom palette only asks for four seed colors to preserve contrast, setup speed, and operational consistency.",
       storageTitle: "Tenant persistence",
       storageText:
-        "The palette and its seed colors are stored on the active tenant so the shared identity does not depend on the current device.",
+        "The palette and its seed colors are stored on the active tenant so the shared identity does not depend on the current device and does not get mixed with other tenants.",
       backofficeTitle: "Operational backoffice",
       backofficeDescription:
         "More structure, more useful density, and a more contained canvas for daily work.",
@@ -1955,7 +1955,7 @@ const backofficeEn = {
         tertiaryLabel: "Support color",
         helperTitle: "How the custom palette works",
         helperText:
-          "These four colors generate surfaces, borders, backgrounds, and states to keep a professional identity without opening an advanced editor.",
+          "These four colors generate surfaces, borders, backgrounds, and states to keep a professional identity without opening an advanced editor. The configuration stays isolated inside the active tenant.",
         reset: "Restore base"
       }
     },

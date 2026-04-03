@@ -215,7 +215,9 @@ export function SetupTenantPage() {
 
     const { error } = await supabase.rpc("create_tenant_with_owner", {
       target_name: values.name.trim(),
-      target_slug: values.slug.trim()
+      target_slug: values.slug.trim(),
+      next_palette_id: paletteId,
+      next_palette_seed_colors: activePalette.id === "custom" ? activePalette.seeds : null
     });
 
     if (error) {
