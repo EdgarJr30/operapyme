@@ -11,4 +11,5 @@ coverage
 playwright-report
 test-results
 supabase/.temp/
+supabase/supabase/.temp/
 .claude/
