@@ -1209,7 +1209,9 @@ const backofficeEs = {
       noteText:
         "Usamos acceso por correo para que entres rapido desde cualquier dispositivo.",
       noteTextPassword:
-        "Puedes combinar contrasena y magic link sobre la misma cuenta para tener acceso rapido y una via de contingencia."
+        "Puedes combinar contrasena y magic link sobre la misma cuenta para tener acceso rapido y una via de contingencia.",
+      showPassword: "Mostrar contrasena",
+      hidePassword: "Ocultar contrasena"
     },
     footer: {
       secure: {
@@ -1221,7 +1223,9 @@ const backofficeEs = {
         title: "Setup guiado",
         text:
           "Si todavia no existe espacio operativo, el flujo te lleva directo al wizard inicial del tenant."
-      }
+      },
+      privacy: "Politica de privacidad",
+      terms: "Terminos y condiciones"
     },
     callback: {
       eyebrow: "Validando acceso",
@@ -1251,7 +1255,11 @@ const backofficeEs = {
       passwordSaveError: "No pudimos guardar la nueva contrasena. {message}",
       passwordSavedTitle: "Contrasena actualizada",
       passwordSavedDescription:
-        "Ya puedes entrar con correo y contrasena, sin perder magic link como alternativa."
+        "Ya puedes entrar con correo y contrasena, sin perder magic link como alternativa.",
+      ruleMinLength: "Minimo 8 caracteres",
+      ruleLowercase: "Letras minusculas",
+      ruleUppercase: "Letras mayusculas",
+      ruleNumbers: "Numeros"
     },
     unconfigured: {
       eyebrow: "Supabase pendiente",
