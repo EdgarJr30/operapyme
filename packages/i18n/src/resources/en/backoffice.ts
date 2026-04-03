@@ -9,7 +9,7 @@ const backofficeEn = {
   dashboard: {
     header: {
       eyebrow: "Home",
-      title: "Operational business summary",
+      title: "Cashflow",
       description:
         "Review recent activity, prioritize the next step, and jump straight into CRM, catalog, or quotes.",
       customerCountBadge: "{count} customers in pipeline",
@@ -22,6 +22,11 @@ const backofficeEn = {
       newQuote: "New quote",
       reviewCatalog: "Review catalog",
       reviewQuotes: "Review quotes"
+    },
+    ranges: {
+      "7d": "Last 7 days",
+      "30d": "Last 30 days",
+      all: "All time"
     },
     checklist: {
       title: "Next in queue",
@@ -62,16 +67,26 @@ const backofficeEn = {
     stats: {
       customerCount: {
         label: "Customers",
-        detail: "{count} customers available to quote and follow up."
+        detail: "{count} customers available to quote and follow up.",
+        change: "+{count}"
+      },
+      activeCustomerCount: {
+        label: "Active customers",
+        detail: "{count} customers remain ready for commercial follow-up.",
+        change: "+{count}"
       },
       quoteCount: {
         label: "Quotes",
-        detail: "{count} quotes currently stored for this tenant."
+        detail: "{count} quotes currently stored for this tenant.",
+        change: "-{count}"
       },
       openQuoteCount: {
-        label: "Open",
-        detail: "{count} quotes still moving through the pipeline."
-      }
+        label: "Open quotes",
+        detail: "{count} quotes still moving through the pipeline.",
+        change: "+{count}"
+      },
+      customersValue: "{count}",
+      documentsValue: "{count}"
     },
     focus: {
       title: "Suggested focus",
@@ -90,6 +105,30 @@ const backofficeEn = {
         activeCustomers: "Active customers",
         openQuotes: "Open quotes",
         totalQuotes: "Total quotes"
+      }
+    },
+    activity: {
+      title: "Recent activity",
+      description:
+        "Recently touched quotes so the team can resume negotiations without losing context.",
+      empty:
+        "There are no recent quotes to show for this tenant yet.",
+      emptyRange:
+        "We could not find recent quotes within the selected range.",
+      today: "Today",
+      yesterday: "Yesterday",
+      headers: {
+        quote: "Quote",
+        recipient: "Recipient",
+        status: "Status",
+        amount: "Value",
+        action: "Action"
+      },
+      viewAction: "Open",
+      status: {
+        positive: "Paid",
+        neutral: "Withdraw",
+        negative: "Overdue"
       }
     },
     livePulse: {
@@ -130,6 +169,18 @@ const backofficeEn = {
         rejected: "Rejected",
         expired: "Expired"
       }
+    },
+    clients: {
+      title: "Recent customers",
+      description:
+        "Review the latest customers touched by the team and open CRM with context.",
+      viewAll: "Open CRM",
+      emptyRange:
+        "We could not find recent customers within the selected range.",
+      lastTouchLabel: "Last touch",
+      sourceLabel: "Source",
+      amountLabel: "Amount",
+      optionsLabel: "Options for {customer}"
     },
     operatingModel: {
       title: "Operating model",

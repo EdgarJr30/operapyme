@@ -9,7 +9,7 @@ const backofficeEs = {
   dashboard: {
     header: {
       eyebrow: "Inicio",
-      title: "Resumen operativo del negocio",
+      title: "Cashflow",
       description:
         "Consulta actividad reciente, prioriza el siguiente paso y entra directo a CRM, catalogo y cotizaciones.",
       customerCountBadge: "{count} clientes en cartera",
@@ -22,6 +22,11 @@ const backofficeEs = {
       newQuote: "Nueva cotizacion",
       reviewCatalog: "Revisar catalogo",
       reviewQuotes: "Revisar cotizaciones"
+    },
+    ranges: {
+      "7d": "Ultimos 7 dias",
+      "30d": "Ultimos 30 dias",
+      all: "Todo el tiempo"
     },
     checklist: {
       title: "Siguiente en cola",
@@ -62,16 +67,26 @@ const backofficeEs = {
     stats: {
       customerCount: {
         label: "Clientes",
-        detail: "{count} clientes disponibles para cotizar y dar seguimiento."
+        detail: "{count} clientes disponibles para cotizar y dar seguimiento.",
+        change: "+{count}"
+      },
+      activeCustomerCount: {
+        label: "Clientes activos",
+        detail: "{count} clientes siguen listos para seguimiento comercial.",
+        change: "+{count}"
       },
       quoteCount: {
         label: "Cotizaciones",
-        detail: "{count} cotizaciones registradas para este tenant."
+        detail: "{count} cotizaciones registradas para este tenant.",
+        change: "-{count}"
       },
       openQuoteCount: {
-        label: "Abiertas",
-        detail: "{count} cotizaciones que siguen en gestion o espera."
-      }
+        label: "Cotizaciones abiertas",
+        detail: "{count} cotizaciones que siguen en gestion o espera.",
+        change: "+{count}"
+      },
+      customersValue: "{count}",
+      documentsValue: "{count}"
     },
     focus: {
       title: "Enfoque sugerido",
@@ -90,6 +105,30 @@ const backofficeEs = {
         activeCustomers: "Clientes activos",
         openQuotes: "Cotizaciones abiertas",
         totalQuotes: "Cotizaciones totales"
+      }
+    },
+    activity: {
+      title: "Actividad reciente",
+      description:
+        "Cotizaciones tocadas recientemente para retomar negociaciones sin perder contexto.",
+      empty:
+        "Todavia no hay cotizaciones recientes para mostrar en este tenant.",
+      emptyRange:
+        "No encontramos cotizaciones recientes dentro del rango seleccionado.",
+      today: "Hoy",
+      yesterday: "Ayer",
+      headers: {
+        quote: "Cotizacion",
+        recipient: "Receptor",
+        status: "Estado",
+        amount: "Valor",
+        action: "Accion"
+      },
+      viewAction: "Abrir",
+      status: {
+        positive: "Paid",
+        neutral: "Withdraw",
+        negative: "Overdue"
       }
     },
     livePulse: {
@@ -130,6 +169,18 @@ const backofficeEs = {
         rejected: "Rechazada",
         expired: "Expirada"
       }
+    },
+    clients: {
+      title: "Clientes recientes",
+      description:
+        "Consulta los ultimos clientes tocados por el equipo y entra a CRM con contexto.",
+      viewAll: "Abrir CRM",
+      emptyRange:
+        "No encontramos clientes recientes dentro del rango seleccionado.",
+      lastTouchLabel: "Ultimo movimiento",
+      sourceLabel: "Origen",
+      amountLabel: "Monto",
+      optionsLabel: "Opciones para {customer}"
     },
     operatingModel: {
       title: "Modelo operativo",
