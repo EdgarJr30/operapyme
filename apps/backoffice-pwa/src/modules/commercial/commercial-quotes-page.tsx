@@ -334,7 +334,7 @@ export function CommercialQuotesPage() {
               }
             />
           ) : (
-            <Table className="min-w-[980px]">
+            <Table className="min-w-245">
               <TableHeader>
                 <TableRow>
                   <TableHead className="pl-0">
