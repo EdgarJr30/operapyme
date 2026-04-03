@@ -63,6 +63,11 @@ const commonEs = {
     admin: "Admin",
     profile: "Perfil",
     settings: "Configuracion",
+    settingsGeneral: "General",
+    settingsTenant: "Tenant",
+    settingsAppearance: "Apariencia",
+    settingsTeam: "Equipo",
+    settingsSecurity: "Seguridad",
     errors: "Errores",
     more: "Mas"
   },

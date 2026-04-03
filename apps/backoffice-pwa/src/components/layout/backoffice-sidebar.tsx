@@ -63,7 +63,12 @@ export type ShellNavItemKey =
   | "quotesManage"
   | "learning"
   | "admin"
-  | "settings";
+  | "settings"
+  | "settingsGeneral"
+  | "settingsTenant"
+  | "settingsAppearance"
+  | "settingsTeam"
+  | "settingsSecurity";
 
 export interface ShellNavItem {
   to: string;
@@ -134,9 +139,36 @@ export const platformNavItems: ShellNavItem[] = [
     icon: BookOpenText
   },
   {
-    to: "/settings",
+    to: "/settings/general",
     key: "settings",
-    icon: Settings2
+    icon: Settings2,
+    children: [
+      {
+        to: "/settings/general",
+        key: "settingsGeneral",
+        icon: Settings2
+      },
+      {
+        to: "/settings/tenant",
+        key: "settingsTenant",
+        icon: Settings2
+      },
+      {
+        to: "/settings/appearance",
+        key: "settingsAppearance",
+        icon: Settings2
+      },
+      {
+        to: "/settings/team",
+        key: "settingsTeam",
+        icon: Settings2
+      },
+      {
+        to: "/settings/security",
+        key: "settingsSecurity",
+        icon: Settings2
+      }
+    ]
   },
   {
     to: "/admin",
@@ -315,6 +347,41 @@ export function getRouteMeta(pathname: string): RouteMeta {
   }
 
   if (pathname.startsWith("/settings")) {
+    if (pathname.startsWith("/settings/tenant")) {
+      return {
+        labelKey: "navigation.settingsTenant",
+        descriptionKey: "shell.pageDescriptions.settings"
+      };
+    }
+
+    if (pathname.startsWith("/settings/appearance")) {
+      return {
+        labelKey: "navigation.settingsAppearance",
+        descriptionKey: "shell.pageDescriptions.settings"
+      };
+    }
+
+    if (pathname.startsWith("/settings/team")) {
+      return {
+        labelKey: "navigation.settingsTeam",
+        descriptionKey: "shell.pageDescriptions.settings"
+      };
+    }
+
+    if (pathname.startsWith("/settings/security")) {
+      return {
+        labelKey: "navigation.settingsSecurity",
+        descriptionKey: "shell.pageDescriptions.settings"
+      };
+    }
+
+    if (pathname.startsWith("/settings/general")) {
+      return {
+        labelKey: "navigation.settingsGeneral",
+        descriptionKey: "shell.pageDescriptions.settings"
+      };
+    }
+
     return {
       labelKey: "navigation.settings",
       descriptionKey: "shell.pageDescriptions.settings"

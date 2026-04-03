@@ -5,10 +5,8 @@ import {
   Check,
   ChevronRight,
   KeyRound,
-  Palette,
   ShieldCheck,
-  UserCircle2,
-  Users
+  Palette
 } from "lucide-react";
 import {
   getPrimaryTenantMembership,
@@ -17,7 +15,7 @@ import {
 import { useTranslation } from "@operapyme/i18n";
 import { useTenantTheme } from "@operapyme/ui";
 import type { ThemePaletteSeedColors } from "@operapyme/ui";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 import { useBackofficeAuth } from "@/app/auth-provider";
@@ -95,6 +93,7 @@ function SettingsState({
 export function SettingsPage() {
   const { t } = useTranslation("backoffice");
   const navigate = useNavigate();
+  const location = useLocation();
   const { accessContext, activeTenantId, user } = useBackofficeAuth();
   const { customPalette, paletteId, setCustomPalette, setPaletteId } =
     useTenantTheme();
@@ -122,42 +121,28 @@ export function SettingsPage() {
     useSettingsData(canManageMembers);
   const { updateTenantSettingsMutation, updateUserProfileMutation } =
     useSettingsMutations();
-  const [activeSection, setActiveSection] =
-    useState<SettingsSectionId>("general");
   const [displayNameDraft, setDisplayNameDraft] = useState("");
   const [tenantNameDraft, setTenantNameDraft] = useState("");
   const tenantThemeSyncRef = useRef<string | null>(null);
+  const activeSection = useMemo<SettingsSectionId>(() => {
+    if (location.pathname.startsWith("/settings/tenant")) {
+      return "tenant";
+    }
 
-  const sections = useMemo(
-    () => [
-      {
-        id: "general" as const,
-        label: t("settings.sections.general"),
-        icon: UserCircle2
-      },
-      {
-        id: "tenant" as const,
-        label: t("settings.sections.tenant"),
-        icon: Building2
-      },
-      {
-        id: "appearance" as const,
-        label: t("settings.sections.appearance"),
-        icon: Palette
-      },
-      {
-        id: "team" as const,
-        label: t("settings.sections.team"),
-        icon: Users
-      },
-      {
-        id: "security" as const,
-        label: t("settings.sections.security"),
-        icon: ShieldCheck
-      }
-    ],
-    [t]
-  );
+    if (location.pathname.startsWith("/settings/appearance")) {
+      return "appearance";
+    }
+
+    if (location.pathname.startsWith("/settings/team")) {
+      return "team";
+    }
+
+    if (location.pathname.startsWith("/settings/security")) {
+      return "security";
+    }
+
+    return "general";
+  }, [location.pathname]);
 
   useEffect(() => {
     if (userProfileQuery.data) {
@@ -281,50 +266,8 @@ export function SettingsPage() {
           {t("settings.header.description")}
         </p>
       </section>
-
-      <div className="mx-auto max-w-7xl lg:flex lg:gap-x-10">
-        <aside className="flex overflow-x-auto border-b border-line/70 pb-4 lg:block lg:w-72 lg:flex-none lg:border-0 lg:pb-0">
-          <nav className="flex-none">
-            <ul role="list" className="flex gap-2 lg:flex-col">
-              {sections.map((section) => {
-                const isActive = section.id === activeSection;
-
-                return (
-                  <li key={section.id}>
-                    <button
-                      type="button"
-                      onClick={() => setActiveSection(section.id)}
-                      className={[
-                        "group flex min-w-fit items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-semibold transition",
-                        isActive
-                          ? "bg-brand-soft/15 text-brand"
-                          : "text-ink-soft hover:bg-paper hover:text-brand"
-                      ].join(" ")}
-                    >
-                      <section.icon
-                        className={[
-                          "size-5 shrink-0",
-                          isActive ? "text-brand" : "text-ink-muted group-hover:text-brand"
-                        ].join(" ")}
-                        aria-hidden="true"
-                      />
-                      <span>{section.label}</span>
-                      <ChevronRight
-                        className={[
-                          "size-4 shrink-0 lg:ml-auto",
-                          isActive ? "text-brand" : "text-ink-muted"
-                        ].join(" ")}
-                        aria-hidden="true"
-                      />
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          </nav>
-        </aside>
-
-        <main className="min-w-0 flex-1 space-y-4 pt-5 lg:pt-0">
+      <div className="space-y-4">
+        <main className="min-w-0 space-y-4">
           {activeSection === "general" ? (
             <section className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
               <Card>

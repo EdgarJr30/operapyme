@@ -63,6 +63,11 @@ const commonEn = {
     admin: "Admin",
     profile: "Profile",
     settings: "Settings",
+    settingsGeneral: "General",
+    settingsTenant: "Tenant",
+    settingsAppearance: "Appearance",
+    settingsTeam: "Team",
+    settingsSecurity: "Security",
     errors: "Errors",
     more: "More"
   },

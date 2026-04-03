@@ -454,6 +454,26 @@ export const appRoutes: RouteObject[] = [
       },
       {
         path: "settings",
+        element: <Navigate replace to="/settings/general" />
+      },
+      {
+        path: "settings/general",
+        lazy: loadSettingsRoute
+      },
+      {
+        path: "settings/tenant",
+        lazy: loadSettingsRoute
+      },
+      {
+        path: "settings/appearance",
+        lazy: loadSettingsRoute
+      },
+      {
+        path: "settings/team",
+        lazy: loadSettingsRoute
+      },
+      {
+        path: "settings/security",
         lazy: loadSettingsRoute
       },
       {
