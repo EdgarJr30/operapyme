@@ -23,6 +23,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { StatusPill } from "@/components/ui/status-pill";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Table,
   TableBody,
@@ -95,6 +96,12 @@ export function CommercialQuotesPage() {
   const [modalMode, setModalMode] = useState<QuoteModalMode>(null);
   const [selectedQuoteId, setSelectedQuoteId] = useState<string | null>(null);
   const [pendingMove, setPendingMove] = useState<string | null>(null);
+  const [pendingReasonMove, setPendingReasonMove] = useState<{
+    quote: QuoteSummary;
+    targetStatus: QuoteStatus;
+  } | null>(null);
+  const [reasonValue, setReasonValue] = useState("");
+  const [reasonError, setReasonError] = useState("");
   const statuses = quoteStatusesByFilter[tableFilter];
   const {
     data: quotes = [],
@@ -148,7 +155,48 @@ export function CommercialQuotesPage() {
     setModalMode("edit");
   }
 
-  async function handleMoveQuoteStatus(quote: QuoteSummary, status: QuoteStatus) {
+  function requestMoveQuoteStatus(quote: QuoteSummary, status: QuoteStatus) {
+    if (status === "rejected" || status === "expired") {
+      setReasonValue("");
+      setReasonError("");
+      setPendingReasonMove({ quote, targetStatus: status });
+      return;
+    }
+
+    void executeMoveQuoteStatus(quote, status, undefined);
+  }
+
+  function closeReasonModal() {
+    setPendingReasonMove(null);
+    setReasonValue("");
+    setReasonError("");
+  }
+
+  async function handleConfirmWithReason() {
+    if (!pendingReasonMove) {
+      return;
+    }
+
+    const trimmed = reasonValue.trim();
+
+    if (!trimmed) {
+      setReasonError(t("commercial.documents.reasonRequiredError"));
+      return;
+    }
+
+    await executeMoveQuoteStatus(
+      pendingReasonMove.quote,
+      pendingReasonMove.targetStatus,
+      trimmed
+    );
+    closeReasonModal();
+  }
+
+  async function executeMoveQuoteStatus(
+    quote: QuoteSummary,
+    status: QuoteStatus,
+    cancellationReason: string | undefined
+  ) {
     const pendingKey = `${quote.id}:${status}`;
     setPendingMove(pendingKey);
 
@@ -156,7 +204,8 @@ export function CommercialQuotesPage() {
       await moveQuoteStatusMutation.mutateAsync({
         quoteId: quote.id,
         status,
-        version: quote.version
+        version: quote.version,
+        cancellationReason
       });
       toast.success(
         t("commercial.documents.moveSuccess", {
@@ -326,9 +375,17 @@ export function CommercialQuotesPage() {
                       {formatDate(quote.validUntil, i18n.language)}
                     </TableCell>
                     <TableCell>
-                      <StatusPill tone={getQuoteTone(quote.status)}>
-                        {t(`quotes.list.status.${quote.status}`)}
-                      </StatusPill>
+                      <div className="space-y-1">
+                        <StatusPill tone={getQuoteTone(quote.status)}>
+                          {t(`quotes.list.status.${quote.status}`)}
+                        </StatusPill>
+                        {quote.cancellationReason ? (
+                          <p className="text-xs text-ink-soft">
+                            {t("commercial.quotes.cancellationReasonLabel")}:{" "}
+                            {quote.cancellationReason}
+                          </p>
+                        ) : null}
+                      </div>
                     </TableCell>
                     <TableCell>
                       {formatMoney(quote.grandTotal, quote.currencyCode)}
@@ -367,7 +424,7 @@ export function CommercialQuotesPage() {
                                 pendingMove === pendingKey
                               }
                               onClick={() => {
-                                void handleMoveQuoteStatus(quote, targetStatus);
+                                requestMoveQuoteStatus(quote, targetStatus);
                               }}
                             >
                               {moveQuoteStatusMutation.isPending &&
@@ -402,6 +459,75 @@ export function CommercialQuotesPage() {
           )}
         </CardContent>
       </Card>
+
+      <Dialog
+        open={pendingReasonMove !== null}
+        onOpenChange={(open) => {
+          if (!open && !moveQuoteStatusMutation.isPending) {
+            closeReasonModal();
+          }
+        }}
+      >
+        <DialogContent closeLabel={t("shared.closeDialog")} className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
+              {t("commercial.documents.reasonModalTitle")}
+            </DialogTitle>
+            <DialogDescription>
+              {t("commercial.documents.reasonModalDescription")}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label
+                className="text-sm font-medium text-ink"
+                htmlFor="quote-cancel-reason"
+              >
+                {t("commercial.documents.reasonLabel")}
+              </label>
+              <Textarea
+                id="quote-cancel-reason"
+                placeholder={t("commercial.documents.reasonPlaceholder")}
+                value={reasonValue}
+                onChange={(event) => {
+                  setReasonValue(event.target.value);
+                  if (reasonError) {
+                    setReasonError("");
+                  }
+                }}
+              />
+              {reasonError ? (
+                <p className="text-sm text-peach-400">{reasonError}</p>
+              ) : null}
+            </div>
+
+            <div className="flex flex-wrap justify-end gap-3">
+              <Button
+                type="button"
+                variant="secondary"
+                size="lg"
+                onClick={closeReasonModal}
+                disabled={moveQuoteStatusMutation.isPending}
+              >
+                {t("commercial.documents.cancelMoveAction")}
+              </Button>
+              <Button
+                type="button"
+                size="lg"
+                disabled={moveQuoteStatusMutation.isPending}
+                onClick={() => {
+                  void handleConfirmWithReason();
+                }}
+              >
+                {moveQuoteStatusMutation.isPending
+                  ? t("commercial.documents.moving")
+                  : t("commercial.documents.confirmMoveAction")}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Dialog
         open={modalMode !== null}

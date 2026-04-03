@@ -115,6 +115,7 @@ export interface QuoteSummary {
   status: QuoteStatus;
   version: number;
   validUntil: string | null;
+  cancellationReason: string | null;
   notes: string | null;
   createdAt: string;
   updatedAt: string;
@@ -146,6 +147,7 @@ export interface InvoiceSummary {
   status: InvoiceStatus;
   issuedOn: string | null;
   dueOn: string | null;
+  voidReason: string | null;
   notes: string | null;
   createdAt: string;
   updatedAt: string;
@@ -415,6 +417,7 @@ export interface MoveQuoteStatusInput {
   quoteId: string;
   version: number;
   status: QuoteStatus;
+  cancellationReason?: string;
 }
 
 export interface CreateInvoiceInput {
@@ -443,6 +446,7 @@ export interface MoveInvoiceStatusInput {
   tenantId: string;
   invoiceId: string;
   status: InvoiceStatus;
+  voidReason?: string;
 }
 
 const customerSelectFields =
@@ -458,12 +462,12 @@ const quoteLineSelectFields =
   "id, catalog_item_id, sort_order, item_name, item_description, quantity, unit_label, unit_price, discount_total, tax_total, line_subtotal, line_total";
 
 const quoteSelectFields =
-  "id, customer_id, lead_id, recipient_kind, recipient_display_name, recipient_contact_name, recipient_email, recipient_whatsapp, recipient_phone, quote_number, title, currency_code, subtotal, discount_total, tax_total, grand_total, status, version, valid_until, notes, created_at, updated_at";
+  "id, customer_id, lead_id, recipient_kind, recipient_display_name, recipient_contact_name, recipient_email, recipient_whatsapp, recipient_phone, quote_number, title, currency_code, subtotal, discount_total, tax_total, grand_total, status, version, valid_until, cancellation_reason, notes, created_at, updated_at";
 
 const quoteDetailSelectFields = `${quoteSelectFields}, line_items:quote_line_items(${quoteLineSelectFields})`;
 
 const invoiceSelectFields =
-  "id, source_quote_id, customer_id, lead_id, recipient_kind, recipient_display_name, recipient_contact_name, recipient_email, recipient_whatsapp, recipient_phone, invoice_number, title, document_kind, currency_code, subtotal, discount_total, tax_total, grand_total, status, issued_on, due_on, notes, created_at, updated_at";
+  "id, source_quote_id, customer_id, lead_id, recipient_kind, recipient_display_name, recipient_contact_name, recipient_email, recipient_whatsapp, recipient_phone, invoice_number, title, document_kind, currency_code, subtotal, discount_total, tax_total, grand_total, status, issued_on, due_on, void_reason, notes, created_at, updated_at";
 
 const invoiceDetailSelectFields = `${invoiceSelectFields}, line_items:invoice_line_items(${quoteLineSelectFields})`;
 
@@ -654,6 +658,7 @@ function mapQuote(row: RawQuoteRow): QuoteSummary {
     status: row.status,
     version: row.version,
     validUntil: row.valid_until,
+    cancellationReason: row.cancellation_reason ?? null,
     notes: row.notes,
     createdAt: row.created_at,
     updatedAt: row.updated_at
@@ -690,6 +695,7 @@ function mapInvoice(row: RawInvoiceRow): InvoiceSummary {
     status: row.status,
     issuedOn: row.issued_on,
     dueOn: row.due_on,
+    voidReason: row.void_reason ?? null,
     notes: row.notes,
     createdAt: row.created_at,
     updatedAt: row.updated_at
@@ -1242,7 +1248,8 @@ export async function moveQuoteStatus(input: MoveQuoteStatusInput) {
     target_tenant_id: scopedTenantId,
     target_quote_id: scopedQuoteId,
     expected_version: input.version,
-    target_status: input.status
+    target_status: input.status,
+    p_cancellation_reason: input.cancellationReason ?? null
   });
 
   if (error) {
@@ -1323,7 +1330,8 @@ export async function moveInvoiceStatus(input: MoveInvoiceStatusInput) {
   const { data: invoiceId, error } = await client.rpc("move_invoice_status", {
     target_tenant_id: scopedTenantId,
     target_invoice_id: scopedInvoiceId,
-    target_status: input.status
+    target_status: input.status,
+    p_void_reason: input.voidReason ?? null
   });
 
   if (error) {
