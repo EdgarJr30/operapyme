@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 
-import { zodResolver } from "@hookform/resolvers/zod";
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   ArrowLeft,
   ArrowRight,
@@ -10,47 +10,52 @@ import {
   Layers3,
   Palette,
   ShieldCheck,
-  Sparkles
-} from "lucide-react";
-import { useForm } from "react-hook-form";
+  Sparkles,
+} from 'lucide-react';
+import { useForm } from 'react-hook-form';
 
-import { useTenantTheme } from "@operapyme/ui";
-import { useTranslation } from "@operapyme/i18n";
-import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
+import { useTenantTheme } from '@operapyme/ui';
+import { useTranslation } from '@operapyme/i18n';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
-import { useBackofficeAuth } from "@/app/auth-provider";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { useBackofficeAuth } from '@/app/auth-provider';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import {
   slugifyTenantName,
   tenantSetupSchema,
-  type TenantSetupFormValues
-} from "@/lib/forms/tenant-setup-schema";
-import { supabase } from "@/lib/supabase/client";
-import { cn } from "@/lib/utils";
-import { UnconfiguredPage } from "@/modules/auth/unconfigured-page";
-import { CompactTenantPaletteSelector } from "@/modules/settings/tenant-palette-section";
+  type TenantSetupFormValues,
+} from '@/lib/forms/tenant-setup-schema';
+import { supabase } from '@/lib/supabase/client';
+import { cn } from '@/lib/utils';
+import { UnconfiguredPage } from '@/modules/auth/unconfigured-page';
+import { CompactTenantPaletteSelector } from '@/modules/settings/tenant-palette-section';
 
-type SetupStepKey = "workspace" | "branding" | "review";
-type SlugAvailabilityState = "idle" | "checking" | "available" | "unavailable" | "error";
+type SetupStepKey = 'workspace' | 'branding' | 'review';
+type SlugAvailabilityState =
+  | 'idle'
+  | 'checking'
+  | 'available'
+  | 'unavailable'
+  | 'error';
 
-const setupSteps: SetupStepKey[] = ["workspace", "branding", "review"];
+const setupSteps: SetupStepKey[] = ['workspace', 'branding', 'review'];
 
 export function SetupTenantPage() {
-  const { t } = useTranslation("backoffice");
+  const { t } = useTranslation('backoffice');
   const navigate = useNavigate();
   const { activePalette, paletteId } = useTenantTheme();
   const { isBootstrapped, isConfigured, refreshAccessContext, status } =
     useBackofficeAuth();
-  const [currentStep, setCurrentStep] = useState<SetupStepKey>("workspace");
+  const [currentStep, setCurrentStep] = useState<SetupStepKey>('workspace');
   const [slugTouched, setSlugTouched] = useState(false);
   const [slugAvailability, setSlugAvailability] =
-    useState<SlugAvailabilityState>("idle");
+    useState<SlugAvailabilityState>('idle');
   const slugCheckRequestRef = useRef(0);
-  const lastCheckedSlugRef = useRef("");
+  const lastCheckedSlugRef = useRef('');
 
   const {
     clearErrors,
@@ -61,53 +66,53 @@ export function SetupTenantPage() {
     setError,
     setValue,
     trigger,
-    watch
+    watch,
   } = useForm<TenantSetupFormValues>({
     resolver: zodResolver(tenantSetupSchema),
     defaultValues: {
-      name: "",
-      slug: ""
-    }
+      name: '',
+      slug: '',
+    },
   });
 
-  const tenantName = watch("name");
-  const tenantSlug = watch("slug");
+  const tenantName = watch('name');
+  const tenantSlug = watch('slug');
   const currentStepIndex = setupSteps.indexOf(currentStep);
-  const paletteName = t(`theme.palettes.${paletteId}.name`, { ns: "common" });
+  const paletteName = t(`theme.palettes.${paletteId}.name`, { ns: 'common' });
 
   const launchCards = useMemo(
     () => [
       {
         icon: Layers3,
-        title: t("setup.launchCards.commercialTitle"),
-        text: t("setup.launchCards.commercialText")
+        title: t('setup.launchCards.commercialTitle'),
+        text: t('setup.launchCards.commercialText'),
       },
       {
         icon: BadgeCheck,
-        title: t("setup.launchCards.catalogTitle"),
-        text: t("setup.launchCards.catalogText")
+        title: t('setup.launchCards.catalogTitle'),
+        text: t('setup.launchCards.catalogText'),
       },
       {
         icon: ShieldCheck,
-        title: t("setup.launchCards.accessTitle"),
-        text: t("setup.launchCards.accessText")
-      }
+        title: t('setup.launchCards.accessTitle'),
+        text: t('setup.launchCards.accessText'),
+      },
     ],
     [t]
   );
 
   useEffect(() => {
     if (!slugTouched) {
-      setValue("slug", slugifyTenantName(tenantName), {
+      setValue('slug', slugifyTenantName(tenantName), {
         shouldDirty: true,
-        shouldValidate: true
+        shouldValidate: true,
       });
     }
   }, [slugTouched, tenantName, setValue]);
 
   useEffect(() => {
-    if (status === "signed_in" && isBootstrapped) {
-      navigate("/", { replace: true });
+    if (status === 'signed_in' && isBootstrapped) {
+      navigate('/', { replace: true });
     }
   }, [isBootstrapped, navigate, status]);
 
@@ -115,7 +120,7 @@ export function SetupTenantPage() {
     const normalizedSlug = tenantSlug.trim();
 
     if (!normalizedSlug || errors.slug) {
-      setSlugAvailability("idle");
+      setSlugAvailability('idle');
       return;
     }
 
@@ -136,20 +141,20 @@ export function SetupTenantPage() {
     const normalizedSlug = slug.trim();
 
     if (!supabase) {
-      setSlugAvailability("error");
+      setSlugAvailability('error');
       return false;
     }
 
     if (!force && normalizedSlug === lastCheckedSlugRef.current) {
-      return slugAvailability === "available";
+      return slugAvailability === 'available';
     }
 
     const requestId = slugCheckRequestRef.current + 1;
     slugCheckRequestRef.current = requestId;
-    setSlugAvailability("checking");
+    setSlugAvailability('checking');
 
-    const { data, error } = await supabase.rpc("is_tenant_slug_available", {
-      target_slug: normalizedSlug
+    const { data, error } = await supabase.rpc('is_tenant_slug_available', {
+      target_slug: normalizedSlug,
     });
 
     if (requestId !== slugCheckRequestRef.current) {
@@ -159,33 +164,36 @@ export function SetupTenantPage() {
     lastCheckedSlugRef.current = normalizedSlug;
 
     if (error) {
-      setSlugAvailability("error");
+      setSlugAvailability('error');
       return false;
     }
 
     if (!data) {
-      setError("slug", {
-        type: "manual",
-        message: t("setup.slugUnavailable")
+      setError('slug', {
+        type: 'manual',
+        message: t('setup.slugUnavailable'),
       });
-      setSlugAvailability("unavailable");
+      setSlugAvailability('unavailable');
       return false;
     }
 
-    clearErrors("slug");
-    setSlugAvailability("available");
+    clearErrors('slug');
+    setSlugAvailability('available');
     return true;
   }
 
   async function handleAdvanceStep() {
-    if (currentStep === "workspace") {
-      const isValid = await trigger(["name", "slug"], { shouldFocus: true });
+    if (currentStep === 'workspace') {
+      const isValid = await trigger(['name', 'slug'], { shouldFocus: true });
 
       if (!isValid) {
         return;
       }
 
-      const slugIsAvailable = await validateSlugAvailability(getValues("slug"), true);
+      const slugIsAvailable = await validateSlugAvailability(
+        getValues('slug'),
+        true
+      );
 
       if (!slugIsAvailable) {
         return;
@@ -202,22 +210,23 @@ export function SetupTenantPage() {
 
   async function onSubmit(values: TenantSetupFormValues) {
     if (!supabase) {
-      toast.error(t("setup.unavailableError"));
+      toast.error(t('setup.unavailableError'));
       return;
     }
 
     const slugIsAvailable = await validateSlugAvailability(values.slug, true);
 
     if (!slugIsAvailable) {
-      setCurrentStep("workspace");
+      setCurrentStep('workspace');
       return;
     }
 
-    const { error } = await supabase.rpc("create_tenant_with_owner", {
+    const { error } = await supabase.rpc('create_tenant_with_owner', {
       target_name: values.name.trim(),
       target_slug: values.slug.trim(),
       next_palette_id: paletteId,
-      next_palette_seed_colors: activePalette.id === "custom" ? activePalette.seeds : null
+      next_palette_seed_colors:
+        activePalette.id === 'custom' ? activePalette.seeds : null,
     });
 
     if (error) {
@@ -226,51 +235,54 @@ export function SetupTenantPage() {
         /tenants_slug_key/i.test(error.message) ||
         /already in use/i.test(error.message)
       ) {
-        setError("slug", {
-          type: "manual",
-          message: t("setup.slugUnavailable")
+        setError('slug', {
+          type: 'manual',
+          message: t('setup.slugUnavailable'),
         });
-        setCurrentStep("workspace");
+        setCurrentStep('workspace');
       }
 
-      toast.error(t("setup.submitError", { message: error.message }));
+      toast.error(t('setup.submitError', { message: error.message }));
       return;
     }
 
     await refreshAccessContext();
-    toast.success(t("setup.successTitle"), {
-      description: t("setup.successDescription")
+    toast.success(t('setup.successTitle'), {
+      description: t('setup.successDescription'),
     });
-    navigate("/", { replace: true });
+    navigate('/', { replace: true });
   }
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,theme(colors.paper)_0%,theme(colors.sand/35)_100%)]">
+    <div className="min-h-screen bg-[linear-gradient(180deg,var(--color-paper)_0%,var(--color-sand)_100%)]/[35]">
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <Badge variant="outline" className="rounded-full px-3 py-1 text-[11px] uppercase tracking-[0.2em]">
-            {t("setup.eyebrow")}
+          <Badge
+            variant="outline"
+            className="rounded-full px-3 py-1 text-[11px] uppercase tracking-[0.2em]"
+          >
+            {t('setup.eyebrow')}
           </Badge>
           <p className="text-sm text-ink-soft">
             <span className="font-semibold text-ink">
-              {t("setup.progressLabel", {
+              {t('setup.progressLabel', {
                 current: currentStepIndex + 1,
-                total: setupSteps.length
+                total: setupSteps.length,
               })}
-            </span>{" "}
+            </span>{' '}
             {t(`setup.steps.${currentStep}.title`)}
           </p>
         </div>
 
         <div className="grid gap-4 xl:grid-cols-[minmax(0,1.45fr)_380px]">
           <Card className="overflow-hidden border-line/80 bg-paper shadow-panel">
-            <div className="border-b border-line/70 bg-[linear-gradient(180deg,theme(colors.paper)_0%,theme(colors.sand/45)_100%)] px-5 py-6 sm:px-6">
+            <div className="border-b border-line/70 bg-[linear-gradient(180deg,var(--color-paper)_0%,var(--color-sand)_100%)]/[45] px-5 py-6 sm:px-6">
               <div className="space-y-3">
                 <h1 className="max-w-3xl text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
-                  {t("setup.title")}
+                  {t('setup.title')}
                 </h1>
                 <p className="max-w-2xl text-sm leading-6 text-ink-soft">
-                  {t("setup.description")}
+                  {t('setup.description')}
                 </p>
               </div>
 
@@ -300,37 +312,37 @@ export function SetupTenantPage() {
                   </p>
                 </div>
 
-                {currentStep === "workspace" ? (
+                {currentStep === 'workspace' ? (
                   <div className="space-y-6">
                     <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
                       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-2">
                         <Field
                           error={errors.name?.message}
                           htmlFor="tenant-name"
-                          label={t("setup.nameLabel")}
+                          label={t('setup.nameLabel')}
                         >
                           <Input
                             id="tenant-name"
-                            placeholder={t("setup.namePlaceholder")}
+                            placeholder={t('setup.namePlaceholder')}
                             className="h-12 rounded-2xl"
-                            {...register("name")}
+                            {...register('name')}
                           />
                         </Field>
 
                         <Field
                           error={errors.slug?.message}
                           htmlFor="tenant-slug"
-                          label={t("setup.slugLabel")}
+                          label={t('setup.slugLabel')}
                         >
                           <Input
                             id="tenant-slug"
-                            placeholder={t("setup.slugPlaceholder")}
+                            placeholder={t('setup.slugPlaceholder')}
                             className="h-12 rounded-2xl"
-                            {...register("slug", {
+                            {...register('slug', {
                               onChange: () => {
                                 setSlugTouched(true);
-                                lastCheckedSlugRef.current = "";
-                              }
+                                lastCheckedSlugRef.current = '';
+                              },
                             })}
                           />
                         </Field>
@@ -343,18 +355,21 @@ export function SetupTenantPage() {
                         <div className="flex h-full flex-wrap items-start justify-between gap-3">
                           <div className="space-y-1">
                             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-muted">
-                              {t("setup.slugPreviewTitle")}
+                              {t('setup.slugPreviewTitle')}
                             </p>
                             <p className="text-base font-semibold text-ink">
-                              {tenantSlug || "operapyme-demo"}
+                              {tenantSlug || 'operapyme-demo'}
                             </p>
                             <p className="text-sm leading-6 text-ink-soft">
                               {tenantSlug
-                                ? t("setup.slugHint", { slug: tenantSlug })
-                                : t("setup.slugPreviewEmpty")}
+                                ? t('setup.slugHint', { slug: tenantSlug })
+                                : t('setup.slugPreviewEmpty')}
                             </p>
                           </div>
-                          <SlugAvailabilityBadge state={slugAvailability} t={t} />
+                          <SlugAvailabilityBadge
+                            state={slugAvailability}
+                            t={t}
+                          />
                         </div>
                       </div>
                     </div>
@@ -362,76 +377,74 @@ export function SetupTenantPage() {
                     <div className="grid gap-3 md:grid-cols-2">
                       <InfoCard
                         icon={Building2}
-                        title={t("setup.workspaceCards.tenantTitle")}
-                        text={t("setup.workspaceCards.tenantText")}
+                        title={t('setup.workspaceCards.tenantTitle')}
+                        text={t('setup.workspaceCards.tenantText')}
                       />
                       <InfoCard
                         icon={Globe2}
-                        title={t("setup.workspaceCards.slugTitle")}
-                        text={t("setup.workspaceCards.slugText")}
+                        title={t('setup.workspaceCards.slugTitle')}
+                        text={t('setup.workspaceCards.slugText')}
                       />
                     </div>
                   </div>
                 ) : null}
 
-                {currentStep === "branding" ? (
+                {currentStep === 'branding' ? (
                   <div className="space-y-5">
-                    <div
-                      className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_260px]"
-                    >
+                    <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_260px]">
                       <CompactTenantPaletteSelector />
 
                       <div className="grid gap-3">
                         <InfoCard
                           icon={Layers3}
-                          title={t("setup.brandingCards.focusTitle")}
-                          text={t("setup.brandingCards.focusText")}
+                          title={t('setup.brandingCards.focusTitle')}
+                          text={t('setup.brandingCards.focusText')}
                         />
                         <InfoCard
                           icon={Palette}
-                          title={t("setup.brandingCards.identityTitle")}
-                          text={t("setup.brandingCards.identityText")}
+                          title={t('setup.brandingCards.identityTitle')}
+                          text={t('setup.brandingCards.identityText')}
                         />
                       </div>
                     </div>
                   </div>
                 ) : null}
 
-                {currentStep === "review" ? (
+                {currentStep === 'review' ? (
                   <div className="space-y-5">
                     <div className="grid gap-3 sm:grid-cols-3">
                       <ReviewCard
-                        label={t("setup.review.businessLabel")}
-                        value={tenantName || t("setup.review.pending")}
+                        label={t('setup.review.businessLabel')}
+                        value={tenantName || t('setup.review.pending')}
                       />
                       <ReviewCard
-                        label={t("setup.review.slugLabel")}
-                        value={tenantSlug || t("setup.review.pending")}
+                        label={t('setup.review.slugLabel')}
+                        value={tenantSlug || t('setup.review.pending')}
                       />
                       <ReviewCard
-                        label={t("setup.review.paletteLabel")}
+                        label={t('setup.review.paletteLabel')}
                         value={paletteName}
                       />
                     </div>
 
                     <div className="grid gap-3 md:grid-cols-2">
                       <ReviewChecklistItem
-                        title={t("setup.review.checklist.membershipTitle")}
-                        text={t("setup.review.checklist.membershipText")}
+                        title={t('setup.review.checklist.membershipTitle')}
+                        text={t('setup.review.checklist.membershipText')}
                       />
                       <ReviewChecklistItem
-                        title={t("setup.review.checklist.modulesTitle")}
-                        text={t("setup.review.checklist.modulesText")}
+                        title={t('setup.review.checklist.modulesTitle')}
+                        text={t('setup.review.checklist.modulesText')}
                       />
                       <ReviewChecklistItem
-                        title={t("setup.review.checklist.brandTitle")}
-                        text={t("setup.review.checklist.brandText", {
-                          palette: paletteName
+                        title={t('setup.review.checklist.brandTitle')}
+                        text={t('setup.review.checklist.brandText', {
+                          palette: paletteName,
                         })}
                       />
                       <ReviewChecklistItem
-                        title={t("setup.review.checklist.launchTitle")}
-                        text={t("setup.review.checklist.launchText")}
+                        title={t('setup.review.checklist.launchTitle')}
+                        text={t('setup.review.checklist.launchText')}
                       />
                     </div>
                   </div>
@@ -441,11 +454,11 @@ export function SetupTenantPage() {
               <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line/70 bg-paper/90 px-5 py-4 sm:px-6">
                 <p className="text-sm text-ink-soft">
                   <span className="font-medium text-ink">
-                    {t("setup.progressLabel", {
+                    {t('setup.progressLabel', {
                       current: currentStepIndex + 1,
-                      total: setupSteps.length
+                      total: setupSteps.length,
                     })}
-                  </span>{" "}
+                  </span>{' '}
                   {t(`setup.steps.${currentStep}.title`)}
                 </p>
 
@@ -463,20 +476,20 @@ export function SetupTenantPage() {
                       }}
                     >
                       <ArrowLeft className="mr-2 size-4" aria-hidden="true" />
-                      {t("setup.backAction")}
+                      {t('setup.backAction')}
                     </Button>
                   ) : null}
 
-                  {currentStep !== "review" ? (
+                  {currentStep !== 'review' ? (
                     <Button
                       key={`advance-${currentStep}`}
                       type="button"
                       onClick={() => {
                         void handleAdvanceStep();
                       }}
-                      disabled={slugAvailability === "checking"}
+                      disabled={slugAvailability === 'checking'}
                     >
-                      {t("setup.nextAction")}
+                      {t('setup.nextAction')}
                       <ArrowRight className="ml-2 size-4" aria-hidden="true" />
                     </Button>
                   ) : (
@@ -485,7 +498,7 @@ export function SetupTenantPage() {
                       type="submit"
                       disabled={isSubmitting}
                     >
-                      {isSubmitting ? t("setup.submitting") : t("setup.submit")}
+                      {isSubmitting ? t('setup.submitting') : t('setup.submit')}
                     </Button>
                   )}
                 </div>
@@ -496,22 +509,24 @@ export function SetupTenantPage() {
           <div className="space-y-4 xl:sticky xl:top-6 xl:self-start">
             <Card className="border-line/80 bg-paper shadow-sm">
               <CardHeader className="space-y-1 pb-3">
-                <CardTitle className="text-base">{t("setup.previewTitle")}</CardTitle>
+                <CardTitle className="text-base">
+                  {t('setup.previewTitle')}
+                </CardTitle>
                 <p className="text-sm leading-6 text-ink-soft">
-                  {t("setup.previewDescription")}
+                  {t('setup.previewDescription')}
                 </p>
               </CardHeader>
               <CardContent className="space-y-3">
                 <SummaryRow
-                  label={t("setup.review.businessLabel")}
-                  value={tenantName || t("setup.review.pending")}
+                  label={t('setup.review.businessLabel')}
+                  value={tenantName || t('setup.review.pending')}
                 />
                 <SummaryRow
-                  label={t("setup.review.slugLabel")}
-                  value={tenantSlug || t("setup.review.pending")}
+                  label={t('setup.review.slugLabel')}
+                  value={tenantSlug || t('setup.review.pending')}
                 />
                 <SummaryRow
-                  label={t("setup.review.paletteLabel")}
+                  label={t('setup.review.paletteLabel')}
                   value={paletteName}
                 />
               </CardContent>
@@ -529,8 +544,12 @@ export function SetupTenantPage() {
                         <Icon className="size-4" aria-hidden="true" />
                       </span>
                       <div className="space-y-1">
-                        <p className="text-sm font-semibold text-ink">{title}</p>
-                        <p className="text-sm leading-6 text-ink-soft">{text}</p>
+                        <p className="text-sm font-semibold text-ink">
+                          {title}
+                        </p>
+                        <p className="text-sm leading-6 text-ink-soft">
+                          {text}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -550,7 +569,7 @@ function StepCard({
   isActive,
   isCompleted,
   t,
-  title
+  title,
 }: {
   description: string;
   index: number;
@@ -562,21 +581,21 @@ function StepCard({
   return (
     <div
       className={cn(
-        "rounded-2xl border px-4 py-3 transition",
+        'rounded-2xl border px-4 py-3 transition',
         isActive
-          ? "border-brand bg-brand-soft/14 shadow-sm"
-          : "border-line/70 bg-paper/80",
-        isCompleted ? "border-brand/40" : ""
+          ? 'border-brand bg-brand-soft/14 shadow-sm'
+          : 'border-line/70 bg-paper/80',
+        isCompleted ? 'border-brand/40' : ''
       )}
     >
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <span
             className={cn(
-              "flex size-8 items-center justify-center rounded-full border text-sm font-semibold",
+              'flex size-8 items-center justify-center rounded-full border text-sm font-semibold',
               isActive || isCompleted
-                ? "border-brand/30 bg-brand text-brand-contrast"
-                : "border-line/80 bg-paper text-ink-soft"
+                ? 'border-brand/30 bg-brand text-brand-contrast'
+                : 'border-line/80 bg-paper text-ink-soft'
             )}
           >
             {index + 1}
@@ -584,8 +603,11 @@ function StepCard({
           <p className="text-sm font-semibold text-ink">{title}</p>
         </div>
         {isCompleted ? (
-          <Badge variant="outline" className="rounded-full border-brand/30 text-brand">
-            {t("setup.completed")}
+          <Badge
+            variant="outline"
+            className="rounded-full border-brand/30 text-brand"
+          >
+            {t('setup.completed')}
           </Badge>
         ) : null}
       </div>
@@ -598,7 +620,7 @@ function Field({
   children,
   error,
   htmlFor,
-  label
+  label,
 }: {
   children: ReactNode;
   error?: string;
@@ -619,7 +641,7 @@ function Field({
 function InfoCard({
   icon: Icon,
   text,
-  title
+  title,
 }: {
   icon: typeof Building2;
   text: string;
@@ -640,13 +662,7 @@ function InfoCard({
   );
 }
 
-function ReviewCard({
-  label,
-  value
-}: {
-  label: string;
-  value: string;
-}) {
+function ReviewCard({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-2xl border border-line/70 bg-paper p-4">
       <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-ink-muted">
@@ -657,13 +673,7 @@ function ReviewCard({
   );
 }
 
-function ReviewChecklistItem({
-  text,
-  title
-}: {
-  text: string;
-  title: string;
-}) {
+function ReviewChecklistItem({ text, title }: { text: string; title: string }) {
   return (
     <div className="rounded-2xl border border-line/70 bg-sand/35 p-4">
       <p className="text-sm font-semibold text-ink">{title}</p>
@@ -672,13 +682,7 @@ function ReviewChecklistItem({
   );
 }
 
-function SummaryRow({
-  label,
-  value
-}: {
-  label: string;
-  value: string;
-}) {
+function SummaryRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-2xl border border-line/70 bg-sand/35 px-4 py-3">
       <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-muted">
@@ -691,26 +695,26 @@ function SummaryRow({
 
 function SlugAvailabilityBadge({
   state,
-  t
+  t,
 }: {
   state: SlugAvailabilityState;
   t: (key: string) => string;
 }) {
-  if (state === "idle") {
+  if (state === 'idle') {
     return null;
   }
 
   const tone =
-    state === "available"
-      ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-      : state === "checking"
-        ? "border-amber-200 bg-amber-50 text-amber-700"
-        : "border-rose-200 bg-rose-50 text-rose-700";
+    state === 'available'
+      ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+      : state === 'checking'
+        ? 'border-amber-200 bg-amber-50 text-amber-700'
+        : 'border-rose-200 bg-rose-50 text-rose-700';
 
   return (
     <span
       className={cn(
-        "inline-flex rounded-full border px-3 py-1 text-xs font-semibold",
+        'inline-flex rounded-full border px-3 py-1 text-xs font-semibold',
         tone
       )}
     >
