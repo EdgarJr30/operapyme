@@ -105,6 +105,9 @@ const commonEs = {
     primaryNavigationLabel: "Navegacion principal",
     mobileNavigationLabel: "Navegacion movil",
     mobileMenuLabel: "Abrir menu principal",
+    mobileMenuTitle: "Menu principal",
+    mobileMenuDescription:
+      "Accede a modulos, configuracion y soporte desde este panel movil.",
     closeMenuLabel: "Cerrar menu principal",
     collapseSidebarLabel: "Colapsar menu lateral",
     expandSidebarLabel: "Expandir menu lateral",

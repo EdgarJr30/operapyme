@@ -2,12 +2,14 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
   Bell,
+  BriefcaseBusiness,
   ChevronDown,
   ChevronRight,
   LogOut,
   Menu,
   Monitor,
   MoonStar,
+  PackageSearch,
   Search,
   SunMedium,
   UserRound
@@ -142,6 +144,17 @@ function getRoleLabel(
   }
 
   return t("shell.tenantOperator");
+}
+
+function getMobileTabIcon(key: string, fallbackIcon: ShellNavItem["icon"]) {
+  switch (key) {
+    case "commercial":
+      return BriefcaseBusiness;
+    case "catalog":
+      return PackageSearch;
+    default:
+      return fallbackIcon;
+  }
 }
 
 export function AppShell() {
@@ -531,40 +544,46 @@ export function AppShell() {
             className="fixed inset-x-4 bottom-4 z-30 rounded-2xl border border-line/70 bg-paper/96 px-3 py-2 shadow-soft lg:hidden"
           >
             <div className="grid grid-cols-4 gap-1">
-              {bottomTabItems.map(({ to, key, icon: Icon }) => (
-                <NavLink
-                  key={to}
-                  to={to}
-                  end={to === "/"}
-                  className={({ isActive }) =>
-                    cn(
-                      "flex min-h-12 flex-col items-center justify-center rounded-xl px-2 text-[11px] font-medium transition",
-                      isActive
-                        ? "bg-butter-200/75 text-ink"
-                        : "text-ink-soft hover:bg-sand/70 hover:text-ink"
-                    )
-                  }
-                >
-                  <Icon className="mb-1 size-4.5" aria-hidden="true" />
-                  <span>
-                    {key === "quotes"
-                      ? t("navigation.quotesShort")
-                      : t(`navigation.${key}`)}
-                  </span>
-                </NavLink>
-              ))}
+              {bottomTabItems.map(({ to, key, icon }) => {
+                const Icon = getMobileTabIcon(key, icon);
+
+                return (
+                  <NavLink
+                    key={to}
+                    to={to}
+                    end={to === "/"}
+                    className={({ isActive }) =>
+                      cn(
+                        "flex min-h-14 w-full flex-col items-center justify-center gap-1 rounded-xl px-2 py-1 text-center text-[11px] font-medium leading-tight transition",
+                        isActive
+                          ? "bg-butter-200/75 text-ink"
+                          : "text-ink-soft hover:bg-sand/70 hover:text-ink"
+                      )
+                    }
+                  >
+                    <Icon className="size-4.5 shrink-0" aria-hidden="true" />
+                    <span className="block max-w-full text-balance">
+                      {key === "quotes"
+                        ? t("navigation.quotesShort")
+                        : t(`navigation.${key}`)}
+                    </span>
+                  </NavLink>
+                );
+              })}
 
               <SidebarTrigger
                 className={cn(
-                  "min-h-12 flex-col gap-0 rounded-xl border-0 bg-transparent px-2 py-0 text-[11px] font-medium shadow-none hover:bg-sand/70 lg:hidden",
+                  "h-auto min-h-14 w-full flex-col items-center justify-center gap-1 rounded-xl border-0 bg-transparent px-2 py-1 text-center text-[11px] font-medium leading-tight shadow-none hover:bg-sand/70 lg:hidden",
                   isBottomMenuActive
                     ? "bg-butter-200/75 text-ink"
                     : "text-ink-soft hover:text-ink"
                 )}
                 aria-label={t("shell.mobileMenuLabel")}
               >
-                <Menu className="mb-1 size-4.5" aria-hidden="true" />
-                <span>{t("navigation.more")}</span>
+                <Menu className="size-4.5 shrink-0" aria-hidden="true" />
+                <span className="block max-w-full text-balance">
+                  {t("navigation.more")}
+                </span>
               </SidebarTrigger>
             </div>
           </nav>

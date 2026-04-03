@@ -579,6 +579,17 @@ function buildContentRange(total: number) {
   return `0-${Math.max(total - 1, 0)}/${total}`;
 }
 
+async function expectNoHorizontalOverflow(page: Page) {
+  await expect
+    .poll(async () => {
+      return page.evaluate(() => {
+        const root = document.documentElement;
+        return root.scrollWidth - window.innerWidth;
+      });
+    })
+    .toBeLessThanOrEqual(1);
+}
+
 test.describe("backoffice modules", () => {
   test.beforeEach(async ({ page }) => {
     await mockBackoffice(page);
@@ -681,7 +692,7 @@ test.describe("backoffice modules", () => {
     await page.goto("/commercial/quotes");
 
     await expect(
-      page.getByRole("heading", { name: /Cotizaciones/i })
+      page.getByRole("heading", { name: /Cotizaciones/i }).last()
     ).toBeVisible();
     await expect(
       page.getByRole("navigation", { name: /Navegacion movil/i })
@@ -699,6 +710,74 @@ test.describe("backoffice modules", () => {
 
     await page.screenshot({
       path: testInfo.outputPath("quotes-create-mobile.png"),
+      fullPage: true
+    });
+
+    await context.close();
+  });
+
+  test("keeps the mobile more menu accessible and stable when opening commercial navigation", async ({
+    browser
+  }, testInfo) => {
+    const context = await browser.newContext({
+      viewport: { width: 390, height: 844 }
+    });
+    const page = await context.newPage();
+    const dialogTitleErrors: string[] = [];
+
+    page.on("console", (message) => {
+      const text = message.text();
+
+      if (text.includes("requires a `DialogTitle`")) {
+        dialogTitleErrors.push(text);
+      }
+    });
+
+    await mockBackoffice(page);
+    await page.goto("/catalog");
+
+    await expect(
+      page.getByRole("heading", { name: /Catalogo/i }).last()
+    ).toBeVisible();
+    await expectNoHorizontalOverflow(page);
+
+    const mobileNavigation = page.getByRole("navigation", {
+      name: /Navegacion movil/i
+    });
+
+    await mobileNavigation.getByRole("button", {
+      name: /Abrir menu principal/i
+    }).click();
+    const moreDialog = page.getByRole("dialog", { name: /Menu principal/i });
+    await expect(moreDialog).toBeVisible();
+    await expect(moreDialog.getByRole("button", { name: /Gestion Comercial/i })).toBeVisible();
+
+    await page.screenshot({
+      path: testInfo.outputPath("mobile-more-menu.png"),
+      fullPage: true
+    });
+
+    await moreDialog.getByRole("button", { name: /Gestion Comercial/i }).click();
+    await expect(page).toHaveURL(/\/commercial$/);
+    await expect(
+      page.getByRole("heading", { name: /Pipeline activo/i })
+    ).toBeVisible();
+    await expectNoHorizontalOverflow(page);
+
+    await mobileNavigation.getByRole("button", {
+      name: /Abrir menu principal/i
+    }).click();
+    const commercialDialog = page.getByRole("dialog", { name: /Menu principal/i });
+    await expect(commercialDialog).toBeVisible();
+    await commercialDialog.getByRole("button", { name: /Gestion Comercial/i }).click();
+    await expect(commercialDialog.getByRole("link", { name: /Leads/i })).toBeVisible();
+    await expect(commercialDialog.getByRole("link", { name: /Clientes/i })).toBeVisible();
+    await expectNoHorizontalOverflow(page);
+
+    expect(dialogTitleErrors).toEqual([]);
+
+    await page.screenshot({
+      path: testInfo.outputPath("commercial-mobile-drawer-expanded.png"),
       fullPage: true
     });
 

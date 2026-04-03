@@ -40,6 +40,7 @@ import {
   SidebarMenuSubItem,
   useSidebar
 } from "@/components/ui/sidebar";
+import { SheetDescription, SheetTitle } from "@/components/ui/sheet";
 import {
   Tooltip,
   TooltipContent,
@@ -447,6 +448,13 @@ export function BackofficeSidebar({
       variant="sidebar"
       collapsible="icon"
     >
+      {isMobile ? (
+        <div className="sr-only">
+          <SheetTitle>{t("shell.mobileMenuTitle")}</SheetTitle>
+          <SheetDescription>{t("shell.mobileMenuDescription")}</SheetDescription>
+        </div>
+      ) : null}
+
       <SidebarHeader className="gap-3 px-3 py-3">
         <SidebarMenu>
           <SidebarMenuItem>

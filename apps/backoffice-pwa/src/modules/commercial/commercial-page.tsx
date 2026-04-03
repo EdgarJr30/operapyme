@@ -62,10 +62,10 @@ export function CommercialPage() {
   );
 
   return (
-    <div className="space-y-4">
+    <div className="min-w-0 space-y-4 overflow-x-clip">
       <h1 className="sr-only">{t("commercial.summary.title")}</h1>
 
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <MetricCard
           href="/commercial/leads"
           icon={<TrendingUp className="size-4" aria-hidden="true" />}
@@ -96,15 +96,15 @@ export function CommercialPage() {
         />
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_0.9fr]">
-        <Card>
+      <section className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1.1fr)_0.9fr]">
+        <Card className="min-w-0">
           <CardHeader>
             <CardTitle>{t("commercial.summary.pipelineTitle")}</CardTitle>
             <p className="text-sm leading-6 text-ink-soft">
               {t("commercial.summary.pipelineDescription")}
             </p>
           </CardHeader>
-          <CardContent className="grid gap-3 sm:grid-cols-2">
+          <CardContent className="grid min-w-0 gap-3 sm:grid-cols-2">
             <PipelineCard
               href="/commercial/leads"
               step="01"
@@ -132,7 +132,7 @@ export function CommercialPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="min-w-0">
           <CardHeader>
             <CardTitle>{t("commercial.summary.recentTitle")}</CardTitle>
             <p className="text-sm leading-6 text-ink-soft">
@@ -190,7 +190,7 @@ function MetricCard({
   return (
     <Link
       to={href}
-      className="rounded-3xl border border-line/70 bg-sand/35 p-4 transition hover:bg-sand/55"
+      className="min-w-0 rounded-3xl border border-line/70 bg-sand/35 p-4 transition hover:bg-sand/55"
     >
       <div className="flex items-center justify-between gap-3">
         <span className="flex size-10 items-center justify-center rounded-2xl bg-paper text-ink shadow-panel">
@@ -220,7 +220,7 @@ function PipelineCard({
   return (
     <Link
       to={href}
-      className="rounded-3xl border border-line/70 bg-paper p-4 transition hover:bg-sand/45"
+      className="min-w-0 rounded-3xl border border-line/70 bg-paper p-4 transition hover:bg-sand/45"
     >
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-muted">
         {step}

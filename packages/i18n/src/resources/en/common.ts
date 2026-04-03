@@ -105,6 +105,9 @@ const commonEn = {
     primaryNavigationLabel: "Primary navigation",
     mobileNavigationLabel: "Mobile navigation",
     mobileMenuLabel: "Open main menu",
+    mobileMenuTitle: "Main menu",
+    mobileMenuDescription:
+      "Access modules, settings, and support from this mobile panel.",
     closeMenuLabel: "Close main menu",
     collapseSidebarLabel: "Collapse sidebar",
     expandSidebarLabel: "Expand sidebar",
