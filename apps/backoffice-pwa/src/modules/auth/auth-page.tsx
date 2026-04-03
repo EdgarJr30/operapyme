@@ -1,16 +1,5 @@
+import { Eye, EyeOff } from "lucide-react";
 import { FormEvent, useRef, useState } from "react";
-
-import {
-  Building2,
-  ChevronRight,
-  FileText,
-  KeyRound,
-  Laptop,
-  MailCheck,
-  ShieldCheck,
-  Smartphone,
-  Users
-} from "lucide-react";
 import { motion } from "motion/react";
 
 import { useTranslation } from "@operapyme/i18n";
@@ -18,31 +7,14 @@ import { Navigate } from "react-router-dom";
 import { toast } from "sonner";
 
 import { useBackofficeAuth } from "@/app/auth-provider";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { backofficeTransition, pageTransitionVariants } from "@/lib/motion";
+import { AuthHeroPanel } from "@/modules/auth/auth-hero-panel";
 import { UnconfiguredPage } from "@/modules/auth/unconfigured-page";
 
 type AuthMode = "signin" | "signup";
 type SignInView = "password" | "magic_link" | "recovery";
-
-type StoryItem = {
-  key: string;
-  icon: typeof Users;
-};
-
-const storyItems: StoryItem[] = [
-  { key: "capture", icon: Users },
-  { key: "quote", icon: FileText },
-  { key: "access", icon: ShieldCheck }
-];
-
-const capabilityItems: StoryItem[] = [
-  { key: "mobile", icon: Smartphone },
-  { key: "desktop", icon: Laptop },
-  { key: "security", icon: KeyRound }
-];
 
 export function AuthPage() {
   const { t } = useTranslation("backoffice");
@@ -60,6 +32,7 @@ export function AuthPage() {
   const [mode, setMode] = useState<AuthMode>("signin");
   const [signInView, setSignInView] = useState<SignInView>("password");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   if (!isConfigured) {
     return <UnconfiguredPage />;
@@ -106,6 +79,7 @@ export function AuthPage() {
     setMode(nextMode);
     setSignInView(nextMode === "signin" ? "password" : "magic_link");
     setPassword("");
+    setShowPassword(false);
     focusEmailField();
   }
 
@@ -113,6 +87,7 @@ export function AuthPage() {
     setSignInView(nextView);
     if (nextView !== "password") {
       setPassword("");
+      setShowPassword(false);
     }
     focusEmailField();
   }
@@ -165,6 +140,14 @@ export function AuthPage() {
     });
   }
 
+  const helperText = isRecoveryView
+    ? t("auth.form.recoveryHelper")
+    : isPasswordView
+      ? t("auth.form.passwordHelper")
+      : isFirstAccess
+        ? t("auth.form.firstAccessHelper")
+        : t("auth.form.magicLinkHelper");
+
   return (
     <main className="min-h-screen overflow-x-hidden bg-[linear-gradient(180deg,#f8fbfd_0%,#eef4f8_38%,#f8fafc_100%)]">
       <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
@@ -174,221 +157,7 @@ export function AuthPage() {
           animate="animate"
           variants={pageTransitionVariants}
         >
-          <motion.section
-            className="relative overflow-hidden rounded-[2rem] border border-line/60 bg-[linear-gradient(155deg,rgba(45,62,80,0.96),rgba(45,62,80,0.9)_38%,rgba(75,99,122,0.88)_100%)] px-4 py-5 text-sidebar-text shadow-soft sm:px-6 sm:py-6 lg:min-h-[calc(100vh-4rem)] lg:px-8 lg:py-8"
-            transition={backofficeTransition}
-          >
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,185,127,0.28),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(255,231,207,0.16),transparent_30%)]" />
-            <div className="absolute inset-x-0 top-0 h-48 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.18),transparent_58%)]" />
-
-            <div className="relative flex h-full flex-col">
-              <div className="flex items-start justify-between gap-4">
-                <div className="space-y-3">
-                  <div className="inline-flex min-h-11 items-center rounded-full border border-white/12 bg-white/10 px-4 text-sm font-semibold tracking-tight text-white">
-                    {t("auth.hero.eyebrow")}
-                  </div>
-                  <div className="max-w-xl space-y-3">
-                    <h1 className="text-[2rem] font-semibold leading-tight tracking-tight text-white sm:text-4xl xl:text-[3.4rem]">
-                      {t("auth.hero.title")}
-                    </h1>
-                    <p className="max-w-lg text-sm leading-6 text-sidebar-muted sm:text-base">
-                      {t("auth.hero.description")}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="hidden rounded-[1.75rem] border border-white/12 bg-white/10 p-3 lg:block">
-                  <img
-                    src="/favicon.svg"
-                    alt="OperaPyme"
-                    className="h-10 w-10 rounded-2xl"
-                  />
-                </div>
-              </div>
-
-              <div className="mt-6 grid gap-3 sm:grid-cols-3">
-                {capabilityItems.map(({ key, icon: Icon }, index) => (
-                  <motion.div
-                    key={key}
-                    className="rounded-[1.5rem] border border-white/12 bg-white/8 p-4 backdrop-blur-sm"
-                    initial={{ opacity: 0, y: 18 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ ...backofficeTransition, delay: 0.06 * (index + 1) }}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="flex size-11 items-center justify-center rounded-2xl bg-white/12">
-                        <Icon className="size-5 text-white" aria-hidden="true" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold text-white">
-                          {t(`auth.capabilities.${key}.title`)}
-                        </p>
-                        <p className="mt-1 text-xs leading-5 text-sidebar-muted">
-                          {t(`auth.capabilities.${key}.text`)}
-                        </p>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-
-              <div className="mt-6 grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)]">
-                <motion.div
-                  className="rounded-[1.75rem] border border-white/12 bg-white/8 p-4 backdrop-blur-sm sm:p-5"
-                  initial={{ opacity: 0, y: 22 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ ...backofficeTransition, delay: 0.12 }}
-                >
-                  <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-4">
-                    <div>
-                      <p className="text-sm font-semibold text-white">
-                        {t("auth.preview.title")}
-                      </p>
-                      <p className="mt-1 text-xs leading-5 text-sidebar-muted">
-                        {t("auth.preview.description")}
-                      </p>
-                    </div>
-                    <div className="rounded-full border border-white/12 bg-white/10 px-3 py-2 text-xs font-semibold text-white">
-                      {t("auth.preview.badge")}
-                    </div>
-                  </div>
-
-                  <div className="mt-4 grid gap-3 lg:grid-cols-[1.2fr_0.8fr]">
-                    <div className="rounded-[1.4rem] bg-white p-4 text-ink shadow-panel">
-                      <div className="flex items-center justify-between gap-3">
-                        <div>
-                          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-muted">
-                            {t("auth.preview.pipelineLabel")}
-                          </p>
-                          <p className="mt-2 text-lg font-semibold tracking-tight text-ink">
-                            {t("auth.preview.pipelineTitle")}
-                          </p>
-                        </div>
-                        <div className="rounded-2xl bg-brand-soft px-3 py-2 text-xs font-semibold text-ink">
-                          {t("auth.preview.pipelineBadge")}
-                        </div>
-                      </div>
-
-                      <div className="mt-4 space-y-3">
-                        {storyItems.map(({ key, icon: Icon }) => (
-                          <div
-                            key={key}
-                            className="rounded-[1.2rem] border border-line/60 bg-sand/40 p-3"
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className="flex size-11 items-center justify-center rounded-2xl bg-paper">
-                                <Icon className="size-5 text-brand" aria-hidden="true" />
-                              </div>
-                              <div className="min-w-0 flex-1">
-                                <div className="flex items-center justify-between gap-3">
-                                  <p className="text-sm font-semibold text-ink">
-                                    {t(`auth.story.${key}.title`)}
-                                  </p>
-                                  <ChevronRight
-                                    className="size-4 shrink-0 text-ink-muted"
-                                    aria-hidden="true"
-                                  />
-                                </div>
-                                <p className="mt-1 text-xs leading-5 text-ink-soft">
-                                  {t(`auth.story.${key}.text`)}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="grid gap-3">
-                      <div className="rounded-[1.4rem] border border-white/12 bg-white/10 p-4 text-white">
-                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/70">
-                          {t("auth.metrics.title")}
-                        </p>
-                        <div className="mt-4 grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
-                          {["crm", "quotes", "team"].map((key) => (
-                            <div
-                              key={key}
-                              className="rounded-[1.2rem] bg-white/8 px-4 py-3"
-                            >
-                              <p className="text-xl font-semibold tracking-tight text-white">
-                                {t(`auth.metrics.${key}.value`)}
-                              </p>
-                              <p className="mt-1 text-xs leading-5 text-sidebar-muted">
-                                {t(`auth.metrics.${key}.label`)}
-                              </p>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="rounded-[1.4rem] border border-white/12 bg-[linear-gradient(135deg,rgba(255,255,255,0.14),rgba(255,255,255,0.06))] p-4">
-                        <div className="flex items-center gap-3">
-                          <div className="flex size-11 items-center justify-center rounded-2xl bg-white/14">
-                            <MailCheck className="size-5 text-white" aria-hidden="true" />
-                          </div>
-                          <div>
-                            <p className="text-sm font-semibold text-white">
-                              {t("auth.preview.accessTitle")}
-                            </p>
-                            <p className="mt-1 text-xs leading-5 text-sidebar-muted">
-                              {t("auth.preview.accessText")}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-
-                <motion.div
-                  className="grid gap-3"
-                  initial={{ opacity: 0, y: 22 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ ...backofficeTransition, delay: 0.16 }}
-                >
-                  {["rbac", "audit"].map((key) => (
-                    <Card
-                      key={key}
-                      className="border-white/12 bg-white/8 p-4 text-white shadow-none backdrop-blur-sm"
-                    >
-                      <CardHeader className="mb-0">
-                        <CardTitle className="text-base text-white">
-                          {t(`auth.hero.cards.${key}.title`)}
-                        </CardTitle>
-                        <CardDescription className="text-sidebar-muted">
-                          {t(`auth.hero.cards.${key}.text`)}
-                        </CardDescription>
-                      </CardHeader>
-                    </Card>
-                  ))}
-
-                  <div className="rounded-[1.5rem] border border-dashed border-white/16 bg-white/6 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/70">
-                      {t("auth.hero.operatingTitle")}
-                    </p>
-                    <div className="mt-3 space-y-3">
-                      {["customers", "documents", "roles"].map((key) => (
-                        <div
-                          key={key}
-                          className="flex items-start gap-3 rounded-[1.15rem] bg-white/8 px-3 py-3"
-                        >
-                          <div className="mt-0.5 size-2 rounded-full bg-sky-300" />
-                          <div>
-                            <p className="text-sm font-semibold text-white">
-                              {t(`auth.hero.operating.${key}.title`)}
-                            </p>
-                            <p className="mt-1 text-xs leading-5 text-sidebar-muted">
-                              {t(`auth.hero.operating.${key}.text`)}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </motion.div>
-              </div>
-            </div>
-          </motion.section>
+          <AuthHeroPanel />
 
           <motion.section
             className="relative"
@@ -396,240 +165,182 @@ export function AuthPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ ...backofficeTransition, delay: 0.08 }}
           >
-            <div className="h-full rounded-[2rem] border border-line/60 bg-white/92 p-3 shadow-soft backdrop-blur-sm sm:p-4 lg:sticky lg:top-8 lg:min-h-[calc(100vh-4rem)]">
-              <div className="flex h-full flex-col rounded-[1.7rem] bg-[linear-gradient(180deg,rgba(244,247,249,0.92),rgba(255,255,255,0.98))] p-4 sm:p-5">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="inline-flex min-h-11 items-center rounded-full border border-line/70 bg-white px-4 text-sm font-semibold text-ink shadow-panel">
-                    {t("auth.entry.brandLabel")}
-                  </div>
+            <div className="flex flex-col gap-7 rounded-[2rem] border border-line/60 bg-white px-6 py-6 shadow-soft sm:px-8 sm:py-8 lg:sticky lg:top-8 lg:min-h-[calc(100vh-4rem)]">
+
+              {/* Top bar */}
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-2.5">
                   <img
                     src="/favicon.svg"
                     alt="OperaPyme"
-                    className="h-11 w-11 rounded-2xl bg-white p-2 shadow-panel lg:hidden"
+                    className="h-8 w-8 rounded-xl"
+                  />
+                  <span className="text-sm font-semibold text-ink">
+                    {t("auth.entry.brandLabel")}
+                  </span>
+                </div>
+                <p className="flex flex-wrap items-center justify-end gap-x-1.5 text-sm text-ink-soft">
+                  <span>{entryContent.switchLead}</span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setAuthMode(mode === "signin" ? "signup" : "signin")
+                    }
+                    className="font-semibold text-brand transition hover:text-brand-hover"
+                  >
+                    {entryContent.switchAction}
+                  </button>
+                </p>
+              </div>
+
+              {/* Heading */}
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-muted">
+                  {entryContent.badge}
+                </p>
+                <h2 className="mt-2 text-[1.75rem] font-semibold leading-tight tracking-tight text-ink sm:text-3xl">
+                  {entryContent.title}
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-ink-soft">
+                  {entryContent.description}
+                </p>
+              </div>
+
+              {/* Sign-in view tabs */}
+              {!isFirstAccess ? (
+                <div className="grid grid-cols-3 gap-1 rounded-xl border border-line/70 bg-paper p-1">
+                  {(
+                    [
+                      { view: "password" as SignInView, label: t("auth.form.passwordTab") },
+                      { view: "magic_link" as SignInView, label: t("auth.form.magicLinkTab") },
+                      { view: "recovery" as SignInView, label: t("auth.form.recoveryTab") }
+                    ] as const
+                  ).map(({ view, label }) => (
+                    <button
+                      key={view}
+                      type="button"
+                      onClick={() => handleSignInViewChange(view)}
+                      className={
+                        signInView === view
+                          ? "min-h-10 rounded-lg bg-white px-3 text-sm font-semibold text-ink shadow-panel"
+                          : "min-h-10 rounded-lg px-3 text-sm font-medium text-ink-muted transition hover:text-ink"
+                      }
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+
+              {/* Form */}
+              <form
+                className="flex flex-1 flex-col gap-5"
+                onSubmit={handleSubmit}
+                autoComplete={isPasswordView ? "on" : "off"}
+              >
+                {/* Email */}
+                <div className="space-y-1.5">
+                  <label
+                    htmlFor="auth-email"
+                    className="block text-sm font-medium text-ink"
+                  >
+                    {t("auth.form.emailLabel")}
+                  </label>
+                  <Input
+                    ref={emailInputRef}
+                    id="auth-email"
+                    type="email"
+                    autoComplete="email"
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                    placeholder={t("auth.form.emailPlaceholder")}
+                    required
+                    className="h-12 rounded-xl border-line/80 bg-white px-4 text-base"
                   />
                 </div>
 
-                <div className="mt-5 rounded-[1.6rem] border border-line/70 bg-white px-4 py-4 shadow-panel sm:px-5">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-muted">
-                        {entryContent.badge}
-                      </p>
-                      <h2 className="mt-2 text-[1.8rem] font-semibold leading-tight tracking-tight text-ink">
-                        {entryContent.title}
-                      </h2>
+                {/* Password with eye toggle */}
+                {isPasswordView ? (
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between gap-3">
+                      <label
+                        htmlFor="auth-password"
+                        className="block text-sm font-medium text-ink"
+                      >
+                        {t("auth.form.passwordLabel")}
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => handleSignInViewChange("recovery")}
+                        className="text-sm font-semibold text-brand transition hover:text-brand-hover"
+                      >
+                        {t("auth.form.forgotPassword")}
+                      </button>
                     </div>
-                    <div className="hidden size-12 items-center justify-center rounded-2xl bg-brand text-brand-contrast sm:flex">
-                      <Building2 className="size-5" aria-hidden="true" />
+                    <div className="relative">
+                      <Input
+                        id="auth-password"
+                        type={showPassword ? "text" : "password"}
+                        autoComplete="current-password"
+                        value={password}
+                        onChange={(event) => setPassword(event.target.value)}
+                        placeholder={t("auth.form.passwordPlaceholder")}
+                        required
+                        className="h-12 rounded-xl border-line/80 bg-white px-4 pr-12 text-base"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        aria-label={
+                          showPassword
+                            ? t("auth.form.hidePassword")
+                            : t("auth.form.showPassword")
+                        }
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-muted transition hover:text-ink"
+                      >
+                        {showPassword ? (
+                          <EyeOff className="size-5" aria-hidden="true" />
+                        ) : (
+                          <Eye className="size-5" aria-hidden="true" />
+                        )}
+                      </button>
                     </div>
-                  </div>
-
-                  <p className="mt-3 text-sm leading-6 text-ink-soft">
-                    {entryContent.description}
-                  </p>
-
-                  <div className="mt-4 flex flex-wrap items-center gap-2 text-sm leading-6 text-ink-soft">
-                    <span>{entryContent.switchLead}</span>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setAuthMode(mode === "signin" ? "signup" : "signin")
-                      }
-                      className="font-semibold text-brand transition hover:text-brand-hover"
-                    >
-                      {entryContent.switchAction}
-                    </button>
-                  </div>
-
-                  <div className="mt-5 grid gap-2 sm:grid-cols-3">
-                    <button
-                      type="button"
-                      onClick={() => setAuthMode("signin")}
-                      className={
-                        mode === "signin"
-                          ? "min-h-12 rounded-[1rem] bg-brand px-4 text-sm font-semibold text-brand-contrast shadow-panel"
-                          : "min-h-12 rounded-[1rem] border border-line/70 bg-paper px-4 text-sm font-medium text-ink transition hover:bg-sand/65"
-                      }
-                    >
-                      {t("auth.entry.existingCta")}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setAuthMode("signup")}
-                      className={
-                        mode === "signup"
-                          ? "min-h-12 rounded-[1rem] bg-brand px-4 text-sm font-semibold text-brand-contrast shadow-panel"
-                          : "min-h-12 rounded-[1rem] border border-line/70 bg-paper px-4 text-sm font-medium text-ink transition hover:bg-sand/65"
-                      }
-                    >
-                      {t("auth.entry.firstTimeCta")}
-                    </button>
-                    <div className="flex min-h-12 items-center rounded-[1rem] border border-dashed border-line/70 bg-paper/70 px-4 text-xs leading-5 text-ink-soft sm:col-span-1">
-                      {t("auth.entry.helper")}
-                    </div>
-                  </div>
-                </div>
-
-                {!isFirstAccess ? (
-                  <div className="mt-4 grid grid-cols-3 gap-2 rounded-[1.4rem] border border-line/70 bg-paper/72 p-1.5">
-                    <button
-                      type="button"
-                      onClick={() => handleSignInViewChange("password")}
-                      className={
-                        signInView === "password"
-                          ? "min-h-12 rounded-[1rem] bg-white px-3 text-sm font-semibold text-ink shadow-panel"
-                          : "min-h-12 rounded-[1rem] px-3 text-sm font-medium text-ink-soft transition hover:bg-white/75 hover:text-ink"
-                      }
-                    >
-                      {t("auth.form.passwordTab")}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleSignInViewChange("magic_link")}
-                      className={
-                        signInView === "magic_link"
-                          ? "min-h-12 rounded-[1rem] bg-white px-3 text-sm font-semibold text-ink shadow-panel"
-                          : "min-h-12 rounded-[1rem] px-3 text-sm font-medium text-ink-soft transition hover:bg-white/75 hover:text-ink"
-                      }
-                    >
-                      {t("auth.form.magicLinkTab")}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleSignInViewChange("recovery")}
-                      className={
-                        signInView === "recovery"
-                          ? "min-h-12 rounded-[1rem] bg-white px-3 text-sm font-semibold text-ink shadow-panel"
-                          : "min-h-12 rounded-[1rem] px-3 text-sm font-medium text-ink-soft transition hover:bg-white/75 hover:text-ink"
-                      }
-                    >
-                      {t("auth.form.recoveryTab")}
-                    </button>
                   </div>
                 ) : null}
 
-                <form
-                  className="mt-4 flex flex-1 flex-col gap-4"
-                  onSubmit={handleSubmit}
-                  autoComplete={isPasswordView ? "on" : "off"}
+                {/* Helper text */}
+                <p className="text-sm leading-6 text-ink-soft">{helperText}</p>
+
+                {/* Submit */}
+                <Button
+                  className="flex w-full justify-center text-sm font-semibold"
+                  type="submit"
+                  disabled={isSubmitting}
                 >
-                  <div className="rounded-[1.6rem] border border-line/70 bg-white p-4 shadow-panel sm:p-5">
-                    <div className="space-y-4">
-                      <div>
-                        <label
-                          htmlFor="auth-email"
-                          className="block text-sm font-medium text-ink"
-                        >
-                          {t("auth.form.emailLabel")}
-                        </label>
-                        <div className="mt-2">
-                          <Input
-                            ref={emailInputRef}
-                            id="auth-email"
-                            type="email"
-                            autoComplete="email"
-                            value={email}
-                            onChange={(event) => setEmail(event.target.value)}
-                            placeholder={t("auth.form.emailPlaceholder")}
-                            required
-                            className="h-12 rounded-[1rem] border-line/80 bg-white px-4 text-base"
-                          />
-                        </div>
-                      </div>
+                  {isSubmitting
+                    ? t("auth.form.submitting")
+                    : entryContent.submitLabel}
+                </Button>
 
-                      {isPasswordView ? (
-                        <div>
-                          <div className="flex items-center justify-between gap-3">
-                            <label
-                              htmlFor="auth-password"
-                              className="block text-sm font-medium text-ink"
-                            >
-                              {t("auth.form.passwordLabel")}
-                            </label>
-                            <button
-                              type="button"
-                              onClick={() => handleSignInViewChange("recovery")}
-                              className="text-sm font-semibold text-brand transition hover:text-brand-hover"
-                            >
-                              {t("auth.form.forgotPassword")}
-                            </button>
-                          </div>
-                          <div className="mt-2">
-                            <Input
-                              id="auth-password"
-                              type="password"
-                              autoComplete="current-password"
-                              value={password}
-                              onChange={(event) => setPassword(event.target.value)}
-                              placeholder={t("auth.form.passwordPlaceholder")}
-                              required
-                              className="h-12 rounded-[1rem] border-line/80 bg-white px-4 text-base"
-                            />
-                          </div>
-                        </div>
-                      ) : null}
-                    </div>
-
-                    <div className="mt-4 rounded-[1.2rem] border border-line/60 bg-sand/45 px-4 py-3">
-                      <p className="text-sm leading-6 text-ink-soft">
-                        {isRecoveryView
-                          ? t("auth.form.recoveryHelper")
-                          : isPasswordView
-                            ? t("auth.form.passwordHelper")
-                            : isFirstAccess
-                              ? t("auth.form.firstAccessHelper")
-                              : t("auth.form.magicLinkHelper")}
-                      </p>
-                    </div>
-
-                    <div className="mt-4 space-y-3">
-                      <Button
-                        className="flex w-full justify-center rounded-[1rem] text-sm font-semibold"
-                        type="submit"
-                        disabled={isSubmitting}
-                      >
-                        {isSubmitting
-                          ? t("auth.form.submitting")
-                          : entryContent.submitLabel}
-                      </Button>
-
-                      <div className="grid gap-2 rounded-[1.2rem] border border-dashed border-line/70 bg-paper/70 p-3">
-                        <div className="flex items-start gap-3">
-                          <div className="flex size-10 items-center justify-center rounded-2xl bg-brand-soft text-brand">
-                            <MailCheck className="size-5" aria-hidden="true" />
-                          </div>
-                          <div>
-                            <p className="text-sm font-semibold text-ink">
-                              {t("auth.form.noteTitle")}
-                            </p>
-                            <p className="mt-1 text-sm leading-6 text-ink-soft">
-                              {isPasswordView
-                                ? t("auth.form.noteTextPassword")
-                                : t("auth.form.noteText")}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="grid gap-3 sm:grid-cols-2 lg:mt-auto lg:grid-cols-1 xl:grid-cols-2">
-                    {["secure", "setup"].map((key) => (
-                      <div
-                        key={key}
-                        className="rounded-[1.4rem] border border-line/70 bg-white/80 px-4 py-4"
-                      >
-                        <p className="text-sm font-semibold text-ink">
-                          {t(`auth.footer.${key}.title`)}
-                        </p>
-                        <p className="mt-1 text-sm leading-6 text-ink-soft">
-                          {t(`auth.footer.${key}.text`)}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </form>
-              </div>
+                {/* Footer links */}
+                <p className="mt-auto pt-4 text-center text-xs text-ink-muted">
+                  <a
+                    href="#"
+                    className="transition hover:text-ink"
+                    tabIndex={-1}
+                  >
+                    {t("auth.footer.privacy")}
+                  </a>
+                  {" · "}
+                  <a
+                    href="#"
+                    className="transition hover:text-ink"
+                    tabIndex={-1}
+                  >
+                    {t("auth.footer.terms")}
+                  </a>
+                </p>
+              </form>
             </div>
           </motion.section>
         </motion.div>

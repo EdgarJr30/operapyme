@@ -1207,7 +1207,9 @@ const backofficeEn = {
       noteText:
         "We use email access so you can sign in quickly from any device.",
       noteTextPassword:
-        "You can combine password and magic link on the same account to keep fast access plus a contingency path."
+        "You can combine password and magic link on the same account to keep fast access plus a contingency path.",
+      showPassword: "Show password",
+      hidePassword: "Hide password"
     },
     footer: {
       secure: {
@@ -1219,7 +1221,9 @@ const backofficeEn = {
         title: "Guided setup",
         text:
           "If no operating workspace exists yet, the flow takes you directly into the tenant bootstrap wizard."
-      }
+      },
+      privacy: "Privacy Policy",
+      terms: "Terms and Conditions"
     },
     callback: {
       eyebrow: "Validating access",
@@ -1249,7 +1253,11 @@ const backofficeEn = {
       passwordSaveError: "We could not save the new password. {message}",
       passwordSavedTitle: "Password updated",
       passwordSavedDescription:
-        "You can now sign in with email and password without losing magic link as an alternative."
+        "You can now sign in with email and password without losing magic link as an alternative.",
+      ruleMinLength: "Minimum 8 characters",
+      ruleLowercase: "Lowercase characters",
+      ruleUppercase: "Uppercase characters",
+      ruleNumbers: "Numbers"
     },
     unconfigured: {
       eyebrow: "Supabase pending",
