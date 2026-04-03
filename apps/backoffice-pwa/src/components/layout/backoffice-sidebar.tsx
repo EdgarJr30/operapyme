@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 
 import {
+  BriefcaseBusiness,
   BookOpenText,
   ChevronDown,
   ChevronsUpDown,
   FileText,
   House,
-  Package2,
+  PackageSearch,
   Settings2,
   ShieldCheck,
   UsersRound,
@@ -97,12 +98,12 @@ export const businessNavItems: ShellNavItem[] = [
   {
     to: "/commercial",
     key: "commercial",
-    icon: FileText,
+    icon: BriefcaseBusiness,
     children: [
       {
         to: "/commercial",
         key: "commercialSummary",
-        icon: FileText
+        icon: BriefcaseBusiness
       },
       {
         to: "/commercial/leads",
@@ -129,7 +130,7 @@ export const businessNavItems: ShellNavItem[] = [
   {
     to: "/catalog",
     key: "catalog",
-    icon: Package2
+    icon: PackageSearch
   }
 ];
 
