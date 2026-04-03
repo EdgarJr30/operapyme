@@ -1,0 +1,3 @@
+-- Historical placeholder migration.
+-- This version already exists in the remote Supabase migration history.
+-- The local repo keeps this stub to align migration history and allow future pushes.

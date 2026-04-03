@@ -28,7 +28,7 @@ const quoteRecipientsMigrationPath = path.resolve(
   "supabase/migrations/202603270001_quote_recipients_leads_and_pdf_foundation.sql"
 );
 const quoteDocumentDiscountMigrationPath = path.resolve(
-  "supabase/migrations/202603270003_quote_document_discount.sql"
+  "supabase/migrations/202603270004_quote_document_discount.sql"
 );
 const tenantIsolationHardeningMigrationPath = path.resolve(
   "supabase/migrations/202603300001_tenant_isolation_hardening.sql"
