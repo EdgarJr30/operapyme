@@ -214,6 +214,7 @@ Usar `apps/backoffice-pwa/.env.example` como base:
 ```bash
 VITE_SUPABASE_URL=
 VITE_SUPABASE_PUBLISHABLE_KEY=
+VITE_PUBLIC_SITE_URL=
 ```
 
 Para variables backend u operativas de Supabase, usar `supabase/.env.example` como referencia y guardar los secretos reales solo en `supabase/.env.local`.

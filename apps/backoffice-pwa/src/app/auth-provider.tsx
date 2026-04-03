@@ -23,6 +23,7 @@ import {
 } from "@operapyme/domain";
 
 import {
+  getAuthCallbackUrl,
   isSupabaseConfigured,
   supabase
 } from "@/lib/supabase/client";
@@ -352,7 +353,7 @@ export function BackofficeAuthProvider({ children }: PropsWithChildren) {
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`
+        emailRedirectTo: getAuthCallbackUrl()
       }
     });
 
@@ -381,7 +382,7 @@ export function BackofficeAuthProvider({ children }: PropsWithChildren) {
     }
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/callback?flow=recovery`
+      redirectTo: getAuthCallbackUrl("?flow=recovery")
     });
 
     return error?.message ?? null;

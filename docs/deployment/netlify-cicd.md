@@ -38,6 +38,7 @@ Agregar estos secrets en el repo o en el environment `production`:
 - `NETLIFY_SITE_ID`
 - `VITE_SUPABASE_URL`
 - `VITE_SUPABASE_PUBLISHABLE_KEY`
+- `VITE_PUBLIC_SITE_URL`
 
 Reglas:
 
@@ -45,6 +46,7 @@ Reglas:
 - `NETLIFY_SITE_ID` debe apuntar al sitio Netlify real donde vive el backoffice.
 - las variables `VITE_*` son publicas por naturaleza y se usan para compilar la app en CI/CD.
 - no guardar secretos backend en `VITE_*`.
+- `VITE_PUBLIC_SITE_URL` debe apuntar a la URL publica canonica del backoffice, por ejemplo `https://operapyme.netlify.app`, para que magic link y recovery vuelvan al dominio correcto.
 
 ## Netlify
 

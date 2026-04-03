@@ -42,6 +42,7 @@ NETLIFY_AUTH_TOKEN=
 NETLIFY_SITE_ID=
 VITE_SUPABASE_URL=
 VITE_SUPABASE_PUBLISHABLE_KEY=
+VITE_PUBLIC_SITE_URL=
 ```
 
 El detalle operativo vive en `docs/deployment/netlify-cicd.md`.
@@ -53,6 +54,7 @@ Crear `apps/backoffice-pwa/.env.local` usando como base:
 ```bash
 VITE_SUPABASE_URL=
 VITE_SUPABASE_PUBLISHABLE_KEY=
+VITE_PUBLIC_SITE_URL=
 ```
 
 Reglas:

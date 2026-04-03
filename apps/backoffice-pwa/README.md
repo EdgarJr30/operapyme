@@ -19,9 +19,12 @@ El frontend solo consume variables publicas:
 ```bash
 VITE_SUPABASE_URL=
 VITE_SUPABASE_PUBLISHABLE_KEY=
+VITE_PUBLIC_SITE_URL=
 ```
 
 El `service role key` no vive aqui.
+
+Para magic link y recovery en produccion, `VITE_PUBLIC_SITE_URL` debe apuntar a la URL publica canonica del backoffice, por ejemplo `https://operapyme.netlify.app`.
 
 ## Deploy
 
