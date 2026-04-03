@@ -59,6 +59,9 @@ export function CommercialCustomersPage() {
   const [tableFilter, setTableFilter] =
     useState<CustomerTableFilter>("operational");
   const [modalMode, setModalMode] = useState<CustomerModalMode>(null);
+  const [pendingArchiveCustomerId, setPendingArchiveCustomerId] = useState<
+    string | null
+  >(null);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(
     null
   );
@@ -127,6 +130,10 @@ export function CommercialCustomersPage() {
     form.reset(customerFormDefaultValues);
   }
 
+  function closeArchiveDialog() {
+    setPendingArchiveCustomerId(null);
+  }
+
   function openCreateModal() {
     setSelectedCustomerId(null);
     setModalMode("create");
@@ -135,6 +142,14 @@ export function CommercialCustomersPage() {
   function openEditModal(customer: CustomerSummary) {
     setSelectedCustomerId(customer.id);
     setModalMode("edit");
+  }
+
+  function openArchiveDialog(customer: CustomerSummary) {
+    if (customer.status === "archived") {
+      return;
+    }
+
+    setPendingArchiveCustomerId(customer.id);
   }
 
   async function handleSubmit(values: CustomerFormValues) {
@@ -164,20 +179,30 @@ export function CommercialCustomersPage() {
     }
   }
 
-  async function handleArchiveCustomer(customer: CustomerSummary) {
-    if (customer.status === "archived") {
+  const pendingArchiveCustomer = useMemo(
+    () =>
+      customers.find((customer) => customer.id === pendingArchiveCustomerId) ??
+      null,
+    [customers, pendingArchiveCustomerId]
+  );
+
+  async function handleArchiveCustomer() {
+    if (!pendingArchiveCustomer || pendingArchiveCustomer.status === "archived") {
       return;
     }
 
     try {
-      await archiveCustomerMutation.mutateAsync({ customerId: customer.id });
+      await archiveCustomerMutation.mutateAsync({
+        customerId: pendingArchiveCustomer.id
+      });
+      closeArchiveDialog();
       toast.success(
         t("commercial.customers.archiveSuccess", {
-          customer: customer.displayName
+          customer: pendingArchiveCustomer.displayName
         })
       );
 
-      if (selectedCustomerId === customer.id) {
+      if (selectedCustomerId === pendingArchiveCustomer.id) {
         closeModal();
       }
     } catch (archiveError) {
@@ -201,6 +226,7 @@ export function CommercialCustomersPage() {
     modalMode === "edit"
       ? updateCustomerMutation.isPending
       : createCustomerMutation.isPending;
+  const isArchiving = archiveCustomerMutation.isPending;
 
   return (
     <div className="space-y-4">
@@ -363,11 +389,11 @@ export function CommercialCustomersPage() {
                           size="sm"
                           className="gap-2 text-ink"
                           disabled={
-                            archiveCustomerMutation.isPending ||
+                            isArchiving ||
                             customer.status === "archived"
                           }
                           onClick={() => {
-                            void handleArchiveCustomer(customer);
+                            openArchiveDialog(customer);
                           }}
                         >
                           <Trash2 className="size-4" />
@@ -382,6 +408,59 @@ export function CommercialCustomersPage() {
           )}
         </CardContent>
       </Card>
+
+      <Dialog
+        open={pendingArchiveCustomer !== null}
+        onOpenChange={(open) => {
+          if (!open && !isArchiving) {
+            closeArchiveDialog();
+          }
+        }}
+      >
+        <DialogContent closeLabel={t("shared.closeDialog")} className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
+              {t("commercial.customers.archiveConfirmTitle")}
+            </DialogTitle>
+            <DialogDescription>
+              {t("commercial.customers.archiveConfirmDescription", {
+                customer: pendingArchiveCustomer?.displayName ?? ""
+              })}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <p className="rounded-3xl border border-line/70 bg-sand/35 px-4 py-3 text-sm leading-6 text-ink-soft">
+              {t("commercial.customers.archiveConfirmNote")}
+            </p>
+
+            <div className="flex flex-wrap justify-end gap-3">
+              <Button
+                type="button"
+                variant="secondary"
+                size="lg"
+                onClick={closeArchiveDialog}
+                disabled={isArchiving}
+              >
+                {t("commercial.customers.cancelAction")}
+              </Button>
+              <Button
+                type="button"
+                size="lg"
+                className="bg-danger text-white hover:bg-danger/90"
+                onClick={() => {
+                  void handleArchiveCustomer();
+                }}
+                disabled={isArchiving || pendingArchiveCustomer === null}
+              >
+                {isArchiving
+                  ? t("commercial.customers.archiveSubmitting")
+                  : t("commercial.customers.archiveConfirmAction")}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Dialog
         open={modalMode !== null}

@@ -988,6 +988,13 @@ const backofficeEn = {
       editAction: "Edit",
       archiveAction: "Archive",
       cancelAction: "Cancel",
+      archiveConfirmTitle: "Archive customer",
+      archiveConfirmDescription:
+        "You are about to remove {customer} from the active customer flow.",
+      archiveConfirmNote:
+        "The customer will still be available under archived records for reference, but will stop showing in the default operating flow.",
+      archiveConfirmAction: "Yes, archive customer",
+      archiveSubmitting: "Archiving...",
       archiveSuccess: "{customer} is now out of the active flow.",
       archiveError: "We could not archive the customer. {message}",
       createModalTitle: "Create customer",

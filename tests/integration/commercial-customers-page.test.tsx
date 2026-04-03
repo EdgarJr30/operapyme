@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 
@@ -157,7 +157,7 @@ describe("commercial customers page", () => {
     );
   });
 
-  it("edits and archives customers from row actions", async () => {
+  it("edits customers from row actions without affecting archive flow", async () => {
     const mutationState = buildMutationState();
     customersPageMocks.useCustomerMutations.mockReturnValue(mutationState);
     const user = userEvent.setup();
@@ -179,7 +179,47 @@ describe("commercial customers page", () => {
       })
     );
 
+    expect(
+      mutationState.archiveCustomerMutation.mutateAsync
+    ).not.toHaveBeenCalled();
+  });
+
+  it("asks for confirmation before archiving a customer", async () => {
+    const mutationState = buildMutationState();
+    customersPageMocks.useCustomerMutations.mockReturnValue(mutationState);
+    const user = userEvent.setup();
+
+    renderPage();
+
     await user.click(await screen.findByRole("button", { name: /^Archivar$/i }));
+
+    const dialog = await screen.findByRole("dialog");
+    expect(
+      within(dialog).getByText(/Vas a sacar a MoonCode Demo del flujo activo/i)
+    ).toBeInTheDocument();
+
+    await user.click(within(dialog).getByRole("button", { name: /Cancelar/i }));
+
+    await waitFor(() => {
+      expect(
+        mutationState.archiveCustomerMutation.mutateAsync
+      ).not.toHaveBeenCalled();
+    });
+  });
+
+  it("archives a customer only after confirming in the modal", async () => {
+    const mutationState = buildMutationState();
+    customersPageMocks.useCustomerMutations.mockReturnValue(mutationState);
+    const user = userEvent.setup();
+
+    renderPage();
+
+    await user.click(await screen.findByRole("button", { name: /^Archivar$/i }));
+
+    const dialog = await screen.findByRole("dialog");
+    await user.click(
+      within(dialog).getByRole("button", { name: /Si, archivar cliente/i })
+    );
 
     expect(
       mutationState.archiveCustomerMutation.mutateAsync

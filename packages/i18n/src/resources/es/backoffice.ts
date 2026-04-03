@@ -990,6 +990,13 @@ const backofficeEs = {
       editAction: "Editar",
       archiveAction: "Archivar",
       cancelAction: "Cancelar",
+      archiveConfirmTitle: "Archivar cliente",
+      archiveConfirmDescription:
+        "Vas a sacar a {customer} del flujo activo de clientes.",
+      archiveConfirmNote:
+        "El cliente seguira disponible en archivados para consulta, pero dejara de aparecer en el flujo operativo por defecto.",
+      archiveConfirmAction: "Si, archivar cliente",
+      archiveSubmitting: "Archivando...",
       archiveSuccess: "{customer} ya salio del flujo activo.",
       archiveError: "No pudimos archivar el cliente. {message}",
       createModalTitle: "Crear cliente",
