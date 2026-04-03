@@ -1049,12 +1049,43 @@ const backofficeEs = {
         closed: "Rechazadas y expiradas",
         all: "Todas"
       },
-      createInvoiceAction: "Pasar a factura"
+      createInvoiceAction: "Pasar a factura",
+      cancellationReasonLabel: "Motivo de cierre"
     },
     invoices: {
       title: "Facturas",
       description:
         "Emite facturas documentales internas desde una cotizacion o desde cero.",
+      pageTitle: "Facturas",
+      pageDescription:
+        "Consulta todas las facturas, cambia estados operativos y crea documentos sin salir del listado.",
+      loadingTitle: "Cargando facturas",
+      loadingDescription:
+        "Estamos leyendo las facturas del tenant activo para abrir la mesa operativa.",
+      errorTitle: "No pudimos cargar las facturas",
+      errorDescription: "La lectura de facturas fallo por ahora. {message}",
+      emptyTitle: "Todavia no hay facturas",
+      emptyDescription:
+        "Cuando registres la primera factura, aparecera aqui con su estado y total.",
+      emptySearchTitle: "No encontramos facturas con ese filtro",
+      emptySearchDescription:
+        "Ajusta la busqueda o cambia el filtro para revisar mas documentos.",
+      searchPlaceholder: "Buscar por titulo, numero o receptor",
+      recipientLabel: "Receptor",
+      issuedOnColumnLabel: "Emision",
+      totalLabel: "Total",
+      actionsLabel: "Acciones",
+      newAction: "Nueva factura",
+      createModalTitle: "Crear factura",
+      createModalDescription:
+        "Completa el documento sin perder el contexto del listado operativo.",
+      cancelAction: "Cancelar",
+      filters: {
+        operational: "Activas",
+        paid: "Pagadas",
+        void: "Anuladas",
+        all: "Todas"
+      },
       formTitle: "Nueva factura",
       formDescription:
         "Completa receptor, detalle y fechas esenciales. Lo demas debe quedar fuera del camino.",
@@ -1090,6 +1121,7 @@ const backofficeEs = {
         paid: "Pagada",
         void: "Anulada"
       },
+      voidReasonLabel: "Motivo de anulacion",
       createAction: "Guardar factura",
       createSubmitting: "Guardando factura...",
       createSuccess: "Factura creada correctamente como {invoiceNumber}.",
@@ -1107,7 +1139,15 @@ const backofficeEs = {
       moving: "Moviendo...",
       moveSuccess: "{document} ahora esta en {status}.",
       moveError: "No pudimos mover el documento. {message}",
-      emptyStatus: "No hay documentos en este estado."
+      emptyStatus: "No hay documentos en este estado.",
+      reasonModalTitle: "Motivo del cambio de estado",
+      reasonModalDescription:
+        "Este cambio requiere un motivo documentado. Quedara registrado para trazabilidad y auditoria.",
+      reasonLabel: "Motivo",
+      reasonPlaceholder: "Describe brevemente el motivo...",
+      reasonRequiredError: "El motivo es obligatorio para este cambio de estado.",
+      confirmMoveAction: "Confirmar",
+      cancelMoveAction: "Cancelar"
     }
   },
   admin: {

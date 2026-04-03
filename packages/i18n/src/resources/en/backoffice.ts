@@ -1047,12 +1047,43 @@ const backofficeEn = {
         closed: "Rejected and expired",
         all: "All"
       },
-      createInvoiceAction: "Convert to invoice"
+      createInvoiceAction: "Convert to invoice",
+      cancellationReasonLabel: "Closing reason"
     },
     invoices: {
       title: "Invoices",
       description:
         "Issue internal documentary invoices from a quote or from scratch.",
+      pageTitle: "Invoices",
+      pageDescription:
+        "Review all invoices, change operational statuses, and create documents without leaving the list.",
+      loadingTitle: "Loading invoices",
+      loadingDescription:
+        "We are reading the invoices for the active tenant to open the operating board.",
+      errorTitle: "We could not load the invoices",
+      errorDescription: "Reading invoices failed for now. {message}",
+      emptyTitle: "No invoices yet",
+      emptyDescription:
+        "When you register the first invoice, it will appear here with its status and total.",
+      emptySearchTitle: "No invoices match that filter",
+      emptySearchDescription:
+        "Adjust the search or change the filter to review more documents.",
+      searchPlaceholder: "Search by title, number, or recipient",
+      recipientLabel: "Recipient",
+      issuedOnColumnLabel: "Issued",
+      totalLabel: "Total",
+      actionsLabel: "Actions",
+      newAction: "New invoice",
+      createModalTitle: "Create invoice",
+      createModalDescription:
+        "Complete the document without losing context from the operating list.",
+      cancelAction: "Cancel",
+      filters: {
+        operational: "Active",
+        paid: "Paid",
+        void: "Voided",
+        all: "All"
+      },
       formTitle: "New invoice",
       formDescription:
         "Complete recipient, detail, and essential dates. Everything else stays out of the way.",
@@ -1088,6 +1119,7 @@ const backofficeEn = {
         paid: "Paid",
         void: "Void"
       },
+      voidReasonLabel: "Void reason",
       createAction: "Save invoice",
       createSubmitting: "Saving invoice...",
       createSuccess: "Invoice created successfully as {invoiceNumber}.",
@@ -1105,7 +1137,15 @@ const backofficeEn = {
       moving: "Moving...",
       moveSuccess: "{document} is now in {status}.",
       moveError: "We could not move the document. {message}",
-      emptyStatus: "There are no documents in this state."
+      emptyStatus: "There are no documents in this state.",
+      reasonModalTitle: "Reason for status change",
+      reasonModalDescription:
+        "This change requires a documented reason. It will be recorded for traceability and audit.",
+      reasonLabel: "Reason",
+      reasonPlaceholder: "Briefly describe the reason...",
+      reasonRequiredError: "A reason is required for this status change.",
+      confirmMoveAction: "Confirm",
+      cancelMoveAction: "Cancel"
     }
   },
   admin: {
