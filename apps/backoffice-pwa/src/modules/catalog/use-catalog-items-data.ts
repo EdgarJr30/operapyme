@@ -14,7 +14,7 @@ export function useCatalogItemsData({
 
   const query = useQuery({
     queryKey: ["catalog-items", activeTenantId],
-    queryFn: () => listCatalogItemsForTenant(activeTenantId ?? "", 25),
+    queryFn: () => listCatalogItemsForTenant(activeTenantId ?? ""),
     enabled: Boolean(
       enabled && isConfigured && status === "signed_in" && activeTenantId
     )

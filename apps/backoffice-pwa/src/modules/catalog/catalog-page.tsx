@@ -1,8 +1,10 @@
-import { Boxes, Search, Tag } from "lucide-react";
+import { type ReactNode, useEffect, useMemo, useState } from "react";
 
-import { useMemo, useState, type ReactNode } from "react";
-
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Pencil, Plus, Search } from "lucide-react";
+import { useForm } from "react-hook-form";
 import { useTranslation } from "@operapyme/i18n";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -12,216 +14,266 @@ import {
   CardHeader,
   CardTitle
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
 import { StatusPill } from "@/components/ui/status-pill";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from "@/components/ui/table";
+import {
+  createCatalogItemFormSchema,
+  type CatalogItemFormValues
+} from "@/lib/forms/catalog-item-form-schema";
 import type {
   CatalogItemPricingMode,
   CatalogItemStatus,
   CatalogItemSummary
 } from "@/lib/supabase/backoffice-data";
-import { CatalogOperationsPanel } from "@/modules/catalog/catalog-operations-panel";
+import { CatalogItemFormFields } from "@/modules/catalog/catalog-operations-panel";
 import { useCatalogItemsData } from "@/modules/catalog/use-catalog-items-data";
+import { useCatalogMutations } from "@/modules/catalog/use-catalog-mutations";
+
+type CatalogModalMode = "create" | "edit" | null;
+type CatalogTableFilter = "all" | "active" | "inactive";
+
+const catalogStatusesByFilter: Record<
+  CatalogTableFilter,
+  CatalogItemStatus[] | undefined
+> = {
+  all: undefined,
+  active: ["active"],
+  inactive: ["draft", "archived"]
+};
+
+const createDefaultValues: CatalogItemFormValues = {
+  itemCode: "",
+  name: "",
+  category: "",
+  description: "",
+  kind: "product",
+  visibility: "public",
+  pricingMode: "fixed",
+  currencyCode: "USD",
+  unitPrice: 0,
+  status: "active",
+  notes: ""
+};
 
 export function CatalogPage() {
   const { t } = useTranslation("backoffice");
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchValue, setSearchValue] = useState("");
+  const [tableFilter, setTableFilter] = useState<CatalogTableFilter>("all");
+  const [modalMode, setModalMode] = useState<CatalogModalMode>(null);
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const catalogItemFormSchema = createCatalogItemFormSchema(t);
+
   const {
-    data,
+    data: items = [],
     error,
     hasTenantContext,
     isError,
     isLoading,
     refetch
   } = useCatalogItemsData();
-  const filteredItems = useMemo(() => {
-    const normalizedSearch = searchTerm.trim().toLowerCase();
 
-    if (!normalizedSearch) {
-      return data ?? [];
+  const { createCatalogItemMutation, updateCatalogItemMutation } =
+    useCatalogMutations();
+
+  const form = useForm<CatalogItemFormValues>({
+    resolver: zodResolver(catalogItemFormSchema),
+    defaultValues: createDefaultValues
+  });
+
+  const pricingMode = form.watch("pricingMode");
+
+  const selectedItem = useMemo(
+    () => items.find((item) => item.id === selectedItemId) ?? null,
+    [items, selectedItemId]
+  );
+
+  useEffect(() => {
+    if (pricingMode === "on_request") {
+      form.setValue("unitPrice", null, { shouldValidate: true });
+    }
+  }, [form, pricingMode]);
+
+  useEffect(() => {
+    if (modalMode !== "edit" || !selectedItem) {
+      return;
     }
 
-    return (data ?? []).filter((item) =>
-      [item.name, item.itemCode, item.category, item.description].some((value) =>
-        value?.toLowerCase().includes(normalizedSearch)
-      )
-    );
-  }, [data, searchTerm]);
-  const catalogSummary = useMemo(() => {
-    const items = data ?? [];
+    form.reset({
+      itemCode: selectedItem.itemCode ?? "",
+      name: selectedItem.name,
+      category: selectedItem.category ?? "",
+      description: selectedItem.description ?? "",
+      kind: selectedItem.kind,
+      visibility: selectedItem.visibility,
+      pricingMode: selectedItem.pricingMode,
+      currencyCode: selectedItem.currencyCode,
+      unitPrice:
+        selectedItem.pricingMode === "fixed"
+          ? (selectedItem.unitPrice ?? 0)
+          : null,
+      status: selectedItem.status,
+      notes: selectedItem.notes ?? ""
+    });
+  }, [modalMode, selectedItem, form]);
 
-    return {
-      total: items.length,
-      publicItems: items.filter((item) => item.visibility === "public").length,
-      onRequest: items.filter((item) => item.pricingMode === "on_request").length
-    };
-  }, [data]);
-  const hasSearchTerm = searchTerm.trim().length > 0;
+  const filteredItems = useMemo(() => {
+    const statusFilter = catalogStatusesByFilter[tableFilter];
+    const normalizedQuery = searchValue.trim().toLowerCase();
+
+    let result = statusFilter
+      ? items.filter((item) => statusFilter.includes(item.status))
+      : items;
+
+    if (normalizedQuery) {
+      result = result.filter((item) =>
+        [item.name, item.itemCode, item.category, item.description]
+          .filter(Boolean)
+          .some((value) => value?.toLowerCase().includes(normalizedQuery))
+      );
+    }
+
+    return result;
+  }, [items, searchValue, tableFilter]);
+
+  function openCreateModal() {
+    setSelectedItemId(null);
+    form.reset(createDefaultValues);
+    setModalMode("create");
+  }
+
+  function openEditModal(item: CatalogItemSummary) {
+    setSelectedItemId(item.id);
+    setModalMode("edit");
+  }
+
+  function closeModal() {
+    setModalMode(null);
+    setSelectedItemId(null);
+  }
+
+  async function onSubmit(values: CatalogItemFormValues) {
+    try {
+      if (modalMode === "edit" && selectedItem) {
+        await updateCatalogItemMutation.mutateAsync({
+          itemId: selectedItem.id,
+          ...values
+        });
+        toast.success(t("catalog.form.updateSuccess"));
+      } else {
+        await createCatalogItemMutation.mutateAsync(values);
+        toast.success(t("catalog.form.createSuccess"));
+      }
+
+      closeModal();
+    } catch (submitError) {
+      const message = submitError instanceof Error ? submitError.message : "";
+
+      if (modalMode === "edit") {
+        toast.error(t("catalog.form.updateError", { message }));
+      } else {
+        toast.error(t("catalog.form.createError", { message }));
+      }
+    }
+  }
+
+  const isMutating =
+    createCatalogItemMutation.isPending || updateCatalogItemMutation.isPending;
+
+  const modalTitle =
+    modalMode === "edit"
+      ? t("catalog.form.updateTitle")
+      : t("catalog.form.createTitle");
+
+  const modalDescription =
+    modalMode === "edit"
+      ? t("catalog.form.updateDescription")
+      : t("catalog.form.createDescription");
 
   return (
-    <div className="space-y-6">
-      <section className="grid gap-4 xl:grid-cols-[minmax(0,1.35fr)_340px]">
-        <div className="rounded-3xl border border-line/70 bg-paper p-4 shadow-panel sm:p-5">
-          <div className="space-y-4">
-            <div className="space-y-3">
-              <span className="inline-flex min-h-9 items-center rounded-full border border-line/70 bg-paper/85 px-3 text-xs font-semibold uppercase tracking-[0.18em] text-ink-muted">
-                {t("catalog.header.eyebrow")}
-              </span>
-              <div className="space-y-2">
-                <h1 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
-                  {t("catalog.header.title")}
-                </h1>
-                <p className="max-w-2xl text-sm leading-6 text-ink-soft">
-                  {t("catalog.header.description")}
-                </p>
-              </div>
+    <div className="space-y-4">
+      <h1 className="sr-only">{t("catalog.list.title")}</h1>
+
+      <Card>
+        <CardHeader className="gap-4">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div className="space-y-1">
+              <CardTitle>{t("catalog.list.title")}</CardTitle>
+              <CardDescription>{t("catalog.list.description")}</CardDescription>
             </div>
 
-            <div className="flex flex-wrap gap-2">
-              <StatusPill tone="info">
-                {t("catalog.overview.totalItems", {
-                  count: catalogSummary.total
-                })}
-              </StatusPill>
-              <StatusPill tone="success">
-                {t("catalog.overview.publicItems", {
-                  count: catalogSummary.publicItems
-                })}
-              </StatusPill>
-              <StatusPill tone="warning">
-                {t("catalog.overview.onRequestItems", {
-                  count: catalogSummary.onRequest
-                })}
-              </StatusPill>
-            </div>
-
-            <div className="flex flex-wrap gap-3">
-              <a
-                href="#catalog-editor"
-                className="inline-flex min-h-11 items-center justify-center rounded-full bg-brand px-4 text-sm font-medium text-brand-contrast shadow-soft transition hover:bg-brand-hover"
-              >
-                {t("catalog.actions.manageItems")}
-              </a>
-              <a
-                href="#catalog-list"
-                className="inline-flex min-h-11 items-center justify-center rounded-full border border-line-strong bg-paper/95 px-4 text-sm font-medium text-ink shadow-panel transition hover:bg-sand/70"
-              >
-                {t("catalog.actions.reviewList")}
-              </a>
-            </div>
+            <Button
+              type="button"
+              size="lg"
+              className="gap-2"
+              onClick={openCreateModal}
+            >
+              <Plus className="size-4" />
+              {t("catalog.form.createAction")}
+            </Button>
           </div>
-        </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>{t("catalog.overview.title")}</CardTitle>
-            <CardDescription>{t("catalog.overview.description")}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {!hasTenantContext ? (
-              <EmptyPanel
-                title={t("catalog.list.noTenantTitle")}
-                description={t("catalog.list.noTenantDescription")}
-              />
-            ) : isLoading ? (
-              <EmptyPanel
-                title={t("catalog.list.loadingTitle")}
-                description={t("catalog.list.loadingDescription")}
-              />
-            ) : isError ? (
-              <EmptyPanel
-                title={t("catalog.list.errorTitle")}
-                description={t("catalog.list.errorDescription", {
-                  message: error instanceof Error ? error.message : ""
-                })}
-                action={
-                  <Button
-                    className="mt-4"
-                    variant="secondary"
-                    onClick={() => {
-                      void refetch();
-                    }}
-                  >
-                    {t("catalog.list.retryAction")}
-                  </Button>
-                }
-              />
-            ) : catalogSummary.total > 0 ? (
-              <div className="space-y-3">
-                <SummaryRow
-                  icon={<Boxes className="size-4" aria-hidden="true" />}
-                  label={t("catalog.overview.totalLabel")}
-                  value={String(catalogSummary.total)}
-                />
-                <SummaryRow
-                  icon={<Tag className="size-4" aria-hidden="true" />}
-                  label={t("catalog.overview.publicLabel")}
-                  value={String(catalogSummary.publicItems)}
-                />
-                <SummaryRow
-                  icon={<Search className="size-4" aria-hidden="true" />}
-                  label={t("catalog.overview.onRequestLabel")}
-                  value={String(catalogSummary.onRequest)}
-                />
-              </div>
-            ) : (
-              <EmptyPanel
-                title={t("catalog.overview.emptyTitle")}
-                description={t("catalog.overview.emptyDescription")}
-              />
-            )}
-          </CardContent>
-        </Card>
-      </section>
-
-      <div id="catalog-editor">
-        <CatalogOperationsPanel items={data ?? []} />
-      </div>
-
-      <Card id="catalog-list">
-        <CardHeader>
-          <CardTitle>{t("catalog.list.title")}</CardTitle>
-          <CardDescription>{t("catalog.list.description")}</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <label htmlFor="catalog-search" className="text-sm font-medium text-ink">
-              {t("catalog.search.title")}
-            </label>
-            <div className="relative">
-              <Search
-                className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-ink-muted"
-                aria-hidden="true"
-              />
+          <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_220px]">
+            <label className="relative block">
+              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ink-muted" />
               <Input
-                id="catalog-search"
-                value={searchTerm}
-                onChange={(event) => setSearchTerm(event.target.value)}
-                className="pl-11"
+                value={searchValue}
+                onChange={(event) => {
+                  setSearchValue(event.target.value);
+                }}
                 placeholder={t("catalog.search.placeholder")}
+                className="pl-10"
               />
-            </div>
-            <p className="text-sm text-ink-soft">{t("catalog.search.description")}</p>
-          </div>
+            </label>
 
+            <Select
+              value={tableFilter}
+              onChange={(event) => {
+                setTableFilter(event.target.value as CatalogTableFilter);
+              }}
+            >
+              <option value="all">{t("catalog.filters.all")}</option>
+              <option value="active">{t("catalog.filters.active")}</option>
+              <option value="inactive">{t("catalog.filters.inactive")}</option>
+            </Select>
+          </div>
+        </CardHeader>
+
+        <CardContent>
           {!hasTenantContext ? (
-            <EmptyPanel
+            <TableState
               title={t("catalog.list.noTenantTitle")}
               description={t("catalog.list.noTenantDescription")}
             />
           ) : isLoading ? (
-            <EmptyPanel
+            <TableState
               title={t("catalog.list.loadingTitle")}
               description={t("catalog.list.loadingDescription")}
             />
           ) : isError ? (
-            <EmptyPanel
+            <TableState
               title={t("catalog.list.errorTitle")}
               description={t("catalog.list.errorDescription", {
                 message: error instanceof Error ? error.message : ""
               })}
               action={
                 <Button
-                  className="mt-4"
+                  type="button"
                   variant="secondary"
                   onClick={() => {
                     void refetch();
@@ -231,92 +283,146 @@ export function CatalogPage() {
                 </Button>
               }
             />
-          ) : filteredItems.length > 0 ? (
-            <div className="grid gap-4 lg:grid-cols-2">
-              {filteredItems.map((item) => (
-                <CatalogItemCard key={item.id} item={item} />
-              ))}
-            </div>
-          ) : hasSearchTerm && (data ?? []).length > 0 ? (
-            <EmptyPanel
-              title={t("catalog.list.searchEmptyTitle")}
-              description={t("catalog.list.searchEmptyDescription")}
+          ) : filteredItems.length === 0 ? (
+            <TableState
+              title={
+                items.length === 0
+                  ? t("catalog.list.emptyTitle")
+                  : t("catalog.list.searchEmptyTitle")
+              }
+              description={
+                items.length === 0
+                  ? t("catalog.list.emptyDescription")
+                  : t("catalog.list.searchEmptyDescription")
+              }
             />
           ) : (
-            <EmptyPanel
-              title={t("catalog.list.emptyTitle")}
-              description={t("catalog.list.emptyDescription")}
-            />
+            <Table className="min-w-200">
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="pl-0">
+                    {t("catalog.table.nameLabel")}
+                  </TableHead>
+                  <TableHead>{t("catalog.table.categoryLabel")}</TableHead>
+                  <TableHead>{t("catalog.table.kindLabel")}</TableHead>
+                  <TableHead>{t("catalog.table.visibilityLabel")}</TableHead>
+                  <TableHead>{t("catalog.table.pricingLabel")}</TableHead>
+                  <TableHead>{t("catalog.table.statusLabel")}</TableHead>
+                  <TableHead className="pr-0 text-right">
+                    {t("catalog.table.actionsLabel")}
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredItems.map((item) => (
+                  <TableRow key={item.id}>
+                    <TableCell className="pl-0">
+                      <div className="space-y-1">
+                        <p className="font-medium text-ink">{item.name}</p>
+                        <p className="text-sm text-ink-soft">
+                          {item.itemCode ?? t("catalog.list.noCode")}
+                        </p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <p className="text-sm text-ink">
+                        {item.category ?? t("catalog.list.noCategory")}
+                      </p>
+                    </TableCell>
+                    <TableCell>
+                      <StatusPill tone="info">
+                        {t(`catalog.kind.${item.kind}`)}
+                      </StatusPill>
+                    </TableCell>
+                    <TableCell>
+                      <StatusPill
+                        tone={item.visibility === "public" ? "success" : "neutral"}
+                      >
+                        {t(`catalog.visibility.${item.visibility}`)}
+                      </StatusPill>
+                    </TableCell>
+                    <TableCell>
+                      <StatusPill tone={getPricingTone(item.pricingMode)}>
+                        {formatCatalogPrice(item, t)}
+                      </StatusPill>
+                    </TableCell>
+                    <TableCell>
+                      <StatusPill tone={getStatusTone(item.status)}>
+                        {t(`catalog.status.${item.status}`)}
+                      </StatusPill>
+                    </TableCell>
+                    <TableCell className="pr-0">
+                      <div className="flex flex-wrap justify-end gap-2">
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          size="sm"
+                          className="gap-2"
+                          onClick={() => {
+                            openEditModal(item);
+                          }}
+                        >
+                          <Pencil className="size-4" />
+                          {t("catalog.table.editAction")}
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           )}
         </CardContent>
       </Card>
+
+      <Dialog
+        open={modalMode !== null}
+        onOpenChange={(open) => {
+          if (!open && !isMutating) {
+            closeModal();
+          }
+        }}
+      >
+        <DialogContent closeLabel={t("shared.closeDialog")} className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{modalTitle}</DialogTitle>
+            <DialogDescription>{modalDescription}</DialogDescription>
+          </DialogHeader>
+
+          <form
+            className="space-y-4"
+            onSubmit={form.handleSubmit(onSubmit)}
+            noValidate
+          >
+            <CatalogItemFormFields
+              form={form}
+              idPrefix="modal"
+              pricingMode={pricingMode}
+            />
+
+            <div className="flex flex-wrap justify-end gap-3 pt-2">
+              <Button
+                type="submit"
+                size="lg"
+                disabled={isMutating}
+              >
+                {isMutating
+                  ? modalMode === "edit"
+                    ? t("catalog.form.updateSubmitting")
+                    : t("catalog.form.createSubmitting")
+                  : modalMode === "edit"
+                    ? t("catalog.form.updateAction")
+                    : t("catalog.form.createAction")}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
 
-function CatalogItemCard({ item }: { item: CatalogItemSummary }) {
-  const { t } = useTranslation("backoffice");
-
-  return (
-    <div className="rounded-3xl border border-line/70 bg-paper/70 p-4">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p className="font-semibold text-ink">{item.name}</p>
-          <p className="text-sm text-ink-soft">
-            {item.itemCode || t("catalog.list.noCode")}
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <StatusPill tone={getStatusTone(item.status)}>
-            {t(`catalog.status.${item.status}`)}
-          </StatusPill>
-          <StatusPill tone={item.visibility === "public" ? "success" : "neutral"}>
-            {t(`catalog.visibility.${item.visibility}`)}
-          </StatusPill>
-        </div>
-      </div>
-
-      <p className="mt-3 text-sm leading-6 text-ink-soft">
-        {item.category || t("catalog.list.noCategory")}
-      </p>
-
-      <div className="mt-4 flex flex-wrap gap-2">
-        <StatusPill tone="info">{t(`catalog.kind.${item.kind}`)}</StatusPill>
-        <StatusPill tone={getPricingTone(item.pricingMode)}>
-          {formatCatalogPrice(item, t)}
-        </StatusPill>
-      </div>
-
-      <p className="mt-4 text-sm leading-6 text-ink-soft">
-        {item.description || item.notes || t("catalog.list.noDescription")}
-      </p>
-    </div>
-  );
-}
-
-function SummaryRow({
-  icon,
-  label,
-  value
-}: {
-  icon: ReactNode;
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="flex items-center justify-between gap-3 rounded-2xl border border-line/70 bg-sand/45 px-4 py-3">
-      <div className="flex items-center gap-3">
-        <span className="flex size-10 items-center justify-center rounded-2xl bg-paper text-ink shadow-panel">
-          {icon}
-        </span>
-        <span className="text-sm font-medium text-ink">{label}</span>
-      </div>
-      <span className="text-lg font-semibold tracking-tight text-ink">{value}</span>
-    </div>
-  );
-}
-
-function EmptyPanel({
+function TableState({
   title,
   description,
   action

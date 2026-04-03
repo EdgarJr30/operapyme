@@ -511,8 +511,23 @@ const backofficeEn = {
         notesMax: "Keep the notes under 500 characters."
       }
     },
+    filters: {
+      all: "All",
+      active: "Active only",
+      inactive: "Inactive"
+    },
+    table: {
+      nameLabel: "Name / Code",
+      categoryLabel: "Category",
+      kindLabel: "Type",
+      visibilityLabel: "Visibility",
+      pricingLabel: "Price",
+      statusLabel: "Status",
+      actionsLabel: "Actions",
+      editAction: "Edit"
+    },
     list: {
-      title: "Catalog list",
+      title: "Catalog",
       description:
         "Review available items, filter quickly, and detect missing information before quoting.",
       noTenantTitle: "There is no active tenant to read the catalog from",

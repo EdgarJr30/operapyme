@@ -262,7 +262,7 @@ export function CatalogOperationsPanel({
   );
 }
 
-function CatalogItemFormFields({
+export function CatalogItemFormFields({
   form,
   idPrefix,
   pricingMode

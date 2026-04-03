@@ -269,6 +269,7 @@ interface RawQuoteRow {
   status: QuoteStatus;
   version: number;
   valid_until: string | null;
+  cancellation_reason: string | null;
   notes: string | null;
   created_at: string;
   updated_at: string;
@@ -297,6 +298,7 @@ interface RawInvoiceRow {
   status: InvoiceStatus;
   issued_on: string | null;
   due_on: string | null;
+  void_reason: string | null;
   notes: string | null;
   created_at: string;
   updated_at: string;
@@ -771,16 +773,21 @@ export async function listLeadsForTenant(
 
 export async function listCatalogItemsForTenant(
   tenantId: string,
-  limit = 25
+  limit?: number | null
 ): Promise<CatalogItemSummary[]> {
   const client = requireSupabaseClient();
   const scopedTenantId = requireTenantScope(tenantId);
-  const { data, error } = await client
+  let query = client
     .from("catalog_items")
     .select(catalogItemSelectFields)
     .eq("tenant_id", scopedTenantId)
-    .order("updated_at", { ascending: false })
-    .limit(limit);
+    .order("updated_at", { ascending: false });
+
+  if (typeof limit === "number") {
+    query = query.limit(limit);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     throw new Error(error.message);
