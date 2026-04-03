@@ -14,7 +14,7 @@ import {
   X
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 
 import {
   DropdownMenu,
@@ -422,8 +422,7 @@ export function BackofficeSidebar({
   t: (key: string) => string;
 }) {
   const location = useLocation();
-  const navigate = useNavigate();
-  const { isMobile, setOpenMobile, state } = useSidebar();
+  const { isMobile, setOpen, setOpenMobile, state } = useSidebar();
   const isCollapsed = !isMobile && state === "collapsed";
   const showTenantSwitcher = memberships.length > 1 && !isCollapsed;
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() =>
@@ -541,15 +540,6 @@ export function BackofficeSidebar({
               <SidebarGroupContent>
                 <SidebarMenu>
                   {section.items.map(({ children, to, key, icon: Icon }) => {
-                    const activeChildKey =
-                      children?.find((child) =>
-                        isExactItemPathActive(location.pathname, child.to)
-                      )?.key ?? null;
-                    const isGroupActive = activeChildKey !== null;
-                    const isParentCurrentRoute = isExactItemPathActive(
-                      location.pathname,
-                      to
-                    );
                     const showChildren =
                       Boolean(children?.length) && !isCollapsed && openGroups[key];
 
@@ -561,28 +551,19 @@ export function BackofficeSidebar({
                               isCollapsed,
                               t(`navigation.${key}`),
                               <SidebarMenuButton
-                                isActive={
-                                  isParentCurrentRoute ||
-                                  (isCollapsed && isGroupActive)
-                                }
+                                isActive={false}
                                 className={cn(
                                   "rounded-xl",
                                   isCollapsed ? "justify-center px-0" : ""
                                 )}
                                 onClick={() => {
-                                  if (!isGroupActive) {
-                                    setOpenGroups((currentValue) => ({
-                                      ...currentValue,
-                                      [key]: true
-                                    }));
-                                    handleNavigate();
-                                    navigate(to);
-                                    return;
+                                  if (isCollapsed) {
+                                    setOpen(true);
                                   }
 
                                   setOpenGroups((currentValue) => ({
                                     ...currentValue,
-                                    [key]: !currentValue[key]
+                                    [key]: isCollapsed ? true : !currentValue[key]
                                   }));
                                 }}
                                 aria-label={t(`navigation.${key}`)}
@@ -593,11 +574,7 @@ export function BackofficeSidebar({
                                 <span
                                   className={cn(
                                     "flex size-9 shrink-0 items-center justify-center rounded-lg transition",
-                                    isCollapsed
-                                      ? ""
-                                      : isGroupActive || openGroups[key]
-                                        ? "bg-white/12"
-                                        : "group-hover:bg-sidebar-border/55"
+                                    isCollapsed ? "" : "group-hover:bg-sidebar-border/55"
                                   )}
                                 >
                                   <Icon className="size-4.5" aria-hidden="true" />
