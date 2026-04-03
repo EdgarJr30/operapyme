@@ -94,9 +94,7 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 ### Documentos clave
 
 - [docs/saas-blueprint.md](./docs/saas-blueprint.md): alcance actual, modulos core y roadmap del producto.
-- [docs/ui-ux-direction.md](./docs/ui-ux-direction.md): direccion visual y reglas de UX mobile-first.
-- [docs/governance/UI_UX_RULES.md](./docs/governance/UI_UX_RULES.md): contrato obligatorio de UX/UI, mobile-first, accesibilidad, espaciado y navegacion.
-- [docs/tenant-theming.md](./docs/tenant-theming.md): estrategia de branding por tenant y appearance modes.
+- [docs/governance/UI_UX_RULES.md](./docs/governance/UI_UX_RULES.md): contrato unico de UX/UI, shell, theming, accesibilidad, espaciado y reglas de layout mobile-first y desktop.
 - [docs/development-setup.md](./docs/development-setup.md): instalacion, scripts y flujo local.
 - [docs/governance/PERFORMANCE_RULES.md](./docs/governance/PERFORMANCE_RULES.md): reglas obligatorias para bundle inicial, refresh, bootstrap de auth y carga diferida.
 - [docs/architecture/SUPABASE_ARCHITECTURE.md](./docs/architecture/SUPABASE_ARCHITECTURE.md): fundacion segura de backend con RBAC, RLS y auditoria.
@@ -131,7 +129,7 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 - scaffold inicial del backoffice en progreso
 - shell operativo del backoffice alineado con sidebar desktop, navbar superior y bottom navigation movil
 - shell del backoffice ya migrado a `shadcn/ui` sidebar con base `Radix UI`, manteniendo la misma estructura operativa de navegacion
-- backoffice fijado en `light` con paleta operativa `#2D3E50 / #FF7A00 / #4B637A / #F4F7F9`
+- baseline visual del backoffice hoy es light-first con paleta operativa `#2D3E50 / #FF7A00 / #4B637A / #F4F7F9`
 - CI sembrado en GitHub Actions con quality checks y smoke E2E
 - CD sembrado hacia Netlify para publicar `apps/backoffice-pwa` cuando `main` pasa CI
 - refresh del backoffice aligerado con auth bootstrap deduplicado, rutas criticas diferidas, PDF fuera del bundle inicial y soporte global diferido para toast/permisos
@@ -246,8 +244,8 @@ Para variables backend u operativas de Supabase, usar `supabase/.env.example` co
 - El backoffice soporta `light`, `dark` y `system`.
 - La preferencia de apariencia se persiste por dispositivo.
 - La apariencia personal y el branding por tenant son capas distintas.
-- El branding actual incluye paletas curadas de tono pastel refinado y una paleta propia basica generada desde cuatro colores base.
-- La estrategia de paletas curadas por tenant vive en [docs/tenant-theming.md](./docs/tenant-theming.md).
+- El branding actual incluye paletas curadas de tono refinado y una paleta propia basica generada desde colores semilla.
+- Las reglas canonicas de theming y direccion visual viven en [docs/governance/UI_UX_RULES.md](./docs/governance/UI_UX_RULES.md).
 
 ### Donde vive la app React real
 
@@ -324,8 +322,7 @@ The current product focus is:
 ### Key docs
 
 - [docs/saas-blueprint.md](./docs/saas-blueprint.md): current scope, core modules, and roadmap.
-- [docs/ui-ux-direction.md](./docs/ui-ux-direction.md): visual direction and mobile-first UX rules.
-- [docs/tenant-theming.md](./docs/tenant-theming.md): tenant branding and appearance strategy.
+- [docs/governance/UI_UX_RULES.md](./docs/governance/UI_UX_RULES.md): single UX/UI contract for shell, theming, accessibility, spacing, and mobile-first plus desktop layout rules.
 - [docs/development-setup.md](./docs/development-setup.md): install and local development flow.
 - [docs/project-naming.md](./docs/project-naming.md): temporary naming status and future rename criteria.
 - [docs/product/QUOTE_MODULE_GUIDELINES.md](./docs/product/QUOTE_MODULE_GUIDELINES.md): product criteria, research, and implementation decisions for quoting.

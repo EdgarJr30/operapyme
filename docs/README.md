@@ -35,7 +35,6 @@ Esta carpeta contiene la documentacion canonica en Markdown para `OperaPyme`.
 
 - `governance/CODING_RULES.md`
 - `governance/DOCUMENTATION_RULES.md`
-- `governance/INSTITUTIONAL_UI_RULES.md`
 - `governance/REGRESSION_RULES.md`
 - `governance/SECURITY_RULES.md`
 - `governance/SUPABASE_RULES.md`
@@ -56,9 +55,7 @@ Esta carpeta contiene la documentacion canonica en Markdown para `OperaPyme`.
 - `docs/notion-information-architecture.md`
 - `docs/project-naming.md`
 - `docs/saas-blueprint.md`
-- `docs/tenant-theming.md`
 - `docs/treinta-research-rd.md`
-- `docs/ui-ux-direction.md`
 
 ## Superficies canonicas del producto
 
@@ -73,6 +70,7 @@ Esta carpeta contiene la documentacion canonica en Markdown para `OperaPyme`.
 2. Los detalles operativos de una carpeta concreta viven en su `README.md` local.
 3. `README.md` de la raiz mantiene el resumen bilingue; `docs/` opera en espanol first.
 4. Cuando se agrega, mueve o elimina un documento canonico, este indice se actualiza en la misma tarea.
+5. Las reglas visuales, de UX, shell y theming viven unificadas en `governance/UI_UX_RULES.md`; no duplicarlas en otros docs de reglas.
 
 ## Sincronizacion con Notion y Linear
 

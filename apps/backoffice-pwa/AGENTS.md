@@ -21,6 +21,7 @@
 - No usar layouts desktop-first encogidos.
 - Bottom navigation en movil; sidebar solo en desktop amplio.
 - El sidebar desktop debe quedar fijo e independiente del scroll del contenido; no se permite usar scroll del rail como solucion de layout.
+- En desktop amplio, las vistas operativas deben aprovechar el ancho con grids y composicion paralela; no se permiten dashboards resueltos como una sola torre vertical estrecha cuando el contenido admite lectura lado a lado.
 - CTA principal visible sin tener que buscarlo.
 - Touch targets minimos de 44px.
 - Inputs con label arriba, nunca solo placeholder.
@@ -28,7 +29,7 @@
 - No usar modales para flujos largos en movil; preferir pantalla completa o drawer.
 - No convertir dark mode en la identidad visual por defecto ni en un dashboard oscuro saturado.
 - No usar morado generico como color principal.
-- Usar la direccion visual definida en `docs/ui-ux-direction.md`.
+- Usar `docs/governance/UI_UX_RULES.md` como contrato visual unico, incluyendo shell, theming y reglas de densidad desktop.
 - Las pantallas runtime del backoffice deben abrir con resumen operativo, acciones y estados reales; no usar cards de blueprint, scaffold, reglas internas o explicaciones tecnicas dentro de la app.
 - Toda animacion, transicion de entrada o salida, drawer, popover o apertura/cierre de modal debe implementarse con `motion.dev` (`motion`).
 - Respetar `prefers-reduced-motion` con la configuracion global de Motion y evitar animaciones decorativas que ralenticen tareas operativas.

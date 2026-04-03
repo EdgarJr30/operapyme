@@ -30,9 +30,7 @@ Fuera de alcance por ahora:
 Antes de proponer arquitectura, modelo de datos o UX, revisar:
 
 - `docs/saas-blueprint.md`
-- `docs/ui-ux-direction.md`
 - `docs/governance/UI_UX_RULES.md`
-- `docs/tenant-theming.md`
 - `README.md`
 
 Si una decision nueva cambia el rumbo del producto, documentarla primero.
@@ -158,7 +156,7 @@ Una entrega esta incompleta si no incluye:
 - Si el cambio impacta el entendimiento general del repo, actualizar `README.md`.
 - Si el cambio agrega, endurece o cambia reglas operativas del equipo o de Codex, actualizar este `AGENTS.md`.
 - Si el cambio afecta solo a una app, actualizar tambien su `apps/*/AGENTS.md`.
-- Si el cambio afecta direccion visual, branding o apariencia, actualizar `docs/ui-ux-direction.md` y `docs/tenant-theming.md` cuando corresponda.
+- Si el cambio afecta direccion visual, branding, theming, layout o apariencia, actualizar `docs/governance/UI_UX_RULES.md`.
 - Si el cambio fija o modifica reglas permanentes de animacion o interaccion, actualizar tambien `AGENTS.md` y el `apps/*/AGENTS.md` afectado en la misma tarea.
 - Si el cambio afecta arquitectura, alcance del producto o modulos core, actualizar `docs/saas-blueprint.md`.
 - Si una tarea introduce o cambia flujos, mapas, diagramas, decisiones de producto o contexto operativo util para el equipo, actualizar tambien Notion en `MoonCode > Saas Opera Pyme` dentro de la misma tarea.

@@ -229,7 +229,7 @@ La home de Notion no deberia ser una lista larga de links. Deberia tener este or
 ### Si alguien quiere entender diseño
 
 - `Inicio de OperaPyme`
-- `Diseno y UX > Direccion visual`
+- `Diseno y UX > Reglas maestras de UI y UX`
 - `Diseno y UX > Navegacion del backoffice`
 - `Diseno y UX > Flujos clave`
 
@@ -246,8 +246,7 @@ La home de Notion no deberia ser una lista larga de links. Deberia tener este or
 - `docs/product/PRD.md` -> `Producto > Vision y propuesta de valor`
 - `docs/product/ROADMAP.md` -> `Producto > Roadmap por fases`
 - `docs/saas-blueprint.md` -> `Producto > Alcance del producto`
-- `docs/ui-ux-direction.md` -> `Diseno y UX > Direccion visual`
-- `docs/tenant-theming.md` -> `Diseno y UX > Theming por tenant`
+- `docs/governance/UI_UX_RULES.md` -> `Diseno y UX > Reglas maestras de UI y UX`
 - `docs/architecture/*` -> `Arquitectura y seguridad/*`
 - `docs/domain/*` -> `Arquitectura y seguridad/*`
 - `docs/development-setup.md` -> `Delivery > Setup y entorno`

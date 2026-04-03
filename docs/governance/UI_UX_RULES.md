@@ -1,16 +1,21 @@
-# UI_UX_RULES.md - Shared Design System and Mobile-First UX/UI Rules
+# UI_UX_RULES.md
 
-## 1. Purpose
+## 1. Proposito
 
-This file defines the mandatory UX/UI rules for the entire product.
+Este archivo define el contrato obligatorio de UX/UI para `OperaPyme`.
 
-These rules are intentionally specific. Future work must treat them as implementation constraints, not optional inspiration.
+Regla de gobernanza:
 
-Last major standards review: 2026-03-14.
+- este es el unico documento canonico de reglas UX/UI del repo
+- absorbe el criterio que antes vivia en `docs/ui-ux-direction.md`, `docs/tenant-theming.md` y `docs/governance/INSTITUTIONAL_UI_RULES.md`
+- no se deben crear otros archivos paralelos de reglas visuales o de experiencia para competir con este contrato
+- `AGENTS.md` y `apps/*/AGENTS.md` pueden resumirlo, pero no contradecirlo
 
-## 2. Research baseline
+Ultima revision mayor: `2026-04-03`.
 
-This governance file is based on a synthesis of current market guidance from:
+## 2. Base externa y precedencia
+
+Este contrato se apoya en una sintesis de:
 
 - Apple Human Interface Guidelines
 - Material Design / Android design guidance
@@ -18,132 +23,81 @@ This governance file is based on a synthesis of current market guidance from:
 - Baymard Institute research on forms and readability
 - Smashing Magazine UX/UI best-practice articles
 
-Priority rule:
+Regla de precedencia:
 
-- **Apple Human Interface Guidelines are the primary UX/UI reference for this product.**
-- **Apple UI Design Dos and Don'ts must be treated as mandatory review criteria for all new UI work.**
-- When Apple guidance and other systems differ, default to the Apple mental model unless platform-specific constraints, accessibility, or implementation realities require an exception.
-- Material, WCAG, Baymard, and Smashing remain supporting references for accessibility, responsive behavior, forms, and evidence-based usability.
+1. Apple HIG es la referencia principal de calidad visual y claridad de interaccion.
+2. WCAG 2.2 manda cuando haya una decision de accesibilidad.
+3. Baymard manda como soporte para formularios, legibilidad y scanning.
+4. Material sirve como referencia secundaria de layout responsive y patrones tactiles.
+5. Si una futura decision cambia este contrato, debe compararse contra estas fuentes y actualizarse en la misma tarea.
 
-When a future redesign changes these rules, the new decision must still be benchmarked against current external standards and this file must be updated in the same task.
+## 3. Norte de producto
 
-## 3. Product-wide UX principles
+La interfaz debe sentirse:
 
-1. **Mobile-first is mandatory.** Design from the smallest viewport up.
-2. **PWA-native feel is mandatory.** The app must feel installable, resilient, and touch-first.
-3. **RBAC-aware UX is mandatory.** Navigation, actions, empty states, and routes must match permissions.
-4. **Low cognitive load wins.** Show only what helps the current task.
-5. **Consistency beats novelty.** Reuse established patterns before inventing new ones.
-6. **Accessibility is part of quality.** It is not an optional polish pass.
-7. **One primary action at a time.** Each screen or action zone should make the next step obvious.
-8. **Apple-grade clarity is the visual bar.** Interfaces should favor calm hierarchy, generous spacing, obvious affordances, and polished restraint over busy dashboards.
-9. **Customer-facing entrypoints must look like product, not tooling.** Public landing and shell surfaces must avoid exposing QA or operations language by default.
+- calmada
+- profesional
+- legible
+- operativa
+- confiable
+- mobile-first de verdad
 
-## 3.1 Mandatory UI libraries
+Principios obligatorios:
 
-The project must standardize on the same libraries for reusable UI building blocks.
+1. Mobile-first siempre.
+2. El backoffice debe sentirse como PWA instalable, estable y tactil.
+3. La UX debe respetar RBAC en navegacion, acciones, estados vacios y rutas.
+4. Menor carga cognitiva gana.
+5. Una accion primaria clara por bloque o zona.
+6. Consistencia gana a la novedad.
+7. Accesibilidad es calidad, no un polish posterior.
+8. Tiempo a valor primero: resumen operativo, siguientes pasos y estado real antes que decoracion.
+9. Si una pantalla requiere una explicacion larga para entenderse, la UX aun no esta lista.
+10. Wizards, defaults y plantillas ganan a configuraciones largas.
+11. Las pantallas runtime del backoffice no deben mostrar copy de scaffold, blueprint, reglas internas o explicaciones tecnicas.
+12. Las superficies publicas deben explicar el valor del producto rapido, sin claims tecnicos imposibles de verificar.
 
-Mandatory choices:
+## 4. Stack UI obligatorio
 
-- **Icons: `lucide-react`**
-- **Component foundation: `shadcn/ui`**
-- **Default primitive base for `shadcn/ui`: `Radix UI`**
-- **Toast feedback: `sonner`**
+Elecciones obligatorias:
 
-Enforcement rules:
+- iconos: `lucide-react`
+- base de componentes: `shadcn/ui`
+- base de primitives para `shadcn/ui`: `Radix UI`
+- feedback transitorio: `sonner`
+- animacion e interacciones: `motion.dev` (`motion`)
+- i18n visible al usuario: `packages/i18n`
 
-1. Do not introduce additional general-purpose icon libraries such as `react-icons`, Heroicons, Phosphor, Tabler, or Iconify for product UI.
-2. All reusable UI primitives and composed design-system components must live under `src/components/ui`, following the `shadcn/ui` local-ownership model.
-3. `shadcn/ui` components may be customized to match the product visual language, but the project must not mix multiple component-library foundations for the same problem space.
-4. For `OperaPyme`, `shadcn/ui` should default to `Radix UI` primitives unless a documented exception approves `Base UI` for a specific case.
-5. If a needed pattern does not yet exist, prefer adding or adapting a `shadcn/ui`-aligned component before creating a feature-local one-off implementation.
-6. Icons should default to Lucide stroke icons unless a documented brand or product exception requires a custom asset.
-7. Do not introduce alternate toast/alert libraries such as `react-toastify`, `sweetalert2`, or similar packages for app feedback.
-8. Use `sonner` only for transient feedback such as success, lightweight errors, and non-blocking status messages.
-9. Confirmation flows, destructive actions, and multi-step decisions must use shared dialogs, sheets, or full-page flows instead of toast-only patterns or browser alerts.
+Reglas de enforcement:
 
-## 4. Apple UI design dos and don'ts
+1. No introducir otra libreria general de iconos para UI de producto.
+2. No mezclar varias foundations de componentes para el mismo problema.
+3. Los componentes reutilizables deben vivir bajo `src/components/ui` siguiendo el modelo local de `shadcn/ui`.
+4. Si falta un patron, extender el sistema compartido antes de crear una solucion local de feature.
+5. No introducir otro sistema global de toasts o alerts para feedback transitorio.
+6. No introducir otra libreria de animacion para modales, drawers, overlays, page transitions o microinteracciones sin decision documentada.
+7. Todo texto visible nuevo debe salir con soporte `es` y `en` desde `packages/i18n`.
+8. Si el cambio de copy solo necesita placeholders simples como `{count}` o `{tenant}`, usar interpolacion nativa de i18next.
 
-These rules are derived from Apple's UI Design Dos and Don'ts and are mandatory for this product.
+## 5. Estrategia de viewport
 
-### 4.1 Interactivity
+1. El viewport minimo soportado es `320px`.
+2. La composicion por defecto debe optimizarse primero para `360px` a `390px`.
+3. Tambien se debe revisar `768px`, `1024px`, `1280px` y `1440px` en entregas visuales relevantes.
+4. No puede existir scroll horizontal en un flujo critico sobre mobile.
+5. Desktop puede ganar densidad y visibilidad paralela, pero no puede inventar una arquitectura de informacion distinta a la resuelta en mobile.
+6. Deben respetarse safe areas de iOS y Android cuando aplique.
+7. En mobile, las acciones primarias frecuentes deben quedar dentro de una zona de alcance razonable sin precision excesiva.
 
-Do:
+## 6. Layout, espaciado y uso horizontal
 
-1. Use controls that clearly look tappable and behave predictably.
-2. Keep controls close to the content they affect.
-3. Make touch interactions feel easy, direct, and forgiving.
+### 6.1 Escala de espaciado
 
-Don't:
+Usar una escala basada en `8px`.
 
-1. Hide primary actions in ambiguous iconography.
-2. Rely on precision tapping for common actions.
-3. Separate a control from the content it modifies when proximity would improve understanding.
+Tokens permitidos:
 
-### 4.2 Readability
-
-Do:
-
-1. Keep primary content visible without zooming or horizontal scrolling.
-2. Maintain readable text sizes, contrast, spacing, and line height.
-3. Align text and controls to make relationships obvious.
-
-Don't:
-
-1. Let text overlap, truncate carelessly, or collapse into visually noisy blocks.
-2. Use tiny text for important content.
-3. Depend on dense layouts that make scanning harder on mobile.
-
-### 4.3 Graphics
-
-Do:
-
-1. Use high-resolution assets and preserve intended aspect ratios.
-2. Use illustration, iconography, and tint as support for hierarchy and comprehension.
-3. Keep visual styling calm and intentional.
-
-Don't:
-
-1. Stretch or distort images.
-2. Use decorative graphics that compete with primary tasks.
-3. Overuse shadows, blur, gradients, or ornamental effects just because they look premium.
-
-### 4.4 Clarity and organization
-
-Do:
-
-1. Create an easy-to-read layout with clear alignment and grouping.
-2. Keep related items visually connected through spacing and structure.
-3. Reduce competing emphasis so the next action feels obvious.
-
-Don't:
-
-1. Scatter related information across disconnected sections.
-2. Overload a screen with too many equal-priority actions.
-3. Add visual chrome when spacing, grouping, and hierarchy would solve the problem more cleanly.
-
-### 4.5 Enforcement
-
-1. Every new screen review must explicitly check hit targets, readability, alignment, organization, image quality, and no-horizontal-scroll behavior.
-2. If a UI proposal violates Apple's published do/don't guidance, it must be revised before implementation unless a documented exception is approved.
-
-## 5. Mobile-first viewport rules
-
-1. Start layouts at **320px** width as the minimum supported viewport.
-2. Optimize the default mobile composition for common widths between **360px and 390px**.
-3. Respect safe areas on iOS and Android devices with notches, rounded corners, or gesture bars.
-4. No critical workflow may require horizontal scrolling on mobile.
-5. Desktop may add density and parallel visibility, but it must not redefine the task flow established on mobile.
-
-## 6. Layout and spacing system
-
-### 6.1 Spacing scale
-
-Use a tokenized spacing system based on **8px** increments.
-
-Allowed spacing tokens:
-
-- `4px` only for micro-adjustments such as icon gaps or hairline rhythm fixes
+- `4px` solo para microajustes
 - `8px`
 - `12px`
 - `16px`
@@ -154,405 +108,333 @@ Allowed spacing tokens:
 - `56px`
 - `64px`
 
-Do not introduce arbitrary spacing values unless a reusable token is added to the design system.
+No introducir espaciados arbitrarios si no pasan a ser token del sistema.
 
-### 6.2 Page padding
+### 6.2 Padding de pagina
 
-- mobile page padding: **16px** minimum
-- large phone / phablet padding: **20px to 24px**
-- tablet and desktop content padding: **24px to 32px**
+- mobile: `16px` minimo
+- large phone / phablet: `20px` a `24px`
+- tablet y desktop: `24px` a `32px`
 
-### 6.3 Vertical rhythm
+### 6.3 Ritmo vertical
 
-- gap between tightly related controls: **8px**
-- gap between form fields in the same group: **12px to 16px**
-- gap between content groups in the same section: **16px to 24px**
-- gap between major sections: **24px to 32px**
-- gap between page-level blocks: **32px to 48px**
+- entre controles muy relacionados: `8px`
+- entre campos del mismo grupo: `12px` a `16px`
+- entre grupos dentro de la misma seccion: `16px` a `24px`
+- entre secciones mayores: `24px` a `32px`
+- entre bloques de pagina: `32px` a `48px`
 
-### 6.4 Containers
+Regla:
 
-- card padding on mobile: **16px**
-- card padding on desktop: **20px to 24px**
-- modal or sheet body padding: **16px to 24px**
-- sticky bottom action bars must keep **16px** horizontal padding and account for safe-area insets
+- no usar vacios verticales gigantes para simular premium; la jerarquia debe venir de agrupacion, contraste y composicion
 
-### 6.5 Layout rules
+### 6.4 Anchuras de contenedor
 
-1. Mobile uses a single-column layout by default.
-2. Two-column layouts are allowed only when both columns remain readable and tappable at the active breakpoint.
-3. Long forms, job details, candidate profiles, and ATS entities must stack vertically first, then progressively enhance.
-4. Do not create "desktop-only" information architecture branches.
-5. Public landing sections that visually belong to the same first-fold system must share the same max-width and side padding as the public header at the matching breakpoint.
-6. Staggered or editorial compositions are allowed for customer-facing marketing sections only when they remain in normal flow at small breakpoints, preserve readable spacing between cards, and avoid accidental overlap or collision at any supported viewport.
+- superficies de lectura o escritura larga: `720px` a `880px` maximo util
+- modulos operativos estandar del backoffice: `1280px` maximo recomendado
+- vistas densas con tablas, grids o comparacion paralela: se permite crecer hasta `1440px`
+- superficies publicas y landings: `1200px` a `1280px`
 
-### 6.6 Public landing spacing standard
+Reglas:
 
-Use a tighter shared rhythm for marketing sections so the landing reads as one continuous product story instead of isolated blocks with excessive empty space.
+1. En desktop, un modulo operativo no debe quedarse atrapado en un contenedor demasiado estrecho por costumbre.
+2. Evitar `max-width` de lectura en dashboards o vistas de gestion si eso desperdicia ancho y obliga a apilar todo verticalmente.
+3. Si el contenido es operativo y escaneable, usar el ancho para comparar, resumir y decidir mejor.
 
-Required defaults:
+### 6.5 Composicion mobile-first
 
-- public landing major section padding: **48px mobile / 56px tablet / 64px desktop**
-- public landing continuation section padding: **40px mobile / 48px tablet / 56px desktop**
-- gap between a section header and its main content block: **32px mobile / 40px tablet / 48px desktop**
-- gap between consecutive support blocks inside the same landing section: **24px to 32px**
+1. Mobile usa una sola columna por defecto.
+2. Formularios largos, detalles extensos y flujos de captura se apilan primero y luego mejoran progresivamente.
+3. Dos columnas en mobile solo se permiten si ambas siguen siendo legibles y tactiles.
+4. Barras de accion sticky en mobile deben respetar safe areas y mantener `16px` de padding horizontal.
 
-Rules:
+### 6.6 Regla obligatoria de horizontalidad en desktop
 
-1. Do not use oversized vertical gaps on the public landing just to create a premium feel; hierarchy should come from grouping, contrast, and composition first.
-2. Consecutive landing sections that belong to the same narrative should feel intentionally related, with compact spacing and a shared width rhythm.
-3. New customer-facing marketing sections should reuse shared landing spacing utilities instead of inventing one-off `py-*`, `pt-*`, or `pb-*` values.
-4. Expandable landing details should visually connect their trigger and revealed panel. When a disclosure opens a comparison or secondary content block, the same trigger should remain visible as the origin of the expansion, slightly overlapping or anchoring to the panel edge instead of floating above it or disappearing fully into the panel header. In the open state, prefer a tab-like trigger treatment with the bottom visually integrated into the panel rather than a fully enclosed pill.
-5. Motion-driven disclosures and comparison panels should animate as a connected surface expansion, not as unrelated pieces. The shell should expand first from the trigger origin, then reveal the inner content with a short stagger. Closed state controls must stay fully rounded; open state controls may overlap or anchor into the panel, but must still look intentional and remain readable on mobile widths.
+Esta seccion existe para evitar layouts demasiado verticales en pantallas amplias.
 
-## 7. Touch targets, buttons, and interactive controls
+Reglas obligatorias:
 
-### 7.1 Minimum hit-area rules
+1. A partir de `1280px`, una pagina operativa de overview o dashboard debe usar al menos dos columnas principales cuando el contenido se beneficie de comparacion o visibilidad paralela.
+2. El patron por defecto para overview operativo en desktop es grid de `12 columnas`.
+3. Split recomendado para overview: columna principal `7-8` columnas y columna secundaria `4-5` columnas.
+4. Si hay `3` o mas KPI del mismo nivel, deben resolverse en grid de `3` o `4` cards antes de apilarse como tarjetas altas y estrechas.
+5. Un bloque de bienvenida o resumen no puede monopolizar el first fold de desktop. Como regla general debe ocupar `30%` a `35%` del ancho o `3-4` columnas, no mas.
+6. No dejar gutters gigantes o aire muerto a izquierda y derecha mientras el contenido real se vuelve una torre vertical.
+7. Evitar cards demasiado altas para un solo dato. En desktop, las cards de KPI deben priorizar anchura util y proporciones balanceadas.
+8. Minimo recomendado de ancho para una card de KPI en desktop: `220px` a `280px`.
+9. Paneles relacionados como alertas, tareas, salud operativa, actividad reciente, equipo o estados deben ir lado a lado cuando el viewport lo permita.
+10. Si una lista compacta puede escanearse mejor en filas alineadas o en una composicion de dos lineas, no debe forzarse a un stack de cuatro o cinco lineas por item.
+11. El primer fold de un home o dashboard operativo debe mostrar estado real del negocio: resumen, siguientes acciones y al menos dos bloques de datos vivos cuando existan datos.
+12. No resolver la composicion estirando altura de cards. Primero resolver con grid, anchura, agrupacion y paralelismo.
+13. El desktop del backoffice debe sentirse operativo, no editorial: sin heroes gigantes, sin saludo sobredimensionado y sin copy largo por encima de la informacion real.
 
-1. Any primary mobile interaction target must provide a hit area of at least **44x44 CSS px**.
-2. Prefer **48x48 CSS px** for icon buttons, segmented controls, pagination taps, and dense operational screens.
-3. Inline exceptions smaller than that are allowed only when they still comply with WCAG 2.2 target-size exceptions and are not primary actions.
-4. Visual size and hit area are not the same thing. Small icons still need a larger tappable wrapper.
+### 6.7 Reglas de landing y superficies publicas
 
-### 7.2 Button sizing
+Espaciado recomendado:
 
-- primary, secondary, outline, ghost, and danger buttons on mobile: **48px** minimum height
-- compact desktop buttons in dense tables or toolbars: **40px** minimum height
-- icon-only buttons: **48x48px** tappable area
-- destructive icon actions must not be placed flush against safe edges or competing actions
+- seccion mayor: `48px` mobile / `56px` tablet / `64px` desktop
+- seccion de continuidad: `40px` mobile / `48px` tablet / `56px` desktop
+- gap entre encabezado de seccion y bloque principal: `32px` mobile / `40px` tablet / `48px` desktop
+- gap entre bloques de soporte dentro de la misma seccion: `24px` a `32px`
 
-### 7.3 Button composition rules
+Reglas:
 
-1. Use sentence case labels.
-2. Use action-first labels such as `Apply now`, `Publish job`, `Save changes`.
-3. Do not use vague CTA labels such as `Continue` unless the next state is already obvious.
-4. Keep one clear primary action per screen region.
-5. If primary and destructive actions coexist, visually separate them and avoid equal emphasis.
-6. Loading, disabled, pressed, hover, and focus-visible states must be standardized across modules.
-7. Every actionable UI element that supports pointer input must expose a visible hover state. This includes buttons, icon buttons, navigation items, segmented controls, disclosure triggers, clickable cards, selectable rows, and summary toggles.
-8. Hover feedback must be perceptible without relying on the cursor alone. Prefer a clear visual change such as color, border, background, shadow, or controlled motion.
+1. Las superficies publicas pueden ser mas editoriales que el backoffice, pero no deben competir visualmente con el producto operativo.
+2. Deben explicar el valor del producto rapido.
+3. Deben compartir branding general, tono y claridad con el resto del sistema.
+4. No deben exponer datos internos, rutas administrativas ni lenguaje tecnico de implementacion.
+5. No deben usar claims tecnicos imposibles de verificar.
+6. Secciones consecutivas que cuentan la misma historia deben sentirse conectadas, no como bloques aislados separados por aire muerto.
 
-### 7.4 Control spacing
+## 7. Shell del backoffice y navegacion
 
-- minimum gap between adjacent touch controls: **8px**
-- preferred gap when actions conflict or are destructive: **12px to 16px**
+### 7.1 Shell del backoffice
 
-## 8. Typography, titles, and paragraphs
+1. El shell principal debe dar contexto antes que decoracion.
+2. Usar top bar fija para contexto, busqueda corta y acciones globales de alto valor cuando el layout lo requiera.
+3. Notificaciones y menu de usuario deben vivir en la barra superior, no escondidos dentro del contenido.
+4. El sidebar desktop debe comportarse como rail fijo e independiente del scroll del contenido.
+5. El sidebar desktop puede ser mas utilitario y denso si mejora orientacion y velocidad.
+6. Evitar sidebars convertidos en cards gigantes o composiciones demasiado editoriales.
+7. El cambio de tenant debe sentirse visible y cercano porque cambia datos y permisos.
 
-### 8.1 Typography scale
+### 7.2 Navegacion mobile
 
-Use a stable semantic scale. Do not size text ad hoc per screen.
+1. La navegacion inferior se usa para `3` a `5` destinos top-level realmente frecuentes.
+2. El resto debe vivir en drawer o menu extendido.
+3. Filtros, acciones secundarias y controles densos deben moverse a sheets o drawers en mobile.
+4. No esconder informacion critica detras de hover o tooltips exclusivos de desktop.
 
-Recommended baseline tokens:
+### 7.3 Navegacion desktop
 
-- page title: **28px** mobile / **32px to 36px** desktop
-- section title: **24px**
-- subsection title: **20px**
-- card or group title: **18px**
-- body text: **16px**
-- secondary body text: **14px**
-- caption and helper text: **12px to 13px**
-- form labels: **14px to 16px**, medium weight
+1. Sidebar para modulos top-level cuando el ancho lo soporte.
+2. Top bar para contexto de pagina, busqueda y acciones globales ligeras.
+3. Breadcrumbs solo cuando la profundidad sea real y util.
+4. Mantener orden y lenguaje estable de navegacion entre tenants y roles cuando sea posible.
+5. No crear ramas de informacion exclusivas de desktop si rompen continuidad con mobile.
 
-### 8.2 Typography rules
-
-1. Default body text for mobile must be **16px**. Do not set primary body copy or text inputs below that size.
-2. Avoid critical content below **14px**.
-3. Use **1.2 to 1.3** line-height for headings and **1.5 to 1.7** for paragraphs and descriptive text.
-4. Keep paragraph width readable. Target roughly **45 to 75 characters per line** when layout permits it.
-5. Prefer short paragraphs. On mobile, default to **2 to 4 sentences per paragraph**.
-6. Headings must front-load meaning. Avoid generic titles such as `Overview`, `Details`, or `Info` when a more precise label exists.
-7. Use sentence case across navigation labels, buttons, helper text, empty states, and form labels.
-8. Avoid all caps for controls, navigation, or paragraph text.
-9. Customer-facing headlines, stat values, and supporting copy must stay visually controlled. Do not overscale page heroes, cards, or section titles to the point that supporting content feels oversized or visually shouty on mobile.
-10. Public landing hero copy must be concise and scannable. Default to one primary headline, one short support paragraph, and compact value signals instead of stacking multiple dense explanatory blocks above the fold.
-
-### 8.3 Public landing first-fold standards
-
-1. The public landing hero should aim to keep its primary message, main CTAs, and dominant visual explanation visible within the desktop first fold whenever layout width reasonably allows it.
-2. Customer-facing hero sections should explain the product first through hierarchy, imagery, and compact visual signals, then through supporting text. Do not rely on long explanatory copy to carry the whole message.
-3. Marketing imagery may be editorial or staggered, but it must stay relevant to teamwork, hiring, or product understanding rather than functioning as generic decoration.
-4. Customer-facing hero microcopy must sell a concrete outcome or pain relieved. Avoid generic claims such as `movil de verdad`, `facil`, or `moderno` unless the line also explains the commercial value behind that claim.
-5. Do not use arbitrary sample metrics in the public hero unless the source is real and supportable. If proof is needed, prefer concrete qualitative outcomes or product-value statements over invented dashboard numbers.
-6. Public hero eyebrow badges and similar micro-labels should fit on a single line at the target mobile widths. If a label needs wrapping to fit, shorten the copy instead of squeezing typography or allowing awkward two-line pills.
-7. Public landing follow-up sections that continue the product story should avoid large empty vertical gaps between blocks. When adjacent sections belong to the same narrative, prefer a compact section rhythm and an integrated bento or grid system over isolated floating cards separated by dead air.
-8. Customer-facing product-value sections should feel more visual than textual. Use short benefit-led copy supported by structured cards, product-like mini surfaces, and clear grouping rather than long paragraphs surrounded by empty space.
-9. When a public landing section explains the product journey, prefer image-led storytelling tied to real hiring, collaboration, interview, or workflow scenes over generic decorative art. Visuals should help the user understand the product promise, not simply fill space.
-10. When a public landing section needs to motivate mobile usage, show a clear product-like mobile surface or device framing instead of relying on generic copy alone. The mobile story should explain why the phone experience matters for the hiring workflow, not just claim that mobile support exists.
-
-### 8.4 Content hierarchy rules
-
-1. Every page must have one visible, unique page title.
-2. Supporting copy should explain what the user can do next, not restate the title.
-3. Labels use nouns. Actions use verbs.
-4. Error text must state what happened and how to fix it.
-5. When an upload is rejected by size or type, the message should include the detected file size when relevant and a concrete next step such as compressing the file or uploading one of 5 MB or less.
-
-## 9. Transactional email design rules
-
-Workflow emails are part of the product experience and must follow the same brand system instead of defaulting to provider-styled templates.
-
-Rules:
-
-1. Email templates must use the ASI customer-facing palette: royal blue primary actions, deeper navy emphasis, white surfaces, and silver-gray support tones. Green remains reserved for semantic success only when it clarifies meaning.
-2. Email layouts must feel calm, structured, and premium: one primary card, restrained gradients or tints, generous spacing, and a single clear CTA.
-3. The ASI logo must appear in branded emails using approved repository assets, and the lockup must not be stretched, distorted, or replaced with unvetted wordmarks.
-4. Transactional emails must use inline-safe HTML and degrade gracefully across email clients. Do not depend on app CSS, Tailwind classes, JavaScript, or background effects that break core readability.
-5. Each workflow type may adjust its eyebrow, CTA label, and support copy, but all transactional emails must preserve a shared shell so recipients always recognize the product.
-6. Email copy must remain sentence case, readable on mobile, and aligned with the corresponding in-app notification semantics.
-
-## 10. Color, contrast, and visual emphasis
-
-### 10.1 Product visual direction
-
-The product should feel:
-
-- modern
-- calm
-- premium
-- trustworthy
-- structured
-- lightweight
-- restrained
-- polished
-
-Surface-direction rule:
-
-- Public, auth, candidate, employer, and internal surfaces must all start from a **white or near-white base canvas** in light mode.
-- Do not default customer-facing routes to dark hero shells, black dashboard chrome, or harsh pure-white full-screen backgrounds.
-- Public landing and marketing-facing entrypoints may add gentle atmospheric layering, but the dominant impression must still remain light, calm, and product-grade.
-- Authenticated operational surfaces should default to cleaner, brighter, calmer layouts that prioritize readability, task flow, and repeated daily use.
-- Authentication must live in its own isolated shell. Login and sign-up cannot inherit employer sidebars, admin console navigation, or any dashboard chrome.
-- Navigation must be contextual by audience: public, auth, candidate, employer, and internal surfaces each need their own navigation model.
-- Bootstrap, foundations, launch-readiness, and similar tooling flows must stay visually and navigationally inside internal-only surfaces.
-- Theme selection may default to the system preference, but the product chrome must always expose a visible user-facing toggle so people can switch between light and dark mode without entering internal settings.
-
-Apple-inspired UI rules:
-
-1. Prefer clarity over decoration.
-2. Prefer spacious layouts over dense default compositions.
-3. Prefer strong hierarchy and content grouping over heavy borders everywhere.
-4. Prefer obvious native-feeling actions over clever or experimental interaction patterns.
-5. Use motion, blur, tint, elevation, and softness with restraint; they should support hierarchy, not dominate it.
-
-### 10.2 Product landing requirements
-
-1. The product marketing landing must live under `/platform` and must function as a real product landing, not a development or configuration dashboard.
-2. The landing should include:
-
-- hero
-- audience/value framing
-- workflow or feature explanation
-- pricing section
-- final CTA region
-
-3. A donation section or donation CTA may be present as UI/UX-only groundwork, but it must still feel intentional and visually integrated.
-4. Internal QA, launch-readiness, or foundations tools must never appear in the public landing experience for standard users.
-5. Public landing content must be product-specific. Do not ship Tailwind demo labels, placeholder navigation items, sample pricing copy, or generic FAQ text in customer-facing routes.
-6. Customer-facing copy in public, auth, candidate, and employer surfaces must be benefit-first and commercially legible. Terms such as `RBAC`, `RLS`, `tenant`, `membership`, `Supabase`, `audit`, and similar implementation language should stay in internal or admin-only contexts unless the user must act on that exact concept.
-7. The institutional portal under `/` may use a different visual system from the product landing, but it must still respect the shared mobile-first, accessibility, and clarity rules defined in this document. Its dedicated visual language belongs in `INSTITUTIONAL_UI_RULES.md`.
-
-### 10.3 Color rules
-
-1. Pastel accents are allowed only as controlled brand surfaces, highlights, chips, or secondary emphasis.
-2. Body text and key labels must use high-contrast neutrals, not pale accent colors.
-3. Destructive actions must use an unmistakable danger treatment.
-4. Status must never rely on color alone; pair color with text, iconography, or both.
-5. Interactive states must remain recognizable in light, muted, or branded surfaces.
-6. Light mode should default to a **white or near-white page background**. Do not tint the full app canvas cream, gray, or pastel by default.
-7. Cards, sheets, and panels may use subtle white layering and shadows, but the overall page background must still read as white first.
-8. Dark mode must mirror the same hierarchy through semantic theme tokens instead of feature-local ad hoc dark palettes.
-9. The brand palette should feel vivid, polished, and intentional. Do not default the customer-facing product identity to muddy or dull green-dominant branding unless a documented brand decision explicitly requires it.
-10. When the platform brand is `ASI`, shared theme tokens should anchor on the logo palette: royal blue as the primary action color, deeper navy-blue for emphasis, and silver-gray as the supporting neutral accent.
-
-### 10.4 Contrast rules
-
-1. Follow WCAG 2.2 AA by default.
-2. Standard text should meet at least **4.5:1** contrast.
-3. Large text and essential UI components should meet at least **3:1** contrast.
-4. Focus indicators must be visible on every interactive element and must remain visible on tinted or pastel surfaces.
-
-## 11. Navigation and information architecture
-
-### 11.1 Mobile navigation
-
-1. Use bottom navigation for primary mobile destinations when there are **3 to 5** top-level destinations.
-2. Do not overload bottom navigation with rarely used admin or configuration destinations.
-3. Filters, secondary actions, and dense controls should move into sheets, drawers, or scoped toolbars on mobile.
-4. Important mobile actions should stay within easy thumb reach whenever possible.
-5. Candidate mobile navigation should center on `Jobs`, `Applications`, `Profile`, and a scoped secondary destination such as `More` or `Onboarding`.
-6. Employer mobile navigation should center on `Jobs`, `Candidates`, `Pipeline`, and `Company`.
-7. Internal-only utilities, advanced role controls, and bootstrap/configuration flows must never occupy customer-facing primary mobile navigation.
-
-### 11.2 Desktop navigation
-
-1. Use sidebar navigation for top-level modules when screen width supports it.
-2. Use top bars for page context, global search, and lightweight actions.
-3. Breadcrumbs are optional and should appear only when hierarchy depth is real and useful.
-4. The employer `workspace` shell should use a fixed desktop sidebar and a sticky contextual top bar. Notifications, theme, and profile belong in the top chrome, while sign-out should remain discoverable in the profile menu and as a restrained footer action in the sidebar instead of a duplicated prominent top-bar button.
-5. The employer `workspace` shell should favor a linear app-frame composition similar to a classic sidebar-with-header layout: flat sidebar, bordered top bar, rectangular menus, and restrained surfaces over oversized floating cards, glow-heavy chrome, or decorative panel stacks.
-6. The employer sidebar should stay utility-first. Avoid promotional filler blocks or marketing copy inside the workspace navigation unless that content directly helps complete a current task.
-
-### 11.3 IA rules
-
-1. Preserve core navigation order across tenants and roles whenever possible.
-2. Unauthorized destinations should be hidden unless intentional discoverability is part of the product.
-3. Navigation labels must use stable domain language: `Jobs`, `Applications`, `Candidates`, `Company`, `Roles`, `Settings`.
-4. Never force users to relearn the same workflow between mobile and desktop.
-
-## 12. Forms and data entry
-
-### 12.1 Form structure
-
-1. Mobile forms are single-column by default.
-2. Long forms should be broken into sections or steps.
-3. Use progressive disclosure for advanced options, admin-only configuration, or rarely needed fields.
-4. Preserve draft state where users may invest significant effort.
-
-### 12.2 Field rules
-
-1. Every field must have a permanently visible label above or adjacent to the control.
-2. Placeholders are examples only. They are never the only label.
-3. Match the keyboard and input type to the field purpose.
-4. Use `autocomplete`, `inputmode`, and appropriate validation hints where supported.
-5. If a field has a tricky requirement, show helper text before the user fails validation.
-6. Number inputs must default native spinner increments to whole steps (`step="1"`). If the field domain accepts decimals, keep manual decimal entry available without changing the spinner to `0.01` increments.
-
-### 12.3 Validation rules
-
-1. Validation messages must be specific and actionable.
-2. Do not show aggressive validation on every keystroke unless it clearly helps the task.
-3. Surface errors inline near the field and summarize them at the form level when the form is long.
-4. Required and optional notation must be consistent within the same form.
-5. Default rule: required fields are implicit, optional fields are marked `Optional`. If a workflow requires explicit `Required` labels, apply that pattern to all fields in the flow.
-
-### 12.4 Mobile form usability rules
-
-1. Avoid side-by-side inputs on phones unless both controls remain easy to read and tap.
-2. Do not trap long text entry inside cramped dialogs on mobile.
-3. Important submit actions may use sticky bottom CTA patterns when the form is long.
-4. The submit state must clearly show loading, success, or actionable failure.
-
-## 13. Lists, cards, tables, and dense operational UI
-
-### 13.1 Cards and lists
-
-1. Cards should represent one entity, summary, or decision unit.
-2. A card must have a predictable structure: title, critical metadata, status, and actions.
-3. Avoid unnecessary nested cards.
-4. Mobile list rows and tappable cards should provide at least **48px** row height or tap height.
-
-### 13.2 Tables
-
-1. Tables are allowed for dense operational data on desktop.
-2. Every table must have a mobile alternative such as stacked cards, grouped lists, or detail drill-down.
-3. Do not rely on horizontal-scrolling tables as the default mobile solution.
-4. Row actions in tables must remain discoverable and touch-safe.
-
-### 13.3 Filtering, sorting, and pagination
-
-1. Use the same filter and sorting patterns across jobs, candidates, applications, and admin modules.
-2. On mobile, filters belong in sheets or full-screen filter flows, not cramped inline rows.
-3. Pagination controls must be finger-friendly.
-4. Infinite scroll is not the default. Use it only where discovery meaningfully benefits and state recovery remains strong.
-
-## 14. Dialogs, drawers, sheets, and confirmations
-
-1. Use dialogs for short confirmations or simple decisions.
-2. Use sheets or drawers for filters, contextual actions, or short edits.
-3. Use full pages for long forms, multi-step tasks, or complex review workflows.
-4. Destructive confirmations must be explicit about the object being changed or removed.
-5. Footer action order must stay consistent across the app.
-6. Mobile may transform a desktop dialog into a sheet or full-screen flow when needed for usability.
-7. Do not use browser `alert`, `confirm`, or `prompt` for product UI.
-8. Do not use `SweetAlert` or similar all-in-one popup libraries for confirmations; shared app dialogs are the standard.
-
-## 15. Feedback, states, and resilience
-
-Every async screen or major component must define:
+### 7.4 Reglas de arquitectura de informacion
+
+1. Las rutas no autorizadas deben ocultarse salvo que la descubribilidad sea intencional.
+2. Labels de navegacion deben usar lenguaje de dominio estable y claro.
+3. El usuario no debe reaprender el mismo flujo entre mobile y desktop.
+
+## 8. Direccion visual y theming por tenant
+
+### 8.1 Direccion visual
+
+La interfaz debe evitar:
+
+- dashboards oscuros saturados
+- ruido visual
+- morado generico como identidad por defecto
+- glow o blur decorativo excesivo
+- sombras pesadas solo por parecer premium
+
+La interfaz debe preferir:
+
+- base blanca o casi blanca en light mode
+- contraste controlado
+- superficies calmadas
+- acentos medidos
+- jerarquia fuerte por layout y espaciado
+- paletas refinadas, serias y comerciales
+
+### 8.2 Capas de apariencia
+
+La apariencia visual se divide en dos capas:
+
+- `appearance_mode`: `light`, `dark`, `system`
+- branding del tenant: paleta, tono, logo e identidad curada
+
+Reglas:
+
+1. El modo visual nunca reemplaza al branding del tenant.
+2. El branding del tenant nunca puede romper jerarquia, contraste o accesibilidad.
+3. Toda UI debe usar tokens semanticos; no colores hardcodeados por cliente dentro de componentes.
+4. Dark mode debe conservar la misma jerarquia visual y no convertirse en interfaz neon, gamer o saturada.
+5. La identidad visual por defecto del producto sigue siendo light-first.
+
+### 8.3 Reglas de palette
+
+1. Las paletas del tenant deben sentirse serias, comerciales, legibles y contemporaneas.
+2. Los acentos vivos son apoyo jerarquico, no fondo dominante de toda la aplicacion.
+3. El contraste minimo debe mantenerse en todas las paletas.
+4. Estado nunca depende solo del color; debe combinarse con texto, icono o ambos.
+5. Las variantes dark deben derivar de tokens semanticos compartidos, no de overrides ad hoc por feature.
+
+Baseline operativa actual mientras llega branding completo por tenant:
+
+- `primary`: `#2D3E50`
+- `secondary`: `#FF7A00`
+- `tertiary`: `#4B637A`
+- `neutral`: `#F4F7F9`
+
+### 8.4 Modelo de theming
+
+Modelo esperado:
+
+- `appearance_mode`
+- `tenant_palette_id`
+- `tenant_palette_seeds`
+- `tenant_logo_asset_id`
+
+Reglas:
+
+1. La libreria base ofrece presets curados y una paleta propia basica generada desde semillas.
+2. La paleta propia no es un editor libre de todos los tokens; el sistema debe derivar superficies, bordes, fondos, CTA y variantes oscuras para proteger consistencia.
+
+## 9. Tipografia y copy
+
+Escala base recomendada:
+
+- page title: `28px` mobile / `32px` a `36px` desktop
+- section title: `24px`
+- subsection title: `20px`
+- card o group title: `18px`
+- body: `16px`
+- secondary body: `14px`
+- caption o helper: `12px` a `13px`
+- form labels: `14px` a `16px`
+
+Reglas:
+
+1. Body text principal en mobile no baja de `16px`.
+2. Evitar contenido critico por debajo de `14px`.
+3. Usar line-height de `1.2` a `1.3` para headings y `1.5` a `1.7` para parrafos.
+4. Mantener line length aproximada de `45` a `75` caracteres cuando el layout lo permita.
+5. Preferir parrafos cortos.
+6. Headings deben adelantar significado; evitar titulos genericos si hay uno mas preciso.
+7. Usar sentence case en labels, botones, ayudas, empty states y navegacion.
+8. Evitar all caps en controles, navegacion y copy corrido.
+9. El copy de soporte debe explicar que puede hacerse ahora, no repetir el titulo.
+10. En el runtime del backoffice, el copy debe ser operativo y concreto, no conceptual ni academico.
+
+## 10. Dashboards, cards, listas y tablas
+
+### 10.1 Dashboards operativos
+
+1. Cada modulo debe abrir con resumen operativo, acciones directas y estado real.
+2. Cuando existan datos, priorizar indicadores, listados recientes y accesos directos sobre copy explicativo.
+3. Si un modulo combina overview, creacion y gestion, separar esas tareas en subrutas o superficies dedicadas antes de seguir apilando bloques.
+4. Evitar dashboards que sean solo saludo, contexto y explicacion sin datos accionables.
+
+### 10.2 Cards y listas
+
+1. Cada card debe representar una entidad, resumen o decision unit clara.
+2. Una card debe tener estructura predecible: titulo, metadata critica, estado y acciones.
+3. Evitar nested cards innecesarias.
+4. Rows y cards clicables en mobile deben ofrecer al menos `48px` de altura tactil.
+5. En desktop, una lista densa debe escanearse por filas y columnas utiles, no por torres de texto repetitivas.
+
+### 10.3 Tablas
+
+1. Las tablas se permiten para datos densos en desktop.
+2. Toda tabla debe tener alternativa mobile: cards apiladas, lista agrupada o drill-down.
+3. No usar tablas con scroll horizontal como solucion mobile por defecto.
+4. Las acciones de fila deben seguir siendo visibles y tactiles.
+
+### 10.4 Filtros, orden y paginacion
+
+1. Reutilizar patrones de filtros y orden dentro del producto.
+2. En mobile, filtros dentro de sheets o full-screen flows, no en filas apretadas.
+3. La paginacion debe ser finger-friendly.
+4. Infinite scroll no es el default.
+
+## 11. Formularios y captura de datos
+
+### 11.1 Estructura
+
+1. Los formularios mobile son de una sola columna por defecto.
+2. Los formularios largos deben resolverse por secciones, pasos o subrutas.
+3. Usar progressive disclosure para opciones avanzadas o poco frecuentes.
+4. Preservar draft state cuando el usuario invierte esfuerzo significativo.
+
+### 11.2 Campos
+
+1. Todo campo debe tener label visible y permanente.
+2. Placeholder es ejemplo, nunca label unica.
+3. Ajustar keyboard, `inputmode` y `autocomplete` al tipo de dato.
+4. Si un requisito es delicado, mostrar helper text antes de que falle la validacion.
+5. En `type="number"`, el spinner nativo debe avanzar de `1` en `1`.
+6. Si el dominio acepta decimales, se permiten por digitacion manual sin convertir el spinner a `0.01`.
+
+### 11.3 Validacion
+
+1. Los mensajes de validacion deben ser especificos y accionables.
+2. No validar agresivamente en cada keystroke si no ayuda.
+3. Los errores van cerca del campo y se resumen arriba si el formulario es largo.
+4. El tratamiento de required y optional debe ser consistente en el mismo flujo.
+
+### 11.4 Usabilidad mobile
+
+1. Evitar campos side-by-side en phones salvo que sigan siendo claros y tactiles.
+2. No atrapar entradas largas dentro de dialogs pequenos.
+3. En formularios largos, se permite CTA sticky inferior.
+4. El submit debe mostrar loading, success o failure accionable.
+
+## 12. Feedback, estados y permisos
+
+Toda pantalla o componente async importante debe definir:
 
 - loading
-- skeleton or placeholder
+- skeleton o placeholder
 - empty
 - no-results
 - error
-- success where relevant
-- disabled where relevant
-- offline or degraded network state where relevant
-- permission-denied state where relevant
+- success cuando aplique
+- disabled cuando aplique
+- offline o degraded state cuando aplique
+- permission-denied cuando aplique
 
-Rules:
+Reglas:
 
-1. Empty states must explain what the screen is for and what the user can do next.
-2. Error states must help recovery, not only announce failure.
-3. Use `sonner` toasts for lightweight transient confirmation, not for critical information that can disappear too quickly.
-4. When an action is destructive or expensive, prefer explicit confirmation over relying on a toast alone.
-5. Do not introduce a second toast system such as `react-toastify`; all transient app feedback should remain visually and behaviorally consistent through `sonner`.
+1. Los empty states deben explicar para que sirve la pantalla y cual es el siguiente paso.
+2. Los errores deben ayudar a recuperarse.
+3. El feedback transitorio debe usar `sonner`.
+4. Reservar mensajes inline para estados estructurales, vacios, cargas o errores persistentes.
+5. Una accion destructiva o costosa no puede depender de un toast como unica confirmacion.
+6. La UI expresa permisos, pero no reemplaza autorizacion real.
 
-## 16. Accessibility baseline
+## 13. Accesibilidad base
 
-1. WCAG 2.2 AA is the default target.
-2. All interactive controls must be keyboard reachable when the context supports keyboard input.
-3. Screen-reader names must match visible labels or clearly communicate the same action.
-4. Focus-visible states are mandatory.
-5. Use semantic HTML before adding ARIA.
-6. Support zoom and text resizing up to **200%** without breaking the task flow.
-7. Motion must respect reduced-motion preferences.
-8. Status, validation, and priority must never be communicated by color alone.
+1. WCAG 2.2 AA es el objetivo por defecto.
+2. Controles interactivos deben ser keyboard reachable cuando el contexto soporte teclado.
+3. Screen-reader names deben coincidir con el label visible o comunicar la misma accion.
+4. `focus-visible` es obligatorio.
+5. Usar HTML semantico antes de sumar ARIA.
+6. Soportar zoom y text resizing hasta `200%` sin romper el flujo.
+7. Estados, validacion y prioridad nunca dependen solo del color.
+8. Todo target primario debe respetar `44x44 CSS px`, con preferencia por `48x48`.
 
-## 17. Motion and transitions
+## 14. Movimiento
 
-1. Motion must support orientation, hierarchy, or feedback.
-2. Standard UI transitions should generally stay within **150ms to 250ms**.
-3. Larger surface transitions may extend to **300ms** when needed, but should still feel responsive.
-4. Avoid decorative motion that delays task completion.
-5. Reduced-motion preferences must simplify or remove non-essential movement.
-6. Customer-facing landing sections should reveal progressively on scroll with calm opacity and vertical-offset motion, not abrupt pop-in or exaggerated parallax. Prefer soft easing and staged hierarchy so the page feels polished without turning into a presentation deck.
-7. When Motion is available, prefer Motion-driven enters, exits, layout transitions, and hover movement over CSS transition choreography for landing-page surfaces and marketing interactions. Static color, border, and state styles may remain in CSS, but the actual movement should come from Motion.
-8. Smooth scrolling should feel native and calm. Anchor or section jumps should use a soft scroll behavior by default, while reduced-motion preferences must disable that smoothing.
+1. El movimiento debe apoyar orientacion, jerarquia o feedback.
+2. Las transiciones estandar deben quedar normalmente entre `150ms` y `250ms`.
+3. Superficies grandes pueden llegar a `300ms` si siguen sintiendose responsivas.
+4. Evitar rebotes exagerados, delays largos y animaciones decorativas que ralenticen la operacion.
+5. Respetar `prefers-reduced-motion`.
+6. Drawers, overlays, popovers, modales y transiciones de pagina deben implementarse con `motion`.
 
-## 18. Design-system enforcement rules
+## 15. Checklist de revision obligatoria
 
-1. New screens must use shared tokens, shared primitives, and shared variants.
-2. Do not introduce one-off button sizes, radii, shadows, spacing values, or typography scales inside a feature.
-3. If a new reusable variant is truly needed, document it here and in the component source of truth.
-4. Do not ship a feature with only desktop table behavior when the mobile equivalent is undefined.
-5. Do not ship a feature whose primary action is hidden behind ambiguous iconography or overflow menus.
-6. For icons, use `lucide-react` only unless a documented exception is approved.
-7. For reusable component primitives, extend the `shadcn/ui`-aligned system in `src/components/ui` instead of introducing another component library.
-8. For non-blocking feedback, use `sonner` only and keep toast behavior consistent across modules.
-9. Theme behavior must come from semantic light/dark tokens in the shared design system, not from page-level color rewrites repeated per feature.
+Antes de cerrar una entrega visual relevante, verificar:
 
-## 19. Review checklist for every meaningful UI delivery
+1. Funciona en `320px`, `360px`, `390px`, `768px`, `1280px` y `1440px`.
+2. No hay scroll horizontal en mobile.
+3. Los targets primarios cumplen `44x44`, idealmente `48x48`.
+4. El body text sigue siendo legible sin zoom.
+5. Los formularios usan labels visibles y composicion mobile de una columna.
+6. La pantalla tiene estados de loading, empty, error y permisos coherentes.
+7. La navegacion y las acciones respetan RBAC.
+8. Se usan tokens semanticos y no colores hardcodeados por feature.
+9. Todo texto nuevo sale por `packages/i18n` con `es` y `en`.
+10. El desktop no se comporta como una torre vertical estrecha si la tarea se beneficia del ancho disponible.
+11. El first fold de un overview operativo muestra resumen, acciones y datos reales.
+12. La solucion reutiliza el sistema compartido en vez de inventar patrones locales.
+13. La propuesta cumple los criterios de claridad, interactividad, legibilidad y organizacion inspirados en Apple.
 
-Before closing a UI task, verify:
-
-1. The flow works at **320px**, **360px**, and desktop widths.
-2. Primary interactive controls meet the hit-area rules.
-3. Body text remains readable at mobile size without zoom.
-4. Forms use visible labels and single-column mobile composition.
-5. The screen has clear loading, empty, error, and permission-aware states.
-6. Navigation and actions respect RBAC.
-7. Contrast and focus-visible behavior remain compliant on pastel or tinted surfaces.
-8. Mobile users can complete the task one-handed without precision tapping.
-9. The solution reuses the design system instead of inventing feature-local patterns.
-10. The screen satisfies Apple UI Design Dos and Don'ts for interactivity, readability, graphics, and clarity.
-
-## 20. Reference notes
-
-This file intentionally mixes direct standards and project-level synthesis.
-
-Examples of project-level synthesis in this file:
-
-- using **16px body text** as the default mobile baseline for this product
-- using **44x44px minimum hit area** and preferring **48x48px** for dense touch controls
-- standardizing **sentence case** across product UI
-- standardizing **16px mobile page padding** and an **8px token grid**
-- prioritizing Apple-style clarity, spacing, hierarchy, and interaction patterns as the default product design language
-
-These choices are aligned with current market guidance and should be treated as the default contract for this repository until a future documented review changes them.
-
-### External references used in this review
+## 16. Referencias externas usadas en esta revision
 
 - Apple UI design tips: https://developer.apple.com/design/tips/
 - Apple accessibility guidance: https://developer.apple.com/design/human-interface-guidelines/accessibility

@@ -119,8 +119,6 @@ Playwright config: `playwright.config.ts` — auto-starts backoffice on port 417
 
 ### Governance docs (read before proposing architecture, data model, or UX)
 - `docs/saas-blueprint.md` — product scope and modules
-- `docs/ui-ux-direction.md` — visual direction
 - `docs/governance/UI_UX_RULES.md` — mandatory UX contract
 - `docs/governance/PERFORMANCE_RULES.md` — bundle and load rules
 - `docs/governance/SUPABASE_RULES.md` — RLS, RPC, schema rules
-- `docs/tenant-theming.md` — branding and theming strategy
