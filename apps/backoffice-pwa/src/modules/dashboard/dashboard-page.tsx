@@ -1,4 +1,4 @@
-import { Fragment, type ReactNode, useMemo, useState } from "react";
+import { Fragment, type ReactNode, useMemo, useState } from 'react';
 
 import {
   ArrowDownCircle,
@@ -8,24 +8,24 @@ import {
   Ellipsis,
   Plus,
   RefreshCcw,
-  RefreshCw
-} from "lucide-react";
+  RefreshCw,
+} from 'lucide-react';
 
-import { useTranslation } from "@operapyme/i18n";
-import { NavLink } from "react-router-dom";
+import { useTranslation } from '@operapyme/i18n';
+import { NavLink } from 'react-router-dom';
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import type {
   CustomerSummary,
-  QuoteSummary
-} from "@/lib/supabase/backoffice-data";
-import { cn } from "@/lib/utils";
-import { useDashboardData } from "@/modules/dashboard/use-dashboard-data";
+  QuoteSummary,
+} from '@/lib/supabase/backoffice-data';
+import { cn } from '@/lib/utils';
+import { useDashboardData } from '@/modules/dashboard/use-dashboard-data';
 
-type BackofficeT = ReturnType<typeof useTranslation<"backoffice">>["t"];
-type DashboardRange = "7d" | "30d" | "all";
+type BackofficeT = ReturnType<typeof useTranslation<'backoffice'>>['t'];
+type DashboardRange = '7d' | '30d' | 'all';
 
-type QuoteActivityStatus = "positive" | "neutral" | "negative";
+type QuoteActivityStatus = 'positive' | 'neutral' | 'negative';
 
 type ActivityQuote = {
   id: string;
@@ -46,49 +46,42 @@ type ActivityGroup = {
   quotes: ActivityQuote[];
 };
 
-const rangeOptions: DashboardRange[] = ["7d", "30d", "all"];
+const rangeOptions: DashboardRange[] = ['7d', '30d', 'all'];
 
 const statCards = [
   {
-    id: "customerCount" as const,
-    changeType: "positive" as const
+    id: 'customerCount' as const,
+    changeType: 'positive' as const,
   },
   {
-    id: "activeCustomerCount" as const,
-    changeType: "positive" as const
+    id: 'activeCustomerCount' as const,
+    changeType: 'positive' as const,
   },
   {
-    id: "quoteCount" as const,
-    changeType: "neutral" as const
+    id: 'quoteCount' as const,
+    changeType: 'neutral' as const,
   },
   {
-    id: "openQuoteCount" as const,
-    changeType: "negative" as const
-  }
+    id: 'openQuoteCount' as const,
+    changeType: 'negative' as const,
+  },
 ];
 
 export function DashboardPage() {
-  const { t } = useTranslation("backoffice");
-  const [range, setRange] = useState<DashboardRange>("7d");
-  const {
-    data,
-    error,
-    hasTenantContext,
-    isError,
-    isLoading,
-    refetch
-  } = useDashboardData();
+  const { t } = useTranslation('backoffice');
+  const [range, setRange] = useState<DashboardRange>('7d');
+  const { data, error, hasTenantContext, isError, isLoading, refetch } =
+    useDashboardData();
 
   const dashboardData =
     hasTenantContext && !isLoading && !isError && data ? data : null;
 
   const filteredQuotes = useMemo(
-    () => filterRecordsByRange(data?.recentQuotes ?? [], range, "updatedAt"),
+    () => filterRecordsByRange(data?.recentQuotes ?? [], range, 'updatedAt'),
     [data?.recentQuotes, range]
   );
   const filteredCustomers = useMemo(
-    () =>
-      filterRecordsByRange(data?.recentCustomers ?? [], range, "updatedAt"),
+    () => filterRecordsByRange(data?.recentCustomers ?? [], range, 'updatedAt'),
     [data?.recentCustomers, range]
   );
   const activityGroups = useMemo(
@@ -102,12 +95,12 @@ export function DashboardPage() {
         <div className="border-b border-line/60 px-4 py-6 sm:px-6 lg:px-8">
           <div className="flex flex-wrap items-center gap-4">
             <h1 className="text-2xl font-semibold tracking-tight text-ink">
-              {t("dashboard.header.title")}
+              {t('dashboard.header.title')}
             </h1>
 
             <div className="hidden h-8 w-px bg-line/80 sm:block" />
 
-            <div className="order-last flex w-full flex-wrap items-center gap-x-8 gap-y-3 text-sm font-semibold sm:order-none sm:w-auto">
+            <div className="order-last flex w-full flex-wrap items-center gap-x-8 gap-y-3 text-sm font-semibold sm:order-0 sm:w-auto">
               {rangeOptions.map((option) => (
                 <button
                   key={option}
@@ -116,10 +109,10 @@ export function DashboardPage() {
                     setRange(option);
                   }}
                   className={cn(
-                    "transition",
+                    'transition',
                     range === option
-                      ? "text-brand"
-                      : "text-ink-soft hover:text-ink"
+                      ? 'text-brand'
+                      : 'text-ink-soft hover:text-ink'
                   )}
                 >
                   {t(`dashboard.ranges.${option}`)}
@@ -130,7 +123,7 @@ export function DashboardPage() {
             <div className="ml-auto">
               <ActionLink to="/commercial/quotes?tab=create" variant="primary">
                 <Plus className="mr-1.5 size-4" aria-hidden="true" />
-                {t("dashboard.actions.newQuote")}
+                {t('dashboard.actions.newQuote')}
               </ActionLink>
             </div>
           </div>
@@ -138,19 +131,19 @@ export function DashboardPage() {
 
         {!hasTenantContext ? (
           <StatePanel
-            title={t("dashboard.livePulse.noTenantTitle")}
-            description={t("dashboard.livePulse.noTenantDescription")}
+            title={t('dashboard.livePulse.noTenantTitle')}
+            description={t('dashboard.livePulse.noTenantDescription')}
           />
         ) : isLoading ? (
           <StatePanel
-            title={t("dashboard.livePulse.loadingTitle")}
-            description={t("dashboard.livePulse.loadingDescription")}
+            title={t('dashboard.livePulse.loadingTitle')}
+            description={t('dashboard.livePulse.loadingDescription')}
           />
         ) : isError ? (
           <StatePanel
-            title={t("dashboard.livePulse.errorTitle")}
-            description={t("dashboard.livePulse.errorDescription", {
-              message: error instanceof Error ? error.message : ""
+            title={t('dashboard.livePulse.errorTitle')}
+            description={t('dashboard.livePulse.errorDescription', {
+              message: error instanceof Error ? error.message : '',
             })}
             action={
               <Button
@@ -161,7 +154,7 @@ export function DashboardPage() {
                 }}
               >
                 <RefreshCw className="mr-2 size-4" aria-hidden="true" />
-                {t("dashboard.livePulse.retryAction")}
+                {t('dashboard.livePulse.retryAction')}
               </Button>
             }
           />
@@ -172,9 +165,9 @@ export function DashboardPage() {
                 <div
                   key={stat.id}
                   className={cn(
-                    "flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2 border-t border-line/40 px-4 py-10 sm:px-6 lg:border-t-0 lg:px-8",
-                    index % 2 === 1 ? "sm:border-l sm:border-line/40" : "",
-                    index >= 2 ? "lg:border-l lg:border-line/40" : ""
+                    'flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2 border-t border-line/40 px-4 py-10 sm:px-6 lg:border-t-0 lg:px-8',
+                    index % 2 === 1 ? 'sm:border-l sm:border-line/40' : '',
+                    index >= 2 ? 'lg:border-l lg:border-line/40' : ''
                   )}
                 >
                   <dt className="text-sm font-medium text-ink-muted">
@@ -182,20 +175,24 @@ export function DashboardPage() {
                   </dt>
                   <dd
                     className={cn(
-                      "text-xs font-medium",
-                      stat.changeType === "negative"
-                        ? "text-danger"
-                        : stat.changeType === "positive"
-                          ? "text-brand"
-                          : "text-ink-soft"
+                      'text-xs font-medium',
+                      stat.changeType === 'negative'
+                        ? 'text-danger'
+                        : stat.changeType === 'positive'
+                          ? 'text-brand'
+                          : 'text-ink-soft'
                     )}
                   >
                     {t(`dashboard.stats.${stat.id}.change`, {
-                      count: dashboardData[stat.id]
+                      count: dashboardData[stat.id],
                     })}
                   </dd>
                   <dd className="w-full text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
-                    {formatDashboardStatValue(stat.id, dashboardData[stat.id], t)}
+                    {formatDashboardStatValue(
+                      stat.id,
+                      dashboardData[stat.id],
+                      t
+                    )}
                   </dd>
                 </div>
               ))}
@@ -215,7 +212,7 @@ export function DashboardPage() {
           <section>
             <div className="px-4 sm:px-6 lg:px-8">
               <h2 className="text-2xl font-semibold tracking-tight text-ink">
-                {t("dashboard.activity.title")}
+                {t('dashboard.activity.title')}
               </h2>
             </div>
 
@@ -224,9 +221,9 @@ export function DashboardPage() {
                 <div className="p-6">
                   <MiniEmptyState
                     message={t(
-                      range === "all"
-                        ? "dashboard.activity.empty"
-                        : "dashboard.activity.emptyRange"
+                      range === 'all'
+                        ? 'dashboard.activity.empty'
+                        : 'dashboard.activity.emptyRange'
                     )}
                   />
                 </div>
@@ -235,9 +232,9 @@ export function DashboardPage() {
                   <table className="min-w-full text-left">
                     <thead className="sr-only">
                       <tr>
-                        <th>{t("dashboard.activity.headers.amount")}</th>
-                        <th>{t("dashboard.activity.headers.recipient")}</th>
-                        <th>{t("dashboard.activity.headers.action")}</th>
+                        <th>{t('dashboard.activity.headers.amount')}</th>
+                        <th>{t('dashboard.activity.headers.recipient')}</th>
+                        <th>{t('dashboard.activity.headers.action')}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -249,7 +246,9 @@ export function DashboardPage() {
                               colSpan={3}
                               className="relative isolate border-b border-line/60 bg-sand/20 px-6 py-4 text-left text-xl font-semibold tracking-tight text-ink"
                             >
-                              <time dateTime={group.dateTime}>{group.dateLabel}</time>
+                              <time dateTime={group.dateTime}>
+                                {group.dateLabel}
+                              </time>
                             </th>
                           </tr>
 
@@ -268,13 +267,13 @@ export function DashboardPage() {
           <section>
             <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8">
               <h2 className="text-2xl font-semibold tracking-tight text-ink">
-                {t("dashboard.clients.title")}
+                {t('dashboard.clients.title')}
               </h2>
               <NavLink
                 to="/crm"
                 className="text-sm font-semibold text-brand transition hover:text-brand-hover"
               >
-                {t("dashboard.clients.viewAll")}
+                {t('dashboard.clients.viewAll')}
               </NavLink>
             </div>
 
@@ -283,9 +282,9 @@ export function DashboardPage() {
                 <div className="lg:col-span-3">
                   <MiniEmptyState
                     message={t(
-                      range === "all"
-                        ? "dashboard.livePulse.customersEmpty"
-                        : "dashboard.clients.emptyRange"
+                      range === 'all'
+                        ? 'dashboard.livePulse.customersEmpty'
+                        : 'dashboard.clients.emptyRange'
                     )}
                   />
                 </div>
@@ -320,12 +319,12 @@ function ActivityRow({ quote }: { quote: ActivityQuote }) {
               </div>
               <div
                 className={cn(
-                  "rounded-xl px-3 py-1 text-sm font-medium ring-1 ring-inset",
-                  quote.statusTone === "positive"
-                    ? "bg-success/10 text-success ring-success/20"
-                    : quote.statusTone === "negative"
-                      ? "bg-danger/10 text-danger ring-danger/20"
-                      : "bg-sand/45 text-ink-soft ring-line/70"
+                  'rounded-xl px-3 py-1 text-sm font-medium ring-1 ring-inset',
+                  quote.statusTone === 'positive'
+                    ? 'bg-success/10 text-success ring-success/20'
+                    : quote.statusTone === 'negative'
+                      ? 'bg-danger/10 text-danger ring-danger/20'
+                      : 'bg-sand/45 text-ink-soft ring-line/70'
                 )}
               >
                 {quote.statusLabel}
@@ -346,9 +345,7 @@ function ActivityRow({ quote }: { quote: ActivityQuote }) {
           to={quote.to}
           className="text-sm font-semibold text-brand transition hover:text-brand-hover"
         >
-          {quote.statusTone === "neutral"
-            ? "View draft"
-            : "View transaction"}
+          {quote.statusTone === 'neutral' ? 'View draft' : 'View transaction'}
         </NavLink>
         <div className="mt-2 text-sm text-ink-muted">
           Invoice <span className="text-ink">#{quote.invoiceNumber}</span>
@@ -360,7 +357,7 @@ function ActivityRow({ quote }: { quote: ActivityQuote }) {
 
 function CustomerCard({
   customer,
-  t
+  t,
 }: {
   customer: CustomerSummary;
   t: BackofficeT;
@@ -373,12 +370,14 @@ function CustomerCard({
         <div className="flex size-20 items-center justify-center rounded-2xl border border-line/50 bg-paper text-2xl font-semibold tracking-tight text-brand">
           {getInitials(customer.displayName)}
         </div>
-        <div className="text-2xl tracking-tight text-ink">{customer.displayName}</div>
+        <div className="text-2xl tracking-tight text-ink">
+          {customer.displayName}
+        </div>
         <button
           type="button"
           className="ml-auto rounded-full p-2 text-ink-muted transition hover:bg-paper hover:text-ink"
-          aria-label={t("dashboard.clients.optionsLabel", {
-            customer: customer.displayName
+          aria-label={t('dashboard.clients.optionsLabel', {
+            customer: customer.displayName,
           })}
         >
           <Ellipsis className="size-6" aria-hidden="true" />
@@ -387,25 +386,29 @@ function CustomerCard({
 
       <dl className="space-y-6 px-6 py-6 text-sm">
         <div className="flex items-start justify-between gap-x-4 border-b border-line/40 pb-6">
-          <dt className="text-ink-muted">{t("dashboard.clients.lastTouchLabel")}</dt>
+          <dt className="text-ink-muted">
+            {t('dashboard.clients.lastTouchLabel')}
+          </dt>
           <dd className="text-right text-ink">
             <time dateTime={customer.updatedAt}>{invoiceInfo.dateLabel}</time>
           </dd>
         </div>
         <div className="flex items-start justify-between gap-x-4">
-          <dt className="text-ink-muted">{t("dashboard.clients.amountLabel")}</dt>
+          <dt className="text-ink-muted">
+            {t('dashboard.clients.amountLabel')}
+          </dt>
           <dd className="flex items-center gap-x-3 text-right">
             <span className="text-2xl font-semibold tracking-tight text-ink">
               {invoiceInfo.amount}
             </span>
             <div
               className={cn(
-                "rounded-xl px-3 py-1 text-sm font-medium ring-1 ring-inset",
-                invoiceInfo.statusTone === "positive"
-                  ? "bg-success/10 text-success ring-success/20"
-                  : invoiceInfo.statusTone === "negative"
-                    ? "bg-danger/10 text-danger ring-danger/20"
-                    : "bg-sand/45 text-ink-soft ring-line/70"
+                'rounded-xl px-3 py-1 text-sm font-medium ring-1 ring-inset',
+                invoiceInfo.statusTone === 'positive'
+                  ? 'bg-success/10 text-success ring-success/20'
+                  : invoiceInfo.statusTone === 'negative'
+                    ? 'bg-danger/10 text-danger ring-danger/20'
+                    : 'bg-sand/45 text-ink-soft ring-line/70'
               )}
             >
               {invoiceInfo.statusLabel}
@@ -420,20 +423,20 @@ function CustomerCard({
 function ActionLink({
   children,
   to,
-  variant
+  variant,
 }: {
   children: ReactNode;
   to: string;
-  variant: "primary" | "secondary";
+  variant: 'primary' | 'secondary';
 }) {
   return (
     <NavLink
       to={to}
       className={cn(
-        "inline-flex min-h-12 items-center justify-center rounded-2xl px-4 text-sm font-semibold transition",
-        variant === "primary"
-          ? "bg-brand text-brand-contrast shadow-soft hover:bg-brand-hover"
-          : "border border-line-strong bg-paper text-ink shadow-panel hover:bg-sand/70"
+        'inline-flex min-h-12 items-center justify-center rounded-2xl px-4 text-sm font-semibold transition',
+        variant === 'primary'
+          ? 'bg-brand text-brand-contrast shadow-soft hover:bg-brand-hover'
+          : 'border border-line-strong bg-paper text-ink shadow-panel hover:bg-sand/70'
       )}
     >
       {children}
@@ -444,7 +447,7 @@ function ActionLink({
 function StatePanel({
   action,
   description,
-  title
+  title,
 }: {
   action?: ReactNode;
   description: string;
@@ -469,27 +472,27 @@ function StatePanel({
 }
 
 function EmptyStatePanel() {
-  const { t } = useTranslation("backoffice");
+  const { t } = useTranslation('backoffice');
 
   return (
     <section className="rounded-[28px] border border-line/60 bg-paper p-8 shadow-panel">
       <div className="mx-auto flex max-w-2xl flex-col items-center text-center">
         <h2 className="text-2xl font-semibold tracking-tight text-ink">
-          {t("dashboard.emptyState.title")}
+          {t('dashboard.emptyState.title')}
         </h2>
         <p className="mt-3 text-sm leading-7 text-ink-soft sm:text-base">
-          {t("dashboard.emptyState.description")}
+          {t('dashboard.emptyState.description')}
         </p>
 
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <ActionLink to="/commercial/leads" variant="secondary">
-            {t("dashboard.actions.newLead")}
+            {t('dashboard.actions.newLead')}
           </ActionLink>
           <ActionLink to="/catalog" variant="secondary">
-            {t("dashboard.actions.reviewCatalog")}
+            {t('dashboard.actions.reviewCatalog')}
           </ActionLink>
           <ActionLink to="/commercial/quotes?tab=create" variant="primary">
-            {t("dashboard.actions.newQuote")}
+            {t('dashboard.actions.newQuote')}
           </ActionLink>
         </div>
       </div>
@@ -510,11 +513,11 @@ function filterRecordsByRange<T extends { updatedAt: string }>(
   range: DashboardRange,
   dateKey: keyof T
 ) {
-  if (range === "all") {
+  if (range === 'all') {
     return records;
   }
 
-  const dayCount = range === "7d" ? 7 : 30;
+  const dayCount = range === '7d' ? 7 : 30;
   const cutoff = Date.now() - dayCount * 24 * 60 * 60 * 1000;
 
   return records.filter((record) => {
@@ -523,7 +526,10 @@ function filterRecordsByRange<T extends { updatedAt: string }>(
   });
 }
 
-function groupQuotesByDay(quotes: QuoteSummary[], t: BackofficeT): ActivityGroup[] {
+function groupQuotesByDay(
+  quotes: QuoteSummary[],
+  t: BackofficeT
+): ActivityGroup[] {
   const groups = new Map<string, QuoteSummary[]>();
 
   for (const quote of quotes) {
@@ -545,41 +551,50 @@ function groupQuotesByDay(quotes: QuoteSummary[], t: BackofficeT): ActivityGroup
       dateTime,
       quotes: [...groupQuotes]
         .sort((left, right) => right.updatedAt.localeCompare(left.updatedAt))
-        .map((quote) => mapQuoteToActivity(quote, t))
+        .map((quote) => mapQuoteToActivity(quote, t)),
     }));
 }
 
-function mapQuoteToActivity(quote: QuoteSummary, t: BackofficeT): ActivityQuote {
+function mapQuoteToActivity(
+  quote: QuoteSummary,
+  t: BackofficeT
+): ActivityQuote {
   const statusTone = getActivityStatusTone(quote.status);
 
   return {
     id: quote.id,
     amount: `${formatCurrency(quote.grandTotal, quote.currencyCode)} ${quote.currencyCode}`,
-    helper: quote.taxTotal > 0 ? `${formatCurrency(quote.taxTotal, quote.currencyCode)} tax` : null,
-    client: quote.recipientDisplayName || t("dashboard.livePulse.contactPending"),
+    helper:
+      quote.taxTotal > 0
+        ? `${formatCurrency(quote.taxTotal, quote.currencyCode)} tax`
+        : null,
+    client:
+      quote.recipientDisplayName || t('dashboard.livePulse.contactPending'),
     description: quote.title,
     invoiceNumber: quote.quoteNumber,
     to: `/commercial/quotes`,
     statusLabel: t(`dashboard.activity.status.${statusTone}`),
     statusTone,
     icon:
-      statusTone === "positive"
-          ? ArrowUpCircle
-          : statusTone === "negative"
+      statusTone === 'positive'
+        ? ArrowUpCircle
+        : statusTone === 'negative'
           ? RefreshCcw
-          : ArrowDownCircle
+          : ArrowDownCircle,
   };
 }
 
-function getActivityStatusTone(status: QuoteSummary["status"]): QuoteActivityStatus {
+function getActivityStatusTone(
+  status: QuoteSummary['status']
+): QuoteActivityStatus {
   switch (status) {
-    case "approved":
-      return "positive";
-    case "rejected":
-    case "expired":
-      return "negative";
+    case 'approved':
+      return 'positive';
+    case 'rejected':
+    case 'expired':
+      return 'negative';
     default:
-      return "neutral";
+      return 'neutral';
   }
 }
 
@@ -595,15 +610,15 @@ function formatActivityDate(value: string, t: BackofficeT) {
   yesterday.setDate(today.getDate() - 1);
 
   if (isSameCalendarDay(date, today)) {
-    return t("dashboard.activity.today");
+    return t('dashboard.activity.today');
   }
 
   if (isSameCalendarDay(date, yesterday)) {
-    return t("dashboard.activity.yesterday");
+    return t('dashboard.activity.yesterday');
   }
 
   return new Intl.DateTimeFormat(undefined, {
-    dateStyle: "long"
+    dateStyle: 'long',
   }).format(date);
 }
 
@@ -616,23 +631,23 @@ function isSameCalendarDay(left: Date, right: Date) {
 }
 
 function formatDashboardStatValue(
-  id: (typeof statCards)[number]["id"],
+  id: (typeof statCards)[number]['id'],
   value: number,
   t: BackofficeT
 ) {
-  if (id === "quoteCount" || id === "openQuoteCount") {
-    return t("dashboard.stats.documentsValue", { count: value });
+  if (id === 'quoteCount' || id === 'openQuoteCount') {
+    return t('dashboard.stats.documentsValue', { count: value });
   }
 
-  return t("dashboard.stats.customersValue", { count: value });
+  return t('dashboard.stats.customersValue', { count: value });
 }
 
 function formatCurrency(value: number, currencyCode: string) {
   try {
     return new Intl.NumberFormat(undefined, {
-      style: "currency",
+      style: 'currency',
       currency: currencyCode,
-      maximumFractionDigits: 2
+      maximumFractionDigits: 2,
     }).format(value);
   } catch {
     return `${currencyCode} ${value.toFixed(2)}`;
@@ -641,22 +656,22 @@ function formatCurrency(value: number, currencyCode: string) {
 
 function getCustomerCardInvoice(customer: CustomerSummary, t: BackofficeT) {
   const statusTone =
-    customer.status === "active"
-      ? "positive"
-      : customer.status === "inactive"
-        ? "neutral"
-        : "negative";
+    customer.status === 'active'
+      ? 'positive'
+      : customer.status === 'inactive'
+        ? 'neutral'
+        : 'negative';
 
   return {
     dateLabel: formatShortDate(customer.updatedAt),
     amount:
-      customer.status === "active"
-        ? "$7,600.00"
-        : customer.status === "inactive"
-          ? "$14,000.00"
-          : "$2,000.00",
+      customer.status === 'active'
+        ? '$7,600.00'
+        : customer.status === 'inactive'
+          ? '$14,000.00'
+          : '$2,000.00',
     statusTone,
-    statusLabel: t(`dashboard.activity.status.${statusTone}`)
+    statusLabel: t(`dashboard.activity.status.${statusTone}`),
   };
 }
 
@@ -668,14 +683,14 @@ function formatShortDate(value: string) {
   }
 
   return new Intl.DateTimeFormat(undefined, {
-    dateStyle: "long"
+    dateStyle: 'long',
   }).format(date);
 }
 
 function getInitials(value: string) {
   return value
-    .split(" ")
+    .split(' ')
     .slice(0, 2)
-    .map((segment) => segment[0]?.toUpperCase() ?? "")
-    .join("");
+    .map((segment) => segment[0]?.toUpperCase() ?? '')
+    .join('');
 }
