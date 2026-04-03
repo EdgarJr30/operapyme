@@ -12,7 +12,11 @@ import {
   SunMedium,
   UserRound
 } from "lucide-react";
-import { getPrimaryTenantMembership, isGlobalAuditVisible } from "@operapyme/domain";
+import {
+  getPrimaryTenantMembership,
+  hasTenantPermissionForRoleKeys,
+  isGlobalAuditVisible
+} from "@operapyme/domain";
 import { useTranslation } from "@operapyme/i18n";
 import { AnimatePresence, MotionConfig, motion } from "motion/react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
@@ -165,15 +169,34 @@ export function AppShell() {
     accessContext,
     activeTenantId
   );
+  const canAccessSettings = Boolean(
+    accessContext?.isGlobalAdmin ||
+      hasTenantPermissionForRoleKeys(
+        activeTenantMembership?.tenantRoleKeys,
+        "tenant.read"
+      ) ||
+      hasTenantPermissionForRoleKeys(
+        activeTenantMembership?.tenantRoleKeys,
+        "tenant.update"
+      ) ||
+      hasTenantPermissionForRoleKeys(
+        activeTenantMembership?.tenantRoleKeys,
+        "membership.manage"
+      )
+  );
   const navItems = useMemo(
     () =>
       [
         ...businessNavItems,
         ...platformNavItems.filter((item) =>
-          item.key === "admin" ? isGlobalAuditVisible(accessContext) : true
+          item.key === "admin"
+            ? isGlobalAuditVisible(accessContext)
+            : item.key === "settings"
+              ? canAccessSettings
+              : true
         )
       ] satisfies ShellNavItem[],
-    [accessContext]
+    [accessContext, canAccessSettings]
   );
   const sections = useMemo<SidebarSection[]>(
     () => [

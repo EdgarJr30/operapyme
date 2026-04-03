@@ -43,6 +43,60 @@ export type TenantRoleKey = (typeof tenantRoleKeys)[number];
 export type PlatformPermissionKey = (typeof platformPermissionKeys)[number];
 export type TenantPermissionKey = (typeof tenantPermissionKeys)[number];
 
+const tenantRolePermissionMap: Record<TenantRoleKey, TenantPermissionKey[]> = {
+  tenant_owner: [
+    "tenant.read",
+    "tenant.update",
+    "membership.manage",
+    "crm.read",
+    "crm.write",
+    "catalog.read",
+    "catalog.write",
+    "quote.read",
+    "quote.write",
+    "invoice.read",
+    "invoice.write",
+    "expense.read",
+    "expense.write",
+    "audit.read.tenant"
+  ],
+  tenant_admin: [
+    "tenant.read",
+    "tenant.update",
+    "membership.manage",
+    "crm.read",
+    "crm.write",
+    "catalog.read",
+    "catalog.write",
+    "quote.read",
+    "quote.write",
+    "invoice.read",
+    "invoice.write",
+    "expense.read",
+    "expense.write",
+    "audit.read.tenant"
+  ],
+  sales_rep: [
+    "crm.read",
+    "crm.write",
+    "catalog.read",
+    "quote.read",
+    "quote.write"
+  ],
+  finance_operator: [
+    "expense.read",
+    "expense.write",
+    "quote.read"
+  ],
+  viewer: [
+    "tenant.read",
+    "crm.read",
+    "catalog.read",
+    "quote.read",
+    "expense.read"
+  ]
+};
+
 export interface AccessContext {
   platformRoleKeys?: readonly PlatformRoleKey[];
   platformPermissionKeys?: readonly PlatformPermissionKey[];
@@ -82,4 +136,25 @@ export function canAccessGlobalAudit(context: AccessContext) {
 
 export function canAccessStressHarness(context: AccessContext) {
   return hasPlatformPermission(context, "stress.run.global");
+}
+
+export function getTenantPermissionsFromRoleKeys(
+  roleKeys: readonly TenantRoleKey[] | undefined
+) {
+  if (!roleKeys?.length) {
+    return [];
+  }
+
+  return Array.from(
+    new Set(
+      roleKeys.flatMap((roleKey) => tenantRolePermissionMap[roleKey] ?? [])
+    )
+  );
+}
+
+export function hasTenantPermissionForRoleKeys(
+  roleKeys: readonly TenantRoleKey[] | undefined,
+  permissionKey: TenantPermissionKey
+) {
+  return getTenantPermissionsFromRoleKeys(roleKeys).includes(permissionKey);
 }

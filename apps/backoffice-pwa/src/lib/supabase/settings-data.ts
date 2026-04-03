@@ -1,0 +1,247 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+import type {
+  ThemePaletteSeedColors,
+  ThemePaletteSelectionId
+} from "@operapyme/ui";
+
+import { defaultCustomThemePaletteSeeds } from "@operapyme/ui";
+
+import { supabase } from "@/lib/supabase/client";
+
+export interface SettingsUserProfile {
+  appUserId: string;
+  email: string;
+  displayName: string | null;
+  updatedAt: string;
+}
+
+export interface TenantBrandingSettings {
+  id: string;
+  name: string;
+  slug: string;
+  status: "active" | "inactive" | "suspended";
+  paletteId: ThemePaletteSelectionId;
+  paletteSeedColors: ThemePaletteSeedColors;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SettingsTenantMember {
+  membershipId: string;
+  appUserId: string;
+  email: string;
+  displayName: string | null;
+  status: "active" | "invited" | "suspended";
+  tenantRoleKeys: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface RawSettingsUserProfile {
+  id: string;
+  email: string;
+  display_name: string | null;
+  updated_at: string;
+}
+
+interface RawTenantBrandingSettings {
+  id: string;
+  name: string;
+  slug: string;
+  status: "active" | "inactive" | "suspended";
+  palette_id: ThemePaletteSelectionId | null;
+  palette_seed_colors: Partial<ThemePaletteSeedColors> | null;
+  created_at: string;
+  updated_at: string;
+}
+
+interface RawSettingsTenantMember {
+  membership_id: string;
+  app_user_id: string;
+  email: string;
+  display_name: string | null;
+  status: "active" | "invited" | "suspended";
+  tenant_role_keys: string[] | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UpdateSettingsUserProfileInput {
+  appUserId: string;
+  displayName: string | null;
+}
+
+export interface UpdateTenantBrandingSettingsInput {
+  tenantId: string;
+  name: string;
+  paletteId: ThemePaletteSelectionId;
+  paletteSeedColors: ThemePaletteSeedColors;
+}
+
+function ensureClient(client?: SupabaseClient) {
+  const resolvedClient = client ?? supabase;
+
+  if (!resolvedClient) {
+    throw new Error("Supabase client is not configured.");
+  }
+
+  return resolvedClient;
+}
+
+function parsePaletteSeedColors(
+  value: Partial<ThemePaletteSeedColors> | null | undefined
+) {
+  return {
+    paper: value?.paper ?? defaultCustomThemePaletteSeeds.paper,
+    primary: value?.primary ?? defaultCustomThemePaletteSeeds.primary,
+    secondary: value?.secondary ?? defaultCustomThemePaletteSeeds.secondary,
+    tertiary: value?.tertiary ?? defaultCustomThemePaletteSeeds.tertiary
+  };
+}
+
+function mapSettingsUserProfile(
+  row: RawSettingsUserProfile
+): SettingsUserProfile {
+  return {
+    appUserId: row.id,
+    email: row.email,
+    displayName: row.display_name,
+    updatedAt: row.updated_at
+  };
+}
+
+function mapTenantBrandingSettings(
+  row: RawTenantBrandingSettings
+): TenantBrandingSettings {
+  return {
+    id: row.id,
+    name: row.name,
+    slug: row.slug,
+    status: row.status,
+    paletteId: row.palette_id ?? "custom",
+    paletteSeedColors: parsePaletteSeedColors(row.palette_seed_colors),
+    createdAt: row.created_at,
+    updatedAt: row.updated_at
+  };
+}
+
+function mapSettingsTenantMember(
+  row: RawSettingsTenantMember
+): SettingsTenantMember {
+  return {
+    membershipId: row.membership_id,
+    appUserId: row.app_user_id,
+    email: row.email,
+    displayName: row.display_name,
+    status: row.status,
+    tenantRoleKeys: row.tenant_role_keys ?? [],
+    createdAt: row.created_at,
+    updatedAt: row.updated_at
+  };
+}
+
+export async function getSettingsUserProfile(
+  appUserId: string,
+  client?: SupabaseClient
+) {
+  const resolvedClient = ensureClient(client);
+  const { data, error } = await resolvedClient
+    .from("app_users")
+    .select("id, email, display_name, updated_at")
+    .eq("id", appUserId)
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return mapSettingsUserProfile(data as RawSettingsUserProfile);
+}
+
+export async function updateSettingsUserProfile(
+  input: UpdateSettingsUserProfileInput,
+  client?: SupabaseClient
+) {
+  const resolvedClient = ensureClient(client);
+  const { data, error } = await resolvedClient
+    .from("app_users")
+    .update({
+      display_name: input.displayName?.trim() || null
+    })
+    .eq("id", input.appUserId)
+    .select("id, email, display_name, updated_at")
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return mapSettingsUserProfile(data as RawSettingsUserProfile);
+}
+
+export async function getTenantBrandingSettings(
+  tenantId: string,
+  client?: SupabaseClient
+) {
+  const resolvedClient = ensureClient(client);
+  const { data, error } = await resolvedClient
+    .from("tenants")
+    .select(
+      "id, name, slug, status, palette_id, palette_seed_colors, created_at, updated_at"
+    )
+    .eq("id", tenantId)
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return mapTenantBrandingSettings(data as RawTenantBrandingSettings);
+}
+
+export async function updateTenantBrandingSettings(
+  input: UpdateTenantBrandingSettingsInput,
+  client?: SupabaseClient
+) {
+  const resolvedClient = ensureClient(client);
+  const { data, error } = await resolvedClient
+    .from("tenants")
+    .update({
+      name: input.name.trim(),
+      palette_id: input.paletteId,
+      palette_seed_colors: input.paletteSeedColors
+    })
+    .eq("id", input.tenantId)
+    .select(
+      "id, name, slug, status, palette_id, palette_seed_colors, created_at, updated_at"
+    )
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return mapTenantBrandingSettings(data as RawTenantBrandingSettings);
+}
+
+export async function listTenantMembersForSettings(
+  tenantId: string,
+  client?: SupabaseClient
+) {
+  const resolvedClient = ensureClient(client);
+  const { data, error } = await resolvedClient.rpc(
+    "list_tenant_memberships_for_settings",
+    {
+      target_tenant_id: tenantId
+    }
+  );
+
+  if (error) {
+    throw error;
+  }
+
+  return ((data ?? []) as RawSettingsTenantMember[]).map(
+    mapSettingsTenantMember
+  );
+}

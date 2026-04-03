@@ -9,8 +9,10 @@ export {
 export {
   canAccessGlobalAudit,
   canAccessStressHarness,
+  getTenantPermissionsFromRoleKeys,
   hasPlatformPermission,
   hasTenantPermission,
+  hasTenantPermissionForRoleKeys,
   platformPermissionKeys,
   platformRoleKeys,
   tenantPermissionKeys,

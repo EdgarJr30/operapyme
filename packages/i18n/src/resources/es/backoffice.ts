@@ -1777,49 +1777,107 @@ const backofficeEs = {
   },
   settings: {
     header: {
-      eyebrow: "Preparacion del sistema",
-      title: "Checkpoints de entorno y arquitectura",
+      eyebrow: "Configuracion operativa",
+      title: "Ajustes del tenant",
       description:
-        "Usa esta vista como puente de implementacion entre el scaffold visual y el producto real con Supabase."
+        "Gestiona tu perfil, la identidad visual del tenant y los accesos del equipo desde una sola superficie protegida por rol y por tenant."
     },
-    env: {
-      title: "Estado del entorno",
-      description:
-        "La app ya sabe si las llaves de Supabase existen de forma local.",
-      detected: "Variables de Supabase detectadas",
-      missing: "Faltan variables de Supabase",
-      instructions:
-        "Agrega `VITE_SUPABASE_URL` y `VITE_SUPABASE_PUBLISHABLE_KEY` en `apps/backoffice-pwa/.env`."
+    sections: {
+      general: "General",
+      tenant: "Tenant",
+      appearance: "Apariencia",
+      team: "Equipo",
+      security: "Seguridad"
     },
-    checklist: {
-      title: "Checklist de implementacion",
-      description:
-        "Mantener la secuencia disciplinada para que el producto crezca sin deuda estructural.",
-      connectSupabase: "Conectar URL de Supabase y publishable key",
-      addAuth: "Agregar auth y bootstrap inicial del tenant",
-      createRbac: "Crear tablas raiz de RBAC y politicas",
-      wireQuery: "Conectar los primeros hooks de React Query a datos reales",
-      enableOffline: "Habilitar persistencia segura para borradores offline"
+    errors: {
+      generic: "No pudimos completar la accion."
     },
-    theme: {
-      title: "Modo de color",
+    status: {
+      active: "Activo",
+      inactive: "Inactivo",
+      invited: "Invitado",
+      suspended: "Suspendido"
+    },
+    roles: {
+      global_admin: "Admin global",
+      tenant_owner: "Propietario",
+      tenant_admin: "Administrador",
+      sales_rep: "Ventas",
+      finance_operator: "Finanzas",
+      viewer: "Consulta",
+      tenant_member: "Miembro del tenant"
+    },
+    states: {
+      loadingTitle: "Cargando configuracion",
+      loadingDescription:
+        "Estamos trayendo el perfil, el tenant activo y la configuracion disponible para esta cuenta.",
+      errorTitle: "No pudimos abrir configuracion",
+      errorDescription: "Ocurrio un problema al cargar esta vista. {message}",
+      retryAction: "Intentar de nuevo",
+      noTenantTitle: "Todavia no tienes un tenant activo",
+      noTenantDescription:
+        "Completa el setup inicial o cambia al tenant correcto para abrir esta configuracion."
+    },
+    profile: {
+      title: "Perfil del usuario",
       description:
-        "Cada usuario puede elegir claro, oscuro o seguir el sistema sin tocar la marca visual del tenant.",
-      helper:
-        "Esta preferencia es personal del usuario actual. La paleta del tenant se gestiona aparte y afecta la identidad compartida."
+        "Revisa la identidad con la que estas operando y actualiza el nombre visible de esta cuenta.",
+      emailLabel: "Correo",
+      roleLabel: "Rol activo",
+      displayNameLabel: "Nombre visible",
+      displayNamePlaceholder: "Como quieres aparecer dentro del tenant",
+      saveAction: "Guardar nombre",
+      saving: "Guardando...",
+      openProfileAction: "Abrir perfil y contrasena",
+      toastTitle: "Perfil actualizado",
+      toastDescription: "Tu nombre visible ya refleja la identidad actual.",
+      errorTitle: "No pudimos actualizar tu perfil",
+      loadError: "No pudimos cargar tu perfil. {message}"
+    },
+    preferences: {
+      title: "Preferencias personales",
+      description:
+        "Estas preferencias afectan solo a tu sesion y no cambian la identidad compartida del tenant.",
+      themeTitle: "Modo de color",
+      themeText:
+        "Elige claro, oscuro o sistema para trabajar con la densidad visual que mejor te funcione.",
+      currentTenantTitle: "Tenant activo",
+      currentTenantText:
+        "La configuracion compartida y los permisos de esta vista siempre dependen del tenant seleccionado."
+    },
+    tenant: {
+      title: "Datos del tenant",
+      description:
+        "Administra la identidad base del tenant activo. Los cambios quedan aislados por tenant y solo pueden editarlos roles con permiso.",
+      slugLabel: "Slug",
+      statusLabel: "Estado",
+      updatedLabel: "Ultima actualizacion",
+      nameLabel: "Nombre comercial",
+      namePlaceholder: "Nombre del tenant",
+      editHelp:
+        "Solo los roles con `tenant.update` pueden guardar cambios de identidad o branding para este tenant.",
+      readOnlyHelp:
+        "Tu rol puede revisar los datos del tenant activo, pero no editar su identidad ni su branding.",
+      saveAction: "Guardar tenant",
+      saving: "Guardando tenant...",
+      toastTitle: "Tenant actualizado",
+      toastDescription:
+        "La informacion base y la apariencia compartida del tenant ya fueron actualizadas.",
+      errorTitle: "No pudimos actualizar el tenant"
     },
     palette: {
       title: "Paleta visual del tenant",
       description:
-        "Elige una paleta curada o arma una propia para que backoffice y storefront compartan una marca elegante sin perder legibilidad ni consistencia.",
+        "Elige una paleta curada o arma una propia para que todo el tenant comparta una identidad consistente en backoffice y superficies futuras.",
       sharedBadge: "Una marca, dos apps",
       previewBadge: "Preview en vivo",
-      ruleTitle: "Por que combinamos presets curados y una personalizacion simple",
+      readOnlyBadge: "Solo lectura",
+      ruleTitle: "Branding simple, consistente y usable",
       ruleText:
-        "Las paletas base ya nacen equilibradas y la paleta propia solo pide cuatro colores semilla para mantener contraste, velocidad de setup y consistencia visual.",
-      storageTitle: "Persistencia actual",
+        "Las paletas base ya nacen equilibradas y la paleta propia solo pide cuatro colores semilla para mantener contraste, velocidad de configuracion y coherencia operativa.",
+      storageTitle: "Persistencia del tenant",
       storageText:
-        "En este scaffold la seleccion y la paleta propia se guardan localmente para iterar rapido. El siguiente paso real es persistir `palette_id` y las semillas de branding por tenant en Supabase.",
+        "La paleta y sus semillas quedan guardadas sobre el tenant activo para que la identidad compartida no dependa del dispositivo actual.",
       backofficeTitle: "Backoffice operativo",
       backofficeDescription:
         "Mas estructura, mas densidad util y un fondo contenido para trabajo diario.",
@@ -1849,16 +1907,45 @@ const backofficeEs = {
         reset: "Restaurar base"
       }
     },
-    principles: {
-      rbacTitle: "RBAC antes del polish",
+    appearance: {
+      saveTitle: "Aplicar cambios visuales",
+      saveText:
+        "Guarda el nombre y la paleta para publicar la identidad compartida del tenant activo.",
+      readOnlyText:
+        "Puedes revisar el branding actual, pero tu rol no puede publicar cambios para este tenant.",
+      saveAction: "Guardar apariencia",
+      saving: "Guardando apariencia..."
+    },
+    team: {
+      title: "Equipo del tenant",
+      description:
+        "Consulta quienes operan dentro del tenant activo y con que roles entran a la aplicacion.",
+      loadingDescription:
+        "Estamos cargando las membresias visibles para este tenant.",
+      emptyDescription:
+        "Todavia no hay mas miembros visibles en este tenant.",
+      errorTitle: "No pudimos cargar el equipo",
+      errorDescription: "Ocurrio un problema al traer las membresias. {message}",
+      lockedTitle: "Tu rol no puede gestionar equipo",
+      lockedDescription:
+        "Solo los roles con `membership.manage` pueden revisar el directorio completo del tenant."
+    },
+    security: {
+      title: "Seguridad y acceso",
+      description:
+        "Esta configuracion se protege por tenant y por rol. Las acciones sensibles no dependen solo de la UI.",
+      rbacTitle: "RBAC y tenant isolation",
       rbacText:
-        "Roles y RLS deben moldear la app temprano para que las pantallas futuras no asuman permisos inseguros.",
-      offlineTitle: "Offline con proposito",
-      offlineText:
-        "Empieza con lecturas cacheadas y colas de borrador en lugar de prometer offline total demasiado temprano.",
-      edgeTitle: "Edge Functions para funciones potentes",
-      edgeText:
-        "IA, push, generacion de PDFs y webhooks deben vivir en Supabase Edge Functions, no en el cliente."
+        "Cada acceso se valida contra el tenant activo y sus permisos. Si tu rol no tiene capacidad sobre este tenant, la vista se bloquea.",
+      passwordTitle: "Credenciales de la cuenta",
+      passwordText:
+        "La contrasena y el acceso por magic link siguen viviendo en tu perfil personal para no mezclar identidad de usuario con identidad del tenant.",
+      actionsTitle: "Acciones relacionadas",
+      actionsDescription:
+        "Abre tu perfil para cambiar contrasena o revisar los metodos de acceso disponibles.",
+      openProfileAction: "Ir a perfil y contrasena",
+      auditText:
+        "Los cambios funcionales del tenant y las membresias siguen auditados desde la capa segura del backend."
     }
   }
 };

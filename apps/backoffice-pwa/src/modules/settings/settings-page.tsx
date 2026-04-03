@@ -1,9 +1,28 @@
-import { Shield, SmartphoneCharging, Webhook } from "lucide-react";
+import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 
+import {
+  Building2,
+  Check,
+  ChevronRight,
+  KeyRound,
+  Palette,
+  ShieldCheck,
+  UserCircle2,
+  Users
+} from "lucide-react";
+import {
+  getPrimaryTenantMembership,
+  hasTenantPermissionForRoleKeys
+} from "@operapyme/domain";
 import { useTranslation } from "@operapyme/i18n";
+import { useTenantTheme } from "@operapyme/ui";
+import type { ThemePaletteSeedColors } from "@operapyme/ui";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
-import { TenantPaletteSection } from "@/modules/settings/tenant-palette-section";
+import { useBackofficeAuth } from "@/app/auth-provider";
 import { ThemeSwitcher } from "@/components/layout/theme-switcher";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -11,19 +30,243 @@ import {
   CardHeader,
   CardTitle
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { StatusPill } from "@/components/ui/status-pill";
-import { isSupabaseConfigured } from "@/lib/supabase/client";
+import { AccessDeniedPage } from "@/modules/auth/access-denied-page";
+import { TenantPaletteSection } from "@/modules/settings/tenant-palette-section";
+import { useSettingsData } from "@/modules/settings/use-settings-data";
+import { useSettingsMutations } from "@/modules/settings/use-settings-mutations";
 
-const checklist = [
-  "settings.checklist.connectSupabase",
-  "settings.checklist.addAuth",
-  "settings.checklist.createRbac",
-  "settings.checklist.wireQuery",
-  "settings.checklist.enableOffline"
-];
+type SettingsSectionId =
+  | "general"
+  | "tenant"
+  | "appearance"
+  | "team"
+  | "security";
+
+function getStatusTone(status: "active" | "inactive" | "suspended" | "invited") {
+  if (status === "active") {
+    return "success";
+  }
+
+  if (status === "invited") {
+    return "info";
+  }
+
+  return "warning";
+}
+
+function arePaletteSeedsEqual(
+  left: ThemePaletteSeedColors,
+  right: ThemePaletteSeedColors
+) {
+  return (
+    left.paper === right.paper &&
+    left.primary === right.primary &&
+    left.secondary === right.secondary &&
+    left.tertiary === right.tertiary
+  );
+}
+
+function SettingsState({
+  title,
+  description,
+  action
+}: {
+  title: string;
+  description: string;
+  action?: ReactNode;
+}) {
+  return (
+    <Card>
+      <CardContent className="space-y-4 p-5 sm:p-6">
+        <div className="space-y-2">
+          <h2 className="text-lg font-semibold text-ink">{title}</h2>
+          <p className="max-w-2xl text-sm leading-6 text-ink-soft">
+            {description}
+          </p>
+        </div>
+        {action ?? null}
+      </CardContent>
+    </Card>
+  );
+}
 
 export function SettingsPage() {
   const { t } = useTranslation("backoffice");
+  const navigate = useNavigate();
+  const { accessContext, activeTenantId, user } = useBackofficeAuth();
+  const { customPalette, paletteId, setCustomPalette, setPaletteId } =
+    useTenantTheme();
+  const activeTenantMembership = getPrimaryTenantMembership(
+    accessContext,
+    activeTenantId
+  );
+  const activeRoleKeys = activeTenantMembership?.tenantRoleKeys;
+  const canEditTenant = Boolean(
+    accessContext?.isGlobalAdmin ||
+      hasTenantPermissionForRoleKeys(activeRoleKeys, "tenant.update")
+  );
+  const canManageMembers = Boolean(
+    accessContext?.isGlobalAdmin ||
+      hasTenantPermissionForRoleKeys(activeRoleKeys, "membership.manage")
+  );
+  const canReadTenant = Boolean(
+    accessContext?.isGlobalAdmin ||
+      hasTenantPermissionForRoleKeys(activeRoleKeys, "tenant.read") ||
+      canEditTenant ||
+      canManageMembers
+  );
+
+  const { tenantSettingsQuery, tenantMembersQuery, userProfileQuery } =
+    useSettingsData(canManageMembers);
+  const { updateTenantSettingsMutation, updateUserProfileMutation } =
+    useSettingsMutations();
+  const [activeSection, setActiveSection] =
+    useState<SettingsSectionId>("general");
+  const [displayNameDraft, setDisplayNameDraft] = useState("");
+  const [tenantNameDraft, setTenantNameDraft] = useState("");
+  const tenantThemeSyncRef = useRef<string | null>(null);
+
+  const sections = useMemo(
+    () => [
+      {
+        id: "general" as const,
+        label: t("settings.sections.general"),
+        icon: UserCircle2
+      },
+      {
+        id: "tenant" as const,
+        label: t("settings.sections.tenant"),
+        icon: Building2
+      },
+      {
+        id: "appearance" as const,
+        label: t("settings.sections.appearance"),
+        icon: Palette
+      },
+      {
+        id: "team" as const,
+        label: t("settings.sections.team"),
+        icon: Users
+      },
+      {
+        id: "security" as const,
+        label: t("settings.sections.security"),
+        icon: ShieldCheck
+      }
+    ],
+    [t]
+  );
+
+  useEffect(() => {
+    if (userProfileQuery.data) {
+      setDisplayNameDraft(userProfileQuery.data.displayName ?? "");
+    }
+  }, [userProfileQuery.data]);
+
+  useEffect(() => {
+    if (!tenantSettingsQuery.data || !activeTenantId) {
+      return;
+    }
+
+    setTenantNameDraft(tenantSettingsQuery.data.name);
+
+    const syncKey = `${activeTenantId}:${tenantSettingsQuery.data.updatedAt}`;
+
+    if (tenantThemeSyncRef.current === syncKey) {
+      return;
+    }
+
+    if (tenantSettingsQuery.data.paletteId === "custom") {
+      setCustomPalette(tenantSettingsQuery.data.paletteSeedColors);
+    } else {
+      setPaletteId(tenantSettingsQuery.data.paletteId);
+    }
+
+    tenantThemeSyncRef.current = syncKey;
+  }, [
+    activeTenantId,
+    setCustomPalette,
+    setPaletteId,
+    tenantSettingsQuery.data
+  ]);
+
+  if (!activeTenantId) {
+    return (
+      <SettingsState
+        title={t("settings.states.noTenantTitle")}
+        description={t("settings.states.noTenantDescription")}
+      />
+    );
+  }
+
+  if (!canReadTenant) {
+    return <AccessDeniedPage />;
+  }
+
+  const currentRoleLabel = accessContext?.isGlobalAdmin
+    ? t("settings.roles.global_admin")
+    : activeRoleKeys?.length
+      ? activeRoleKeys.map((roleKey) => t(`settings.roles.${roleKey}`)).join(" / ")
+      : t("settings.roles.tenant_member");
+
+  const userProfile = userProfileQuery.data;
+  const tenantSettings = tenantSettingsQuery.data;
+  const members = tenantMembersQuery.data ?? [];
+
+  const isProfileDirty =
+    (displayNameDraft.trim() || "") !== (userProfile?.displayName?.trim() || "");
+  const isAppearanceDirty = Boolean(
+    tenantSettings &&
+      (tenantNameDraft.trim() !== tenantSettings.name ||
+        paletteId !== tenantSettings.paletteId ||
+        (paletteId === "custom" &&
+          !arePaletteSeedsEqual(
+            customPalette.seeds,
+            tenantSettings.paletteSeedColors
+          )))
+  );
+
+  async function handleSaveProfile() {
+    try {
+      await updateUserProfileMutation.mutateAsync({
+        displayName: displayNameDraft.trim() || null
+      });
+
+      toast.success(t("settings.profile.toastTitle"), {
+        description: t("settings.profile.toastDescription")
+      });
+    } catch (error) {
+      toast.error(t("settings.profile.errorTitle"), {
+        description:
+          error instanceof Error ? error.message : t("settings.errors.generic")
+      });
+    }
+  }
+
+  async function handleSaveTenant() {
+    if (!tenantSettings) {
+      return;
+    }
+
+    try {
+      await updateTenantSettingsMutation.mutateAsync({
+        name: tenantNameDraft.trim(),
+        paletteId,
+        paletteSeedColors: customPalette.seeds
+      });
+
+      toast.success(t("settings.tenant.toastTitle"), {
+        description: t("settings.tenant.toastDescription")
+      });
+    } catch (error) {
+      toast.error(t("settings.tenant.errorTitle"), {
+        description:
+          error instanceof Error ? error.message : t("settings.errors.generic")
+      });
+    }
+  }
 
   return (
     <div className="space-y-5 lg:space-y-6">
@@ -39,113 +282,466 @@ export function SettingsPage() {
         </p>
       </section>
 
-      <TenantPaletteSection />
+      <div className="mx-auto max-w-7xl lg:flex lg:gap-x-10">
+        <aside className="flex overflow-x-auto border-b border-line/70 pb-4 lg:block lg:w-72 lg:flex-none lg:border-0 lg:pb-0">
+          <nav className="flex-none">
+            <ul role="list" className="flex gap-2 lg:flex-col">
+              {sections.map((section) => {
+                const isActive = section.id === activeSection;
 
-      <section>
-        <Card className="bg-paper">
-          <CardHeader>
-            <CardTitle>{t("settings.theme.title")}</CardTitle>
-            <CardDescription>
-              {t("settings.theme.description")}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ThemeSwitcher />
-            <p className="text-sm leading-6 text-ink-soft">
-              {t("settings.theme.helper")}
-            </p>
-          </CardContent>
-        </Card>
-      </section>
+                return (
+                  <li key={section.id}>
+                    <button
+                      type="button"
+                      onClick={() => setActiveSection(section.id)}
+                      className={[
+                        "group flex min-w-fit items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-semibold transition",
+                        isActive
+                          ? "bg-brand-soft/15 text-brand"
+                          : "text-ink-soft hover:bg-paper hover:text-brand"
+                      ].join(" ")}
+                    >
+                      <section.icon
+                        className={[
+                          "size-5 shrink-0",
+                          isActive ? "text-brand" : "text-ink-muted group-hover:text-brand"
+                        ].join(" ")}
+                        aria-hidden="true"
+                      />
+                      <span>{section.label}</span>
+                      <ChevronRight
+                        className={[
+                          "size-4 shrink-0 lg:ml-auto",
+                          isActive ? "text-brand" : "text-ink-muted"
+                        ].join(" ")}
+                        aria-hidden="true"
+                      />
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
+        </aside>
 
-      <section className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
-        <Card>
-          <CardHeader>
-            <CardTitle>{t("settings.env.title")}</CardTitle>
-            <CardDescription>
-              {t("settings.env.description")}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <StatusPill tone={isSupabaseConfigured ? "success" : "warning"}>
-              {isSupabaseConfigured
-                ? t("settings.env.detected")
-                : t("settings.env.missing")}
-            </StatusPill>
-            <p className="text-sm leading-6 text-ink-soft">
-              {t("settings.env.instructions")}
-            </p>
-          </CardContent>
-        </Card>
+        <main className="min-w-0 flex-1 space-y-4 pt-5 lg:pt-0">
+          {activeSection === "general" ? (
+            <section className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("settings.profile.title")}</CardTitle>
+                  <CardDescription>
+                    {t("settings.profile.description")}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-5">
+                  {userProfileQuery.isLoading ? (
+                    <p className="text-sm leading-6 text-ink-soft">
+                      {t("settings.states.loadingDescription")}
+                    </p>
+                  ) : userProfileQuery.isError ? (
+                    <p className="text-sm leading-6 text-ink-soft">
+                      {t("settings.profile.loadError", {
+                        message:
+                          userProfileQuery.error instanceof Error
+                            ? userProfileQuery.error.message
+                            : ""
+                      })}
+                    </p>
+                  ) : (
+                    <>
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <InfoCard
+                          label={t("settings.profile.emailLabel")}
+                          value={userProfile?.email ?? user?.email ?? "-"}
+                        />
+                        <InfoCard
+                          label={t("settings.profile.roleLabel")}
+                          value={currentRoleLabel}
+                        />
+                      </div>
 
-        <Card className="bg-paper">
-          <CardHeader>
-            <CardTitle>{t("settings.checklist.title")}</CardTitle>
-            <CardDescription>
-              {t("settings.checklist.description")}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ol className="space-y-3">
-              {checklist.map((item, index) => (
-                <li
-                  key={item}
-                  className="flex items-start gap-3 rounded-[22px] border border-line/70 bg-paper/70 px-4 py-3"
-                >
-                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-sand-strong text-xs font-semibold text-ink">
-                    {index + 1}
-                  </span>
-                  <span className="text-sm leading-6 text-ink-soft">
-                    {t(item)}
-                  </span>
-                </li>
-              ))}
-            </ol>
-          </CardContent>
-        </Card>
-      </section>
+                      <div className="space-y-2">
+                        <label
+                          htmlFor="settings-display-name"
+                          className="text-sm font-medium text-ink"
+                        >
+                          {t("settings.profile.displayNameLabel")}
+                        </label>
+                        <Input
+                          id="settings-display-name"
+                          value={displayNameDraft}
+                          onChange={(event) => {
+                            setDisplayNameDraft(event.target.value);
+                          }}
+                          placeholder={t("settings.profile.displayNamePlaceholder")}
+                        />
+                      </div>
 
-      <section className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardContent className="space-y-3">
-            <div className="flex size-12 items-center justify-center rounded-2xl bg-sand-strong">
-              <Shield className="size-5 text-ink" />
-            </div>
-            <p className="text-sm font-semibold text-ink">
-              {t("settings.principles.rbacTitle")}
-            </p>
-            <p className="text-sm leading-6 text-ink-soft">
-              {t("settings.principles.rbacText")}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="space-y-3">
-            <div className="flex size-12 items-center justify-center rounded-2xl bg-sand-strong">
-              <SmartphoneCharging className="size-5 text-ink" />
-            </div>
-            <p className="text-sm font-semibold text-ink">
-              {t("settings.principles.offlineTitle")}
-            </p>
-            <p className="text-sm leading-6 text-ink-soft">
-              {t("settings.principles.offlineText")}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="space-y-3">
-            <div className="flex size-12 items-center justify-center rounded-2xl bg-sand-strong">
-              <Webhook className="size-5 text-ink" />
-            </div>
-            <p className="text-sm font-semibold text-ink">
-              {t("settings.principles.edgeTitle")}
-            </p>
-            <p className="text-sm leading-6 text-ink-soft">
-              {t("settings.principles.edgeText")}
-            </p>
-          </CardContent>
-        </Card>
-      </section>
+                      <div className="flex flex-wrap gap-3">
+                        <Button
+                          type="button"
+                          onClick={() => {
+                            void handleSaveProfile();
+                          }}
+                          disabled={
+                            !isProfileDirty || updateUserProfileMutation.isPending
+                          }
+                        >
+                          {updateUserProfileMutation.isPending
+                            ? t("settings.profile.saving")
+                            : t("settings.profile.saveAction")}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          onClick={() => {
+                            navigate("/profile");
+                          }}
+                        >
+                          {t("settings.profile.openProfileAction")}
+                        </Button>
+                      </div>
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("settings.preferences.title")}</CardTitle>
+                  <CardDescription>
+                    {t("settings.preferences.description")}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-5">
+                  <div className="space-y-3 rounded-3xl border border-line/70 bg-paper p-4">
+                    <p className="text-sm font-semibold text-ink">
+                      {t("settings.preferences.themeTitle")}
+                    </p>
+                    <ThemeSwitcher />
+                    <p className="text-sm leading-6 text-ink-soft">
+                      {t("settings.preferences.themeText")}
+                    </p>
+                  </div>
+
+                  <div className="space-y-3 rounded-3xl border border-line/70 bg-paper p-4">
+                    <p className="text-sm font-semibold text-ink">
+                      {t("settings.preferences.currentTenantTitle")}
+                    </p>
+                    <p className="text-sm leading-6 text-ink-soft">
+                      {activeTenantMembership?.tenantName ?? t("settings.states.noTenantTitle")}
+                    </p>
+                    <p className="text-sm leading-6 text-ink-soft">
+                      {t("settings.preferences.currentTenantText")}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </section>
+          ) : null}
+
+          {activeSection === "tenant" ? (
+            tenantSettingsQuery.isLoading ? (
+              <SettingsState
+                title={t("settings.states.loadingTitle")}
+                description={t("settings.states.loadingDescription")}
+              />
+            ) : tenantSettingsQuery.isError ? (
+              <SettingsState
+                title={t("settings.states.errorTitle")}
+                description={t("settings.states.errorDescription", {
+                  message:
+                    tenantSettingsQuery.error instanceof Error
+                      ? tenantSettingsQuery.error.message
+                      : ""
+                })}
+                action={
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => {
+                      void tenantSettingsQuery.refetch();
+                    }}
+                  >
+                    {t("settings.states.retryAction")}
+                  </Button>
+                }
+              />
+            ) : tenantSettings ? (
+              <section className="space-y-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>{t("settings.tenant.title")}</CardTitle>
+                    <CardDescription>
+                      {t("settings.tenant.description")}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-5">
+                    <div className="grid gap-4 sm:grid-cols-3">
+                      <InfoCard
+                        label={t("settings.tenant.slugLabel")}
+                        value={tenantSettings.slug}
+                      />
+                      <InfoCard
+                        label={t("settings.tenant.statusLabel")}
+                        value={t(`settings.status.${tenantSettings.status}`)}
+                      />
+                      <InfoCard
+                        label={t("settings.tenant.updatedLabel")}
+                        value={new Intl.DateTimeFormat(undefined, {
+                          dateStyle: "medium"
+                        }).format(new Date(tenantSettings.updatedAt))}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label
+                        htmlFor="settings-tenant-name"
+                        className="text-sm font-medium text-ink"
+                      >
+                        {t("settings.tenant.nameLabel")}
+                      </label>
+                      <Input
+                        id="settings-tenant-name"
+                        value={tenantNameDraft}
+                        disabled={!canEditTenant}
+                        onChange={(event) => {
+                          setTenantNameDraft(event.target.value);
+                        }}
+                        placeholder={t("settings.tenant.namePlaceholder")}
+                      />
+                    </div>
+
+                    <div className="rounded-3xl border border-line/70 bg-sand/35 p-4">
+                      <p className="text-sm leading-6 text-ink-soft">
+                        {canEditTenant
+                          ? t("settings.tenant.editHelp")
+                          : t("settings.tenant.readOnlyHelp")}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-3">
+                      <Button
+                        type="button"
+                        onClick={() => {
+                          void handleSaveTenant();
+                        }}
+                        disabled={
+                          !canEditTenant ||
+                          !isAppearanceDirty ||
+                          updateTenantSettingsMutation.isPending
+                        }
+                      >
+                        {updateTenantSettingsMutation.isPending
+                          ? t("settings.tenant.saving")
+                          : t("settings.tenant.saveAction")}
+                      </Button>
+                      <StatusPill tone={getStatusTone(tenantSettings.status)}>
+                        {t(`settings.status.${tenantSettings.status}`)}
+                      </StatusPill>
+                    </div>
+                  </CardContent>
+                </Card>
+              </section>
+            ) : null
+          ) : null}
+
+          {activeSection === "appearance" ? (
+            <section className="space-y-4">
+              <TenantPaletteSection canEdit={canEditTenant} />
+
+              <Card>
+                <CardContent className="flex flex-wrap items-center justify-between gap-3 p-5 sm:p-6">
+                  <div className="space-y-1">
+                    <p className="text-sm font-semibold text-ink">
+                      {t("settings.appearance.saveTitle")}
+                    </p>
+                    <p className="text-sm leading-6 text-ink-soft">
+                      {canEditTenant
+                        ? t("settings.appearance.saveText")
+                        : t("settings.appearance.readOnlyText")}
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      void handleSaveTenant();
+                    }}
+                    disabled={
+                      !canEditTenant ||
+                      !isAppearanceDirty ||
+                      updateTenantSettingsMutation.isPending
+                    }
+                  >
+                    {updateTenantSettingsMutation.isPending
+                      ? t("settings.appearance.saving")
+                      : t("settings.appearance.saveAction")}
+                  </Button>
+                </CardContent>
+              </Card>
+            </section>
+          ) : null}
+
+          {activeSection === "team" ? (
+            canManageMembers ? (
+              tenantMembersQuery.isLoading ? (
+                <SettingsState
+                  title={t("settings.states.loadingTitle")}
+                  description={t("settings.team.loadingDescription")}
+                />
+              ) : tenantMembersQuery.isError ? (
+                <SettingsState
+                  title={t("settings.team.errorTitle")}
+                  description={t("settings.team.errorDescription", {
+                    message:
+                      tenantMembersQuery.error instanceof Error
+                        ? tenantMembersQuery.error.message
+                        : ""
+                  })}
+                  action={
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={() => {
+                        void tenantMembersQuery.refetch();
+                      }}
+                    >
+                      {t("settings.states.retryAction")}
+                    </Button>
+                  }
+                />
+              ) : (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>{t("settings.team.title")}</CardTitle>
+                    <CardDescription>
+                      {t("settings.team.description")}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {members.length === 0 ? (
+                      <p className="text-sm leading-6 text-ink-soft">
+                        {t("settings.team.emptyDescription")}
+                      </p>
+                    ) : (
+                      members.map((member) => (
+                        <div
+                          key={member.membershipId}
+                          className="space-y-3 rounded-3xl border border-line/70 bg-paper p-4"
+                        >
+                          <div className="flex flex-wrap items-start justify-between gap-3">
+                            <div className="space-y-1">
+                              <p className="text-sm font-semibold text-ink">
+                                {member.displayName?.trim() || member.email}
+                              </p>
+                              <p className="text-sm leading-6 text-ink-soft">
+                                {member.email}
+                              </p>
+                            </div>
+                            <StatusPill tone={getStatusTone(member.status)}>
+                              {t(`settings.status.${member.status}`)}
+                            </StatusPill>
+                          </div>
+
+                          <div className="flex flex-wrap gap-2">
+                            {member.tenantRoleKeys.map((roleKey) => (
+                              <StatusPill key={roleKey} tone="neutral">
+                                {t(`settings.roles.${roleKey}`)}
+                              </StatusPill>
+                            ))}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </CardContent>
+                </Card>
+              )
+            ) : (
+              <SettingsState
+                title={t("settings.team.lockedTitle")}
+                description={t("settings.team.lockedDescription")}
+              />
+            )
+          ) : null}
+
+          {activeSection === "security" ? (
+            <section className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("settings.security.title")}</CardTitle>
+                  <CardDescription>
+                    {t("settings.security.description")}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="rounded-3xl border border-line/70 bg-paper p-4">
+                    <p className="text-sm font-semibold text-ink">
+                      {t("settings.security.rbacTitle")}
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-ink-soft">
+                      {t("settings.security.rbacText")}
+                    </p>
+                  </div>
+
+                  <div className="rounded-3xl border border-line/70 bg-paper p-4">
+                    <p className="text-sm font-semibold text-ink">
+                      {t("settings.security.passwordTitle")}
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-ink-soft">
+                      {t("settings.security.passwordText")}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("settings.security.actionsTitle")}</CardTitle>
+                  <CardDescription>
+                    {t("settings.security.actionsDescription")}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <Button
+                    type="button"
+                    className="w-full justify-between"
+                    onClick={() => {
+                      navigate("/profile");
+                    }}
+                  >
+                    <span className="flex items-center gap-2">
+                      <KeyRound className="size-4" aria-hidden="true" />
+                      {t("settings.security.openProfileAction")}
+                    </span>
+                    <ChevronRight className="size-4" aria-hidden="true" />
+                  </Button>
+
+                  <div className="rounded-3xl border border-line/70 bg-sand/35 p-4">
+                    <div className="flex items-start gap-3">
+                      <span className="mt-0.5 flex size-6 items-center justify-center rounded-full bg-brand text-brand-contrast">
+                        <Check className="size-3.5" aria-hidden="true" />
+                      </span>
+                      <p className="text-sm leading-6 text-ink-soft">
+                        {t("settings.security.auditText")}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </section>
+          ) : null}
+        </main>
+      </div>
+    </div>
+  );
+}
+
+function InfoCard({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-3xl border border-line/70 bg-paper p-4">
+      <p className="text-sm font-semibold text-ink">{label}</p>
+      <p className="mt-2 text-sm leading-6 text-ink-soft">{value}</p>
     </div>
   );
 }

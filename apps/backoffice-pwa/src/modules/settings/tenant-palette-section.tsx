@@ -32,7 +32,11 @@ import { cn } from "@/lib/utils";
 
 type PreviewMode = "backoffice" | "storefront";
 
-export function TenantPaletteSection() {
+export function TenantPaletteSection({
+  canEdit = true
+}: {
+  canEdit?: boolean;
+}) {
   const { t } = useTranslation("backoffice");
   const { resolvedTheme } = useTheme();
   const isDarkMode = resolvedTheme === "dark";
@@ -54,6 +58,11 @@ export function TenantPaletteSection() {
             <StatusPill tone="info">
               {t("settings.palette.previewBadge")}
             </StatusPill>
+            {!canEdit ? (
+              <StatusPill tone="neutral">
+                {t("settings.palette.readOnlyBadge")}
+              </StatusPill>
+            ) : null}
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -82,7 +91,7 @@ export function TenantPaletteSection() {
         </CardContent>
       </Card>
 
-      <PaletteSelectionGrid />
+      <PaletteSelectionGrid canEdit={canEdit} />
     </section>
   );
 }
@@ -218,7 +227,13 @@ export function CompactTenantPaletteSelector() {
   );
 }
 
-function PaletteSelectionGrid({ compact = false }: { compact?: boolean }) {
+function PaletteSelectionGrid({
+  canEdit = true,
+  compact = false
+}: {
+  canEdit?: boolean;
+  compact?: boolean;
+}) {
   const { t } = useTranslation("backoffice");
   const {
     paletteId,
@@ -309,13 +324,17 @@ function PaletteSelectionGrid({ compact = false }: { compact?: boolean }) {
             <button
               type="button"
               aria-pressed={isSelected}
+              disabled={!canEdit}
               onClick={() => {
-                if (id !== paletteId) {
+                if (canEdit && id !== paletteId) {
                   setPaletteId(id);
                   showPaletteToast(id);
                 }
               }}
-              className="w-full text-left"
+              className={cn(
+                "w-full text-left",
+                !canEdit ? "cursor-not-allowed opacity-70" : ""
+              )}
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="space-y-1">
@@ -374,6 +393,7 @@ function PaletteSelectionGrid({ compact = false }: { compact?: boolean }) {
                   <ColorSeedField
                     label={t("settings.palette.custom.paperLabel")}
                     value={customDraft.paper}
+                    disabled={!canEdit}
                     onChange={(value) => {
                       const nextDraft = { ...customDraft, paper: value };
                       setCustomDraft(nextDraft);
@@ -383,6 +403,7 @@ function PaletteSelectionGrid({ compact = false }: { compact?: boolean }) {
                   <ColorSeedField
                     label={t("settings.palette.custom.primaryLabel")}
                     value={customDraft.primary}
+                    disabled={!canEdit}
                     onChange={(value) => {
                       const nextDraft = { ...customDraft, primary: value };
                       setCustomDraft(nextDraft);
@@ -392,6 +413,7 @@ function PaletteSelectionGrid({ compact = false }: { compact?: boolean }) {
                   <ColorSeedField
                     label={t("settings.palette.custom.secondaryLabel")}
                     value={customDraft.secondary}
+                    disabled={!canEdit}
                     onChange={(value) => {
                       const nextDraft = { ...customDraft, secondary: value };
                       setCustomDraft(nextDraft);
@@ -401,6 +423,7 @@ function PaletteSelectionGrid({ compact = false }: { compact?: boolean }) {
                   <ColorSeedField
                     label={t("settings.palette.custom.tertiaryLabel")}
                     value={customDraft.tertiary}
+                    disabled={!canEdit}
                     onChange={(value) => {
                       const nextDraft = { ...customDraft, tertiary: value };
                       setCustomDraft(nextDraft);
@@ -422,6 +445,7 @@ function PaletteSelectionGrid({ compact = false }: { compact?: boolean }) {
                   <Button
                     type="button"
                     variant="secondary"
+                    disabled={!canEdit}
                     onClick={() => {
                       if (customToastTimeoutRef.current) {
                         window.clearTimeout(customToastTimeoutRef.current);
@@ -448,10 +472,12 @@ function PaletteSelectionGrid({ compact = false }: { compact?: boolean }) {
 function ColorSeedField({
   label,
   value,
+  disabled = false,
   onChange
 }: {
   label: string;
   value: string;
+  disabled?: boolean;
   onChange: (value: string) => void;
 }) {
   return (
@@ -460,9 +486,13 @@ function ColorSeedField({
       <div className="flex items-center gap-3 rounded-2xl border border-line/70 bg-paper/82 px-3 py-2">
         <input
           type="color"
+          disabled={disabled}
           value={value}
           onChange={(event) => onChange(event.target.value)}
-          className="h-11 w-12 cursor-pointer rounded-xl border border-line/70 bg-transparent p-1"
+          className={cn(
+            "h-11 w-12 rounded-xl border border-line/70 bg-transparent p-1",
+            disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer"
+          )}
         />
         <code className="text-sm font-semibold uppercase text-ink">{value}</code>
       </div>

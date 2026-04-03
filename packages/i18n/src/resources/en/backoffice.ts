@@ -1776,49 +1776,109 @@ const backofficeEn = {
   },
   settings: {
     header: {
-      eyebrow: "System readiness",
-      title: "Environment and architecture checkpoints",
+      eyebrow: "Operational settings",
+      title: "Tenant settings",
       description:
-        "Use this page as the implementation bridge between the visual scaffold and the real Supabase-powered product."
+        "Manage your profile, tenant visual identity, and team access from one surface protected by role and tenant boundaries."
     },
-    env: {
-      title: "Environment status",
-      description:
-        "The app already knows whether Supabase keys exist locally.",
-      detected: "Supabase env detected",
-      missing: "Supabase env missing",
-      instructions:
-        "Add `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in `apps/backoffice-pwa/.env`."
+    sections: {
+      general: "General",
+      tenant: "Tenant",
+      appearance: "Appearance",
+      team: "Team",
+      security: "Security"
     },
-    checklist: {
-      title: "Implementation checklist",
-      description:
-        "Keep the sequence disciplined so the product grows without structural debt.",
-      connectSupabase: "Connect Supabase URL and publishable key",
-      addAuth: "Add auth and initial tenant bootstrap flows",
-      createRbac: "Create root RBAC tables and policies",
-      wireQuery: "Wire the first React Query hooks to live data",
-      enableOffline: "Enable draft-safe offline persistence"
+    errors: {
+      generic: "We could not complete the action."
     },
-    theme: {
-      title: "Color mode",
+    status: {
+      active: "Active",
+      inactive: "Inactive",
+      invited: "Invited",
+      suspended: "Suspended"
+    },
+    roles: {
+      global_admin: "Global admin",
+      tenant_owner: "Owner",
+      tenant_admin: "Admin",
+      sales_rep: "Sales",
+      finance_operator: "Finance",
+      viewer: "Viewer",
+      tenant_member: "Tenant member"
+    },
+    states: {
+      loadingTitle: "Loading settings",
+      loadingDescription:
+        "We are loading the profile, active tenant, and available configuration for this account.",
+      errorTitle: "We could not open settings",
+      errorDescription:
+        "There was a problem while loading this view. {message}",
+      retryAction: "Try again",
+      noTenantTitle: "You do not have an active tenant yet",
+      noTenantDescription:
+        "Complete the initial setup or switch to the correct tenant to open these settings."
+    },
+    profile: {
+      title: "User profile",
       description:
-        "Each user can choose light, dark, or system without changing the tenant visual brand.",
-      helper:
-        "This preference belongs to the current user. The tenant palette is managed separately and affects the shared identity."
+        "Review the identity you are using to operate and update the visible name for this account.",
+      emailLabel: "Email",
+      roleLabel: "Active role",
+      displayNameLabel: "Display name",
+      displayNamePlaceholder: "How you want to appear inside the tenant",
+      saveAction: "Save name",
+      saving: "Saving...",
+      openProfileAction: "Open profile and password",
+      toastTitle: "Profile updated",
+      toastDescription:
+        "Your visible name now reflects the current account identity.",
+      errorTitle: "We could not update your profile",
+      loadError: "We could not load your profile. {message}"
+    },
+    preferences: {
+      title: "Personal preferences",
+      description:
+        "These preferences affect only your session and do not change the shared tenant identity.",
+      themeTitle: "Color mode",
+      themeText:
+        "Choose light, dark, or system to work with the visual density that suits you best.",
+      currentTenantTitle: "Active tenant",
+      currentTenantText:
+        "Shared configuration and permissions in this view always depend on the selected tenant."
+    },
+    tenant: {
+      title: "Tenant details",
+      description:
+        "Manage the base identity of the active tenant. Changes stay isolated per tenant and only roles with permission can edit them.",
+      slugLabel: "Slug",
+      statusLabel: "Status",
+      updatedLabel: "Last update",
+      nameLabel: "Business name",
+      namePlaceholder: "Tenant name",
+      editHelp:
+        "Only roles with `tenant.update` can save identity or branding changes for this tenant.",
+      readOnlyHelp:
+        "Your role can review the active tenant data, but cannot edit its identity or branding.",
+      saveAction: "Save tenant",
+      saving: "Saving tenant...",
+      toastTitle: "Tenant updated",
+      toastDescription:
+        "The base information and shared appearance of the tenant have been updated.",
+      errorTitle: "We could not update the tenant"
     },
     palette: {
       title: "Tenant visual palette",
       description:
-        "Choose a curated palette or build your own so backoffice and storefront share an elegant brand without losing readability or consistency.",
+        "Choose a curated palette or build your own so the whole tenant shares a consistent identity across backoffice and future surfaces.",
       sharedBadge: "One brand, two apps",
       previewBadge: "Live preview",
-      ruleTitle: "Why we combine curated presets with simple customization",
+      readOnlyBadge: "Read only",
+      ruleTitle: "Simple, consistent, usable branding",
       ruleText:
-        "The base palettes already start balanced, and the custom palette only asks for four seed colors to preserve contrast, setup speed, and visual consistency.",
-      storageTitle: "Current persistence",
+        "The base palettes already start balanced, and the custom palette only asks for four seed colors to preserve contrast, setup speed, and operational consistency.",
+      storageTitle: "Tenant persistence",
       storageText:
-        "In this scaffold both the selection and the custom palette are stored locally for fast iteration. The next real step is persisting `palette_id` and branding seeds per tenant in Supabase.",
+        "The palette and its seed colors are stored on the active tenant so the shared identity does not depend on the current device.",
       backofficeTitle: "Operational backoffice",
       backofficeDescription:
         "More structure, more useful density, and a more contained canvas for daily work.",
@@ -1848,16 +1908,45 @@ const backofficeEn = {
         reset: "Restore base"
       }
     },
-    principles: {
-      rbacTitle: "RBAC before polish",
+    appearance: {
+      saveTitle: "Apply visual changes",
+      saveText:
+        "Save the name and palette to publish the shared identity of the active tenant.",
+      readOnlyText:
+        "You can review the current branding, but your role cannot publish changes for this tenant.",
+      saveAction: "Save appearance",
+      saving: "Saving appearance..."
+    },
+    team: {
+      title: "Tenant team",
+      description:
+        "Review who operates inside the active tenant and which roles they use to access the application.",
+      loadingDescription:
+        "We are loading the memberships visible for this tenant.",
+      emptyDescription: "There are no additional visible members in this tenant yet.",
+      errorTitle: "We could not load the team",
+      errorDescription:
+        "There was a problem while loading memberships. {message}",
+      lockedTitle: "Your role cannot manage the team",
+      lockedDescription:
+        "Only roles with `membership.manage` can review the full tenant directory."
+    },
+    security: {
+      title: "Security and access",
+      description:
+        "These settings are protected by tenant and role boundaries. Sensitive actions do not depend on the UI alone.",
+      rbacTitle: "RBAC and tenant isolation",
       rbacText:
-        "Roles and RLS should shape the app early so later screens do not assume unsafe permissions.",
-      offlineTitle: "Offline with purpose",
-      offlineText:
-        "Start with cached reads and draft queues instead of promising full offline too early.",
-      edgeTitle: "Edge functions for power features",
-      edgeText:
-        "AI, push, PDF generation, and webhooks belong in Supabase Edge Functions, not in the client."
+        "Every access is validated against the active tenant and its permissions. If your role has no capability over this tenant, the view is blocked.",
+      passwordTitle: "Account credentials",
+      passwordText:
+        "Password and magic-link access still live in your personal profile so user identity does not get mixed with tenant identity.",
+      actionsTitle: "Related actions",
+      actionsDescription:
+        "Open your profile to change the password or review the available sign-in methods.",
+      openProfileAction: "Go to profile and password",
+      auditText:
+        "Functional tenant and membership changes remain audited in the secure backend layer."
     }
   }
 };
