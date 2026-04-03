@@ -1665,18 +1665,15 @@ const backofficeEn = {
     }
   },
   setup: {
-    eyebrow: "Initial tenant bootstrap",
-    title: "Create the first operating workspace and start with clear context from minute one.",
-    description:
-      "This onboarding leaves the business name, operating slug, initial visual identity, and owner access ready before opening daily operations.",
+    startTitle: "Let's get started",
+    sidebarTagline: "Set up your business in a few steps and start operating from day one.",
+    stepsNav: "Setup steps",
+    signOut: "Sign out",
     nameLabel: "Business name",
     namePlaceholder: "OperaPyme Demo North",
     slugLabel: "Tenant slug",
     slugPlaceholder: "operapyme-demo-north",
-    slugHint: "Suggested operating URL: {slug}",
     slugPreviewTitle: "Operating URL",
-    slugPreviewEmpty:
-      "The slug will appear here once you complete the business name or edit it manually.",
     slugUnavailable: "This slug is already in use. Choose another one before continuing.",
     slugStates: {
       checking: "Checking slug",
@@ -1684,67 +1681,25 @@ const backofficeEn = {
       unavailable: "Slug taken",
       error: "Validation failed"
     },
-    stepNumber: "Step {count}",
-    completed: "Done",
     progressLabel: "Step {current} of {total}",
     backAction: "Back",
     nextAction: "Continue",
-    previewTitle: "What will be ready when you finish",
-    previewDescription:
-      "The goal is not only to create a tenant, but to leave an operational base ready for Commercial Management, catalog, and settings.",
-    workspaceCards: {
-      tenantTitle: "Operational workspace",
-      tenantText:
-        "Everything you create afterward will stay isolated by tenant with active membership and base permissions.",
-      slugTitle: "Clean URL from day one",
-      slugText:
-        "We validate the slug before creating the workspace to avoid conflicts and rework."
-    },
-    brandingCards: {
-      focusTitle: "Identity without friction",
-      focusText:
-        "You leave with a visual base that works now and can still be refined later in settings.",
-      identityTitle: "Backoffice ready for real use",
-      identityText:
-        "The visual identity supports onboarding, but it does not slow down the start of sales and operations."
-    },
-    launchCards: {
-      commercialTitle: "Commercial Management",
-      commercialText:
-        "Capture leads, convert customers, build quotes, and issue documentary invoices.",
-      catalogTitle: "Reusable catalog",
-      catalogText:
-        "Prepare items and services once so quoting is faster from the first day.",
-      accessTitle: "Active owner access",
-      accessText:
-        "The first account signs in as `tenant_owner` and can then open settings and invite the team."
-    },
     steps: {
       workspace: {
-        title: "Business",
-        description: "Define how the workspace will be named and identified.",
-        helper:
-          "Start by locking the business name and confirming the slug is available."
-      },
-      branding: {
-        title: "Initial identity",
-        description: "Choose the visual base the workspace will start with.",
-        helper:
-          "The visual identity is set now, but you will still be able to refine it later without blocking the start."
+        title: "Your business",
+        description: "Define the name and identifier of your operating workspace.",
+        helper: "Enter your business name and confirm the slug is available."
       },
       review: {
         title: "Final review",
-        description: "Confirm the essentials before creating the tenant and entering the backoffice.",
-        helper:
-          "Do a final pass over the name, slug, and palette before creating the workspace."
+        description: "Confirm your details before creating the tenant.",
+        helper: "Review the name and slug one last time before continuing."
       }
     },
     review: {
       businessLabel: "Business",
       slugLabel: "Slug",
-      paletteLabel: "Palette",
       pending: "Pending",
-      nextTitle: "We will do this for you when the tenant is created",
       checklist: {
         membershipTitle: "Active membership",
         membershipText:
@@ -1752,9 +1707,6 @@ const backofficeEn = {
         modulesTitle: "Base modules",
         modulesText:
           "You will enter with initial access to Commercial Management, catalog, and business settings.",
-        brandTitle: "Active identity",
-        brandText:
-          "The workspace will start with {palette} as its visual base so you do not begin with a generic interface.",
         launchTitle: "Direct launch",
         launchText:
           "After bootstrap we will take you into the backoffice to continue with real operations."
@@ -1766,10 +1718,7 @@ const backofficeEn = {
     submitError: "We could not create the initial tenant. {message}",
     successTitle: "Initial tenant created.",
     successDescription:
-      "Your operating workspace is now ready for Commercial Management, catalog, and settings.",
-    paletteTitle: "Initial visual identity",
-    paletteDescription:
-      "You can start with a curated palette or create a custom palette only for this business, then refine it later in settings."
+      "Your operating workspace is now ready for Commercial Management, catalog, and settings."
   },
   accessDenied: {
     eyebrow: "Restricted access",

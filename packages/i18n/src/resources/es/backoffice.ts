@@ -1667,17 +1667,15 @@ const backofficeEs = {
     }
   },
   setup: {
-    eyebrow: "Bootstrap inicial del tenant",
-    title: "Crea el primer espacio operativo y entra con contexto claro desde el primer minuto.",
-    description:
-      "Este onboarding deja listo el nombre del negocio, el slug operativo, la identidad visual inicial y el acceso dueño del tenant antes de abrir la operación.",
+    startTitle: "Empecemos",
+    sidebarTagline: "Configura tu negocio en unos pocos pasos y empieza a operar desde el primer minuto.",
+    stepsNav: "Pasos del proceso",
+    signOut: "Cerrar sesión",
     nameLabel: "Nombre comercial",
     namePlaceholder: "OperaPyme Demo Norte",
     slugLabel: "Slug del tenant",
     slugPlaceholder: "operapyme-demo-norte",
-    slugHint: "URL operativa sugerida: {slug}",
     slugPreviewTitle: "URL operativa",
-    slugPreviewEmpty: "El slug aparecerá aquí cuando completes el nombre o lo edites manualmente.",
     slugUnavailable: "Este slug ya está en uso. Elige otro antes de continuar.",
     slugStates: {
       checking: "Validando slug",
@@ -1685,67 +1683,25 @@ const backofficeEs = {
       unavailable: "Slug ocupado",
       error: "No pudimos validar"
     },
-    stepNumber: "Paso {count}",
-    completed: "Listo",
     progressLabel: "Paso {current} de {total}",
     backAction: "Volver",
     nextAction: "Continuar",
-    previewTitle: "Qué quedará listo al terminar",
-    previewDescription:
-      "El objetivo no es solo crear un tenant, sino dejar una base operativa clara para entrar directo a Gestión Comercial, catálogo y configuración.",
-    workspaceCards: {
-      tenantTitle: "Espacio operativo",
-      tenantText:
-        "Todo lo que crees después quedará aislado por tenant con membresía activa y permisos base.",
-      slugTitle: "URL limpia desde el inicio",
-      slugText:
-        "Validamos el slug antes de crear el espacio para evitar conflictos y retrabajo."
-    },
-    brandingCards: {
-      focusTitle: "Identidad sin fricción",
-      focusText:
-        "Sales con una paleta inicial útil para operar hoy y refinar después desde configuración.",
-      identityTitle: "Backoffice listo para uso real",
-      identityText:
-        "La marca visual acompaña el onboarding, pero no te frena para empezar a vender y administrar."
-    },
-    launchCards: {
-      commercialTitle: "Gestión Comercial",
-      commercialText:
-        "Captura leads, convierte clientes, arma cotizaciones y emite facturas documentales.",
-      catalogTitle: "Catálogo reusable",
-      catalogText:
-        "Prepara artículos y servicios una sola vez para cotizar más rápido desde el primer día.",
-      accessTitle: "Acceso dueño activo",
-      accessText:
-        "La primera cuenta entra como `tenant_owner` y luego podrá abrir configuración e invitar equipo."
-    },
     steps: {
       workspace: {
-        title: "Negocio",
-        description: "Define cómo se llamará y cómo se identificará tu espacio operativo.",
-        helper:
-          "Primero deja claro el nombre del negocio y confirma que el slug esté libre."
-      },
-      branding: {
-        title: "Identidad inicial",
-        description: "Elige la base visual con la que arrancará el workspace.",
-        helper:
-          "La identidad visual queda lista ahora, pero podrás ajustarla después sin bloquear el arranque."
+        title: "Tu negocio",
+        description: "Define el nombre y el identificador de tu espacio operativo.",
+        helper: "Ingresa el nombre comercial y confirma que el slug esté disponible."
       },
       review: {
         title: "Revisión final",
-        description: "Confirma lo importante antes de crear el tenant y entrar al backoffice.",
-        helper:
-          "Haz una pasada final por nombre, slug y paleta antes de crear el espacio."
+        description: "Confirma los datos antes de crear el tenant.",
+        helper: "Revisa el nombre y el slug una última vez antes de continuar."
       }
     },
     review: {
       businessLabel: "Negocio",
       slugLabel: "Slug",
-      paletteLabel: "Paleta",
       pending: "Pendiente",
-      nextTitle: "Al crear el tenant haremos esto por ti",
       checklist: {
         membershipTitle: "Membresía activa",
         membershipText:
@@ -1753,9 +1709,6 @@ const backofficeEs = {
         modulesTitle: "Módulos base",
         modulesText:
           "Entrarás con acceso inicial a Gestión Comercial, catálogo y configuración del negocio.",
-        brandTitle: "Identidad activa",
-        brandText:
-          "El workspace saldrá con {palette} como base visual inicial para no empezar con una interfaz genérica.",
         launchTitle: "Apertura directa",
         launchText:
           "Después del bootstrap te llevaremos al backoffice para continuar con la operación real."
@@ -1763,14 +1716,11 @@ const backofficeEs = {
     },
     submit: "Crear tenant y continuar",
     submitting: "Creando tenant...",
-    unavailableError: "Supabase no esta configurado para este entorno.",
+    unavailableError: "Supabase no está configurado para este entorno.",
     submitError: "No pudimos crear el tenant inicial. {message}",
     successTitle: "Tenant inicial creado.",
     successDescription:
-      "Tu espacio operativo ya está listo para abrir Gestión Comercial, catálogo y configuración.",
-    paletteTitle: "Identidad visual inicial",
-    paletteDescription:
-      "Puedes arrancar con una paleta curada o crear una paleta propia solo para este negocio. Después la ajustas con más calma en configuración."
+      "Tu espacio operativo ya está listo para abrir Gestión Comercial, catálogo y configuración."
   },
   accessDenied: {
     eyebrow: "Acceso restringido",
