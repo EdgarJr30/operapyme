@@ -219,6 +219,19 @@ Reglas:
 2. Labels de navegacion deben usar lenguaje de dominio estable y claro.
 3. El usuario no debe reaprender el mismo flujo entre mobile y desktop.
 
+## 7.5 Patron operativo por defecto para modulos CRUD y documentales
+
+Regla obligatoria para modulos internos tipo clientes, proveedores, cotizaciones, facturas documentales y equivalentes:
+
+1. La superficie principal debe abrir en modo `table-first` o lista operativa equivalente, no en un wizard vacio ni en tabs que separen "crear" y "gestionar" como dos mundos distintos.
+2. El listado debe ser la fuente principal de contexto: busqueda, filtros, estado, total y acciones inmediatas.
+3. La accion primaria de crear debe vivir visible en el header del modulo.
+4. Crear y editar deben reutilizar la misma superficie contextual siempre que el flujo siga siendo razonable para esa modalidad.
+5. En desktop, la edicion contextual por defecto es modal; en mobile debe escalar a una presentacion de pantalla completa o casi completa sin perder continuidad con el listado.
+6. Solo se justifica una ruta dedicada o un flujo separado cuando el proceso sea claramente largo, de alto riesgo o requiera comparacion paralela imposible de resolver de forma contextual.
+7. Los cambios simples de estado o acciones secundarias frecuentes deben poder ejecutarse desde la tabla sin obligar a abrir siempre el editor completo.
+8. Estados vacios, loading, errores y permisos deben resolverse dentro de la misma superficie del listado.
+
 ## 8. Direccion visual y theming por tenant
 
 ### 8.1 Direccion visual

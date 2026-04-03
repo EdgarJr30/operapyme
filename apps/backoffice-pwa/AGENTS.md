@@ -23,6 +23,8 @@
 - El sidebar desktop debe quedar fijo e independiente del scroll del contenido; no se permite usar scroll del rail como solucion de layout.
 - En desktop amplio, las vistas operativas deben aprovechar el ancho con grids y composicion paralela; no se permiten dashboards resueltos como una sola torre vertical estrecha cuando el contenido admite lectura lado a lado.
 - CTA principal visible sin tener que buscarlo.
+- En modulos CRUD o documentales del backoffice, el patron por defecto es `table-first`: listado operativo como vista inicial, CTA primaria en el header y create/edit en la misma superficie contextual.
+- Si create/edit cabe de forma razonable en contexto, desktop usa modal y mobile usa presentacion casi full-screen o full-screen sin romper continuidad con el listado.
 - Touch targets minimos de 44px.
 - Inputs con label arriba, nunca solo placeholder.
 - En campos `type="number"` del backoffice, el spinner nativo siempre debe subir y bajar de `1` en `1`; si el campo acepta decimales, estos se permiten por digitacion manual sin convertir el spinner en saltos de `0.01`.

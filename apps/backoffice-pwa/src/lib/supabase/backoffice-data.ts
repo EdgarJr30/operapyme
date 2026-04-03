@@ -211,6 +211,11 @@ export interface LeadListOptions {
   statuses?: LeadStatus[];
 }
 
+export interface QuoteListOptions {
+  limit?: number | null;
+  statuses?: QuoteStatus[];
+}
+
 interface RawCatalogItemRow {
   id: string;
   item_code: string | null;
@@ -583,6 +588,16 @@ function normalizeLeadListOptions(
   return limitOrOptions ?? {};
 }
 
+function normalizeQuoteListOptions(
+  limitOrOptions: number | QuoteListOptions | undefined
+): QuoteListOptions {
+  if (typeof limitOrOptions === "number") {
+    return { limit: limitOrOptions };
+  }
+
+  return limitOrOptions ?? {};
+}
+
 function mapCatalogItem(row: RawCatalogItemRow): CatalogItemSummary {
   return {
     id: row.id,
@@ -770,16 +785,26 @@ export async function listCatalogItemsForTenant(
 
 export async function listQuotesForTenant(
   tenantId: string,
-  limit = 6
+  limitOrOptions: number | QuoteListOptions = 6
 ): Promise<QuoteSummary[]> {
   const client = requireSupabaseClient();
   const scopedTenantId = requireTenantScope(tenantId);
-  const { data, error } = await client
+  const { limit, statuses } = normalizeQuoteListOptions(limitOrOptions);
+  let query = client
     .from("quotes")
     .select(quoteSelectFields)
     .eq("tenant_id", scopedTenantId)
-    .order("updated_at", { ascending: false })
-    .limit(limit);
+    .order("updated_at", { ascending: false });
+
+  if (statuses?.length) {
+    query = query.in("status", statuses);
+  }
+
+  if (typeof limit === "number") {
+    query = query.limit(limit);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     throw new Error(error.message);

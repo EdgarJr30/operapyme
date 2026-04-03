@@ -81,6 +81,7 @@ Acceso canonico a Supabase para este repo:
 - El estandar de animacion del producto es `motion.dev` (`motion`). No introducir otra libreria de animacion para transiciones, overlays, drawers, modales o microinteracciones sin una decision documentada.
 - Las pantallas runtime del backoffice no deben mostrar copy de scaffold, blueprint, reglas internas o explicaciones tecnicas; deben abrir con resumen operativo, acciones y estados reales del modulo.
 - El feedback transitorio de acciones del backoffice debe salir por toast global con `sonner`; reservar mensajes inline para estados estructurales, vacios, cargas o errores persistentes del contexto.
+- En modulos CRUD o documentales del backoffice, el patron por defecto es `table-first`: listado operativo como superficie inicial, CTA primaria visible en header y create/edit resueltos en la misma superficie contextual cuando el flujo lo permita.
 
 ## Filosofia de producto
 

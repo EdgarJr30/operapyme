@@ -72,6 +72,16 @@ interface QuoteOperationsPanelProps {
   quotes: QuoteSummary[];
 }
 
+interface QuoteEditorWorkspaceProps {
+  catalogItems: CatalogItemSummary[];
+  customers: CustomerSummary[];
+  leads: LeadSummary[];
+  mode: "create" | "edit";
+  onCancel?: () => void;
+  onSuccess?: () => void;
+  quoteId?: string | null;
+}
+
 const quoteFormSteps: QuoteFormStepKey[] = [
   "recipient",
   "document",
@@ -96,6 +106,260 @@ interface ValidationIssue {
 
 export function QuoteOperationsPanel(props: QuoteOperationsPanelProps) {
   return <QuoteCreateWorkspace {...props} />;
+}
+
+export function QuoteEditorWorkspace({
+  catalogItems,
+  customers,
+  leads,
+  mode,
+  onCancel,
+  onSuccess,
+  quoteId = null
+}: QuoteEditorWorkspaceProps) {
+  const { t } = useTranslation("backoffice");
+  const { createQuoteMutation, updateQuoteMutation } = useQuoteMutations();
+  const quoteFormSchema = createQuoteFormSchema(t);
+  const [currentStep, setCurrentStep] = useState<QuoteFormStepKey>("recipient");
+  const quoteDetailQuery = useQuoteDetailData(mode === "edit" ? quoteId : null);
+  const quoteDetail = quoteDetailQuery.data ?? null;
+
+  const form = useForm<QuoteFormValues>({
+    resolver: zodResolver(quoteFormSchema),
+    defaultValues:
+      mode === "create"
+        ? buildCreateDefaults(customers, leads)
+        : buildEmptyQuoteDefaults(),
+    reValidateMode: "onChange"
+  });
+
+  useEffect(() => {
+    setCurrentStep("recipient");
+
+    if (mode === "create") {
+      form.reset(buildCreateDefaults(customers, leads));
+      return;
+    }
+
+    if (!quoteId) {
+      form.reset(buildEmptyQuoteDefaults());
+    }
+  }, [customers, form, leads, mode, quoteId]);
+
+  useEffect(() => {
+    if (mode !== "edit" || !quoteDetail) {
+      return;
+    }
+
+    form.reset(buildUpdateDefaults(quoteDetail));
+  }, [form, mode, quoteDetail]);
+
+  const handleInvalidSubmit = (errors: FieldErrors<QuoteFormValues>) => {
+    guideToFirstInvalidField({
+      errors,
+      form,
+      setCurrentStep,
+      t
+    });
+  };
+
+  const handleAdvanceStep = async () => {
+    const fieldsToValidate = getFieldsForStep(
+      currentStep,
+      form.getValues("lineItems")?.length ?? 0
+    );
+    const isValid = await form.trigger(fieldsToValidate, { shouldFocus: true });
+
+    if (!isValid) {
+      guideToFirstInvalidField({
+        errors: form.formState.errors,
+        form,
+        setCurrentStep,
+        t
+      });
+      return;
+    }
+
+    const currentIndex = quoteFormSteps.indexOf(currentStep);
+
+    if (currentIndex < quoteFormSteps.length - 1) {
+      setCurrentStep(quoteFormSteps[currentIndex + 1]!);
+    }
+  };
+
+  async function onSubmit(values: QuoteFormValues) {
+    try {
+      if (mode === "edit") {
+        if (!quoteDetail) {
+          toast.error(t("quotes.form.noQuoteSelected"));
+          return;
+        }
+
+        await updateQuoteMutation.mutateAsync({
+          quoteId: quoteDetail.id,
+          version: quoteDetail.version,
+          ...toQuotePayload(values)
+        });
+        toast.success(t("quotes.form.updateSuccess"));
+      } else {
+        const createdQuote = await createQuoteMutation.mutateAsync(
+          toQuotePayload(values)
+        );
+        toast.success(
+          t("quotes.form.createSuccess", { quoteNumber: createdQuote.quoteNumber })
+        );
+      }
+
+      onSuccess?.();
+
+      if (mode === "create") {
+        form.reset(buildCreateDefaults(customers, leads));
+        setCurrentStep("recipient");
+      }
+    } catch (error) {
+      toast.error(
+        mode === "edit"
+          ? t("quotes.form.updateError", {
+              message: error instanceof Error ? error.message : ""
+            })
+          : t("quotes.form.createError", {
+              message: error instanceof Error ? error.message : ""
+            })
+      );
+    }
+  }
+
+  if (mode === "edit" && !quoteId) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <FeedbackBanner tone="neutral">
+            {t("quotes.form.noQuoteSelected")}
+          </FeedbackBanner>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (mode === "edit" && quoteDetailQuery.isLoading) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <FeedbackBanner tone="neutral">
+            {t("quotes.form.loadingDetailHint")}
+          </FeedbackBanner>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (mode === "edit" && quoteDetailQuery.isError) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <FeedbackBanner tone="error">
+            {t("quotes.form.loadingDetailError", {
+              message:
+                quoteDetailQuery.error instanceof Error
+                  ? quoteDetailQuery.error.message
+                  : ""
+            })}
+          </FeedbackBanner>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <QuoteWorkflowLayout
+      mode={mode === "create" ? "create" : "update"}
+      title={
+        mode === "create"
+          ? t("quotes.form.createTitle")
+          : t("quotes.form.updateTitle")
+      }
+      description={
+        mode === "create"
+          ? t("quotes.form.createDescription")
+          : t("quotes.form.updateDescription")
+      }
+      form={form}
+      currentStep={currentStep}
+      onStepChange={setCurrentStep}
+      summaryLabel={
+        mode === "create"
+          ? t("quotes.form.newDraftLabel")
+          : quoteDetail?.quoteNumber ?? t("quotes.form.updateTitle")
+      }
+      badge={
+        mode === "edit" && quoteDetail ? (
+          <span className="text-xs uppercase tracking-[0.16em] text-ink-muted">
+            {t("quotes.form.versionHint", {
+              version: quoteDetail.version
+            })}
+          </span>
+        ) : null
+      }
+      footer={
+        <div className="flex flex-wrap justify-end gap-3">
+          {mode === "create" ? (
+            <Button
+              type="button"
+              size="lg"
+              variant="secondary"
+              onClick={() => {
+                form.reset(buildCreateDefaults(customers, leads));
+                setCurrentStep("recipient");
+              }}
+            >
+              {t("quotes.form.resetAction")}
+            </Button>
+          ) : null}
+
+          {onCancel ? (
+            <Button
+              type="button"
+              size="lg"
+              variant="secondary"
+              onClick={onCancel}
+            >
+              {t("commercial.customers.cancelAction")}
+            </Button>
+          ) : null}
+
+          <Button
+            type="submit"
+            size="lg"
+            disabled={
+              mode === "create"
+                ? createQuoteMutation.isPending
+                : updateQuoteMutation.isPending || !quoteDetail
+            }
+          >
+            {mode === "create"
+              ? createQuoteMutation.isPending
+                ? t("quotes.form.createSubmitting")
+                : t("quotes.form.createAction")
+              : updateQuoteMutation.isPending
+                ? t("quotes.form.updateSubmitting")
+                : t("quotes.form.updateAction")}
+          </Button>
+        </div>
+      }
+      onNextStep={handleAdvanceStep}
+      onSubmit={form.handleSubmit(onSubmit, handleInvalidSubmit)}
+    >
+      <QuoteFormFields
+        catalogItems={catalogItems}
+        customers={customers}
+        leads={leads}
+        form={form}
+        idPrefix={mode === "create" ? "create" : "edit"}
+        quoteNumber={quoteDetail?.quoteNumber ?? null}
+        step={currentStep}
+      />
+    </QuoteWorkflowLayout>
+  );
 }
 
 export function QuoteCreateWorkspace({

@@ -1,39 +1,72 @@
-import { useMemo, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { type ReactNode, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
+import { Pencil, Plus, Search } from "lucide-react";
 import { useTranslation } from "@operapyme/i18n";
 import { toast } from "sonner";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { StatusPill } from "@/components/ui/status-pill";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from "@/components/ui/table";
 import type { QuoteStatus, QuoteSummary } from "@/lib/supabase/backoffice-data";
 import { useCatalogItemsData } from "@/modules/catalog/use-catalog-items-data";
 import { useCustomersData } from "@/modules/crm/use-customers-data";
 import { useLeadsData } from "@/modules/crm/use-leads-data";
-import {
-  QuoteCreateWorkspace,
-  QuoteManageWorkspace
-} from "@/modules/quotes/quote-operations-panel";
+import { QuoteEditorWorkspace } from "@/modules/quotes/quote-operations-panel";
 import { QuotePdfDownloadButton } from "@/modules/quotes/quote-pdf-download-button";
 import { useQuoteMutations } from "@/modules/quotes/use-quote-mutations";
 import { useQuotesData } from "@/modules/quotes/use-quotes-data";
 
-const quoteStatusOrder: QuoteStatus[] = [
-  "draft",
-  "sent",
-  "viewed",
-  "approved",
-  "rejected",
-  "expired"
-];
+type QuoteModalMode = "create" | "edit" | null;
+type QuoteTableFilter = "operational" | "approved" | "closed" | "all";
+
+const quoteStatusesByFilter: Record<QuoteTableFilter, QuoteStatus[] | undefined> = {
+  operational: ["draft", "sent", "viewed"],
+  approved: ["approved"],
+  closed: ["rejected", "expired"],
+  all: undefined
+};
 
 function formatMoney(amount: number, currencyCode: string) {
   return new Intl.NumberFormat("es-DO", {
     style: "currency",
     currency: currencyCode
   }).format(amount);
+}
+
+function formatDate(value: string | null, locale: string) {
+  if (!value) {
+    return "—";
+  }
+
+  return new Intl.DateTimeFormat(locale, {
+    day: "2-digit",
+    month: "short",
+    year: "numeric"
+  }).format(new Date(value));
 }
 
 function getNextQuoteStatuses(status: QuoteStatus): QuoteStatus[] {
@@ -50,41 +83,70 @@ function getNextQuoteStatuses(status: QuoteStatus): QuoteStatus[] {
       return ["draft"];
     case "expired":
       return ["draft"];
-    default:
-      return [];
   }
 }
 
 export function CommercialQuotesPage() {
-  const { t } = useTranslation("backoffice");
+  const { t, i18n } = useTranslation("backoffice");
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchValue, setSearchValue] = useState("");
+  const [tableFilter, setTableFilter] =
+    useState<QuoteTableFilter>("operational");
+  const [modalMode, setModalMode] = useState<QuoteModalMode>(null);
+  const [selectedQuoteId, setSelectedQuoteId] = useState<string | null>(null);
   const [pendingMove, setPendingMove] = useState<string | null>(null);
-  const currentTab = searchParams.get("tab") === "manage" ? "manage" : "create";
-  const { data: quotes = [] } = useQuotesData();
-  const { data: customers = [] } = useCustomersData();
-  const { data: leads = [] } = useLeadsData();
+  const statuses = quoteStatusesByFilter[tableFilter];
+  const {
+    data: quotes = [],
+    error,
+    hasTenantContext,
+    isError,
+    isLoading,
+    refetch
+  } = useQuotesData({
+    limit: null,
+    statuses
+  });
+  const { data: customers = [] } = useCustomersData({ limit: null });
+  const { data: leads = [] } = useLeadsData({ limit: null });
   const { data: catalogItems = [] } = useCatalogItemsData();
   const { moveQuoteStatusMutation } = useQuoteMutations();
 
-  const quoteSummary = useMemo(
-    () => ({
-      open: quotes.filter((quote) =>
-        ["draft", "sent", "viewed"].includes(quote.status)
-      ).length,
-      approved: quotes.filter((quote) => quote.status === "approved").length
-    }),
-    [quotes]
-  );
+  const filteredQuotes = useMemo(() => {
+    const normalizedQuery = searchValue.trim().toLowerCase();
 
-  const quotesByStatus = useMemo(
-    () =>
-      quoteStatusOrder.map((status) => ({
-        status,
-        quotes: quotes.filter((quote) => quote.status === status)
-      })),
-    [quotes]
-  );
+    if (!normalizedQuery) {
+      return quotes;
+    }
+
+    return quotes.filter((quote) =>
+      [
+        quote.title,
+        quote.quoteNumber,
+        quote.recipientDisplayName,
+        quote.recipientContactName,
+        quote.recipientEmail,
+        quote.recipientWhatsApp
+      ]
+        .filter(Boolean)
+        .some((value) => value?.toLowerCase().includes(normalizedQuery))
+    );
+  }, [quotes, searchValue]);
+
+  function closeModal() {
+    setModalMode(null);
+    setSelectedQuoteId(null);
+  }
+
+  function openCreateModal() {
+    setSelectedQuoteId(null);
+    setModalMode("create");
+  }
+
+  function openEditModal(quote: QuoteSummary) {
+    setSelectedQuoteId(quote.id);
+    setModalMode("edit");
+  }
 
   async function handleMoveQuoteStatus(quote: QuoteSummary, status: QuoteStatus) {
     const pendingKey = `${quote.id}:${status}`;
@@ -102,10 +164,10 @@ export function CommercialQuotesPage() {
           status: t(`quotes.list.status.${status}`)
         })
       );
-    } catch (error) {
+    } catch (moveError) {
       toast.error(
         t("commercial.documents.moveError", {
-          message: error instanceof Error ? error.message : ""
+          message: moveError instanceof Error ? moveError.message : ""
         })
       );
     } finally {
@@ -113,168 +175,298 @@ export function CommercialQuotesPage() {
     }
   }
 
+  const modalTitle =
+    modalMode === "edit"
+      ? t("commercial.quotes.editModalTitle")
+      : t("commercial.quotes.createModalTitle");
+  const modalDescription =
+    modalMode === "edit"
+      ? t("commercial.quotes.editModalDescription")
+      : t("commercial.quotes.createModalDescription");
+
   return (
     <div className="space-y-4">
-      <h1 className="sr-only">{t("commercial.quotes.title")}</h1>
+      <h1 className="sr-only">{t("navigation.commercialQuotes")}</h1>
 
-      <section className="flex flex-wrap gap-3">
-        <Card className="min-w-32 rounded-3xl">
-          <CardContent className="p-4">
-            <p className="text-xs uppercase tracking-[0.14em] text-ink-muted">
-              {t("quotes.overview.openQuotes", { count: quoteSummary.open })}
-            </p>
-          </CardContent>
-        </Card>
-        <Card className="min-w-32 rounded-3xl">
-          <CardContent className="p-4">
-            <p className="text-xs uppercase tracking-[0.14em] text-ink-muted">
-              {t("quotes.overview.approvedQuotes", {
-                count: quoteSummary.approved
+      <Card>
+        <CardHeader className="gap-4">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div className="space-y-1">
+              <CardTitle>{t("commercial.quotes.pageTitle")}</CardTitle>
+              <CardDescription>
+                {t("commercial.quotes.pageDescription")}
+              </CardDescription>
+            </div>
+
+            <Button
+              type="button"
+              size="lg"
+              className="gap-2"
+              onClick={openCreateModal}
+            >
+              <Plus className="size-4" />
+              {t("commercial.quotes.createAction")}
+            </Button>
+          </div>
+
+          <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_220px]">
+            <label className="relative block">
+              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ink-muted" />
+              <Input
+                value={searchValue}
+                onChange={(event) => {
+                  setSearchValue(event.target.value);
+                }}
+                placeholder={t("commercial.quotes.searchPlaceholder")}
+                className="pl-10"
+              />
+            </label>
+
+            <Select
+              value={tableFilter}
+              onChange={(event) => {
+                setTableFilter(event.target.value as QuoteTableFilter);
+              }}
+            >
+              <option value="operational">
+                {t("commercial.quotes.filters.operational")}
+              </option>
+              <option value="approved">
+                {t("commercial.quotes.filters.approved")}
+              </option>
+              <option value="closed">
+                {t("commercial.quotes.filters.closed")}
+              </option>
+              <option value="all">{t("commercial.quotes.filters.all")}</option>
+            </Select>
+          </div>
+        </CardHeader>
+
+        <CardContent>
+          {!hasTenantContext ? (
+            <TableState
+              title={t("quotes.list.noTenantTitle")}
+              description={t("quotes.list.noTenantDescription")}
+            />
+          ) : isLoading ? (
+            <TableState
+              title={t("commercial.quotes.loadingTitle")}
+              description={t("commercial.quotes.loadingDescription")}
+            />
+          ) : isError ? (
+            <TableState
+              title={t("commercial.quotes.errorTitle")}
+              description={t("commercial.quotes.errorDescription", {
+                message: error instanceof Error ? error.message : ""
               })}
-            </p>
-          </CardContent>
-        </Card>
-      </section>
+              action={
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => {
+                    void refetch();
+                  }}
+                >
+                  {t("quotes.list.retryAction")}
+                </Button>
+              }
+            />
+          ) : filteredQuotes.length === 0 ? (
+            <TableState
+              title={
+                quotes.length === 0
+                  ? t("commercial.quotes.emptyTitle")
+                  : t("commercial.quotes.emptySearchTitle")
+              }
+              description={
+                quotes.length === 0
+                  ? t("commercial.quotes.emptyDescription")
+                  : t("commercial.quotes.emptySearchDescription")
+              }
+            />
+          ) : (
+            <Table className="min-w-[980px]">
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="pl-0">
+                    {t("navigation.commercialQuotes")}
+                  </TableHead>
+                  <TableHead>{t("commercial.quotes.recipientLabel")}</TableHead>
+                  <TableHead>{t("commercial.quotes.validUntilLabel")}</TableHead>
+                  <TableHead>{t("commercial.quotes.statusLabel")}</TableHead>
+                  <TableHead>{t("commercial.quotes.totalLabel")}</TableHead>
+                  <TableHead className="pr-0 text-right">
+                    {t("commercial.quotes.actionsLabel")}
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredQuotes.map((quote) => (
+                  <TableRow key={quote.id}>
+                    <TableCell className="pl-0">
+                      <div className="space-y-1">
+                        <p className="font-medium text-ink">{quote.title}</p>
+                        <p className="text-sm text-ink-soft">{quote.quoteNumber}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-y-1">
+                        <p className="text-sm font-medium text-ink">
+                          {quote.recipientDisplayName}
+                        </p>
+                        <p className="text-sm text-ink-soft">
+                          {quote.recipientContactName ??
+                            quote.recipientEmail ??
+                            quote.recipientWhatsApp ??
+                            t("quotes.list.customerPending")}
+                        </p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {formatDate(quote.validUntil, i18n.language)}
+                    </TableCell>
+                    <TableCell>
+                      <StatusPill tone={getQuoteTone(quote.status)}>
+                        {t(`quotes.list.status.${quote.status}`)}
+                      </StatusPill>
+                    </TableCell>
+                    <TableCell>
+                      {formatMoney(quote.grandTotal, quote.currencyCode)}
+                    </TableCell>
+                    <TableCell className="pr-0">
+                      <div className="flex flex-wrap justify-end gap-2">
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          size="sm"
+                          className="gap-2"
+                          onClick={() => {
+                            openEditModal(quote);
+                          }}
+                        >
+                          <Pencil className="size-4" />
+                          {t("commercial.quotes.editAction")}
+                        </Button>
 
-      <Tabs
-        value={currentTab}
-        onValueChange={(value) => {
-          setSearchParams(value === "manage" ? { tab: "manage" } : {});
+                        <QuotePdfDownloadButton
+                          quoteId={quote.id}
+                          quoteNumber={quote.quoteNumber}
+                        />
+
+                        {getNextQuoteStatuses(quote.status).map((targetStatus) => {
+                          const pendingKey = `${quote.id}:${targetStatus}`;
+
+                          return (
+                            <Button
+                              key={targetStatus}
+                              type="button"
+                              size="sm"
+                              variant="ghost"
+                              disabled={
+                                moveQuoteStatusMutation.isPending &&
+                                pendingMove === pendingKey
+                              }
+                              onClick={() => {
+                                void handleMoveQuoteStatus(quote, targetStatus);
+                              }}
+                            >
+                              {moveQuoteStatusMutation.isPending &&
+                              pendingMove === pendingKey
+                                ? t("commercial.documents.moving")
+                                : t("commercial.documents.moveTo", {
+                                    status: t(`quotes.list.status.${targetStatus}`)
+                                  })}
+                            </Button>
+                          );
+                        })}
+
+                        {quote.status === "approved" ? (
+                          <Button
+                            type="button"
+                            size="sm"
+                            onClick={() => {
+                              navigate(
+                                `/commercial/invoices?sourceQuoteId=${quote.id}`
+                              );
+                            }}
+                          >
+                            {t("commercial.quotes.createInvoiceAction")}
+                          </Button>
+                        ) : null}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+
+      <Dialog
+        open={modalMode !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            closeModal();
+          }
         }}
       >
-        <TabsList className="h-auto rounded-2xl bg-sand/60 p-1">
-          <TabsTrigger value="create">{t("commercial.quotes.createTab")}</TabsTrigger>
-          <TabsTrigger value="manage">{t("commercial.quotes.manageTab")}</TabsTrigger>
-        </TabsList>
+        <DialogContent
+          closeLabel={t("shared.closeDialog")}
+          className="max-w-6xl"
+        >
+          <DialogHeader>
+            <DialogTitle>{modalTitle}</DialogTitle>
+            <DialogDescription>{modalDescription}</DialogDescription>
+          </DialogHeader>
 
-        <TabsContent value="create" className="mt-4">
-          <h2 className="sr-only">{t("quotes.subroutes.createTitle")}</h2>
-          <QuoteCreateWorkspace
-            catalogItems={catalogItems}
-            customers={customers}
-            leads={leads}
-            quotes={quotes}
-          />
-        </TabsContent>
-
-        <TabsContent value="manage" className="mt-4">
-          <h2 className="sr-only">{t("quotes.subroutes.manageTitle")}</h2>
-          <section className="space-y-4">
-            <div className="space-y-1">
-              <h3 className="text-base font-semibold text-ink">
-                {t("commercial.quotes.pipelineTitle")}
-              </h3>
-              <p className="text-sm text-ink-soft">
-                {t("commercial.quotes.pipelineDescription")}
-              </p>
-            </div>
-
-            <div className="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">
-              {quotesByStatus.map(({ status, quotes: quotesInStatus }) => (
-                <Card key={status} className="rounded-3xl border-line/70">
-                  <CardContent className="space-y-3 p-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <Badge variant="outline">
-                        {t(`quotes.list.status.${status}`)}
-                      </Badge>
-                      <span className="text-xs uppercase tracking-[0.14em] text-ink-muted">
-                        {quotesInStatus.length}
-                      </span>
-                    </div>
-
-                    {quotesInStatus.length === 0 ? (
-                      <p className="text-sm text-ink-soft">
-                        {t("commercial.documents.emptyStatus")}
-                      </p>
-                    ) : (
-                      quotesInStatus.map((quote) => (
-                        <div
-                          key={quote.id}
-                          className="space-y-3 rounded-2xl border border-line/70 bg-paper/90 p-4"
-                        >
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="min-w-0">
-                              <p className="text-sm font-semibold text-ink">
-                                {quote.title}
-                              </p>
-                              <p className="text-xs uppercase tracking-[0.14em] text-ink-muted">
-                                {quote.quoteNumber}
-                              </p>
-                              <p className="mt-1 text-sm text-ink-soft">
-                                {quote.recipientDisplayName}
-                              </p>
-                            </div>
-                            <p className="text-sm font-semibold text-ink">
-                              {formatMoney(quote.grandTotal, quote.currencyCode)}
-                            </p>
-                          </div>
-
-                          <div className="flex flex-wrap gap-2">
-                            <QuotePdfDownloadButton
-                              quoteId={quote.id}
-                              quoteNumber={quote.quoteNumber}
-                            />
-
-                            {getNextQuoteStatuses(quote.status).map((targetStatus) => {
-                              const pendingKey = `${quote.id}:${targetStatus}`;
-
-                              return (
-                                <Button
-                                  key={targetStatus}
-                                  type="button"
-                                  size="sm"
-                                  variant="secondary"
-                                  disabled={
-                                    moveQuoteStatusMutation.isPending &&
-                                    pendingMove === pendingKey
-                                  }
-                                  onClick={() => {
-                                    void handleMoveQuoteStatus(quote, targetStatus);
-                                  }}
-                                >
-                                  {moveQuoteStatusMutation.isPending &&
-                                  pendingMove === pendingKey
-                                    ? t("commercial.documents.moving")
-                                    : t("commercial.documents.moveTo", {
-                                        status: t(
-                                          `quotes.list.status.${targetStatus}`
-                                        )
-                                      })}
-                                </Button>
-                              );
-                            })}
-
-                            {quote.status === "approved" ? (
-                              <Button
-                                type="button"
-                                size="sm"
-                                onClick={() => {
-                                  navigate(
-                                    `/commercial/invoices?sourceQuoteId=${quote.id}`
-                                  );
-                                }}
-                              >
-                                {t("commercial.quotes.createInvoiceAction")}
-                              </Button>
-                            ) : null}
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </section>
-
-          <QuoteManageWorkspace
-            catalogItems={catalogItems}
-            customers={customers}
-            leads={leads}
-            quotes={quotes}
-          />
-        </TabsContent>
-      </Tabs>
+          {modalMode ? (
+            <QuoteEditorWorkspace
+              catalogItems={catalogItems}
+              customers={customers}
+              leads={leads}
+              mode={modalMode}
+              quoteId={selectedQuoteId}
+              onCancel={closeModal}
+              onSuccess={closeModal}
+            />
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </div>
   );
+}
+
+function TableState({
+  action,
+  description,
+  title
+}: {
+  action?: ReactNode;
+  description: string;
+  title: string;
+}) {
+  return (
+    <div className="rounded-3xl border border-dashed border-line-strong bg-paper/70 p-5">
+      <p className="text-sm font-medium text-ink">{title}</p>
+      <p className="mt-2 text-sm leading-6 text-ink-soft">{description}</p>
+      {action ? <div className="mt-4">{action}</div> : null}
+    </div>
+  );
+}
+
+function getQuoteTone(status: QuoteStatus) {
+  switch (status) {
+    case "draft":
+      return "neutral";
+    case "sent":
+      return "info";
+    case "viewed":
+      return "warning";
+    case "approved":
+      return "success";
+    case "rejected":
+    case "expired":
+      return "warning";
+  }
 }

@@ -150,6 +150,7 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 - Gestion Comercial y catalogo ya pueden crear y actualizar registros reales dentro del tenant activo
 - Gestion Comercial ya concentra leads, clientes, cotizaciones y facturas documentales internas dentro del tenant activo
 - `/commercial/customers` ya abre en vista table-first con busqueda, filtro por estado, modal reutilizable para crear/editar y archivado logico sin borrado fisico
+- `/commercial/quotes` ya abre en vista table-first con busqueda, filtro por estado, acciones operativas desde la tabla y modal reutilizable para crear/editar sin salir del listado
 - conversion `lead -> cliente` ya corre con proteccion idempotente, deshabilita reenvios en UI y saca los leads convertidos del flujo operativo por defecto
 - cards de overview en dashboard, CRM y comercial ya usan slider interno capped para no crecer en vertical cuando aumentan los registros recientes
 - cotizaciones ya soportan cliente, lead existente o lead rapido, persisten line items y generan PDF profesional bajo demanda

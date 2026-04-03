@@ -1,16 +1,34 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { useBackofficeAuth } from "@/app/auth-provider";
-import { listQuotesForTenant } from "@/lib/supabase/backoffice-data";
+import {
+  listQuotesForTenant,
+  type QuoteStatus
+} from "@/lib/supabase/backoffice-data";
 
-export function useQuotesData() {
+interface QuotesDataOptions {
+  enabled?: boolean;
+  limit?: number | null;
+  statuses?: QuoteStatus[];
+}
+
+export function useQuotesData({
+  enabled = true,
+  limit = 25,
+  statuses
+}: QuotesDataOptions = {}) {
   const { activeTenantId, isConfigured, status } = useBackofficeAuth();
+  const statusesKey = statuses?.length ? statuses.join(",") : "all";
 
   const query = useQuery({
-    queryKey: ["quotes", activeTenantId],
-    queryFn: () => listQuotesForTenant(activeTenantId ?? "", 25),
+    queryKey: ["quotes", activeTenantId, limit ?? "all", statusesKey],
+    queryFn: () =>
+      listQuotesForTenant(activeTenantId ?? "", {
+        limit,
+        statuses
+      }),
     enabled: Boolean(
-      isConfigured && status === "signed_in" && activeTenantId
+      enabled && isConfigured && status === "signed_in" && activeTenantId
     )
   });
 

@@ -1004,13 +1004,42 @@ const backofficeEn = {
     },
     quotes: {
       title: "Quotes",
-      description:
-        "Work proposals for items or services with a short and focused flow.",
-      createTab: "New",
-      manageTab: "Manage",
-      pipelineTitle: "Quote pipeline",
-      pipelineDescription:
-        "Move each document through its operating state without opening the full editor for simple changes.",
+      pageTitle: "Quotes",
+      pageDescription:
+        "Review every quote, update operating statuses, and open the editor without leaving the table.",
+      loadingTitle: "Loading quotes",
+      loadingDescription:
+        "We are reading quotes for the active tenant so the operating table is ready.",
+      errorTitle: "We could not load quotes",
+      errorDescription:
+        "Quote loading failed for now. {message}",
+      emptyTitle: "There are no quotes yet",
+      emptyDescription:
+        "Once you register the first commercial proposal, it will appear here with its status and total.",
+      emptySearchTitle: "We could not find quotes with that filter",
+      emptySearchDescription:
+        "Adjust the search or switch filters to review more documents.",
+      searchPlaceholder:
+        "Search by title, number, recipient, or contact",
+      recipientLabel: "Recipient",
+      validUntilLabel: "Valid until",
+      statusLabel: "Status",
+      totalLabel: "Total",
+      actionsLabel: "Actions",
+      createAction: "New quote",
+      editAction: "Edit",
+      createModalTitle: "Create quote",
+      createModalDescription:
+        "Complete the document without losing context from the operating table.",
+      editModalTitle: "Update quote",
+      editModalDescription:
+        "Adjust recipient, line items, or commercial terms from the same modal.",
+      filters: {
+        operational: "Open",
+        approved: "Approved",
+        closed: "Rejected and expired",
+        all: "All"
+      },
       createInvoiceAction: "Convert to invoice"
     },
     invoices: {

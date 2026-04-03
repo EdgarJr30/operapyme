@@ -1006,13 +1006,42 @@ const backofficeEs = {
     },
     quotes: {
       title: "Cotizaciones",
-      description:
-        "Trabaja propuestas por articulos o servicios con un flujo corto y sin ruido.",
-      createTab: "Nueva",
-      manageTab: "Gestionar",
-      pipelineTitle: "Pipeline de cotizaciones",
-      pipelineDescription:
-        "Mueve cada documento por su estado operativo sin abrir el editor completo para cambios simples.",
+      pageTitle: "Cotizaciones",
+      pageDescription:
+        "Consulta todas las cotizaciones, cambia estados operativos y abre el editor sin salir del listado.",
+      loadingTitle: "Cargando cotizaciones",
+      loadingDescription:
+        "Estamos leyendo las cotizaciones del tenant activo para abrir la mesa operativa.",
+      errorTitle: "No pudimos cargar las cotizaciones",
+      errorDescription:
+        "La lectura de cotizaciones fallo por ahora. {message}",
+      emptyTitle: "Todavia no hay cotizaciones",
+      emptyDescription:
+        "Cuando registres la primera propuesta comercial, aparecera aqui con su estado y total.",
+      emptySearchTitle: "No encontramos cotizaciones con ese filtro",
+      emptySearchDescription:
+        "Ajusta la busqueda o cambia el filtro para revisar mas documentos.",
+      searchPlaceholder:
+        "Buscar por titulo, numero, receptor o contacto",
+      recipientLabel: "Receptor",
+      validUntilLabel: "Vigencia",
+      statusLabel: "Estado",
+      totalLabel: "Total",
+      actionsLabel: "Acciones",
+      createAction: "Nueva cotizacion",
+      editAction: "Editar",
+      createModalTitle: "Crear cotizacion",
+      createModalDescription:
+        "Completa el documento sin perder el contexto del listado operativo.",
+      editModalTitle: "Actualizar cotizacion",
+      editModalDescription:
+        "Ajusta receptor, lineas o condiciones comerciales desde el mismo modal.",
+      filters: {
+        operational: "Abiertas",
+        approved: "Aprobadas",
+        closed: "Rechazadas y expiradas",
+        all: "Todas"
+      },
       createInvoiceAction: "Pasar a factura"
     },
     invoices: {
