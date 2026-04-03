@@ -59,6 +59,8 @@ export interface LeadSummary {
   status: LeadStatus;
   needSummary: string | null;
   notes: string | null;
+  convertedCustomerId: string | null;
+  convertedAt: string | null;
   updatedAt: string;
 }
 
@@ -194,7 +196,19 @@ interface RawLeadRow {
   status: LeadStatus;
   need_summary: string | null;
   notes: string | null;
+  converted_customer_id: string | null;
+  converted_at: string | null;
   updated_at: string;
+}
+
+export interface CustomerListOptions {
+  limit?: number | null;
+  statuses?: CustomerStatus[];
+}
+
+export interface LeadListOptions {
+  limit?: number | null;
+  statuses?: LeadStatus[];
 }
 
 interface RawCatalogItemRow {
@@ -313,6 +327,11 @@ export interface UpdateCustomerInput {
   notes?: string | null;
 }
 
+export interface ArchiveCustomerInput {
+  tenantId: string;
+  customerId: string;
+}
+
 export interface CreateLeadInput {
   tenantId: string;
   leadCode?: string | null;
@@ -325,6 +344,11 @@ export interface CreateLeadInput {
   status: LeadStatus;
   needSummary?: string | null;
   notes?: string | null;
+}
+
+export interface ConvertLeadToCustomerInput {
+  tenantId: string;
+  leadId: string;
 }
 
 export interface CreateCatalogItemInput {
@@ -420,7 +444,7 @@ const customerSelectFields =
   "id, customer_code, display_name, contact_name, legal_name, email, whatsapp, phone, document_id, notes, source, status, updated_at";
 
 const leadSelectFields =
-  "id, lead_code, display_name, contact_name, email, whatsapp, phone, source, status, need_summary, notes, updated_at";
+  "id, lead_code, display_name, contact_name, email, whatsapp, phone, source, status, need_summary, notes, converted_customer_id, converted_at, updated_at";
 
 const catalogItemSelectFields =
   "id, item_code, name, description, category, kind, visibility, pricing_mode, currency_code, unit_price, status, notes, updated_at";
@@ -533,8 +557,30 @@ function mapLead(row: RawLeadRow): LeadSummary {
     status: row.status,
     needSummary: row.need_summary,
     notes: row.notes,
+    convertedCustomerId: row.converted_customer_id,
+    convertedAt: row.converted_at,
     updatedAt: row.updated_at
   };
+}
+
+function normalizeCustomerListOptions(
+  limitOrOptions: number | CustomerListOptions | undefined
+): CustomerListOptions {
+  if (typeof limitOrOptions === "number") {
+    return { limit: limitOrOptions };
+  }
+
+  return limitOrOptions ?? {};
+}
+
+function normalizeLeadListOptions(
+  limitOrOptions: number | LeadListOptions | undefined
+): LeadListOptions {
+  if (typeof limitOrOptions === "number") {
+    return { limit: limitOrOptions };
+  }
+
+  return limitOrOptions ?? {};
 }
 
 function mapCatalogItem(row: RawCatalogItemRow): CatalogItemSummary {
@@ -644,16 +690,26 @@ function mapInvoiceDetail(row: RawInvoiceRow): InvoiceDetail {
 
 export async function listCustomersForTenant(
   tenantId: string,
-  limit = 6
+  limitOrOptions: number | CustomerListOptions = 6
 ): Promise<CustomerSummary[]> {
   const client = requireSupabaseClient();
   const scopedTenantId = requireTenantScope(tenantId);
-  const { data, error } = await client
+  const { limit, statuses } = normalizeCustomerListOptions(limitOrOptions);
+  let query = client
     .from("customers")
     .select(customerSelectFields)
     .eq("tenant_id", scopedTenantId)
-    .order("updated_at", { ascending: false })
-    .limit(limit);
+    .order("updated_at", { ascending: false });
+
+  if (statuses?.length) {
+    query = query.in("status", statuses);
+  }
+
+  if (typeof limit === "number") {
+    query = query.limit(limit);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     throw new Error(error.message);
@@ -664,16 +720,26 @@ export async function listCustomersForTenant(
 
 export async function listLeadsForTenant(
   tenantId: string,
-  limit = 25
+  limitOrOptions: number | LeadListOptions = 25
 ): Promise<LeadSummary[]> {
   const client = requireSupabaseClient();
   const scopedTenantId = requireTenantScope(tenantId);
-  const { data, error } = await client
+  const { limit, statuses } = normalizeLeadListOptions(limitOrOptions);
+  let query = client
     .from("leads")
     .select(leadSelectFields)
     .eq("tenant_id", scopedTenantId)
-    .order("updated_at", { ascending: false })
-    .limit(limit);
+    .order("updated_at", { ascending: false });
+
+  if (statuses?.length) {
+    query = query.in("status", statuses);
+  }
+
+  if (typeof limit === "number") {
+    query = query.limit(limit);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     throw new Error(error.message);
@@ -816,7 +882,10 @@ export async function getDashboardSnapshot(
       .select("id", { count: "exact", head: true })
       .eq("tenant_id", scopedTenantId)
       .in("status", ["draft", "sent", "viewed"]),
-    listCustomersForTenant(scopedTenantId, 3),
+    listCustomersForTenant(scopedTenantId, {
+      limit: 3,
+      statuses: ["active", "inactive"]
+    }),
     listQuotesForTenant(scopedTenantId, 3)
   ]);
 
@@ -966,6 +1035,26 @@ export async function updateCustomer(input: UpdateCustomerInput) {
   return mapCustomer(data as RawCustomerRow);
 }
 
+export async function archiveCustomer(input: ArchiveCustomerInput) {
+  const client = requireSupabaseClient();
+  const scopedTenantId = requireTenantScope(input.tenantId);
+  const scopedCustomerId = requireRecordId(input.customerId, "Customer id");
+
+  const { data, error } = await client
+    .from("customers")
+    .update({ status: "archived" })
+    .eq("tenant_id", scopedTenantId)
+    .eq("id", scopedCustomerId)
+    .select(customerSelectFields)
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return mapCustomer(data as RawCustomerRow);
+}
+
 export async function updateCatalogItem(input: UpdateCatalogItemInput) {
   const client = requireSupabaseClient();
   const scopedTenantId = requireTenantScope(input.tenantId);
@@ -1046,6 +1135,25 @@ export async function createQuote(input: CreateQuoteInput) {
   }
 
   return mapQuote(data as RawQuoteRow);
+}
+
+export async function convertLeadToCustomer(
+  input: ConvertLeadToCustomerInput
+) {
+  const client = requireSupabaseClient();
+  const scopedTenantId = requireTenantScope(input.tenantId);
+  const scopedLeadId = requireRecordId(input.leadId, "Lead id");
+
+  const { data, error } = await client.rpc("convert_lead_to_customer", {
+    target_tenant_id: scopedTenantId,
+    target_lead_id: scopedLeadId
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return requireRecordId((data as string | null) ?? "", "Customer id");
 }
 
 export async function updateQuote(input: UpdateQuoteInput) {

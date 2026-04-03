@@ -2,7 +2,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { useBackofficeAuth } from "@/app/auth-provider";
 import {
+  convertLeadToCustomer,
   createLead,
+  type ConvertLeadToCustomerInput,
   type CreateLeadInput
 } from "@/lib/supabase/backoffice-data";
 
@@ -36,7 +38,26 @@ export function useLeadMutations() {
     }
   });
 
+  const convertLeadToCustomerMutation = useMutation({
+    mutationFn: (input: Omit<ConvertLeadToCustomerInput, "tenantId">) =>
+      convertLeadToCustomer({
+        ...input,
+        tenantId: ensureTenantId(activeTenantId)
+      }),
+    onSettled: async () => {
+      const tenantId = ensureTenantId(activeTenantId);
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["leads", tenantId] }),
+        queryClient.invalidateQueries({ queryKey: ["customers", tenantId] }),
+        queryClient.invalidateQueries({
+          queryKey: ["dashboard-snapshot", tenantId]
+        })
+      ]);
+    }
+  });
+
   return {
+    convertLeadToCustomerMutation,
     createLeadMutation
   };
 }

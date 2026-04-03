@@ -5,7 +5,8 @@ import {
   Navigate,
   Outlet,
   createBrowserRouter,
-  type RouteObject
+  type RouteObject,
+  useLocation
 } from "react-router-dom";
 
 import { useBackofficeAuth } from "@/app/auth-provider";
@@ -28,6 +29,12 @@ const UnconfiguredPage = lazy(async () => {
   const module = await import("@/modules/auth/unconfigured-page");
 
   return { default: module.UnconfiguredPage };
+});
+
+const PublicLandingPage = lazy(async () => {
+  const module = await import("@/modules/public/public-landing-page");
+
+  return { default: module.PublicLandingPage };
 });
 
 const SetupTenantPage = lazy(async () => {
@@ -70,19 +77,27 @@ function RouteLoader() {
   return <AppLoadingScreen variant="module" />;
 }
 
+function isPublicSurfacePath(pathname: string) {
+  return pathname === "/" || pathname.startsWith("/auth");
+}
+
 function AuthStatusBoundary({ children }: { children: ReactNode }) {
+  const location = useLocation();
   const { isAccessContextLoading, isConfigured, status } = useBackofficeAuth();
+  const publicVariant = isPublicSurfacePath(location.pathname)
+    ? "public"
+    : "workspace";
 
   if (!isConfigured || status === "unconfigured") {
     return (
-      <Suspense fallback={<AppLoadingScreen variant="workspace" />}>
+      <Suspense fallback={<AppLoadingScreen variant={publicVariant} />}>
         <UnconfiguredPage />
       </Suspense>
     );
   }
 
   if (status === "loading") {
-    return <AppLoadingScreen variant="workspace" />;
+    return <AppLoadingScreen variant={publicVariant} />;
   }
 
   if (status === "signed_in" && isAccessContextLoading) {
@@ -100,7 +115,7 @@ function AuthOnlyRoute() {
       {status === "signed_in" ? (
         <Navigate replace to={isBootstrapped ? "/" : "/setup"} />
       ) : (
-        <Suspense fallback={<AppLoadingScreen variant="workspace" />}>
+        <Suspense fallback={<AppLoadingScreen variant="public" />}>
           <AuthPage />
         </Suspense>
       )}
@@ -120,6 +135,7 @@ function RequireSignedIn() {
 
 function RequireBootstrappedShell() {
   const { isBootstrapped, status } = useBackofficeAuth();
+  const location = useLocation();
 
   return (
     <AuthStatusBoundary>
@@ -133,6 +149,10 @@ function RequireBootstrappedShell() {
         ) : (
           <Navigate replace to="/setup" />
         )
+      ) : location.pathname === "/" ? (
+        <Suspense fallback={<AppLoadingScreen variant="public" />}>
+          <PublicLandingPage />
+        </Suspense>
       ) : (
         <Navigate replace to="/auth" />
       )}
@@ -324,7 +344,7 @@ export const appRoutes: RouteObject[] = [
   {
     path: "/auth/callback",
     element: (
-      <Suspense fallback={<AppLoadingScreen variant="workspace" />}>
+      <Suspense fallback={<AppLoadingScreen variant="public" />}>
         <AuthCallbackPage />
       </Suspense>
     )
@@ -336,7 +356,7 @@ export const appRoutes: RouteObject[] = [
       {
         index: true,
         element: (
-          <Suspense fallback={<AppLoadingScreen variant="workspace" />}>
+          <Suspense fallback={<AppLoadingScreen variant="setup" />}>
             <SetupTenantPage />
           </Suspense>
         )

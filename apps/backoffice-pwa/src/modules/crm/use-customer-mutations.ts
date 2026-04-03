@@ -2,8 +2,10 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { useBackofficeAuth } from "@/app/auth-provider";
 import {
+  archiveCustomer,
   createCustomer,
   updateCustomer,
+  type ArchiveCustomerInput,
   type CreateCustomerInput,
   type UpdateCustomerInput
 } from "@/lib/supabase/backoffice-data";
@@ -49,9 +51,20 @@ export function useCustomerMutations() {
     }
   });
 
+  const archiveCustomerMutation = useMutation({
+    mutationFn: (input: Omit<ArchiveCustomerInput, "tenantId">) =>
+      archiveCustomer({
+        ...input,
+        tenantId: ensureTenantId(activeTenantId)
+      }),
+    onSuccess: async () => {
+      await invalidate(ensureTenantId(activeTenantId));
+    }
+  });
+
   return {
+    archiveCustomerMutation,
     createCustomerMutation,
     updateCustomerMutation
   };
 }
-

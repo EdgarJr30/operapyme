@@ -6,18 +6,21 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "@operapyme/i18n";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from "@/components/ui/table";
+import { CappedPreviewSlider } from "@/components/ui/capped-preview-slider";
+import type { InvoiceSummary, QuoteSummary } from "@/lib/supabase/backoffice-data";
 import { useCustomersData } from "@/modules/crm/use-customers-data";
 import { useLeadsData } from "@/modules/crm/use-leads-data";
 import { useQuotesData } from "@/modules/quotes/use-quotes-data";
 import { useInvoicesData } from "@/modules/commercial/use-invoices-data";
+
+interface RecentActivityItem {
+  id: string;
+  kind: "invoice" | "quote";
+  meta: string;
+  subtitle: string;
+  title: string;
+  updatedAt: string;
+}
 
 function formatMoney(amount: number, currencyCode: string) {
   return new Intl.NumberFormat("es-DO", {
@@ -45,6 +48,17 @@ export function CommercialPage() {
       ).length
     }),
     [customers, invoices, leads, quotes]
+  );
+
+  const recentActivity = useMemo<RecentActivityItem[]>(
+    () =>
+      [
+        ...quotes.map((quote) => mapQuoteToRecentActivity(quote)),
+        ...invoices.map((invoice) => mapInvoiceToRecentActivity(invoice))
+      ]
+        .sort((left, right) => right.updatedAt.localeCompare(left.updatedAt))
+        .slice(0, 6),
+    [invoices, quotes]
   );
 
   return (
@@ -126,46 +140,36 @@ export function CommercialPage() {
             </p>
           </CardHeader>
           <CardContent>
-            {quotes.length === 0 && invoices.length === 0 ? (
+            {recentActivity.length === 0 ? (
               <p className="text-sm text-ink-soft">
                 {t("commercial.summary.recentEmpty")}
               </p>
             ) : (
-              <div className="space-y-3">
-                {quotes.slice(0, 2).map((quote) => (
-                  <div
-                    key={quote.id}
-                    className="rounded-2xl border border-line/70 bg-sand/35 p-4"
-                  >
-                    <p className="text-sm font-semibold text-ink">{quote.title}</p>
-                    <p className="mt-1 text-xs uppercase tracking-[0.12em] text-ink-muted">
-                      {quote.quoteNumber}
-                    </p>
-                    <p className="mt-2 text-sm text-ink-soft">
-                      {quote.recipientDisplayName}
-                    </p>
-                  </div>
-                ))}
-                {invoices.slice(0, 2).map((invoice) => (
-                  <div
-                    key={invoice.id}
-                    className="rounded-2xl border border-line/70 bg-paper p-4"
-                  >
-                    <p className="text-sm font-semibold text-ink">{invoice.title}</p>
-                    <p className="mt-1 text-xs uppercase tracking-[0.12em] text-ink-muted">
-                      {invoice.invoiceNumber}
-                    </p>
-                    <p className="mt-2 text-sm text-ink-soft">
-                      {formatMoney(invoice.grandTotal, invoice.currencyCode)}
-                    </p>
-                  </div>
-                ))}
-              </div>
+              <CappedPreviewSlider
+                ariaLabel={t("commercial.summary.recentTitle")}
+                items={recentActivity}
+                nextLabel={t("shared.slider.next")}
+                previousLabel={t("shared.slider.previous")}
+                getItemKey={(item) => item.id}
+                renderItem={(item) => <RecentActivityCard item={item} />}
+              />
             )}
           </CardContent>
         </Card>
       </section>
 
+    </div>
+  );
+}
+
+function RecentActivityCard({ item }: { item: RecentActivityItem }) {
+  return (
+    <div className="h-full rounded-2xl border border-line/70 bg-sand/35 p-4">
+      <p className="text-sm font-semibold text-ink">{item.title}</p>
+      <p className="mt-1 text-xs uppercase tracking-[0.12em] text-ink-muted">
+        {item.meta}
+      </p>
+      <p className="mt-2 text-sm leading-6 text-ink-soft">{item.subtitle}</p>
     </div>
   );
 }
@@ -227,4 +231,26 @@ function PipelineCard({
       </p>
     </Link>
   );
+}
+
+function mapQuoteToRecentActivity(quote: QuoteSummary): RecentActivityItem {
+  return {
+    id: quote.id,
+    kind: "quote",
+    meta: quote.quoteNumber,
+    subtitle: quote.recipientDisplayName,
+    title: quote.title,
+    updatedAt: quote.updatedAt
+  };
+}
+
+function mapInvoiceToRecentActivity(invoice: InvoiceSummary): RecentActivityItem {
+  return {
+    id: invoice.id,
+    kind: "invoice",
+    meta: invoice.invoiceNumber,
+    subtitle: formatMoney(invoice.grandTotal, invoice.currencyCode),
+    title: invoice.title,
+    updatedAt: invoice.updatedAt
+  };
 }

@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 
 import {
   ArrowRight,
-  ArrowUpRight,
   CircleAlert,
   FileText,
   Package2,
@@ -15,6 +14,7 @@ import { useTranslation } from "@operapyme/i18n";
 import { NavLink } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
+import { CappedPreviewSlider } from "@/components/ui/capped-preview-slider";
 import { StatusPill } from "@/components/ui/status-pill";
 import { cn } from "@/lib/utils";
 import type {
@@ -65,6 +65,21 @@ const nextStepItems = [
   }
 ];
 
+type BackofficeT = ReturnType<typeof useTranslation<"backoffice">>["t"];
+
+type FocusInput = {
+  activeCustomerCount: number;
+  customerCount: number;
+  openQuoteCount: number;
+  quoteCount: number;
+};
+
+type RecommendedFocus = {
+  actionLabel: string;
+  description: string;
+  to: string;
+};
+
 export function DashboardPage() {
   const { t } = useTranslation("backoffice");
   const {
@@ -82,228 +97,380 @@ export function DashboardPage() {
       data.recentCustomers.length === 0 &&
       data.recentQuotes.length === 0
   );
+  const recommendedFocus =
+    hasTenantContext && !isLoading && !isError && data
+      ? getRecommendedFocus(data, t)
+      : null;
 
   return (
     <div className="space-y-6">
-      <section className="grid gap-4 xl:grid-cols-[minmax(0,1.4fr)_340px]">
-        <div className="rounded-3xl border border-line/70 bg-paper p-4 shadow-panel sm:p-5">
-          <div className="flex flex-col gap-4">
-            <div className="space-y-3">
-              <span className="inline-flex min-h-9 items-center rounded-full border border-line/70 bg-paper/85 px-3 text-xs font-semibold uppercase tracking-[0.18em] text-ink-muted">
-                {t("dashboard.header.eyebrow")}
-              </span>
-              <div className="space-y-2">
-                <h1 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
-                  {t("dashboard.header.title")}
-                </h1>
-                <p className="max-w-2xl text-sm leading-6 text-ink-soft">
-                  {t("dashboard.header.description")}
-                </p>
+      <section className="grid gap-4 xl:grid-cols-12">
+        <div className="xl:col-span-8">
+          <div className="rounded-3xl border border-line/70 bg-paper p-4 shadow-panel sm:p-5 lg:p-6">
+            <div className="flex flex-col gap-5">
+              <div className="space-y-3">
+                <span className="inline-flex min-h-9 items-center rounded-full border border-line/70 bg-paper/85 px-3 text-xs font-semibold uppercase tracking-[0.18em] text-ink-muted">
+                  {t("dashboard.header.eyebrow")}
+                </span>
+                <div className="space-y-2">
+                  <h1 className="max-w-3xl text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
+                    {t("dashboard.header.title")}
+                  </h1>
+                  <p className="max-w-3xl text-sm leading-6 text-ink-soft sm:text-base">
+                    {t("dashboard.header.description")}
+                  </p>
+                </div>
               </div>
-            </div>
 
-            <div className="flex flex-wrap gap-2">
-              {hasTenantContext && !isLoading && !isError && data ? (
-                <>
-                  <StatusPill tone="info">
-                    {t("dashboard.header.customerCountBadge", {
-                      count: data.customerCount
-                    })}
+              <div className="flex flex-wrap gap-2">
+                {hasTenantContext && !isLoading && !isError && data ? (
+                  <>
+                    <StatusPill tone="info">
+                      {t("dashboard.header.customerCountBadge", {
+                        count: data.customerCount
+                      })}
+                    </StatusPill>
+                    <StatusPill tone="success">
+                      {t("dashboard.header.activeCustomerCountBadge", {
+                        count: data.activeCustomerCount
+                      })}
+                    </StatusPill>
+                    <StatusPill tone="warning">
+                      {t("dashboard.header.openQuoteCountBadge", {
+                        count: data.openQuoteCount
+                      })}
+                    </StatusPill>
+                  </>
+                ) : (
+                  <StatusPill tone="neutral">
+                    {t("dashboard.header.pendingBadge")}
                   </StatusPill>
-                  <StatusPill tone="success">
-                    {t("dashboard.header.activeCustomerCountBadge", {
-                      count: data.activeCustomerCount
-                    })}
-                  </StatusPill>
-                  <StatusPill tone="warning">
-                    {t("dashboard.header.openQuoteCountBadge", {
-                      count: data.openQuoteCount
-                    })}
-                  </StatusPill>
-                </>
+                )}
+              </div>
+
+              <div className="flex flex-wrap gap-3">
+                <ActionLink to="/commercial/leads" variant="secondary">
+                  {t("dashboard.actions.newLead")}
+                </ActionLink>
+                <ActionLink to="/commercial/quotes?tab=create" variant="primary">
+                  {t("dashboard.actions.newQuote")}
+                </ActionLink>
+                <ActionLink to="/catalog" variant="secondary">
+                  {t("dashboard.actions.reviewCatalog")}
+                </ActionLink>
+              </div>
+
+              {!hasTenantContext ? (
+                <InlineStatePanel
+                  title={t("dashboard.livePulse.noTenantTitle")}
+                  description={t("dashboard.livePulse.noTenantDescription")}
+                />
+              ) : isLoading ? (
+                <InlineStatePanel
+                  title={t("dashboard.livePulse.loadingTitle")}
+                  description={t("dashboard.livePulse.loadingDescription")}
+                />
+              ) : isError ? (
+                <InlineStatePanel
+                  title={t("dashboard.livePulse.errorTitle")}
+                  description={t("dashboard.livePulse.errorDescription", {
+                    message: error instanceof Error ? error.message : ""
+                  })}
+                  action={
+                    <Button
+                      variant="secondary"
+                      className="rounded-full"
+                      onClick={() => {
+                        void refetch();
+                      }}
+                    >
+                      <RefreshCw className="mr-2 size-4" aria-hidden="true" />
+                      {t("dashboard.livePulse.retryAction")}
+                    </Button>
+                  }
+                />
               ) : (
-                <StatusPill tone="neutral">
-                  {t("dashboard.header.pendingBadge")}
-                </StatusPill>
+                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                  {statCards.map(({ id, icon: Icon, iconClassName }) => (
+                    <div
+                      key={id}
+                      className="rounded-3xl border border-line/70 bg-sand/30 p-4 shadow-panel sm:p-5"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <span
+                          className={cn(
+                            "flex size-11 items-center justify-center rounded-2xl",
+                            iconClassName
+                          )}
+                        >
+                          <Icon className="size-5" aria-hidden="true" />
+                        </span>
+                        <StatusPill tone={getStatTone(id)}>
+                          {t(`dashboard.stats.${id}.label`)}
+                        </StatusPill>
+                      </div>
+
+                      <div className="mt-5 space-y-2">
+                        <p className="text-3xl font-semibold tracking-tight text-ink">
+                          {data?.[id] ?? 0}
+                        </p>
+                        <p className="text-sm leading-6 text-ink-soft">
+                          {t(`dashboard.stats.${id}.detail`, {
+                            count: data?.[id] ?? 0
+                          })}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
-
-            <div className="flex flex-wrap gap-3">
-              <NavLink
-                to="/commercial/leads"
-                className="inline-flex min-h-11 items-center justify-center rounded-full border border-line-strong bg-paper/95 px-4 text-sm font-medium text-ink shadow-panel transition hover:bg-sand/70"
-              >
-                {t("dashboard.actions.newLead")}
-              </NavLink>
-              <NavLink
-                to="/commercial/quotes?tab=create"
-                className="inline-flex min-h-11 items-center justify-center rounded-full bg-brand px-4 text-sm font-medium text-brand-contrast shadow-soft transition hover:bg-brand-hover"
-              >
-                {t("dashboard.actions.newQuote")}
-              </NavLink>
-              <NavLink
-                to="/catalog"
-                className="inline-flex min-h-11 items-center justify-center rounded-full border border-line-strong bg-paper/95 px-4 text-sm font-medium text-ink shadow-panel transition hover:bg-sand/70"
-              >
-                {t("dashboard.actions.reviewCatalog")}
-              </NavLink>
-            </div>
           </div>
         </div>
 
-        <div className="rounded-3xl border border-line/70 bg-paper p-4 shadow-panel sm:p-5">
-          <div className="space-y-1">
-            <p className="text-base font-semibold text-ink sm:text-lg">
-              {t("dashboard.checklist.title")}
-            </p>
-            <p className="text-sm leading-6 text-ink-soft">
-              {t("dashboard.checklist.description")}
-            </p>
-          </div>
-
-          <div className="mt-4 space-y-3">
-            {nextStepItems.map(({ key, to, icon: Icon }) => (
-              <NavLink
-                key={key}
-                to={to}
-                className="flex min-h-12 items-center justify-between gap-3 rounded-2xl border border-line/70 bg-sand/45 px-4 py-3 transition hover:border-line-strong hover:bg-paper"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-paper text-ink shadow-panel">
-                    <Icon className="size-4.5" aria-hidden="true" />
-                  </span>
-                  <div>
-                    <p className="text-sm font-semibold text-ink">
-                      {t(`dashboard.checklist.${key}`)}
-                    </p>
-                  </div>
-                </div>
-                <ArrowRight className="size-4 text-ink-muted" aria-hidden="true" />
-              </NavLink>
-            ))}
-          </div>
+        <div className="space-y-4 xl:col-span-4">
+          <NextStepsCard t={t} />
+          {recommendedFocus && data ? (
+            <RecommendedFocusCard data={data} focus={recommendedFocus} t={t} />
+          ) : null}
         </div>
-      </section>
-
-      <section className="grid gap-4 md:grid-cols-3">
-        {!hasTenantContext ? (
-          <InlineStatePanel
-            title={t("dashboard.livePulse.noTenantTitle")}
-            description={t("dashboard.livePulse.noTenantDescription")}
-            className="md:col-span-3"
-          />
-        ) : isLoading ? (
-          <InlineStatePanel
-            title={t("dashboard.livePulse.loadingTitle")}
-            description={t("dashboard.livePulse.loadingDescription")}
-            className="md:col-span-3"
-          />
-        ) : isError ? (
-          <InlineStatePanel
-            title={t("dashboard.livePulse.errorTitle")}
-            description={t("dashboard.livePulse.errorDescription", {
-              message: error instanceof Error ? error.message : ""
-            })}
-            className="md:col-span-3"
-            action={
-              <Button
-                variant="secondary"
-                className="rounded-full"
-                onClick={() => {
-                  void refetch();
-                }}
-              >
-                <RefreshCw className="mr-2 size-4" aria-hidden="true" />
-                {t("dashboard.livePulse.retryAction")}
-              </Button>
-            }
-          />
-        ) : (
-          statCards.map(({ id, icon: Icon, iconClassName }) => (
-            <div
-              key={id}
-              className="rounded-3xl border border-line/70 bg-paper p-5 shadow-panel"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <span
-                  className={cn(
-                    "flex size-12 items-center justify-center rounded-2xl",
-                    iconClassName
-                  )}
-                >
-                  <Icon className="size-5" aria-hidden="true" />
-                </span>
-                <StatusPill tone={getStatTone(id)}>
-                  {t(`dashboard.stats.${id}.label`)}
-                </StatusPill>
-              </div>
-
-              <div className="mt-5">
-                <p className="text-3xl font-semibold tracking-tight text-ink">
-                  {data?.[id] ?? 0}
-                </p>
-                <p className="mt-2 text-sm leading-6 text-ink-soft">
-                  {t(`dashboard.stats.${id}.detail`, {
-                    count: data?.[id] ?? 0
-                  })}
-                </p>
-              </div>
-            </div>
-          ))
-        )}
       </section>
 
       {hasTenantContext && !isLoading && !isError ? (
         isCommercialDataEmpty ? (
           <EmptyStatePanel />
         ) : (
-          <section className="grid gap-4 xl:grid-cols-2">
-            <div className="rounded-3xl border border-line/70 bg-paper p-5 shadow-panel">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-lg font-semibold text-ink">
-                    {t("dashboard.livePulse.customersTitle")}
-                  </p>
-                  <p className="mt-1 text-sm leading-6 text-ink-soft">
-                    {t("dashboard.livePulse.customersDescription")}
-                  </p>
-                </div>
-                <UsersRound className="size-5 text-ink-muted" aria-hidden="true" />
-              </div>
+          <section className="grid gap-4 xl:grid-cols-12">
+            <div className="xl:col-span-7">
+              <div className="rounded-3xl border border-line/70 bg-paper p-5 shadow-panel">
+                <PanelHeader
+                  actionLabel={t("dashboard.livePulse.quotesAction")}
+                  description={t("dashboard.livePulse.quotesDescription")}
+                  title={t("dashboard.livePulse.quotesTitle")}
+                  to="/commercial/quotes"
+                />
 
-              <div className="mt-5 space-y-3">
-                {data?.recentCustomers.map((customer) => (
-                  <CustomerSnapshotCard
-                    key={customer.id}
-                    customer={customer}
-                    t={t}
+                <div className="mt-5">
+                  <CappedPreviewSlider
+                    ariaLabel={t("dashboard.livePulse.quotesTitle")}
+                    emptyState={
+                      <MiniEmptyState
+                        message={t("dashboard.livePulse.quotesEmpty")}
+                      />
+                    }
+                    items={data?.recentQuotes ?? []}
+                    nextLabel={t("shared.slider.next")}
+                    previousLabel={t("shared.slider.previous")}
+                    getItemKey={(quote) => quote.id}
+                    renderItem={(quote) => (
+                      <QuoteSnapshotCard quote={quote} t={t} />
+                    )}
                   />
-                ))}
+                </div>
               </div>
             </div>
 
-            <div className="rounded-3xl border border-line/70 bg-paper p-5 shadow-panel">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-lg font-semibold text-ink">
-                    {t("dashboard.livePulse.quotesTitle")}
-                  </p>
-                  <p className="mt-1 text-sm leading-6 text-ink-soft">
-                    {t("dashboard.livePulse.quotesDescription")}
-                  </p>
-                </div>
-                <FileText className="size-5 text-ink-muted" aria-hidden="true" />
-              </div>
+            <div className="xl:col-span-5">
+              <div className="rounded-3xl border border-line/70 bg-paper p-5 shadow-panel">
+                <PanelHeader
+                  actionLabel={t("dashboard.livePulse.customersAction")}
+                  description={t("dashboard.livePulse.customersDescription")}
+                  title={t("dashboard.livePulse.customersTitle")}
+                  to="/crm"
+                />
 
-              <div className="mt-5 space-y-3">
-                {data?.recentQuotes.map((quote) => (
-                  <QuoteSnapshotCard key={quote.id} quote={quote} t={t} />
-                ))}
+                <div className="mt-5">
+                  <CappedPreviewSlider
+                    ariaLabel={t("dashboard.livePulse.customersTitle")}
+                    emptyState={
+                      <MiniEmptyState
+                        message={t("dashboard.livePulse.customersEmpty")}
+                      />
+                    }
+                    items={data?.recentCustomers ?? []}
+                    nextLabel={t("shared.slider.next")}
+                    previousLabel={t("shared.slider.previous")}
+                    getItemKey={(customer) => customer.id}
+                    renderItem={(customer) => (
+                      <CustomerSnapshotCard customer={customer} t={t} />
+                    )}
+                  />
+                </div>
               </div>
             </div>
           </section>
         )
       ) : null}
+    </div>
+  );
+}
+
+function ActionLink({
+  children,
+  to,
+  variant
+}: {
+  children: ReactNode;
+  to: string;
+  variant: "primary" | "secondary";
+}) {
+  return (
+    <NavLink
+      to={to}
+      className={cn(
+        "inline-flex min-h-11 items-center justify-center rounded-full px-4 text-sm font-medium transition",
+        variant === "primary"
+          ? "bg-brand text-brand-contrast shadow-soft hover:bg-brand-hover"
+          : "border border-line-strong bg-paper/95 text-ink shadow-panel hover:bg-sand/70"
+      )}
+    >
+      {children}
+    </NavLink>
+  );
+}
+
+function NextStepsCard({ t }: { t: BackofficeT }) {
+  return (
+    <div className="rounded-3xl border border-line/70 bg-paper p-4 shadow-panel sm:p-5">
+      <div className="space-y-1">
+        <p className="text-base font-semibold text-ink sm:text-lg">
+          {t("dashboard.checklist.title")}
+        </p>
+        <p className="text-sm leading-6 text-ink-soft">
+          {t("dashboard.checklist.description")}
+        </p>
+      </div>
+
+      <div className="mt-4 space-y-3">
+        {nextStepItems.map(({ key, to, icon: Icon }) => (
+          <NavLink
+            key={key}
+            to={to}
+            className="flex min-h-12 items-center justify-between gap-3 rounded-2xl border border-line/70 bg-sand/45 px-4 py-3 transition hover:border-line-strong hover:bg-paper"
+          >
+            <div className="flex items-center gap-3">
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-paper text-ink shadow-panel">
+                <Icon className="size-4.5" aria-hidden="true" />
+              </span>
+              <p className="text-sm font-semibold text-ink">
+                {t(`dashboard.checklist.${key}`)}
+              </p>
+            </div>
+            <ArrowRight className="size-4 text-ink-muted" aria-hidden="true" />
+          </NavLink>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function RecommendedFocusCard({
+  data,
+  focus,
+  t
+}: {
+  data: FocusInput;
+  focus: RecommendedFocus;
+  t: BackofficeT;
+}) {
+  return (
+    <div className="rounded-3xl border border-line/70 bg-paper p-4 shadow-panel sm:p-5">
+      <div className="space-y-1">
+        <p className="text-base font-semibold text-ink sm:text-lg">
+          {t("dashboard.focus.title")}
+        </p>
+        <p className="text-sm leading-6 text-ink-soft">
+          {t("dashboard.focus.description")}
+        </p>
+      </div>
+
+      <div className="mt-4 grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
+        <SummaryMetric
+          label={t("dashboard.focus.metrics.activeCustomers")}
+          value={data.activeCustomerCount}
+        />
+        <SummaryMetric
+          label={t("dashboard.focus.metrics.openQuotes")}
+          value={data.openQuoteCount}
+        />
+        <SummaryMetric
+          label={t("dashboard.focus.metrics.totalQuotes")}
+          value={data.quoteCount}
+        />
+      </div>
+
+      <div className="mt-4 rounded-2xl border border-line/70 bg-sand/45 p-4">
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-ink-muted">
+          {t("dashboard.focus.recommendedLabel")}
+        </p>
+        <p className="mt-2 text-sm leading-6 text-ink">
+          {focus.description}
+        </p>
+      </div>
+
+      <NavLink
+        to={focus.to}
+        className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full border border-line-strong bg-paper/95 px-4 text-sm font-medium text-ink shadow-panel transition hover:bg-sand/70"
+      >
+        {focus.actionLabel}
+        <ArrowRight className="size-4" aria-hidden="true" />
+      </NavLink>
+    </div>
+  );
+}
+
+function SummaryMetric({
+  label,
+  value
+}: {
+  label: string;
+  value: number;
+}) {
+  return (
+    <div className="rounded-2xl border border-line/70 bg-sand/35 p-4">
+      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-muted">
+        {label}
+      </p>
+      <p className="mt-2 text-2xl font-semibold tracking-tight text-ink">
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function PanelHeader({
+  actionLabel,
+  description,
+  title,
+  to
+}: {
+  actionLabel: string;
+  description: string;
+  title: string;
+  to: string;
+}) {
+  return (
+    <div className="flex flex-wrap items-start justify-between gap-3">
+      <div>
+        <p className="text-lg font-semibold text-ink">{title}</p>
+        <p className="mt-1 text-sm leading-6 text-ink-soft">{description}</p>
+      </div>
+
+      <NavLink
+        to={to}
+        className="inline-flex min-h-10 items-center gap-2 rounded-full border border-line/70 bg-paper px-3 text-sm font-medium text-ink shadow-panel transition hover:bg-sand/70"
+      >
+        {actionLabel}
+        <ArrowRight className="size-4" aria-hidden="true" />
+      </NavLink>
+    </div>
+  );
+}
+
+function MiniEmptyState({ message }: { message: string }) {
+  return (
+    <div className="rounded-2xl border border-dashed border-line-strong bg-sand/25 p-4 text-sm leading-6 text-ink-soft">
+      {message}
     </div>
   );
 }
@@ -322,7 +489,7 @@ function InlineStatePanel({
   return (
     <div
       className={cn(
-        "rounded-3xl border border-line/70 bg-paper p-5 shadow-panel",
+        "rounded-3xl border border-line/70 bg-sand/35 p-5 shadow-panel",
         className
       )}
     >
@@ -357,24 +524,15 @@ function EmptyStatePanel() {
         </p>
 
         <div className="mt-6 flex flex-wrap justify-center gap-3">
-          <NavLink
-            to="/commercial/leads"
-            className="inline-flex min-h-12 items-center justify-center rounded-full border border-line-strong bg-paper px-5 text-sm font-medium text-ink shadow-panel transition hover:bg-sand/70"
-          >
+          <ActionLink to="/commercial/leads" variant="secondary">
             {t("dashboard.actions.newLead")}
-          </NavLink>
-          <NavLink
-            to="/catalog"
-            className="inline-flex min-h-12 items-center justify-center rounded-full border border-line-strong bg-paper px-5 text-sm font-medium text-ink shadow-panel transition hover:bg-sand/70"
-          >
+          </ActionLink>
+          <ActionLink to="/catalog" variant="secondary">
             {t("dashboard.actions.reviewCatalog")}
-          </NavLink>
-          <NavLink
-            to="/commercial/quotes?tab=create"
-            className="inline-flex min-h-12 items-center justify-center rounded-full bg-brand px-5 text-sm font-medium text-brand-contrast shadow-soft transition hover:bg-brand-hover"
-          >
+          </ActionLink>
+          <ActionLink to="/commercial/quotes?tab=create" variant="primary">
             {t("dashboard.actions.newQuote")}
-          </NavLink>
+          </ActionLink>
         </div>
       </div>
     </section>
@@ -386,7 +544,7 @@ function CustomerSnapshotCard({
   t
 }: {
   customer: CustomerSummary;
-  t: ReturnType<typeof useTranslation<"backoffice">>["t"];
+  t: BackofficeT;
 }) {
   const contactValue =
     customer.contactName ||
@@ -395,7 +553,7 @@ function CustomerSnapshotCard({
     t("dashboard.livePulse.contactPending");
 
   return (
-    <div className="rounded-2xl border border-line/70 bg-sand/40 p-4">
+    <div className="h-full rounded-2xl border border-line/70 bg-sand/40 p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="space-y-1">
           <p className="font-semibold text-ink">{customer.displayName}</p>
@@ -418,10 +576,10 @@ function QuoteSnapshotCard({
   t
 }: {
   quote: QuoteSummary;
-  t: ReturnType<typeof useTranslation<"backoffice">>["t"];
+  t: BackofficeT;
 }) {
   return (
-    <div className="rounded-2xl border border-line/70 bg-sand/40 p-4">
+    <div className="h-full rounded-2xl border border-line/70 bg-sand/40 p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="space-y-1">
           <p className="font-semibold text-ink">{quote.quoteNumber}</p>
@@ -433,15 +591,46 @@ function QuoteSnapshotCard({
           {t(`dashboard.livePulse.quoteStatus.${quote.status}`)}
         </StatusPill>
       </div>
-      <div className="mt-3 flex items-center justify-between gap-3">
-        <p className="text-sm leading-6 text-ink-soft">
-          {t("dashboard.livePulse.quoteValueLabel")}:{" "}
-          {formatCurrency(quote.grandTotal, quote.currencyCode)}
-        </p>
-        <ArrowUpRight className="size-4 text-ink-muted" aria-hidden="true" />
-      </div>
+      <p className="mt-3 text-sm leading-6 text-ink-soft">
+        {t("dashboard.livePulse.quoteValueLabel")}:{" "}
+        {formatCurrency(quote.grandTotal, quote.currencyCode)}
+      </p>
     </div>
   );
+}
+
+function getRecommendedFocus(data: FocusInput, t: BackofficeT): RecommendedFocus {
+  if (data.customerCount === 0) {
+    return {
+      actionLabel: t("dashboard.actions.newLead"),
+      description: t("dashboard.focus.focusCaptureLead"),
+      to: "/commercial/leads"
+    };
+  }
+
+  if (data.openQuoteCount > 0) {
+    return {
+      actionLabel: t("dashboard.actions.reviewQuotes"),
+      description: t("dashboard.focus.focusResumeQuotes", {
+        count: data.openQuoteCount
+      }),
+      to: "/commercial/quotes"
+    };
+  }
+
+  if (data.quoteCount === 0) {
+    return {
+      actionLabel: t("dashboard.actions.newQuote"),
+      description: t("dashboard.focus.focusPrepareQuote"),
+      to: "/commercial/quotes?tab=create"
+    };
+  }
+
+  return {
+    actionLabel: t("dashboard.actions.reviewCatalog"),
+    description: t("dashboard.focus.focusReviewCatalog"),
+    to: "/catalog"
+  };
 }
 
 function getCustomerTone(status: CustomerSummary["status"]) {

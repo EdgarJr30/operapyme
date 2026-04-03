@@ -14,32 +14,19 @@ import {
   CardHeader,
   CardTitle
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { buildOperationalAutofillProps } from "@/lib/forms/autofill";
 import {
   createCustomerFormSchema,
-  customerSourceValues,
-  customerStatusValues,
   type CustomerFormValues
 } from "@/lib/forms/customer-form-schema";
 import type { CustomerSummary } from "@/lib/supabase/backoffice-data";
+import {
+  CustomerFormFields,
+  customerFormDefaultValues,
+  mapCustomerToFormValues
+} from "@/modules/crm/customer-form-fields";
 import { useCustomerMutations } from "@/modules/crm/use-customer-mutations";
-
-const createDefaultValues: CustomerFormValues = {
-  customerCode: "",
-  displayName: "",
-  contactName: "",
-  legalName: "",
-  email: "",
-  whatsapp: "",
-  phone: "",
-  documentId: "",
-  source: "manual",
-  status: "active",
-  notes: ""
-};
 
 interface CustomerOperationsPanelProps {
   customers: CustomerSummary[];
@@ -56,12 +43,12 @@ export function CustomerOperationsPanel({
 
   const createForm = useForm<CustomerFormValues>({
     resolver: zodResolver(customerFormSchema),
-    defaultValues: createDefaultValues
+    defaultValues: customerFormDefaultValues
   });
 
   const updateForm = useForm<CustomerFormValues>({
     resolver: zodResolver(customerFormSchema),
-    defaultValues: createDefaultValues
+    defaultValues: customerFormDefaultValues
   });
 
   const selectedCustomer = useMemo(
@@ -77,30 +64,18 @@ export function CustomerOperationsPanel({
 
   useEffect(() => {
     if (!selectedCustomer) {
-      updateForm.reset(createDefaultValues);
+      updateForm.reset(customerFormDefaultValues);
       return;
     }
 
-    updateForm.reset({
-      customerCode: selectedCustomer.customerCode ?? "",
-      displayName: selectedCustomer.displayName,
-      contactName: selectedCustomer.contactName ?? "",
-      legalName: selectedCustomer.legalName ?? "",
-      email: selectedCustomer.email ?? "",
-      whatsapp: selectedCustomer.whatsapp ?? "",
-      phone: selectedCustomer.phone ?? "",
-      documentId: selectedCustomer.documentId ?? "",
-      source: toCustomerSource(selectedCustomer.source),
-      status: selectedCustomer.status,
-      notes: selectedCustomer.notes ?? ""
-    });
+    updateForm.reset(mapCustomerToFormValues(selectedCustomer));
   }, [selectedCustomer, updateForm]);
 
   async function onCreate(values: CustomerFormValues) {
     try {
       await createCustomerMutation.mutateAsync(values);
       toast.success(t("crm.customerForm.createSuccess"));
-      createForm.reset(createDefaultValues);
+      createForm.reset(customerFormDefaultValues);
     } catch (error) {
       toast.error(
         t("crm.customerForm.createError", {
@@ -164,7 +139,7 @@ export function CustomerOperationsPanel({
                 size="lg"
                 variant="secondary"
                 onClick={() => {
-                  createForm.reset(createDefaultValues);
+                  createForm.reset(customerFormDefaultValues);
                 }}
               >
                 {t("crm.customerForm.resetAction")}
@@ -239,219 +214,6 @@ export function CustomerOperationsPanel({
   );
 }
 
-function CustomerFormFields({
-  form,
-  idPrefix
-}: {
-  form: ReturnType<typeof useForm<CustomerFormValues>>;
-  idPrefix: string;
-}) {
-  const { t } = useTranslation("backoffice");
-  const {
-    formState: { errors },
-    register
-  } = form;
-  const autofillSection = `section-${idPrefix}-customer`;
-
-  return (
-    <>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field
-          label={t("crm.customerForm.displayNameLabel")}
-          error={errors.displayName?.message}
-          htmlFor={`${idPrefix}-customer-display-name`}
-        >
-          <Input
-            id={`${idPrefix}-customer-display-name`}
-            placeholder={t("crm.customerForm.displayNamePlaceholder")}
-            {...buildOperationalAutofillProps(`${autofillSection} organization`)}
-            {...register("displayName")}
-          />
-        </Field>
-
-        <Field
-          label={t("crm.customerForm.contactNameLabel")}
-          error={errors.contactName?.message}
-          htmlFor={`${idPrefix}-customer-contact-name`}
-        >
-          <Input
-            id={`${idPrefix}-customer-contact-name`}
-            placeholder={t("crm.customerForm.contactNamePlaceholder")}
-            {...buildOperationalAutofillProps(`${autofillSection} name`)}
-            {...register("contactName")}
-          />
-        </Field>
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field
-          label={t("crm.customerForm.customerCodeLabel")}
-          error={errors.customerCode?.message}
-          htmlFor={`${idPrefix}-customer-code`}
-        >
-          <Input
-            id={`${idPrefix}-customer-code`}
-            placeholder={t("crm.customerForm.customerCodePlaceholder")}
-            {...buildOperationalAutofillProps("off")}
-            {...register("customerCode")}
-          />
-        </Field>
-
-        <Field
-          label={t("crm.customerForm.legalNameLabel")}
-          error={errors.legalName?.message}
-          htmlFor={`${idPrefix}-customer-legal-name`}
-        >
-          <Input
-            id={`${idPrefix}-customer-legal-name`}
-            placeholder={t("crm.customerForm.legalNamePlaceholder")}
-            {...buildOperationalAutofillProps(`${autofillSection} organization`)}
-            {...register("legalName")}
-          />
-        </Field>
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field
-          label={t("crm.customerForm.emailLabel")}
-          error={errors.email?.message}
-          htmlFor={`${idPrefix}-customer-email`}
-        >
-          <Input
-            id={`${idPrefix}-customer-email`}
-            type="email"
-            placeholder={t("crm.customerForm.emailPlaceholder")}
-            {...buildOperationalAutofillProps(`${autofillSection} email`)}
-            {...register("email")}
-          />
-        </Field>
-
-        <Field
-          label={t("crm.customerForm.whatsappLabel")}
-          error={errors.whatsapp?.message}
-          htmlFor={`${idPrefix}-customer-whatsapp`}
-        >
-          <Input
-            id={`${idPrefix}-customer-whatsapp`}
-            placeholder={t("crm.customerForm.whatsappPlaceholder")}
-            {...buildOperationalAutofillProps(`${autofillSection} tel`)}
-            {...register("whatsapp")}
-          />
-        </Field>
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field
-          label={t("crm.customerForm.phoneLabel")}
-          error={errors.phone?.message}
-          htmlFor={`${idPrefix}-customer-phone`}
-        >
-          <Input
-            id={`${idPrefix}-customer-phone`}
-            placeholder={t("crm.customerForm.phonePlaceholder")}
-            {...buildOperationalAutofillProps(`${autofillSection} tel-national`)}
-            {...register("phone")}
-          />
-        </Field>
-
-        <Field
-          label={t("crm.customerForm.documentIdLabel")}
-          error={errors.documentId?.message}
-          htmlFor={`${idPrefix}-customer-document`}
-        >
-          <Input
-            id={`${idPrefix}-customer-document`}
-            placeholder={t("crm.customerForm.documentIdPlaceholder")}
-            {...buildOperationalAutofillProps("off")}
-            {...register("documentId")}
-          />
-        </Field>
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field
-          label={t("crm.customerForm.sourceLabel")}
-          error={errors.source?.message}
-          htmlFor={`${idPrefix}-customer-source`}
-        >
-          <Select
-            id={`${idPrefix}-customer-source`}
-            {...buildOperationalAutofillProps("off")}
-            {...register("source")}
-          >
-            {customerSourceValues.map((source) => (
-              <option key={source} value={source}>
-                {t(getSourceTranslationKey(source))}
-              </option>
-            ))}
-          </Select>
-        </Field>
-
-        <Field
-          label={t("crm.customerForm.statusLabel")}
-          error={errors.status?.message}
-          htmlFor={`${idPrefix}-customer-status`}
-        >
-          <Select
-            id={`${idPrefix}-customer-status`}
-            {...buildOperationalAutofillProps("off")}
-            {...register("status")}
-          >
-            {customerStatusValues.map((status) => (
-              <option key={status} value={status}>
-                {t(`crm.recent.customerStatus.${status}`)}
-              </option>
-            ))}
-          </Select>
-        </Field>
-      </div>
-
-      <Field
-        label={t("crm.customerForm.notesLabel")}
-        error={errors.notes?.message}
-        htmlFor={`${idPrefix}-customer-notes`}
-      >
-        <Textarea
-          id={`${idPrefix}-customer-notes`}
-          placeholder={t("crm.customerForm.notesPlaceholder")}
-          {...buildOperationalAutofillProps("off")}
-          {...register("notes")}
-        />
-      </Field>
-    </>
-  );
-}
-
-function getSourceTranslationKey(source: string) {
-  switch (source) {
-    case "manual":
-      return "crm.recent.source.manual";
-    case "website":
-      return "crm.recent.source.website";
-    case "whatsapp":
-      return "crm.recent.source.whatsapp";
-    case "walk-in":
-      return "crm.recent.source.walkIn";
-    case "repeat":
-      return "crm.recent.source.repeat";
-    default:
-      return "crm.recent.source.manual";
-  }
-}
-
-function toCustomerSource(source: string): CustomerFormValues["source"] {
-  switch (source) {
-    case "website":
-    case "whatsapp":
-    case "walk-in":
-    case "repeat":
-    case "manual":
-      return source;
-    default:
-      return "manual";
-  }
-}
-
 function FeedbackBanner({
   children,
   tone
@@ -467,23 +229,4 @@ function FeedbackBanner({
         : "border-line/70 bg-paper/70 text-ink-soft";
 
   return <p className={`rounded-2xl border px-4 py-3 text-sm ${toneClass}`}>{children}</p>;
-}
-
-interface FieldProps {
-  children: ReactNode;
-  error?: string;
-  htmlFor: string;
-  label: string;
-}
-
-function Field({ children, error, htmlFor, label }: FieldProps) {
-  return (
-    <div className="space-y-2">
-      <label htmlFor={htmlFor} className="text-sm font-medium text-ink">
-        {label}
-      </label>
-      {children}
-      {error ? <p className="text-sm text-peach-400">{error}</p> : null}
-    </div>
-  );
 }

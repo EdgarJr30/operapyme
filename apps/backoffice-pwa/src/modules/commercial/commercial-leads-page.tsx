@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 import { useTranslation } from "@operapyme/i18n";
 import { toast } from "sonner";
@@ -14,37 +14,28 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { LeadIntakeForm } from "@/modules/crm/lead-intake-form";
-import { useCustomerMutations } from "@/modules/crm/use-customer-mutations";
 import { useLeadsData } from "@/modules/crm/use-leads-data";
-
-function buildLeadNotes(needSummary: string | null, notes: string | null) {
-  return [needSummary, notes].filter(Boolean).join(" · ") || null;
-}
+import { useLeadMutations } from "@/modules/crm/use-lead-mutations";
 
 export function CommercialLeadsPage() {
   const { t } = useTranslation("backoffice");
   const { data: leads = [] } = useLeadsData();
-  const { createCustomerMutation } = useCustomerMutations();
+  const { convertLeadToCustomerMutation } = useLeadMutations();
+  const [pendingLeadId, setPendingLeadId] = useState<string | null>(null);
 
-  const recentLeads = useMemo(() => leads.slice(0, 8), [leads]);
+  const recentLeads = useMemo(() => leads.slice(0, 6), [leads]);
 
   async function handleConvertLead(leadIndex: number) {
     const lead = recentLeads[leadIndex];
 
-    if (!lead) {
+    if (!lead || lead.convertedCustomerId) {
       return;
     }
 
     try {
-      await createCustomerMutation.mutateAsync({
-        displayName: lead.displayName,
-        contactName: lead.contactName ?? lead.displayName,
-        email: lead.email,
-        whatsapp: lead.whatsapp,
-        phone: lead.phone,
-        source: lead.source,
-        status: "active",
-        notes: buildLeadNotes(lead.needSummary, lead.notes)
+      setPendingLeadId(lead.id);
+      await convertLeadToCustomerMutation.mutateAsync({
+        leadId: lead.id
       });
 
       toast.success(
@@ -55,6 +46,10 @@ export function CommercialLeadsPage() {
         t("commercial.leads.convertError", {
           message: error instanceof Error ? error.message : ""
         })
+      );
+    } finally {
+      setPendingLeadId((currentLeadId) =>
+        currentLeadId === lead.id ? null : currentLeadId
       );
     }
   }
@@ -111,9 +106,15 @@ export function CommercialLeadsPage() {
                           onClick={() => {
                             void handleConvertLead(index);
                           }}
-                          disabled={createCustomerMutation.isPending}
+                          disabled={
+                            convertLeadToCustomerMutation.isPending ||
+                            pendingLeadId === lead.id ||
+                            Boolean(lead.convertedCustomerId)
+                          }
                         >
-                          {t("commercial.leads.convertAction")}
+                          {pendingLeadId === lead.id
+                            ? t("commercial.leads.convertSubmitting")
+                            : t("commercial.leads.convertAction")}
                         </Button>
                       </TableCell>
                     </TableRow>

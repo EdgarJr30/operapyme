@@ -130,6 +130,8 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 - shell operativo del backoffice alineado con sidebar desktop, navbar superior y bottom navigation movil
 - shell del backoffice ya migrado a `shadcn/ui` sidebar con base `Radix UI`, manteniendo la misma estructura operativa de navegacion
 - baseline visual del backoffice hoy es light-first con paleta operativa `#2D3E50 / #FF7A00 / #4B637A / #F4F7F9`
+- dashboard del backoffice ya usa composicion desktop mas horizontal, con overview 8/4, KPIs dentro del first fold y columna lateral de foco operativo
+- landing publica compactada como experiencia one-page, con hero editorial y contexto clave visible sin depender del scroll
 - CI sembrado en GitHub Actions con quality checks y smoke E2E
 - CD sembrado hacia Netlify para publicar `apps/backoffice-pwa` cuando `main` pasa CI
 - refresh del backoffice aligerado con auth bootstrap deduplicado, rutas criticas diferidas, PDF fuera del bundle inicial y soporte global diferido para toast/permisos
@@ -147,6 +149,9 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 - dashboard, Gestion Comercial y catalogo ya leen datos reales de Supabase en modo read-first
 - Gestion Comercial y catalogo ya pueden crear y actualizar registros reales dentro del tenant activo
 - Gestion Comercial ya concentra leads, clientes, cotizaciones y facturas documentales internas dentro del tenant activo
+- `/commercial/customers` ya abre en vista table-first con busqueda, filtro por estado, modal reutilizable para crear/editar y archivado logico sin borrado fisico
+- conversion `lead -> cliente` ya corre con proteccion idempotente, deshabilita reenvios en UI y saca los leads convertidos del flujo operativo por defecto
+- cards de overview en dashboard, CRM y comercial ya usan slider interno capped para no crecer en vertical cuando aumentan los registros recientes
 - cotizaciones ya soportan cliente, lead existente o lead rapido, persisten line items y generan PDF profesional bajo demanda
 - facturas documentales internas ya soportan articulos o servicios, origen opcional en cotizacion, line items reales en Supabase y descarga PDF bajo demanda
 - Gestion Comercial ya expone pipelines operativos para mover cotizaciones y facturas entre estados sin abrir siempre el editor completo

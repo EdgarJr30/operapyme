@@ -2,8 +2,33 @@ import { useTranslation } from "@operapyme/i18n";
 
 import { Skeleton } from "@/components/ui/skeleton";
 
-type AppLoadingScreenVariant = "workspace" | "module" | "setup";
+type AppLoadingScreenVariant = "workspace" | "module" | "setup" | "public";
 
+function PublicLoader({
+  title,
+  description
+}: {
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-white px-4 py-10 sm:px-6">
+      <div
+        aria-busy="true"
+        aria-live="polite"
+        className="w-full max-w-md rounded-3xl border border-gray-200 bg-white p-8 text-center shadow-[0_24px_60px_rgba(15,23,42,0.08)]"
+      >
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50">
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-indigo-200 border-t-indigo-600" />
+        </div>
+        <p className="mt-5 text-xs font-semibold uppercase tracking-[0.24em] text-indigo-600">
+          {title}
+        </p>
+        <p className="mt-3 text-sm leading-6 text-gray-600">{description}</p>
+      </div>
+    </div>
+  );
+}
 function WorkspaceSkeleton() {
   return (
     <div className="min-h-screen bg-paper">
@@ -110,45 +135,6 @@ function WorkspaceSkeleton() {
   );
 }
 
-function SetupSkeleton() {
-  return (
-    <div className="mx-auto flex min-h-screen max-w-6xl items-center px-4 py-10 sm:px-6">
-      <div className="grid w-full gap-4 lg:grid-cols-[1.05fr_0.95fr]">
-        <div className="rounded-3xl border border-line/70 bg-paper p-5 shadow-panel sm:p-6">
-          <div className="space-y-5">
-            <Skeleton className="h-3 w-40 rounded-full" />
-            <Skeleton className="h-14 w-full max-w-xl" />
-            <Skeleton className="h-4 w-full max-w-xl" />
-            <Skeleton className="h-4 w-4/5 max-w-lg" />
-            <div className="grid gap-3 sm:grid-cols-2">
-              <Skeleton className="h-40 w-full rounded-3xl" />
-              <Skeleton className="h-40 w-full rounded-3xl" />
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-3xl border border-line/70 bg-paper/88 p-5 shadow-panel sm:p-6">
-          <div className="space-y-5">
-            <Skeleton className="h-7 w-44" />
-            <div className="space-y-3">
-              <Skeleton className="h-4 w-28" />
-              <Skeleton className="h-12 w-full rounded-2xl" />
-            </div>
-            <div className="space-y-3">
-              <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-12 w-full rounded-2xl" />
-              <Skeleton className="h-3 w-48" />
-            </div>
-            <Skeleton className="h-12 w-full rounded-full" />
-            <Skeleton className="h-28 w-full rounded-3xl" />
-            <Skeleton className="h-28 w-full rounded-3xl" />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function ModuleSkeleton() {
   return (
     <div className="mx-auto flex w-full max-w-screen-2xl flex-col gap-5 px-4 py-5 sm:px-6 lg:px-8">
@@ -195,24 +181,17 @@ export function AppLoadingScreen({
 }) {
   const { t } = useTranslation("common");
 
-  if (variant === "setup") {
+  if (variant === "public") {
     return (
-      <div
-        aria-busy="true"
-        aria-live="polite"
-        className="min-h-screen bg-paper"
-      >
-        <div className="px-4 pt-10 text-center sm:px-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-ink-muted">
-            {t("states.loadingSetupTitle")}
-          </p>
-          <p className="mt-3 text-sm leading-6 text-ink-soft">
-            {t("states.loadingSetupDescription")}
-          </p>
-        </div>
-        <SetupSkeleton />
-      </div>
+      <PublicLoader
+        title={t("states.loadingWorkspaceTitle")}
+        description={t("states.loadingWorkspaceDescription")}
+      />
     );
+  }
+
+  if (variant === "setup") {
+    return <PublicLoader title={t("states.loadingSetupTitle")} description={t("states.loadingSetupDescription")} />;
   }
 
   if (variant === "module") {

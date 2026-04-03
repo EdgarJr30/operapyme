@@ -1,4 +1,11 @@
 const backofficeEs = {
+  shared: {
+    closeDialog: "Cerrar modal",
+    slider: {
+      previous: "Ver anterior",
+      next: "Ver siguiente"
+    }
+  },
   dashboard: {
     header: {
       eyebrow: "Inicio",
@@ -13,7 +20,8 @@ const backofficeEs = {
     actions: {
       newLead: "Nuevo lead",
       newQuote: "Nueva cotizacion",
-      reviewCatalog: "Revisar catalogo"
+      reviewCatalog: "Revisar catalogo",
+      reviewQuotes: "Revisar cotizaciones"
     },
     checklist: {
       title: "Siguiente en cola",
@@ -65,6 +73,25 @@ const backofficeEs = {
         detail: "{count} cotizaciones que siguen en gestion o espera."
       }
     },
+    focus: {
+      title: "Enfoque sugerido",
+      description:
+        "Lectura corta para decidir el siguiente bloque operativo del dia.",
+      recommendedLabel: "Prioriza ahora",
+      focusCaptureLead:
+        "Todavia no hay cartera activa. Conviene capturar el primer lead y abrir base comercial cuanto antes.",
+      focusResumeQuotes:
+        "Hay {count} cotizaciones abiertas. Conviene retomarlas antes de abrir trabajo nuevo.",
+      focusPrepareQuote:
+        "Ya hay cartera activa, pero falta una cotizacion en curso. Conviene preparar la siguiente propuesta.",
+      focusReviewCatalog:
+        "La base comercial ya tiene movimiento. Revisa catalogo para cotizar mas rapido y mantener consistencia.",
+      metrics: {
+        activeCustomers: "Clientes activos",
+        openQuotes: "Cotizaciones abiertas",
+        totalQuotes: "Cotizaciones totales"
+      }
+    },
     livePulse: {
       noTenantTitle: "Todavia no hay un tenant activo seleccionado",
       noTenantDescription:
@@ -79,9 +106,13 @@ const backofficeEs = {
       customersTitle: "Clientes recientes",
       customersDescription:
         "Ultimos clientes tocados por el equipo comercial.",
+      customersAction: "Ir a CRM",
+      customersEmpty: "Todavia no hay clientes recientes para mostrar.",
       quotesTitle: "Cotizaciones recientes",
       quotesDescription:
         "Cotizaciones con seguimiento reciente y salida a PDF.",
+      quotesAction: "Ir a cotizaciones",
+      quotesEmpty: "Todavia no hay cotizaciones recientes para mostrar.",
       contactPending: "Contacto pendiente",
       customerCodeLabel: "Codigo",
       customerCodePending: "Sin codigo",
@@ -930,16 +961,48 @@ const backofficeEs = {
         "La primera oportunidad comercial aparecera aqui para seguimiento y conversion.",
       noContact: "Sin contacto",
       convertAction: "Pasar a cliente",
+      convertSubmitting: "Convirtiendo...",
       convertSuccess: "{lead} ya paso a clientes.",
       convertError: "No pudimos convertir el lead. {message}"
     },
     customers: {
+      pageTitle: "Clientes",
+      pageDescription:
+        "Consulta la cartera completa, edita fichas operativas y archiva clientes sin salir del listado.",
       tableTitle: "Clientes recientes",
       tableDescription:
         "Mantener cartera limpia acelera cotizaciones, facturas y seguimiento.",
       emptyTitle: "Todavia no hay clientes",
       emptyDescription:
-        "Cuando cierres un lead o registres el primer cliente, aparecera aqui."
+        "Cuando cierres un lead o registres el primer cliente, aparecera aqui.",
+      loadingTitle: "Cargando clientes",
+      loadingDescription:
+        "Estamos leyendo la cartera comercial del tenant activo.",
+      errorTitle: "No pudimos cargar la cartera",
+      errorDescription: "La lectura de clientes fallo por ahora. {message}",
+      emptySearchTitle: "No encontramos clientes con ese filtro",
+      emptySearchDescription:
+        "Ajusta la busqueda o cambia el filtro para ver mas resultados.",
+      searchPlaceholder: "Buscar por nombre, contacto, correo o codigo",
+      noContact: "Sin correo ni WhatsApp",
+      actionsLabel: "Acciones",
+      createAction: "Nuevo cliente",
+      editAction: "Editar",
+      archiveAction: "Archivar",
+      cancelAction: "Cancelar",
+      archiveSuccess: "{customer} ya salio del flujo activo.",
+      archiveError: "No pudimos archivar el cliente. {message}",
+      createModalTitle: "Crear cliente",
+      createModalDescription:
+        "Completa la ficha comercial para dejar el cliente listo para seguimiento y cotizacion.",
+      editModalTitle: "Actualizar cliente",
+      editModalDescription:
+        "Corrige datos, estado u observaciones del cliente sin salir del listado.",
+      filters: {
+        operational: "Activos e inactivos",
+        archived: "Archivados",
+        all: "Todos"
+      }
     },
     quotes: {
       title: "Cotizaciones",
@@ -1147,6 +1210,189 @@ const backofficeEs = {
       accessTitle: "Acceso sin friccion",
       accessText:
         "Entra por correo, contrasena o recovery y sigue al setup inicial o al espacio ya activo."
+    },
+    landing: {
+      navigation: {
+        product: "Producto",
+        features: "Funciones",
+        marketplace: "Marketplace",
+        company: "Empresa"
+      },
+      mobileMenu: {
+        open: "Abrir menu principal",
+        close: "Cerrar menu principal",
+        title: "Menu principal",
+        description: "Navegacion principal de OperaPyme"
+      },
+      header: {
+        login: "Iniciar sesion"
+      },
+      hero: {
+        eyebrow: "Gestion operativa real",
+        eyebrowLink: "Abrir acceso",
+        title: "Una mejor forma de operar ventas, clientes y documentos desde el primer acceso.",
+        description:
+          "OperaPyme centraliza CRM, cotizaciones, clientes y trabajo operativo con una experiencia clara para movil y desktop.",
+        primaryCta: "Entrar ahora",
+        secondaryCta: "Ver lo que incluye"
+      },
+      logoCloud: {
+        items: ["Retail", "Servicios", "Distribucion", "Comercial", "Operaciones"]
+      },
+      primaryFeatures: {
+        title: "Activa tu operacion comercial con una base lista para trabajar hoy.",
+        description:
+          "El acceso no te deja en una pantalla vacia. Entras a una superficie que ya comunica ritmo operativo, seguridad y control por tenant.",
+        items: [
+          {
+            name: "Acceso por enlace o contrasena.",
+            description:
+              "OperaPyme combina magic link, recovery y password para reducir friccion sin perder control."
+          },
+          {
+            name: "Seguridad por tenant.",
+            description:
+              "La sesion valida el tenant correcto antes de abrir datos sensibles, acciones o rutas privadas."
+          },
+          {
+            name: "Base operativa trazable.",
+            description:
+              "RBAC, auditoria y contexto de membresia viven en la base del producto, no como extras."
+          }
+        ]
+      },
+      secondaryFeatures: {
+        eyebrow: "Operar con contexto",
+        title: "Todo lo que el acceso debe dejar claro antes de abrir el backoffice",
+        description:
+          "El entrypoint ya anticipa seguridad, continuidad de trabajo y el paso natural hacia setup o espacio activo.",
+        learnMore: "Ver mas",
+        items: [
+          {
+            name: "Ingreso guiado",
+            description:
+              "El primer acceso conduce al bootstrap inicial cuando el tenant todavia no existe o no esta listo."
+          },
+          {
+            name: "Recuperacion segura",
+            description:
+              "El flujo de callback permite redefinir contrasena sin romper la experiencia de acceso por correo."
+          },
+          {
+            name: "Continuidad operativa",
+            description:
+              "El usuario vuelve al workspace correcto sin friccion innecesaria cuando la sesion ya esta validada."
+          }
+        ]
+      },
+      newsletter: {
+        title: "Recibe novedades cuando abramos nuevas capacidades",
+        description:
+          "Seguimos construyendo una plataforma operativa para pymes. Puedes dejar tu correo para recibir avances del producto.",
+        emailLabel: "Correo",
+        emailPlaceholder: "tu@empresa.com",
+        cta: "Avisarme"
+      },
+      testimonials: {
+        eyebrow: "Historias",
+        title: "Equipos reales necesitan una entrada clara y confiable",
+        featured: {
+          body:
+            "Pasamos de explicar donde estaba cada flujo a entrar directo a vender, cotizar y seguir clientes con una sola experiencia de acceso.",
+          author: {
+            name: "Brenna Goyette",
+            handle: "brennagoyette"
+          }
+        },
+        columns: [
+          [
+            [
+              {
+                body:
+                  "La entrada se siente como producto real, no como una pantalla temporal de autenticacion.",
+                author: {
+                  name: "Leslie Alexander",
+                  handle: "lesliealexander"
+                }
+              },
+              {
+                body:
+                  "Pudimos explicar el acceso al equipo sin entrenamiento extra. Todo es mas obvio desde el primer minuto.",
+                author: {
+                  name: "Michael Foster",
+                  handle: "michaelfoster"
+                }
+              }
+            ],
+            [
+              {
+                body:
+                  "El recovery ya no rompe la confianza. Se siente conectado con el resto del producto.",
+                author: {
+                  name: "Lindsay Walton",
+                  handle: "lindsaywalton"
+                }
+              }
+            ]
+          ],
+          [
+            [
+              {
+                body:
+                  "La combinacion de acceso, seguridad y contexto comercial deja claro para que sirve OperaPyme.",
+                author: {
+                  name: "Tom Cook",
+                  handle: "tomcook"
+                }
+              }
+            ],
+            [
+              {
+                body:
+                  "Ahora el login vende mejor el producto porque ya transmite organizacion y control operativo.",
+                author: {
+                  name: "Leonard Krasner",
+                  handle: "leonardkrasner"
+                }
+              },
+              {
+                body:
+                  "La transicion entre email, contrasena y callback se siente parte del mismo sistema, no pantallas sueltas.",
+                author: {
+                  name: "Emily Selman",
+                  handle: "emilyselman"
+                }
+              }
+            ]
+          ]
+        ]
+      },
+      footer: {
+        labels: {
+          solutions: "Soluciones",
+          support: "Soporte",
+          company: "Empresa",
+          legal: "Legal"
+        },
+        solutions: ["Marketing", "Analitica", "Automatizacion", "Comercio", "Insights"],
+        support: ["Enviar ticket", "Documentacion", "Guias"],
+        company: ["Acerca de", "Blog", "Empleos", "Prensa"],
+        legal: ["Terminos de servicio", "Politica de privacidad", "Licencia"],
+        social: {
+          facebook: "Facebook",
+          instagram: "Instagram",
+          x: "X",
+          github: "GitHub",
+          youtube: "YouTube"
+        },
+        newsletterTitle: "Suscribete a las novedades del producto",
+        newsletterDescription:
+          "Noticias, articulos y avances de OperaPyme enviados a tu correo.",
+        emailLabel: "Correo",
+        emailPlaceholder: "tu@empresa.com",
+        subscribe: "Suscribirme",
+        copyright: "© 2026 OperaPyme. Todos los derechos reservados."
+      }
     },
     entry: {
       brandLabel: "Backoffice operativo",

@@ -1,4 +1,11 @@
 const backofficeEn = {
+  shared: {
+    closeDialog: "Close dialog",
+    slider: {
+      previous: "View previous",
+      next: "View next"
+    }
+  },
   dashboard: {
     header: {
       eyebrow: "Home",
@@ -13,7 +20,8 @@ const backofficeEn = {
     actions: {
       newLead: "New lead",
       newQuote: "New quote",
-      reviewCatalog: "Review catalog"
+      reviewCatalog: "Review catalog",
+      reviewQuotes: "Review quotes"
     },
     checklist: {
       title: "Next in queue",
@@ -65,6 +73,25 @@ const backofficeEn = {
         detail: "{count} quotes still moving through the pipeline."
       }
     },
+    focus: {
+      title: "Suggested focus",
+      description:
+        "A short read so you can decide the next operational block of the day.",
+      recommendedLabel: "Prioritize now",
+      focusCaptureLead:
+        "There is no active customer base yet. Capture the first lead and open the commercial pipeline as soon as possible.",
+      focusResumeQuotes:
+        "There are {count} open quotes. Resume them before opening new work.",
+      focusPrepareQuote:
+        "There is already an active pipeline, but no quote is in motion. Prepare the next proposal.",
+      focusReviewCatalog:
+        "The commercial base already has movement. Review the catalog so quoting stays faster and more consistent.",
+      metrics: {
+        activeCustomers: "Active customers",
+        openQuotes: "Open quotes",
+        totalQuotes: "Total quotes"
+      }
+    },
     livePulse: {
       noTenantTitle: "There is no active tenant selected yet",
       noTenantDescription:
@@ -79,9 +106,13 @@ const backofficeEn = {
       customersTitle: "Recent customers",
       customersDescription:
         "Latest customers touched by the commercial team.",
+      customersAction: "Go to CRM",
+      customersEmpty: "There are no recent customers to show yet.",
       quotesTitle: "Recent quotes",
       quotesDescription:
         "Quotes with recent follow-up and PDF output.",
+      quotesAction: "Go to quotes",
+      quotesEmpty: "There are no recent quotes to show yet.",
       contactPending: "Pending contact",
       customerCodeLabel: "Code",
       customerCodePending: "No code yet",
@@ -928,16 +959,48 @@ const backofficeEn = {
         "The first commercial opportunity will appear here for follow-up and conversion.",
       noContact: "No contact",
       convertAction: "Move to customers",
+      convertSubmitting: "Converting...",
       convertSuccess: "{lead} is now in customers.",
       convertError: "We could not convert the lead. {message}"
     },
     customers: {
+      pageTitle: "Customers",
+      pageDescription:
+        "Review the full portfolio, edit operational records, and archive customers without leaving the table.",
       tableTitle: "Recent customers",
       tableDescription:
         "A clean customer base speeds up quotes, invoices, and follow-up.",
       emptyTitle: "There are no customers yet",
       emptyDescription:
-        "Once you close a lead or register the first customer, it will show here."
+        "Once you close a lead or register the first customer, it will show here.",
+      loadingTitle: "Loading customers",
+      loadingDescription:
+        "We are reading the commercial portfolio for the active tenant.",
+      errorTitle: "We could not load the portfolio",
+      errorDescription: "Customer loading failed for now. {message}",
+      emptySearchTitle: "We could not find customers with that filter",
+      emptySearchDescription:
+        "Adjust the search or switch filters to see more results.",
+      searchPlaceholder: "Search by name, contact, email, or code",
+      noContact: "No email or WhatsApp",
+      actionsLabel: "Actions",
+      createAction: "New customer",
+      editAction: "Edit",
+      archiveAction: "Archive",
+      cancelAction: "Cancel",
+      archiveSuccess: "{customer} is now out of the active flow.",
+      archiveError: "We could not archive the customer. {message}",
+      createModalTitle: "Create customer",
+      createModalDescription:
+        "Complete the commercial profile so the customer is ready for follow-up and quoting.",
+      editModalTitle: "Update customer",
+      editModalDescription:
+        "Correct data, status, or notes without leaving the table.",
+      filters: {
+        operational: "Active and inactive",
+        archived: "Archived",
+        all: "All"
+      }
     },
     quotes: {
       title: "Quotes",
@@ -1145,6 +1208,189 @@ const backofficeEn = {
       accessTitle: "Low-friction access",
       accessText:
         "Sign in by email, password, or recovery and continue to the initial setup or the active workspace."
+    },
+    landing: {
+      navigation: {
+        product: "Product",
+        features: "Features",
+        marketplace: "Marketplace",
+        company: "Company"
+      },
+      mobileMenu: {
+        open: "Open main menu",
+        close: "Close main menu",
+        title: "Main menu",
+        description: "Primary OperaPyme navigation"
+      },
+      header: {
+        login: "Log in"
+      },
+      hero: {
+        eyebrow: "Real operational management",
+        eyebrowLink: "Open access",
+        title: "A better way to run sales, customers, and documents from the first access.",
+        description:
+          "OperaPyme centralizes CRM, quotes, customers, and operational work in one clear mobile and desktop experience.",
+        primaryCta: "Sign in now",
+        secondaryCta: "See what is included"
+      },
+      logoCloud: {
+        items: ["Retail", "Services", "Distribution", "Commercial", "Operations"]
+      },
+      primaryFeatures: {
+        title: "Turn on your commercial operation with a base that is ready to work today.",
+        description:
+          "The access flow does not leave users in an empty state. It opens a surface that already communicates operating rhythm, security, and tenant control.",
+        items: [
+          {
+            name: "Access by link or password.",
+            description:
+              "OperaPyme combines magic link, recovery, and password to reduce friction without losing control."
+          },
+          {
+            name: "Tenant-scoped security.",
+            description:
+              "The session validates the correct tenant before opening sensitive data, actions, or private routes."
+          },
+          {
+            name: "Traceable operating base.",
+            description:
+              "RBAC, auditing, and membership context live in the product foundation, not as extras."
+          }
+        ]
+      },
+      secondaryFeatures: {
+        eyebrow: "Operate with context",
+        title: "Everything the access surface should clarify before opening the backoffice",
+        description:
+          "The entrypoint already previews security, work continuity, and the natural step into setup or the active workspace.",
+        learnMore: "Learn more",
+        items: [
+          {
+            name: "Guided sign-in",
+            description:
+              "The first access route moves into the bootstrap flow when the tenant does not exist yet or is not ready."
+          },
+          {
+            name: "Secure recovery",
+            description:
+              "The callback flow lets users define a new password without breaking the email-based access experience."
+          },
+          {
+            name: "Operational continuity",
+            description:
+              "The user returns to the right workspace without unnecessary friction once the session is validated."
+          }
+        ]
+      },
+      newsletter: {
+        title: "Get updates when we open new capabilities",
+        description:
+          "We are still building an operational platform for small businesses. Leave your email to receive product updates.",
+        emailLabel: "Email",
+        emailPlaceholder: "you@company.com",
+        cta: "Notify me"
+      },
+      testimonials: {
+        eyebrow: "Stories",
+        title: "Real teams need an entrypoint that feels clear and trustworthy",
+        featured: {
+          body:
+            "We moved from explaining where every flow lived to signing in and getting straight into selling, quoting, and following up customers in one experience.",
+          author: {
+            name: "Brenna Goyette",
+            handle: "brennagoyette"
+          }
+        },
+        columns: [
+          [
+            [
+              {
+                body:
+                  "The entrypoint now feels like a real product surface instead of a temporary authentication screen.",
+                author: {
+                  name: "Leslie Alexander",
+                  handle: "lesliealexander"
+                }
+              },
+              {
+                body:
+                  "We were able to explain sign-in to the team without extra training. Everything is easier to understand from minute one.",
+                author: {
+                  name: "Michael Foster",
+                  handle: "michaelfoster"
+                }
+              }
+            ],
+            [
+              {
+                body:
+                  "Recovery no longer breaks trust. It feels connected to the rest of the product.",
+                author: {
+                  name: "Lindsay Walton",
+                  handle: "lindsaywalton"
+                }
+              }
+            ]
+          ],
+          [
+            [
+              {
+                body:
+                  "The mix of access, security, and commercial context makes OperaPyme easier to understand immediately.",
+                author: {
+                  name: "Tom Cook",
+                  handle: "tomcook"
+                }
+              }
+            ],
+            [
+              {
+                body:
+                  "The login now sells the product better because it already communicates organization and operational control.",
+                author: {
+                  name: "Leonard Krasner",
+                  handle: "leonardkrasner"
+                }
+              },
+              {
+                body:
+                  "The transition between email, password, and callback feels like one system instead of disconnected screens.",
+                author: {
+                  name: "Emily Selman",
+                  handle: "emilyselman"
+                }
+              }
+            ]
+          ]
+        ]
+      },
+      footer: {
+        labels: {
+          solutions: "Solutions",
+          support: "Support",
+          company: "Company",
+          legal: "Legal"
+        },
+        solutions: ["Marketing", "Analytics", "Automation", "Commerce", "Insights"],
+        support: ["Submit ticket", "Documentation", "Guides"],
+        company: ["About", "Blog", "Jobs", "Press"],
+        legal: ["Terms of service", "Privacy policy", "License"],
+        social: {
+          facebook: "Facebook",
+          instagram: "Instagram",
+          x: "X",
+          github: "GitHub",
+          youtube: "YouTube"
+        },
+        newsletterTitle: "Subscribe to product updates",
+        newsletterDescription:
+          "News, articles, and OperaPyme progress delivered to your inbox.",
+        emailLabel: "Email",
+        emailPlaceholder: "you@company.com",
+        subscribe: "Subscribe",
+        copyright: "© 2026 OperaPyme. All rights reserved."
+      }
     },
     entry: {
       brandLabel: "Operational backoffice",

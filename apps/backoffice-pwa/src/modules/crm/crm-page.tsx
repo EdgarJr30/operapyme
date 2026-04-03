@@ -5,6 +5,7 @@ import { type ReactNode, useMemo } from "react";
 import { useTranslation } from "@operapyme/i18n";
 
 import { Button } from "@/components/ui/button";
+import { CappedPreviewSlider } from "@/components/ui/capped-preview-slider";
 import {
   Card,
   CardContent,
@@ -27,7 +28,7 @@ export function CrmPage() {
     isError,
     isLoading,
     refetch
-  } = useCustomersData();
+  } = useCustomersData({ statuses: [] });
 
   const customerSummary = useMemo(() => {
     const customers = data ?? [];
@@ -41,6 +42,11 @@ export function CrmPage() {
         .length
     };
   }, [data]);
+
+  const recentCustomers = useMemo(
+    () => (data ?? []).filter((customer) => customer.status !== "archived").slice(0, 6),
+    [data]
+  );
 
   return (
     <div className="space-y-6">
@@ -199,12 +205,17 @@ export function CrmPage() {
                   </Button>
                 }
               />
-            ) : data && data.length > 0 ? (
-              <div className="space-y-3">
-                {data.slice(0, 6).map((customer) => (
-                  <CustomerCard key={customer.id} customer={customer} t={t} />
-                ))}
-              </div>
+            ) : recentCustomers.length > 0 ? (
+              <CappedPreviewSlider
+                ariaLabel={t("crm.recent.title")}
+                items={recentCustomers}
+                nextLabel={t("shared.slider.next")}
+                previousLabel={t("shared.slider.previous")}
+                getItemKey={(customer) => customer.id}
+                renderItem={(customer) => (
+                  <CustomerCard customer={customer} t={t} />
+                )}
+              />
             ) : (
               <InlineStateCard
                 title={t("crm.recent.emptyTitle")}
@@ -276,7 +287,7 @@ function CustomerCard({
     t("crm.recent.contactPending");
 
   return (
-    <div className="rounded-3xl border border-line/70 bg-paper/70 p-4">
+    <div className="h-full rounded-3xl border border-line/70 bg-paper/70 p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="font-semibold text-ink">{customer.displayName}</p>

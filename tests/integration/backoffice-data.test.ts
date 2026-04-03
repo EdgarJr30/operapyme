@@ -13,11 +13,14 @@ vi.mock("@/lib/supabase/client", () => ({
 }));
 
 import {
+  archiveCustomer,
+  convertLeadToCustomer,
   createCatalogItem,
   createCustomer,
   createQuote,
   getDashboardSnapshot,
   getQuoteDetail,
+  listLeadsForTenant,
   listCatalogItemsForTenant,
   listCustomersForTenant,
   updateCatalogItem,
@@ -96,6 +99,89 @@ describe("backoffice data access", () => {
         updatedAt: "2026-03-26T00:00:00.000Z"
       }
     ]);
+  });
+
+  it("supports customer status filters without forcing a record limit", async () => {
+    const customerQuery = createThenableBuilder({
+      data: [
+        {
+          id: "customer-2",
+          customer_code: "CLI-002",
+          display_name: "Archived Industrial",
+          contact_name: "Maria Perez",
+          legal_name: null,
+          email: null,
+          whatsapp: null,
+          phone: null,
+          document_id: null,
+          notes: null,
+          source: "manual",
+          status: "archived",
+          updated_at: "2026-03-27T00:00:00.000Z"
+        }
+      ],
+      error: null
+    });
+
+    supabaseMocks.from.mockReturnValueOnce(customerQuery);
+
+    const customers = await listCustomersForTenant("tenant-1", {
+      limit: null,
+      statuses: ["archived"]
+    });
+
+    expect(customerQuery.in).toHaveBeenCalledWith("status", ["archived"]);
+    expect(customerQuery.limit).not.toHaveBeenCalled();
+    expect(customers[0]?.status).toBe("archived");
+  });
+
+  it("maps lead conversion metadata and applies operational status filters", async () => {
+    const leadsQuery = createThenableBuilder({
+      data: [
+        {
+          id: "lead-1",
+          display_name: "MoonCode",
+          contact_name: "Edgar Perez",
+          email: "edgar@mooncode.test",
+          whatsapp: null,
+          source: "manual",
+          status: "qualified",
+          need_summary: "Quiere cotizacion rapida",
+          notes: "Seguimiento de demo",
+          converted_customer_id: null,
+          converted_at: null,
+          updated_at: "2026-03-28T00:00:00.000Z"
+        }
+      ],
+      error: null
+    });
+
+    supabaseMocks.from.mockReturnValueOnce(leadsQuery);
+
+    const leads = await listLeadsForTenant("tenant-1", {
+      limit: 6,
+      statuses: ["new", "qualified", "proposal"]
+    });
+
+    expect(leadsQuery.in).toHaveBeenCalledWith("status", [
+      "new",
+      "qualified",
+      "proposal"
+    ]);
+    expect(leads[0]).toEqual({
+      id: "lead-1",
+      displayName: "MoonCode",
+      contactName: "Edgar Perez",
+      email: "edgar@mooncode.test",
+      whatsapp: null,
+      source: "manual",
+      status: "qualified",
+      needSummary: "Quiere cotizacion rapida",
+      notes: "Seguimiento de demo",
+      convertedCustomerId: null,
+      convertedAt: null,
+      updatedAt: "2026-03-28T00:00:00.000Z"
+    });
   });
 
   it("rejects tenant-scoped reads without an active tenant", async () => {
@@ -316,6 +402,39 @@ describe("backoffice data access", () => {
     });
   });
 
+  it("archives customers through a logical status update", async () => {
+    const archiveQuery = createThenableBuilder({
+      data: {
+        id: "customer-1",
+        customer_code: "CLI-001",
+        display_name: "Northline Industrial",
+        contact_name: "Andrea Castillo",
+        legal_name: null,
+        email: "sales@northline.test",
+        whatsapp: null,
+        phone: null,
+        document_id: null,
+        notes: null,
+        source: "manual",
+        status: "archived",
+        updated_at: "2026-03-29T00:00:00.000Z"
+      },
+      error: null
+    });
+
+    supabaseMocks.from.mockReturnValueOnce(archiveQuery);
+
+    const customer = await archiveCustomer({
+      tenantId: "tenant-1",
+      customerId: "customer-1"
+    });
+
+    expect(archiveQuery.update).toHaveBeenCalledWith({ status: "archived" });
+    expect(archiveQuery.eq).toHaveBeenNthCalledWith(1, "tenant_id", "tenant-1");
+    expect(archiveQuery.eq).toHaveBeenNthCalledWith(2, "id", "customer-1");
+    expect(customer.status).toBe("archived");
+  });
+
   it("normalizes catalog optional fields before inserting them", async () => {
     const catalogInsertQuery = createThenableBuilder({
       data: {
@@ -527,6 +646,27 @@ describe("backoffice data access", () => {
         version: 1
       })
     );
+  });
+
+  it("converts leads into customers through the dedicated RPC", async () => {
+    supabaseMocks.rpc.mockResolvedValueOnce({
+      data: "customer-99",
+      error: null
+    });
+
+    const customerId = await convertLeadToCustomer({
+      tenantId: "tenant-1",
+      leadId: "lead-1"
+    });
+
+    expect(supabaseMocks.rpc).toHaveBeenCalledWith(
+      "convert_lead_to_customer",
+      {
+        target_tenant_id: "tenant-1",
+        target_lead_id: "lead-1"
+      }
+    );
+    expect(customerId).toBe("customer-99");
   });
 
   it("rejects quote detail reads without tenant or quote ids", async () => {
