@@ -66,6 +66,40 @@ function arePaletteSeedsEqual(
   );
 }
 
+function formatOptionalDateLabel(value: string | null | undefined) {
+  if (!value) {
+    return "-";
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "-";
+  }
+
+  return new Intl.DateTimeFormat(undefined, {
+    dateStyle: "medium"
+  }).format(date);
+}
+
+function getErrorMessage(error: unknown, fallback: string) {
+  if (error instanceof Error && error.message.trim()) {
+    return error.message;
+  }
+
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error &&
+    typeof error.message === "string" &&
+    error.message.trim()
+  ) {
+    return error.message;
+  }
+
+  return fallback;
+}
+
 function SettingsState({
   title,
   description,
@@ -202,16 +236,19 @@ export function SettingsPage() {
 
   const isProfileDirty =
     (displayNameDraft.trim() || "") !== (userProfile?.displayName?.trim() || "");
-  const isAppearanceDirty = Boolean(
+  const isTenantNameDirty = Boolean(
+    tenantSettings && tenantNameDraft.trim() !== tenantSettings.name
+  );
+  const isPaletteDirty = Boolean(
     tenantSettings &&
-      (tenantNameDraft.trim() !== tenantSettings.name ||
-        paletteId !== tenantSettings.paletteId ||
+      (paletteId !== tenantSettings.paletteId ||
         (paletteId === "custom" &&
           !arePaletteSeedsEqual(
             customPalette.seeds,
             tenantSettings.paletteSeedColors
           )))
   );
+  const isTenantSettingsDirty = isTenantNameDirty || isPaletteDirty;
 
   async function handleSaveProfile() {
     try {
@@ -224,8 +261,7 @@ export function SettingsPage() {
       });
     } catch (error) {
       toast.error(t("settings.profile.errorTitle"), {
-        description:
-          error instanceof Error ? error.message : t("settings.errors.generic")
+        description: getErrorMessage(error, t("settings.errors.generic"))
       });
     }
   }
@@ -247,8 +283,29 @@ export function SettingsPage() {
       });
     } catch (error) {
       toast.error(t("settings.tenant.errorTitle"), {
-        description:
-          error instanceof Error ? error.message : t("settings.errors.generic")
+        description: getErrorMessage(error, t("settings.errors.generic"))
+      });
+    }
+  }
+
+  async function handleSaveAppearance() {
+    if (!tenantSettings) {
+      return;
+    }
+
+    try {
+      await updateTenantSettingsMutation.mutateAsync({
+        name: tenantSettings.name,
+        paletteId,
+        paletteSeedColors: customPalette.seeds
+      });
+
+      toast.success(t("settings.tenant.toastTitle"), {
+        description: t("settings.tenant.toastDescription")
+      });
+    } catch (error) {
+      toast.error(t("settings.tenant.errorTitle"), {
+        description: getErrorMessage(error, t("settings.errors.generic"))
       });
     }
   }
@@ -432,9 +489,7 @@ export function SettingsPage() {
                       />
                       <InfoCard
                         label={t("settings.tenant.updatedLabel")}
-                        value={new Intl.DateTimeFormat(undefined, {
-                          dateStyle: "medium"
-                        }).format(new Date(tenantSettings.updatedAt))}
+                        value={formatOptionalDateLabel(tenantSettings.updatedAt)}
                       />
                     </div>
 
@@ -472,7 +527,7 @@ export function SettingsPage() {
                         }}
                         disabled={
                           !canEditTenant ||
-                          !isAppearanceDirty ||
+                          !isTenantSettingsDirty ||
                           updateTenantSettingsMutation.isPending
                         }
                       >
@@ -509,11 +564,11 @@ export function SettingsPage() {
                   <Button
                     type="button"
                     onClick={() => {
-                      void handleSaveTenant();
+                      void handleSaveAppearance();
                     }}
                     disabled={
                       !canEditTenant ||
-                      !isAppearanceDirty ||
+                      !isPaletteDirty ||
                       updateTenantSettingsMutation.isPending
                     }
                   >

@@ -197,7 +197,13 @@ export async function getTenantBrandingSettings(
     throw error;
   }
 
-  return mapTenantBrandingSettings(data as RawTenantBrandingSettings);
+  const row = Array.isArray(data) ? data[0] : data;
+
+  if (!row) {
+    throw new Error("Tenant branding settings update returned no data.");
+  }
+
+  return mapTenantBrandingSettings(row as RawTenantBrandingSettings);
 }
 
 export async function updateTenantBrandingSettings(
@@ -205,24 +211,27 @@ export async function updateTenantBrandingSettings(
   client?: SupabaseClient
 ) {
   const resolvedClient = ensureClient(client);
-  const { data, error } = await resolvedClient
-    .from("tenants")
-    .update({
-      name: input.name.trim(),
-      palette_id: input.paletteId,
-      palette_seed_colors: input.paletteSeedColors
-    })
-    .eq("id", input.tenantId)
-    .select(
-      "id, name, slug, status, palette_id, palette_seed_colors, created_at, updated_at"
-    )
-    .single();
+  const { data, error } = await resolvedClient.rpc(
+    "update_tenant_branding_settings",
+    {
+      target_tenant_id: input.tenantId,
+      next_name: input.name.trim(),
+      next_palette_id: input.paletteId,
+      next_palette_seed_colors: input.paletteSeedColors
+    }
+  );
 
   if (error) {
     throw error;
   }
 
-  return mapTenantBrandingSettings(data as RawTenantBrandingSettings);
+  const row = Array.isArray(data) ? data[0] : data;
+
+  if (!row) {
+    throw new Error("Tenant branding settings update returned no data.");
+  }
+
+  return mapTenantBrandingSettings(row as RawTenantBrandingSettings);
 }
 
 export async function listTenantMembersForSettings(

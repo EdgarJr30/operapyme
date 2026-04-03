@@ -293,14 +293,13 @@ function PaletteSelectionGrid({
     });
   }
 
-  function scheduleCustomPaletteToast(nextDraft: ThemePaletteSeedColors) {
+  function scheduleCustomPaletteToast(nextPaletteId: ThemePaletteSelectionId) {
     if (customToastTimeoutRef.current) {
       window.clearTimeout(customToastTimeoutRef.current);
     }
 
     customToastTimeoutRef.current = window.setTimeout(() => {
-      setCustomPalette(nextDraft);
-      showPaletteToast("custom");
+      showPaletteToast(nextPaletteId);
       customToastTimeoutRef.current = null;
     }, 320);
   }
@@ -397,7 +396,8 @@ function PaletteSelectionGrid({
                     onChange={(value) => {
                       const nextDraft = { ...customDraft, paper: value };
                       setCustomDraft(nextDraft);
-                      scheduleCustomPaletteToast(nextDraft);
+                      setCustomPalette(nextDraft);
+                      scheduleCustomPaletteToast("custom");
                     }}
                   />
                   <ColorSeedField
@@ -407,7 +407,8 @@ function PaletteSelectionGrid({
                     onChange={(value) => {
                       const nextDraft = { ...customDraft, primary: value };
                       setCustomDraft(nextDraft);
-                      scheduleCustomPaletteToast(nextDraft);
+                      setCustomPalette(nextDraft);
+                      scheduleCustomPaletteToast("custom");
                     }}
                   />
                   <ColorSeedField
@@ -417,7 +418,8 @@ function PaletteSelectionGrid({
                     onChange={(value) => {
                       const nextDraft = { ...customDraft, secondary: value };
                       setCustomDraft(nextDraft);
-                      scheduleCustomPaletteToast(nextDraft);
+                      setCustomPalette(nextDraft);
+                      scheduleCustomPaletteToast("custom");
                     }}
                   />
                   <ColorSeedField
@@ -427,7 +429,8 @@ function PaletteSelectionGrid({
                     onChange={(value) => {
                       const nextDraft = { ...customDraft, tertiary: value };
                       setCustomDraft(nextDraft);
-                      scheduleCustomPaletteToast(nextDraft);
+                      setCustomPalette(nextDraft);
+                      scheduleCustomPaletteToast("custom");
                     }}
                   />
                 </div>

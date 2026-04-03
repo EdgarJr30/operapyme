@@ -8,24 +8,31 @@ import {
 } from "@/lib/supabase/settings-data";
 
 export function useSettingsData(canManageMembers: boolean) {
-  const { activeTenantId, user } = useBackofficeAuth();
+  const { activeTenantId, isConfigured, status, user } = useBackofficeAuth();
+
+  const canLoadUserProfile = Boolean(
+    isConfigured && status === "signed_in" && user?.id
+  );
+  const canLoadTenantSettings = Boolean(
+    isConfigured && status === "signed_in" && activeTenantId
+  );
 
   const userProfileQuery = useQuery({
     queryKey: ["settings-user-profile", user?.id],
     queryFn: () => getSettingsUserProfile(user?.id ?? ""),
-    enabled: Boolean(user?.id)
+    enabled: canLoadUserProfile
   });
 
   const tenantSettingsQuery = useQuery({
     queryKey: ["tenant-settings", activeTenantId],
     queryFn: () => getTenantBrandingSettings(activeTenantId ?? ""),
-    enabled: Boolean(activeTenantId)
+    enabled: canLoadTenantSettings
   });
 
   const tenantMembersQuery = useQuery({
     queryKey: ["tenant-settings-members", activeTenantId],
     queryFn: () => listTenantMembersForSettings(activeTenantId ?? ""),
-    enabled: Boolean(activeTenantId && canManageMembers)
+    enabled: Boolean(canLoadTenantSettings && canManageMembers)
   });
 
   return {
