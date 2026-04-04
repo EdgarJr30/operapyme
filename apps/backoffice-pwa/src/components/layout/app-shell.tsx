@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
-  Bell,
   BriefcaseBusiness,
   ChevronDown,
   ChevronRight,
@@ -176,7 +175,6 @@ export function AppShell() {
   const [isDesktopSidebarCollapsed, setIsDesktopSidebarCollapsed] = useState(
     getInitialSidebarCollapsed
   );
-  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const activeTenantMembership = getPrimaryTenantMembership(
     accessContext,
@@ -242,33 +240,6 @@ export function AppShell() {
   );
   const userEmail = user?.email ?? t("shell.emailFallback");
   const userInitials = getInitials(userLabel);
-  const notificationItems = useMemo(
-    () => [
-      {
-        id: "tenant",
-        title: t("shell.notifications.tenantTitle"),
-        description: activeTenantMembership
-          ? t("shell.notifications.tenantDescription", {
-              tenant: activeTenantMembership.tenantName
-            })
-          : t("shell.notifications.tenantFallback")
-      },
-      {
-        id: "access",
-        title: accessContext?.isGlobalAdmin
-          ? t("shell.notifications.governanceAdminTitle")
-          : t("shell.notifications.governanceTitle"),
-        description: accessContext?.isGlobalAdmin
-          ? t("shell.notifications.governanceAdminDescription")
-          : t("shell.notifications.governanceDescription")
-      }
-    ],
-    [accessContext?.isGlobalAdmin, activeTenantMembership, t]
-  );
-  const notificationLayerRef = useDismissibleLayer<HTMLDivElement>(
-    isNotificationsOpen,
-    () => setIsNotificationsOpen(false)
-  );
   const userLayerRef = useDismissibleLayer<HTMLDivElement>(isUserMenuOpen, () =>
     setIsUserMenuOpen(false)
   );
@@ -286,7 +257,6 @@ export function AppShell() {
     location.pathname.startsWith("/admin");
 
   useEffect(() => {
-    setIsNotificationsOpen(false);
     setIsUserMenuOpen(false);
   }, [location.pathname]);
 
@@ -378,60 +348,6 @@ export function AppShell() {
                 </div>
 
                 <div className="flex shrink-0 items-center gap-2">
-                  <div ref={notificationLayerRef} className="relative">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setIsNotificationsOpen((currentValue) => !currentValue)
-                      }
-                      className="relative inline-flex size-10 items-center justify-center rounded-xl border border-line/70 bg-paper text-ink shadow-panel transition hover:bg-sand/70"
-                      aria-label={t("shell.openNotificationsLabel")}
-                      aria-expanded={isNotificationsOpen}
-                    >
-                      <Bell className="size-4.5" aria-hidden="true" />
-                      <span className="absolute -right-1 -top-1 inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[11px] font-semibold text-white">
-                        {notificationItems.length}
-                      </span>
-                    </button>
-
-                    <AnimatePresence>
-                      {isNotificationsOpen ? (
-                        <motion.div
-                          className="absolute right-0 top-full mt-3 w-80 rounded-2xl border border-line/70 bg-paper p-4 shadow-soft"
-                          variants={popoverVariants}
-                          initial="initial"
-                          animate="animate"
-                          exit="exit"
-                        >
-                          <div className="space-y-1">
-                            <p className="text-sm font-semibold text-ink">
-                              {t("shell.notifications.title")}
-                            </p>
-                            <p className="text-xs leading-5 text-ink-soft">
-                              {t("shell.notifications.description")}
-                            </p>
-                          </div>
-
-                          <div className="mt-4 space-y-3">
-                            {notificationItems.map((item) => (
-                              <div
-                                key={item.id}
-                                className="rounded-xl border border-line/70 bg-sand/40 p-3"
-                              >
-                                <p className="text-sm font-semibold text-ink">
-                                  {item.title}
-                                </p>
-                                <p className="mt-1 text-sm leading-6 text-ink-soft">
-                                  {item.description}
-                                </p>
-                              </div>
-                            ))}
-                          </div>
-                        </motion.div>
-                      ) : null}
-                    </AnimatePresence>
-                  </div>
-
                   <div ref={userLayerRef} className="relative">
                     <button
                       type="button"
