@@ -591,7 +591,7 @@ export function BackofficeSidebar({
                                   <>
                                     <span className="truncate">{t(`navigation.${key}`)}</span>
                                     <motion.span
-                                      className="ml-auto flex size-6 items-center justify-center rounded-full bg-white/10"
+                                      className="ml-auto flex size-6 items-center justify-center rounded-full bg-sidebar-border/50"
                                       animate={{ rotate: openGroups[key] ? 180 : 0 }}
                                       transition={{
                                         duration: 0.22,

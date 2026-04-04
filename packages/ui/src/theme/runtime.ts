@@ -279,19 +279,17 @@ function buildSidebarVariables(
     } as const;
   }
 
-  const lightSidebarSurface = mixHex("#111217", palette.colors.primary400, 0.26);
-  const lightSidebarElevated = mixHex(lightSidebarSurface, "#ffffff", 0.08);
-  const lightSidebarAccent = palette.colors.primary400;
   const darkSidebarSurface = mixHex("#0a0d12", darkPalette.primary300, 0.22);
   const darkSidebarElevated = mixHex(darkSidebarSurface, "#ffffff", 0.12);
   const darkSidebarAccent = darkPalette.primary400;
+  const lightSidebarAccent = palette.colors.primary400;
 
   return {
-    "--vf-light-sidebar-surface": lightSidebarSurface,
-    "--vf-light-sidebar-elevated": lightSidebarElevated,
-    "--vf-light-sidebar-border": mixHex(lightSidebarSurface, "#ffffff", 0.12),
-    "--vf-light-sidebar-text": "#f7f3ee",
-    "--vf-light-sidebar-muted": mixHex("#d7d0c8", palette.colors.secondary300, 0.2),
+    "--vf-light-sidebar-surface": "#ffffff",
+    "--vf-light-sidebar-elevated": palette.colors.sand,
+    "--vf-light-sidebar-border": palette.colors.line,
+    "--vf-light-sidebar-text": palette.colors.ink,
+    "--vf-light-sidebar-muted": palette.colors.inkMuted,
     "--vf-light-sidebar-accent": lightSidebarAccent,
     "--vf-light-sidebar-accent-hover": mixHex(lightSidebarAccent, "#ffffff", 0.1),
     "--vf-light-sidebar-accent-contrast": pickBestContrastColor(lightSidebarAccent),

@@ -63,14 +63,14 @@
   --vf-light-brand-hover: #243445;
   --vf-light-brand-soft: var(--vf-light-primary-200);
   --vf-light-brand-contrast: #f4f7f9;
-  --vf-light-sidebar-surface: #2d3e50;
-  --vf-light-sidebar-elevated: #395066;
-  --vf-light-sidebar-border: #50687f;
-  --vf-light-sidebar-text: #f4f7f9;
-  --vf-light-sidebar-muted: #d0dae4;
-  --vf-light-sidebar-accent: #4b7a9e;
-  --vf-light-sidebar-accent-hover: #5a8db3;
-  --vf-light-sidebar-accent-contrast: #f4f7f9;
+  --vf-light-sidebar-surface: #ffffff;
+  --vf-light-sidebar-elevated: #ecf1f5;
+  --vf-light-sidebar-border: #c8d2dc;
+  --vf-light-sidebar-text: #1f2b37;
+  --vf-light-sidebar-muted: #6e8296;
+  --vf-light-sidebar-accent: #2d3e50;
+  --vf-light-sidebar-accent-hover: #395066;
+  --vf-light-sidebar-accent-contrast: #ffffff;
   --vf-light-app-background:
     radial-gradient(circle at top left, rgba(75, 99, 122, 0.12), transparent 32%),
     radial-gradient(circle at top right, rgba(255, 122, 0, 0.12), transparent 24%),
