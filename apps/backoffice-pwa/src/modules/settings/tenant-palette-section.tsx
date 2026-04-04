@@ -1,11 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 
-import { Check, LayoutDashboard, RotateCcw, Store, SwatchBook } from "lucide-react";
+import { Check, RotateCcw } from "lucide-react";
 
 import { useTranslation } from "@operapyme/i18n";
 import {
-  buildThemeHeroStyle,
-  buildThemeScopeStyle,
   defaultCustomThemePaletteSeeds,
   formatContrastRatio,
   getContrastRatio,
@@ -16,84 +14,18 @@ import {
   type ThemePaletteSeedColors,
   type ThemePaletteSelectionId
 } from "@operapyme/ui";
-import { useTheme } from "next-themes";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle
-} from "@/components/ui/card";
 import { StatusPill } from "@/components/ui/status-pill";
 import { cn } from "@/lib/utils";
-
-type PreviewMode = "backoffice" | "storefront";
 
 export function TenantPaletteSection({
   canEdit = true
 }: {
   canEdit?: boolean;
 }) {
-  const { t } = useTranslation("backoffice");
-  const { resolvedTheme } = useTheme();
-  const isDarkMode = resolvedTheme === "dark";
-
-  return (
-    <section className="grid gap-4 xl:grid-cols-[1.12fr_0.88fr]">
-      <Card className="overflow-hidden">
-        <CardHeader className="space-y-4">
-          <div className="space-y-2">
-            <CardTitle>{t("settings.palette.title")}</CardTitle>
-            <CardDescription>
-              {t("settings.palette.description")}
-            </CardDescription>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <StatusPill tone="success">
-              {t("settings.palette.sharedBadge")}
-            </StatusPill>
-            <StatusPill tone="info">
-              {t("settings.palette.previewBadge")}
-            </StatusPill>
-            {!canEdit ? (
-              <StatusPill tone="neutral">
-                {t("settings.palette.readOnlyBadge")}
-              </StatusPill>
-            ) : null}
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            <PalettePreview mode="backoffice" darkMode={isDarkMode} />
-            <PalettePreview mode="storefront" darkMode={isDarkMode} />
-          </div>
-
-          <div className="rounded-3xl border border-dashed border-line/70 bg-paper/72 p-4">
-            <p className="text-sm font-semibold text-ink">
-              {t("settings.palette.ruleTitle")}
-            </p>
-            <p className="mt-2 text-sm leading-6 text-ink-soft">
-              {t("settings.palette.ruleText")}
-            </p>
-          </div>
-
-          <div className="rounded-3xl border border-line/70 bg-paper/72 p-4">
-            <p className="text-sm font-semibold text-ink">
-              {t("settings.palette.storageTitle")}
-            </p>
-            <p className="mt-2 text-sm leading-6 text-ink-soft">
-              {t("settings.palette.storageText")}
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-
-      <PaletteSelectionGrid canEdit={canEdit} />
-    </section>
-  );
+  return <PaletteSelectionGrid canEdit={canEdit} />;
 }
 
 export function CompactTenantPaletteSelector() {
@@ -522,75 +454,3 @@ function PaletteSwatch({
   );
 }
 
-function PalettePreview({
-  mode,
-  darkMode
-}: {
-  mode: PreviewMode;
-  darkMode: boolean;
-}) {
-  const { t } = useTranslation("backoffice");
-  const { activePalette } = useTenantTheme();
-  const scopeStyle = buildThemeScopeStyle(activePalette, mode, darkMode);
-  const heroStyle = buildThemeHeroStyle(activePalette, mode, darkMode);
-
-  return (
-    <div className="rounded-[28px] border p-4 shadow-panel" style={scopeStyle}>
-      <div
-        className="rounded-3xl border border-white/30 p-4 shadow-panel"
-        style={heroStyle}
-      >
-        <div className="flex items-center gap-2">
-          <span className="flex size-9 items-center justify-center rounded-2xl bg-paper/80 text-ink">
-            {mode === "backoffice" ? (
-              <LayoutDashboard className="size-4" aria-hidden="true" />
-            ) : (
-              <Store className="size-4" aria-hidden="true" />
-            )}
-          </span>
-          <div>
-            <p className="text-sm font-semibold text-ink">
-              {t(
-                mode === "backoffice"
-                  ? "settings.palette.backofficeTitle"
-                  : "settings.palette.storefrontTitle"
-              )}
-            </p>
-            <p className="text-xs leading-5 text-ink-soft">
-              {t(
-                mode === "backoffice"
-                  ? "settings.palette.backofficeDescription"
-                  : "settings.palette.storefrontDescription"
-              )}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-4 space-y-3">
-        <div className="flex items-center justify-between rounded-[20px] border border-line/70 bg-paper/82 px-4 py-3">
-          <div className="space-y-1">
-            <p className="text-sm font-semibold text-ink">
-              {t("settings.palette.previewCardTitle")}
-            </p>
-            <p className="text-xs leading-5 text-ink-soft">
-              {t("settings.palette.previewCardDescription")}
-            </p>
-          </div>
-          <span className="flex size-10 items-center justify-center rounded-full bg-sage-200/80 text-ink">
-            <SwatchBook className="size-4" aria-hidden="true" />
-          </span>
-        </div>
-
-        <div className="flex items-center justify-between gap-3 rounded-[20px] border border-line/70 bg-paper/82 px-4 py-3">
-          <p className="text-sm font-medium text-ink">
-            {t("settings.palette.previewCta")}
-          </p>
-          <span className="rounded-full bg-brand px-4 py-2 text-xs font-semibold text-brand-contrast shadow-soft">
-            {t("settings.palette.previewAction")}
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-}
