@@ -45,7 +45,7 @@ type EmailScenario = AuthEmailContent & {
 
 const resendApiKey = Deno.env.get("RESEND_API_KEY");
 const sendEmailHookSecret = Deno.env.get("SEND_EMAIL_HOOK_SECRET");
-const authEmailFrom = Deno.env.get("AUTH_EMAIL_FROM") ?? "OperaPyme <auth@mooncode.website>";
+const authEmailFrom = Deno.env.get("AUTH_EMAIL_FROM") ?? "OperaPyme <noreply@mooncode.website>";
 const appName = Deno.env.get("AUTH_APP_NAME") ?? "OperaPyme";
 const companyName = Deno.env.get("AUTH_COMPANY_NAME") ?? appName;
 const companyAddress = Deno.env.get("AUTH_COMPANY_ADDRESS")?.trim() || null;

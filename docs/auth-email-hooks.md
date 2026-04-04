@@ -52,7 +52,7 @@ Recomendados:
 Valores sugeridos para este proyecto:
 
 ```ini
-AUTH_EMAIL_FROM="OperaPyme <auth@mooncode.website>"
+AUTH_EMAIL_FROM="OperaPyme <noreply@mooncode.website>"
 AUTH_APP_NAME="OperaPyme"
 AUTH_COMPANY_NAME="OperaPyme"
 ```
