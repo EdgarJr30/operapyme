@@ -64,6 +64,8 @@ Reglas:
 
 Para variables operativas o server-side, usar `supabase/.env.local` tomando como base `supabase/.env.example`.
 
+Para el flujo de correos de autenticacion via hook, la configuracion viva y los secretos esperados estan documentados en `docs/auth-email-hooks.md`.
+
 ## MCP de Supabase para este repo
 
 La configuracion global de Codex puede tener varios proyectos de Supabase. Para `OperaPyme`, el alias correcto es:

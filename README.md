@@ -98,6 +98,7 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 - [docs/development-setup.md](./docs/development-setup.md): instalacion, scripts y flujo local.
 - [docs/governance/PERFORMANCE_RULES.md](./docs/governance/PERFORMANCE_RULES.md): reglas obligatorias para bundle inicial, refresh, bootstrap de auth y carga diferida.
 - [docs/architecture/SUPABASE_ARCHITECTURE.md](./docs/architecture/SUPABASE_ARCHITECTURE.md): fundacion segura de backend con RBAC, RLS y auditoria.
+- [docs/auth-email-hooks.md](./docs/auth-email-hooks.md): flujo canonico para correos de auth con Supabase + Resend y plantilla compartida versionada en el repo.
 - [docs/domain/AUDIT_MODEL.md](./docs/domain/AUDIT_MODEL.md): modelo de auditoria y observabilidad.
 - [docs/governance/SUPABASE_RULES.md](./docs/governance/SUPABASE_RULES.md): reglas obligatorias para esquema, politicas y operaciones sensibles.
 - [docs/project-naming.md](./docs/project-naming.md): estado del nombre temporal y criterios para un renombre futuro.
@@ -138,6 +139,7 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 - baseline de testing y contratos del repo sembrados
 - fundacion Supabase segura sembrada con enfoque RBAC, RLS y auditoria
 - auth del backoffice ya soporta magic link, password login para cuentas existentes y recovery de contrasena
+- pipeline de correos auth listo para centralizarse en `Send Email Hook` con Resend y plantilla compartida versionada en `supabase/functions/send-auth-email`
 - `/auth` ahora usa un onboarding de acceso mobile-first con narrativa de producto y composicion adaptada tambien para desktop
 - bootstrap inicial de tenant sembrado con membership `tenant_owner`
 - `/setup` ya corre como wizard multipaso con validacion remota de slug unico antes de crear el tenant

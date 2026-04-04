@@ -77,6 +77,7 @@ La fase 2 ya deja listos estos bloques iniciales:
 - RPC `get_my_access_context()` para hidratar roles, permisos y memberships
 - RPC `create_tenant_with_owner()` para bootstrap inicial del primer tenant
 - recovery de contrasena apoyado en callback de Supabase y actualizacion segura de credenciales desde sesion autenticada
+- correos de auth preparados para salir por `Send Email Hook` con Resend usando una plantilla base compartida versionada dentro del repo
 - tablas `customers`, `quotes` e `invoices` con tracking, RLS y auditoria
 - hardening de funciones SQL con `search_path` fijo para dejar limpia la linteria de seguridad base
 - lectura real del backoffice sobre `customers`, `quotes` e `invoices` usando el tenant activo y RLS
