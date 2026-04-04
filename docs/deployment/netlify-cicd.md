@@ -29,6 +29,7 @@ El deploy usa:
 - build command: `npm run build:backoffice`
 - publish directory: `apps/backoffice-pwa/dist`
 - Netlify config: [netlify.toml](../../netlify.toml)
+- Netlify CLI monorepo filter: `--filter=@operapyme/backoffice-pwa`
 
 ## Secrets requeridos en GitHub
 
@@ -55,6 +56,7 @@ La configuracion base vive en [netlify.toml](../../netlify.toml).
 Puntos relevantes:
 
 - el repo publica solo `apps/backoffice-pwa/dist`
+- como este repo es un monorepo npm workspaces, el deploy por CLI debe incluir `--filter=@operapyme/backoffice-pwa` para evitar que Netlify intente elegir entre multiples proyectos detectados
 - el sitio se trata como SPA y redirige `/*` a `/index.html`
 - la instalacion de dependencias ocurre en el entorno de build; el comando de deploy de GitHub Actions solo publica el resultado ya compilado
 
