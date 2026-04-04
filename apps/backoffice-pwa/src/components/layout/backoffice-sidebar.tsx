@@ -138,11 +138,6 @@ export const businessNavItems: ShellNavItem[] = [
 
 export const platformNavItems: ShellNavItem[] = [
   {
-    to: "/profile",
-    key: "profile",
-    icon: UserRound
-  },
-  {
     to: "/learning",
     key: "learning",
     icon: BookOpenText
@@ -152,6 +147,11 @@ export const platformNavItems: ShellNavItem[] = [
     key: "settings",
     icon: Settings2,
     children: [
+      {
+        to: "/profile",
+        key: "profile",
+        icon: UserRound
+      },
       {
         to: "/settings/general",
         key: "settingsGeneral",
@@ -560,7 +560,7 @@ export function BackofficeSidebar({
                               <SidebarMenuButton
                                 isActive={false}
                                 className={cn(
-                                  "rounded-xl",
+                                  "group/nav-item rounded-xl",
                                   isCollapsed ? "justify-center px-0" : ""
                                 )}
                                 onClick={() => {
@@ -581,7 +581,7 @@ export function BackofficeSidebar({
                                 <span
                                   className={cn(
                                     "flex size-9 shrink-0 items-center justify-center rounded-lg transition",
-                                    isCollapsed ? "" : "group-hover:bg-sidebar-border/55"
+                                    isCollapsed ? "" : "group-hover/nav-item:bg-sidebar-border/55"
                                   )}
                                 >
                                   <Icon className="size-4.5" aria-hidden="true" />
@@ -675,7 +675,7 @@ export function BackofficeSidebar({
                               asChild
                               isActive={isItemPathActive(location.pathname, to)}
                               className={cn(
-                                "rounded-xl",
+                                "group/nav-item rounded-xl",
                                 isCollapsed ? "justify-center px-0" : ""
                               )}
                             >
@@ -689,7 +689,7 @@ export function BackofficeSidebar({
                                 <span
                                   className={cn(
                                     "flex size-9 shrink-0 items-center justify-center rounded-lg transition",
-                                    isCollapsed ? "" : "group-hover:bg-sidebar-border/55"
+                                    isCollapsed ? "" : "group-hover/nav-item:bg-sidebar-border/55"
                                   )}
                                 >
                                   <Icon className="size-4.5" aria-hidden="true" />
