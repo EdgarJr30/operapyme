@@ -61,7 +61,7 @@ Toda tabla publica o expuesta debe definir:
 - `current_tenant_role_keys(target_tenant_id uuid)`
 - `current_tenant_permission_keys(target_tenant_id uuid)`
 - `get_my_access_context()`
-- `create_tenant_with_owner(target_name text, target_slug text)`
+- `create_tenant_with_owner(target_name text, target_slug text, next_palette_id text default 'slate', next_palette_seed_colors jsonb default null)`
 - `has_platform_permission(permission_key text)`
 - `has_tenant_permission(target_tenant_id uuid, permission_key text)`
 - `touch_updated_at()`

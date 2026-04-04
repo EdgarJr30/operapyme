@@ -36,6 +36,9 @@ const tenantIsolationHardeningMigrationPath = path.resolve(
 const setupSlugValidationMigrationPath = path.resolve(
   "supabase/migrations/20260331152000_setup_slug_validation.sql"
 );
+const cleanupTenantBootstrapOverloadMigrationPath = path.resolve(
+  "supabase/migrations/20260403210240_drop_legacy_create_tenant_with_owner_overload.sql"
+);
 
 describe("supabase foundation contracts", () => {
   it("creates the required secure foundation tables", () => {
@@ -200,6 +203,17 @@ describe("supabase foundation contracts", () => {
     );
     expect(migration).toContain(
       "raise exception 'tenant_id is immutable once inserted'"
+    );
+  });
+
+  it("drops the legacy two-argument tenant bootstrap overload to keep the RPC unambiguous", () => {
+    const migration = fs.readFileSync(
+      cleanupTenantBootstrapOverloadMigrationPath,
+      "utf8"
+    );
+
+    expect(migration).toContain(
+      "drop function if exists public.create_tenant_with_owner(text, text);"
     );
   });
 

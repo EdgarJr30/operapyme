@@ -104,12 +104,7 @@ describe("setup tenant page", () => {
 
     await user.click(screen.getByRole("button", { name: /Continuar/i }));
     expect(
-      await screen.findByRole("heading", { name: /Identidad inicial/i })
-    ).toBeInTheDocument();
-
-    await user.click(screen.getByRole("button", { name: /Continuar/i }));
-    expect(
-      await screen.findByRole("heading", { name: /Revisión final/i })
+      await screen.findByText(/Membresía activa/i)
     ).toBeInTheDocument();
 
     await user.click(
@@ -122,7 +117,9 @@ describe("setup tenant page", () => {
       });
       expect(supabaseMocks.rpc).toHaveBeenCalledWith("create_tenant_with_owner", {
         target_name: "Opera Norte",
-        target_slug: "opera-norte"
+        target_slug: "opera-norte",
+        next_palette_id: "slate",
+        next_palette_seed_colors: null
       });
     });
     expect(refreshAccessContext).toHaveBeenCalledTimes(1);
