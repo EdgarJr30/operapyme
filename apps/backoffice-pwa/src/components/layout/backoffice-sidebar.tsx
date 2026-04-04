@@ -10,6 +10,7 @@ import {
   PackageSearch,
   Settings2,
   ShieldCheck,
+  UserRound,
   UsersRound,
   X
 } from "lucide-react";
@@ -64,6 +65,7 @@ export type ShellNavItemKey =
   | "quotesNew"
   | "quotesManage"
   | "learning"
+  | "profile"
   | "admin"
   | "settings"
   | "settingsGeneral"
@@ -135,6 +137,11 @@ export const businessNavItems: ShellNavItem[] = [
 ];
 
 export const platformNavItems: ShellNavItem[] = [
+  {
+    to: "/profile",
+    key: "profile",
+    icon: UserRound
+  },
   {
     to: "/learning",
     key: "learning",
