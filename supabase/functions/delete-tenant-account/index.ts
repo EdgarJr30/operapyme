@@ -92,7 +92,9 @@ Deno.serve(async (request: Request) => {
     const {
       data: { user },
       error: userError
-    } = await supabaseUser.auth.getUser();
+    } = await supabaseUser.auth.getUser(
+      authHeader.replace(/^Bearer\s+/i, "").trim()
+    );
 
     if (userError || !user) {
       return jsonResponse(401, {

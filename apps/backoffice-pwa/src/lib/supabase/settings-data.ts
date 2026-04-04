@@ -280,9 +280,17 @@ export async function deleteTenantAccount(
   client?: SupabaseClient
 ) {
   const resolvedClient = ensureClient(client);
+  const {
+    data: { session }
+  } = await resolvedClient.auth.getSession();
   const { data, error } = await resolvedClient.functions.invoke(
     "delete-tenant-account",
     {
+      headers: session?.access_token
+        ? {
+            Authorization: `Bearer ${session.access_token}`
+          }
+        : undefined,
       body: {
         tenantId: input.tenantId,
         confirmationText: input.confirmationText.trim()
