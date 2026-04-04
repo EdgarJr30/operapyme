@@ -107,6 +107,41 @@ function ensureClient(client?: SupabaseClient) {
   return resolvedClient;
 }
 
+async function extractFunctionErrorMessage(error: unknown) {
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "context" in error &&
+    error.context instanceof Response
+  ) {
+    try {
+      const payload = await error.context.clone().json();
+
+      if (
+        typeof payload === "object" &&
+        payload !== null &&
+        "error" in payload &&
+        typeof payload.error === "string" &&
+        payload.error.trim()
+      ) {
+        return payload.error;
+      }
+    } catch {
+      try {
+        const text = await error.context.clone().text();
+
+        if (text.trim()) {
+          return text;
+        }
+      } catch {
+        return null;
+      }
+    }
+  }
+
+  return null;
+}
+
 function parsePaletteSeedColors(
   value: Partial<ThemePaletteSeedColors> | null | undefined
 ) {
@@ -173,6 +208,12 @@ export async function getSettingsUserProfile(
     .single();
 
   if (error) {
+    const errorMessage = await extractFunctionErrorMessage(error);
+
+    if (errorMessage) {
+      throw new Error(errorMessage);
+    }
+
     throw error;
   }
 
