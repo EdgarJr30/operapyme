@@ -197,7 +197,10 @@ export function SettingsPage() {
       return;
     }
 
-    if (tenantSettingsQuery.data.paletteId === "custom") {
+    if (
+      tenantSettingsQuery.data.paletteId === "custom" &&
+      tenantSettingsQuery.data.paletteSeedColors
+    ) {
       setCustomPalette(tenantSettingsQuery.data.paletteSeedColors);
     } else {
       setPaletteId(tenantSettingsQuery.data.paletteId);
@@ -243,10 +246,11 @@ export function SettingsPage() {
     tenantSettings &&
       (paletteId !== tenantSettings.paletteId ||
         (paletteId === "custom" &&
-          !arePaletteSeedsEqual(
-            customPalette.seeds,
-            tenantSettings.paletteSeedColors
-          )))
+          (!tenantSettings.paletteSeedColors ||
+            !arePaletteSeedsEqual(
+              customPalette.seeds,
+              tenantSettings.paletteSeedColors
+            ))))
   );
   const isTenantSettingsDirty = isTenantNameDirty || isPaletteDirty;
 
@@ -275,7 +279,7 @@ export function SettingsPage() {
       await updateTenantSettingsMutation.mutateAsync({
         name: tenantNameDraft.trim(),
         paletteId,
-        paletteSeedColors: customPalette.seeds
+        paletteSeedColors: paletteId === "custom" ? customPalette.seeds : null
       });
 
       toast.success(t("settings.tenant.toastTitle"), {
@@ -297,7 +301,7 @@ export function SettingsPage() {
       await updateTenantSettingsMutation.mutateAsync({
         name: tenantSettings.name,
         paletteId,
-        paletteSeedColors: customPalette.seeds
+        paletteSeedColors: paletteId === "custom" ? customPalette.seeds : null
       });
 
       toast.success(t("settings.tenant.toastTitle"), {

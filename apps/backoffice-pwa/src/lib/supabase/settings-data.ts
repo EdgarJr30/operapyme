@@ -25,7 +25,7 @@ export interface TenantBrandingSettings {
   slug: string;
   status: "active" | "inactive" | "suspended";
   paletteId: ThemePaletteSelectionId;
-  paletteSeedColors: ThemePaletteSeedColors;
+  paletteSeedColors: ThemePaletteSeedColors | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -79,7 +79,7 @@ export interface UpdateTenantBrandingSettingsInput {
   tenantId: string;
   name: string;
   paletteId: ThemePaletteSelectionId;
-  paletteSeedColors: ThemePaletteSeedColors;
+  paletteSeedColors: ThemePaletteSeedColors | null;
 }
 
 function ensureClient(client?: SupabaseClient) {
@@ -123,7 +123,9 @@ function mapTenantBrandingSettings(
     slug: row.slug,
     status: row.status,
     paletteId: row.palette_id ?? defaultThemePaletteId,
-    paletteSeedColors: parsePaletteSeedColors(row.palette_seed_colors),
+    paletteSeedColors: row.palette_seed_colors
+      ? parsePaletteSeedColors(row.palette_seed_colors)
+      : null,
     createdAt: row.created_at,
     updatedAt: row.updated_at
   };
