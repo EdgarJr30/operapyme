@@ -58,18 +58,18 @@ describe("auth page", () => {
 
     expect(
       await screen.findByRole("heading", {
-        name: /Activa tu operacion comercial desde el primer acceso/i
+        name: /Inicia sesión en tu cuenta/i
       })
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: /Inicia sesión en tu cuenta/i })
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: /Entrar con contrasena/i })
+      screen.getByRole("heading", { name: /Gestion operativa clara para pymes/i })
     ).toBeInTheDocument();
     expect(
       screen.getAllByRole("button", { name: /Crea tu cuenta/i }).length
     ).toBeGreaterThan(0);
+    expect(
+      screen.getByRole("button", { name: /^Contrasena$/i })
+    ).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /^Magic link$/i })
     ).toBeInTheDocument();

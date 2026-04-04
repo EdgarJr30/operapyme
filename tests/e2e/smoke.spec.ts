@@ -1,7 +1,7 @@
 import { devices, expect, test } from "@playwright/test";
 
 test("loads the auth entry for the backoffice", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/auth");
   await expect(
     page.getByText(
       /Inicia sesión en tu cuenta|Sign in to your account|Supabase pendiente|Supabase pending/i
@@ -18,7 +18,7 @@ test("exposes the manifest and english auth copy on mobile", async ({
   });
   const page = await context.newPage();
 
-  await page.goto("/?lang=en");
+  await page.goto("/auth?lang=en");
 
   const englishAuthHeading = page.getByRole("heading", {
     name: /Sign in to your account/i

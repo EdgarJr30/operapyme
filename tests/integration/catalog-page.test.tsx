@@ -9,14 +9,20 @@ import { setupBackofficeI18n } from "@/app/i18n";
 import { CatalogPage } from "@/modules/catalog/catalog-page";
 
 const catalogMocks = vi.hoisted(() => ({
-  useCatalogItemsData: vi.fn()
+  useCatalogItemsData: vi.fn(),
+  useCatalogMutations: vi.fn()
 }));
 
 vi.mock("@/modules/catalog/use-catalog-items-data", () => ({
   useCatalogItemsData: catalogMocks.useCatalogItemsData
 }));
 
+vi.mock("@/modules/catalog/use-catalog-mutations", () => ({
+  useCatalogMutations: catalogMocks.useCatalogMutations
+}));
+
 vi.mock("@/modules/catalog/catalog-operations-panel", () => ({
+  CatalogItemFormFields: () => <div>Catalog form fields stub</div>,
   CatalogOperationsPanel: () => <div>Catalog operations stub</div>
 }));
 
@@ -31,6 +37,19 @@ function renderPage() {
 }
 
 describe("catalog page", () => {
+  beforeEach(() => {
+    catalogMocks.useCatalogMutations.mockReturnValue({
+      createCatalogItemMutation: {
+        isPending: false,
+        mutateAsync: vi.fn()
+      },
+      updateCatalogItemMutation: {
+        isPending: false,
+        mutateAsync: vi.fn()
+      }
+    });
+  });
+
   it("shows a loading state while catalog items are being fetched", async () => {
     catalogMocks.useCatalogItemsData.mockReturnValue({
       data: undefined,
@@ -45,7 +64,7 @@ describe("catalog page", () => {
 
     expect(
       await screen.findAllByText(/Cargando items reales del catalogo/i)
-    ).toHaveLength(2);
+    ).toHaveLength(1);
   });
 
   it("shows the tenant guard state when there is no active tenant", async () => {
@@ -62,7 +81,7 @@ describe("catalog page", () => {
 
     expect(
       await screen.findAllByText(/No hay tenant activo para consultar el catalogo/i)
-    ).toHaveLength(2);
+    ).toHaveLength(1);
   });
 
   it("shows an empty state when the tenant still has no catalog items", async () => {
@@ -147,7 +166,7 @@ describe("catalog page", () => {
     const user = userEvent.setup();
 
     await user.type(
-      await screen.findByLabelText(/Buscar en el catalogo/i),
+      await screen.findByPlaceholderText(/Buscar por item, codigo o categoria/i),
       "sin-coincidencia"
     );
 

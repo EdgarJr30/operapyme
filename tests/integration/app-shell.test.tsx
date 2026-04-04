@@ -51,6 +51,8 @@ function renderRoute(route: string) {
             <Route path="admin/errors" element={<AdminErrorsPage />} />
             <Route path="profile" element={<div>Profile stub</div>} />
             <Route path="settings" element={<div>Settings stub</div>} />
+            <Route path="settings/general" element={<div>Settings general stub</div>} />
+            <Route path="settings/tenant" element={<div>Settings tenant stub</div>} />
           </Route>
         </Routes>
       </MemoryRouter>
@@ -159,11 +161,11 @@ describe("backoffice shell", () => {
       }
     });
 
-    renderRoute("/");
+    renderRoute("/settings/general");
 
     expect(screen.queryByRole("link", { name: /^Admin$/i })).not.toBeInTheDocument();
     expect((await screen.findAllByRole("link", { name: /^Catalogo$/i })).length).toBeGreaterThan(0);
-    expect((await screen.findAllByRole("link", { name: /^Configuracion$/i })).length).toBeGreaterThan(0);
+    expect(await screen.findByText("Settings general stub")).toBeInTheDocument();
     expect(
       (
         await screen.findAllByRole("button", {

@@ -108,7 +108,7 @@ describe("dashboard page", () => {
             notes: null,
             source: "manual",
             status: "active",
-            updatedAt: "2026-03-26T00:00:00.000Z"
+            updatedAt: "2026-04-01T00:00:00.000Z"
           }
         ],
         recentQuotes: [
@@ -133,8 +133,8 @@ describe("dashboard page", () => {
             version: 1,
             validUntil: null,
             notes: null,
-            createdAt: "2026-03-26T00:00:00.000Z",
-            updatedAt: "2026-03-26T00:00:00.000Z"
+            createdAt: "2026-04-01T00:00:00.000Z",
+            updatedAt: "2026-04-01T00:00:00.000Z"
           }
         ]
       },
