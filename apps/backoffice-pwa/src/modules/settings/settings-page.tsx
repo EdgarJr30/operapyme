@@ -515,14 +515,6 @@ export function SettingsPage() {
                       />
                     </div>
 
-                    <div className="rounded-3xl border border-line/70 bg-sand/35 p-4">
-                      <p className="text-sm leading-6 text-ink-soft">
-                        {canEditTenant
-                          ? t("settings.tenant.editHelp")
-                          : t("settings.tenant.readOnlyHelp")}
-                      </p>
-                    </div>
-
                     <div className="flex flex-wrap items-center gap-3">
                       <Button
                         type="button"
