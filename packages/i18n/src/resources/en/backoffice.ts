@@ -1932,21 +1932,54 @@ const backofficeEn = {
         "Only roles with `membership.manage` can review the full tenant directory."
     },
     security: {
-      title: "Security and access",
+      title: "Permanent deletion",
       description:
-        "These settings are protected by tenant and role boundaries. Sensitive actions do not depend on the UI alone.",
-      rbacTitle: "RBAC and tenant isolation",
-      rbacText:
-        "Every access is validated against the active tenant and its permissions. If your role has no capability over this tenant, the view is blocked.",
-      passwordTitle: "Account credentials",
-      passwordText:
-        "Password and magic-link access still live in your personal profile so user identity does not get mixed with tenant identity.",
-      actionsTitle: "Related actions",
-      actionsDescription:
-        "Open your profile to change the password or review the available sign-in methods.",
-      openProfileAction: "Go to profile and password",
-      auditText:
-        "Functional tenant and membership changes remain audited in the secure backend layer."
+        "From here you can fully close the active company. This action stays behind permissions, explicit confirmation, and secure backend deletion.",
+      delete: {
+        eyebrow: "Danger zone",
+        scopeTitle: "What this action does",
+        scopeText:
+          "The active tenant is permanently deleted together with its memberships, customers, catalog, quotes, documentary invoices, and the rest of its tenant-scoped data.",
+        warningTitle: "There is no trash bin or automatic restore",
+        warningText:
+          "To reduce mistakes, we will ask you to type the exact slug `{slug}` before confirming.",
+        cardTitle: "Delete company permanently",
+        cardDescription:
+          "Use this action only when you want to shut down this workspace for good. If your user does not belong to any other active companies, we will also try to delete the sign-in account.",
+        impacts: {
+          memberships:
+            "Every access and membership associated with this company will be closed.",
+          documents:
+            "Quotes, documentary invoices, leads, customers, and tenant-linked operational traces will be removed.",
+          catalog:
+            "The commercial catalog and the shared tenant visual configuration will be deleted.",
+          account:
+            "If this was your only active company, the authenticated account will also be removed to close access completely."
+        },
+        openAction: "Delete company",
+        lockedTitle: "Only the owner can do this",
+        lockedDescription:
+          "This action requires the `tenant.delete` permission. If you need to continue, sign in with the tenant owner account.",
+        dialogTitle: "Confirm permanent deletion",
+        dialogDescription:
+          "You are about to permanently delete `{tenant}` and all of its associated data.",
+        confirmationTitle: "Confirmation required",
+        confirmationText:
+          "Type the slug `{slug}` to enable permanent deletion.",
+        confirmationLabel: "Tenant slug",
+        cancelAction: "Cancel",
+        confirmAction: "Delete forever",
+        submitting: "Deleting company...",
+        toastAccountDeletedTitle: "Company and account deleted",
+        toastAccountDeletedDescription:
+          "`{tenant}` was fully deleted and your session will close now.",
+        toastTenantDeletedTitle: "Company deleted",
+        toastTenantDeletedDescription:
+          "`{tenant}` was fully deleted. We will move you to the next available workspace.",
+        toastTenantDeletedNoMembershipsDescription:
+          "`{tenant}` was fully deleted. Your account remains active, but it no longer has a configured company.",
+        errorTitle: "We could not delete the company"
+      }
     }
   }
 };

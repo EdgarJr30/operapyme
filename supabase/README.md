@@ -19,3 +19,5 @@ Esta carpeta contiene la fundacion de backend para `OperaPyme`.
 ## Regla de seguridad
 
 El cliente no tiene autorizacion real. La autorizacion real vive en permisos, funciones SQL y politicas RLS.
+
+Para borrados permanentes o cierres de tenant con impacto sobre `auth.users`, preferir Edge Functions con service role por encima de deletes directos desde frontend.

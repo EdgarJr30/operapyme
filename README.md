@@ -149,6 +149,7 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 - dashboard, Gestion Comercial y catalogo ya leen datos reales de Supabase en modo read-first
 - Gestion Comercial y catalogo ya pueden crear y actualizar registros reales dentro del tenant activo
 - `/settings` ya funciona como modulo operativo de usuario final con perfil, identidad del tenant, branding persistente y directorio de equipo protegido por rol y tenant
+- `/settings/security` ahora funciona como zona de borrado permanente del tenant con confirmacion por slug, permiso dedicado `tenant.delete` y cleanup de cuenta via Edge Function cuando aplica
 - Gestion Comercial ya concentra leads, clientes, cotizaciones y facturas documentales internas dentro del tenant activo
 - `/commercial/customers` ya abre en vista table-first con busqueda, filtro por estado, modal reutilizable para crear/editar y archivado logico sin borrado fisico
 - `/commercial/quotes` ya abre en vista table-first con busqueda, filtro por estado, acciones operativas desde la tabla y modal reutilizable para crear/editar sin salir del listado
@@ -352,6 +353,11 @@ The current product focus is:
 - Notion stores context and reasoning; Linear stores execution, priority, owner, and status.
 - To reduce tool timeouts, prefer opening that exact page instead of the full `MoonCode` database.
 - Security and testing foundations now live in `docs/architecture/SUPABASE_ARCHITECTURE.md`, `docs/domain/AUDIT_MODEL.md`, `docs/governance/SUPABASE_RULES.md`, and `tests/README.md`.
+
+### Current implementation highlights
+
+- `/settings` already covers user profile, tenant identity, branding, and team access behind tenant and role boundaries.
+- `/settings/security` now works as a permanent tenant deletion surface with slug confirmation, dedicated `tenant.delete` permission, and account cleanup through a Supabase Edge Function when the deleted tenant was the user's last active workspace.
 
 ### Run the project
 

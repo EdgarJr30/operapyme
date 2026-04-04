@@ -24,6 +24,7 @@ export const platformPermissionKeys = [
 export const tenantPermissionKeys = [
   "tenant.read",
   "tenant.update",
+  "tenant.delete",
   "membership.manage",
   "crm.read",
   "crm.write",
@@ -47,6 +48,7 @@ const tenantRolePermissionMap: Record<TenantRoleKey, TenantPermissionKey[]> = {
   tenant_owner: [
     "tenant.read",
     "tenant.update",
+    "tenant.delete",
     "membership.manage",
     "crm.read",
     "crm.write",

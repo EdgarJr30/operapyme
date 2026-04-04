@@ -82,6 +82,21 @@ export interface UpdateTenantBrandingSettingsInput {
   paletteSeedColors: ThemePaletteSeedColors | null;
 }
 
+export interface DeleteTenantAccountInput {
+  tenantId: string;
+  confirmationText: string;
+}
+
+export interface DeleteTenantAccountResult {
+  accountDeleted: boolean;
+  remainingTenantMemberships: number;
+  tenant: {
+    id: string;
+    name: string;
+    slug: string;
+  };
+}
+
 function ensureClient(client?: SupabaseClient) {
   const resolvedClient = client ?? supabase;
 
@@ -258,4 +273,39 @@ export async function listTenantMembersForSettings(
   return ((data ?? []) as RawSettingsTenantMember[]).map(
     mapSettingsTenantMember
   );
+}
+
+export async function deleteTenantAccount(
+  input: DeleteTenantAccountInput,
+  client?: SupabaseClient
+) {
+  const resolvedClient = ensureClient(client);
+  const { data, error } = await resolvedClient.functions.invoke(
+    "delete-tenant-account",
+    {
+      body: {
+        tenantId: input.tenantId,
+        confirmationText: input.confirmationText.trim()
+      }
+    }
+  );
+
+  if (error) {
+    throw error;
+  }
+
+  const response = data as
+    | (DeleteTenantAccountResult & { error?: string })
+    | null
+    | undefined;
+
+  if (!response) {
+    throw new Error("Tenant deletion returned no data.");
+  }
+
+  if ("error" in response && response.error) {
+    throw new Error(response.error);
+  }
+
+  return response;
 }

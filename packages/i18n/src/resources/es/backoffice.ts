@@ -1932,21 +1932,54 @@ const backofficeEs = {
         "Solo los roles con `membership.manage` pueden revisar el directorio completo del tenant."
     },
     security: {
-      title: "Seguridad y acceso",
+      title: "Eliminacion permanente",
       description:
-        "Esta configuracion se protege por tenant y por rol. Las acciones sensibles no dependen solo de la UI.",
-      rbacTitle: "RBAC y tenant isolation",
-      rbacText:
-        "Cada acceso se valida contra el tenant activo y sus permisos. Si tu rol no tiene capacidad sobre este tenant, la vista se bloquea.",
-      passwordTitle: "Credenciales de la cuenta",
-      passwordText:
-        "La contrasena y el acceso por magic link siguen viviendo en tu perfil personal para no mezclar identidad de usuario con identidad del tenant.",
-      actionsTitle: "Acciones relacionadas",
-      actionsDescription:
-        "Abre tu perfil para cambiar contrasena o revisar los metodos de acceso disponibles.",
-      openProfileAction: "Ir a perfil y contrasena",
-      auditText:
-        "Los cambios funcionales del tenant y las membresias siguen auditados desde la capa segura del backend."
+        "Desde aqui puedes cerrar por completo la empresa activa. Esta accion vive detras de permisos, confirmacion explicita y borrado seguro en backend.",
+      delete: {
+        eyebrow: "Zona de peligro",
+        scopeTitle: "Que hace esta accion",
+        scopeText:
+          "El tenant activo se elimina de forma permanente junto con sus membresias, clientes, catalogo, cotizaciones, facturas documentales y demas datos tenant-scoped.",
+        warningTitle: "No hay papelera ni restauracion automatica",
+        warningText:
+          "Para evitar errores, te vamos a pedir escribir el slug exacto `{slug}` antes de confirmar.",
+        cardTitle: "Eliminar empresa por completo",
+        cardDescription:
+          "Usa esta accion solo cuando quieras cerrar definitivamente este workspace. Si tu usuario no pertenece a otras empresas activas, tambien intentaremos eliminar su cuenta de acceso.",
+        impacts: {
+          memberships:
+            "Se cierran todos los accesos y membresias asociados a esta empresa.",
+          documents:
+            "Se eliminan cotizaciones, facturas documentales, leads, clientes y trazas operativas ligadas al tenant.",
+          catalog:
+            "Se elimina el catalogo comercial y la configuracion visual compartida del tenant.",
+          account:
+            "Si esta era tu unica empresa activa, la cuenta autenticada tambien se elimina para cerrar el acceso por completo."
+        },
+        openAction: "Eliminar empresa",
+        lockedTitle: "Solo el propietario puede hacer esto",
+        lockedDescription:
+          "Esta accion exige el permiso `tenant.delete`. Si necesitas continuar, entra con la cuenta propietaria del tenant.",
+        dialogTitle: "Confirmar eliminacion permanente",
+        dialogDescription:
+          "Vas a eliminar definitivamente `{tenant}` y todos sus datos asociados.",
+        confirmationTitle: "Confirmacion requerida",
+        confirmationText:
+          "Escribe el slug `{slug}` para habilitar la eliminacion permanente.",
+        confirmationLabel: "Slug del tenant",
+        cancelAction: "Cancelar",
+        confirmAction: "Eliminar para siempre",
+        submitting: "Eliminando empresa...",
+        toastAccountDeletedTitle: "Empresa y cuenta eliminadas",
+        toastAccountDeletedDescription:
+          "`{tenant}` se elimino por completo y tu sesion se cerrara ahora.",
+        toastTenantDeletedTitle: "Empresa eliminada",
+        toastTenantDeletedDescription:
+          "`{tenant}` se elimino por completo. Te llevaremos al siguiente workspace disponible.",
+        toastTenantDeletedNoMembershipsDescription:
+          "`{tenant}` se elimino por completo. Tu cuenta sigue activa, pero ya no tiene una empresa configurada.",
+        errorTitle: "No pudimos eliminar la empresa"
+      }
     }
   }
 };

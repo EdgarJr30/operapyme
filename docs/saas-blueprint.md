@@ -20,6 +20,7 @@ La fase actual prioriza fundacion segura, velocidad operativa y claridad de prod
 - deudas
 - reportes operativos
 - settings del tenant
+- cierre permanente y seguro del tenant por propietario
 - auditoria global y logs
 
 ## Modulos reservados, no comprometidos en esta fase

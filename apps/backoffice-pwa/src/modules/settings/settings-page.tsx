@@ -1,12 +1,8 @@
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 
 import {
-  Building2,
-  Check,
-  ChevronRight,
-  KeyRound,
-  ShieldCheck,
-  Palette
+  AlertTriangle,
+  Trash2
 } from "lucide-react";
 import {
   getPrimaryTenantMembership,
@@ -28,6 +24,13 @@ import {
   CardHeader,
   CardTitle
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { StatusPill } from "@/components/ui/status-pill";
 import { AccessDeniedPage } from "@/modules/auth/access-denied-page";
@@ -128,7 +131,8 @@ export function SettingsPage() {
   const { t } = useTranslation("backoffice");
   const navigate = useNavigate();
   const location = useLocation();
-  const { accessContext, activeTenantId, user } = useBackofficeAuth();
+  const { accessContext, activeTenantId, refreshAccessContext, signOut, user } =
+    useBackofficeAuth();
   const { customPalette, paletteId, setCustomPalette, setPaletteId } =
     useTenantTheme();
   const activeTenantMembership = getPrimaryTenantMembership(
@@ -144,6 +148,10 @@ export function SettingsPage() {
     accessContext?.isGlobalAdmin ||
       hasTenantPermissionForRoleKeys(activeRoleKeys, "membership.manage")
   );
+  const canDeleteTenant = Boolean(
+    accessContext?.isGlobalAdmin ||
+      hasTenantPermissionForRoleKeys(activeRoleKeys, "tenant.delete")
+  );
   const canReadTenant = Boolean(
     accessContext?.isGlobalAdmin ||
       hasTenantPermissionForRoleKeys(activeRoleKeys, "tenant.read") ||
@@ -153,10 +161,16 @@ export function SettingsPage() {
 
   const { tenantSettingsQuery, tenantMembersQuery, userProfileQuery } =
     useSettingsData(canManageMembers);
-  const { updateTenantSettingsMutation, updateUserProfileMutation } =
+  const {
+    deleteTenantAccountMutation,
+    updateTenantSettingsMutation,
+    updateUserProfileMutation
+  } =
     useSettingsMutations();
   const [displayNameDraft, setDisplayNameDraft] = useState("");
   const [tenantNameDraft, setTenantNameDraft] = useState("");
+  const [deleteConfirmationDraft, setDeleteConfirmationDraft] = useState("");
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const tenantThemeSyncRef = useRef<string | null>(null);
   const activeSection = useMemo<SettingsSectionId>(() => {
     if (location.pathname.startsWith("/settings/tenant")) {
@@ -253,6 +267,11 @@ export function SettingsPage() {
             ))))
   );
   const isTenantSettingsDirty = isTenantNameDirty || isPaletteDirty;
+  const deleteConfirmationValue = deleteConfirmationDraft.trim().toLowerCase();
+  const deleteConfirmationSlug = tenantSettings?.slug.toLowerCase() ?? "";
+  const isDeleteConfirmationValid =
+    deleteConfirmationValue.length > 0 &&
+    deleteConfirmationValue === deleteConfirmationSlug;
 
   async function handleSaveProfile() {
     try {
@@ -309,6 +328,71 @@ export function SettingsPage() {
       });
     } catch (error) {
       toast.error(t("settings.tenant.errorTitle"), {
+        description: getErrorMessage(error, t("settings.errors.generic"))
+      });
+    }
+  }
+
+  function closeDeleteDialog() {
+    if (deleteTenantAccountMutation.isPending) {
+      return;
+    }
+
+    setIsDeleteDialogOpen(false);
+    setDeleteConfirmationDraft("");
+  }
+
+  async function handleDeleteTenant() {
+    if (!tenantSettings || !canDeleteTenant) {
+      return;
+    }
+
+    try {
+      const result = await deleteTenantAccountMutation.mutateAsync({
+        confirmationText: deleteConfirmationDraft.trim()
+      });
+
+      closeDeleteDialog();
+
+      if (result.accountDeleted) {
+        toast.success(t("settings.security.delete.toastAccountDeletedTitle"), {
+          description: t("settings.security.delete.toastAccountDeletedDescription", {
+            tenant: result.tenant.name
+          })
+        });
+
+        const errorMessage = await signOut();
+
+        if (errorMessage) {
+          toast.error(t("settings.security.delete.errorTitle"), {
+            description: errorMessage
+          });
+        }
+
+        navigate("/auth", {
+          replace: true
+        });
+        return;
+      }
+
+      await refreshAccessContext();
+
+      toast.success(t("settings.security.delete.toastTenantDeletedTitle"), {
+        description:
+          result.remainingTenantMemberships > 0
+            ? t("settings.security.delete.toastTenantDeletedDescription", {
+                tenant: result.tenant.name
+              })
+            : t("settings.security.delete.toastTenantDeletedNoMembershipsDescription", {
+                tenant: result.tenant.name
+              })
+      });
+
+      navigate(result.remainingTenantMemberships > 0 ? "/" : "/setup", {
+        replace: true
+      });
+    } catch (error) {
+      toast.error(t("settings.security.delete.errorTitle"), {
         description: getErrorMessage(error, t("settings.errors.generic"))
       });
     }
@@ -660,73 +744,211 @@ export function SettingsPage() {
           ) : null}
 
           {activeSection === "security" ? (
-            <section className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t("settings.security.title")}</CardTitle>
-                  <CardDescription>
-                    {t("settings.security.description")}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="rounded-3xl border border-line/70 bg-paper p-4">
-                    <p className="text-sm font-semibold text-ink">
-                      {t("settings.security.rbacTitle")}
-                    </p>
-                    <p className="mt-2 text-sm leading-6 text-ink-soft">
-                      {t("settings.security.rbacText")}
-                    </p>
-                  </div>
-
-                  <div className="rounded-3xl border border-line/70 bg-paper p-4">
-                    <p className="text-sm font-semibold text-ink">
-                      {t("settings.security.passwordTitle")}
-                    </p>
-                    <p className="mt-2 text-sm leading-6 text-ink-soft">
-                      {t("settings.security.passwordText")}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t("settings.security.actionsTitle")}</CardTitle>
-                  <CardDescription>
-                    {t("settings.security.actionsDescription")}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
+            tenantSettingsQuery.isLoading ? (
+              <SettingsState
+                title={t("settings.states.loadingTitle")}
+                description={t("settings.states.loadingDescription")}
+              />
+            ) : tenantSettingsQuery.isError ? (
+              <SettingsState
+                title={t("settings.states.errorTitle")}
+                description={t("settings.states.errorDescription", {
+                  message:
+                    tenantSettingsQuery.error instanceof Error
+                      ? tenantSettingsQuery.error.message
+                      : ""
+                })}
+                action={
                   <Button
                     type="button"
-                    className="w-full justify-between"
+                    variant="secondary"
                     onClick={() => {
-                      navigate("/profile");
+                      void tenantSettingsQuery.refetch();
                     }}
                   >
-                    <span className="flex items-center gap-2">
-                      <KeyRound className="size-4" aria-hidden="true" />
-                      {t("settings.security.openProfileAction")}
-                    </span>
-                    <ChevronRight className="size-4" aria-hidden="true" />
+                    {t("settings.states.retryAction")}
                   </Button>
+                }
+              />
+            ) : tenantSettings ? (
+              <section className="space-y-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>{t("settings.security.title")}</CardTitle>
+                    <CardDescription>
+                      {t("settings.security.description")}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
+                    <div className="space-y-4">
+                      <div className="rounded-3xl border border-line/70 bg-paper p-4">
+                        <p className="text-sm font-semibold text-ink">
+                          {t("settings.security.delete.scopeTitle")}
+                        </p>
+                        <p className="mt-2 text-sm leading-6 text-ink-soft">
+                          {t("settings.security.delete.scopeText")}
+                        </p>
+                      </div>
 
-                  <div className="rounded-3xl border border-line/70 bg-sand/35 p-4">
-                    <div className="flex items-start gap-3">
-                      <span className="mt-0.5 flex size-6 items-center justify-center rounded-full bg-brand text-brand-contrast">
-                        <Check className="size-3.5" aria-hidden="true" />
-                      </span>
-                      <p className="text-sm leading-6 text-ink-soft">
-                        {t("settings.security.auditText")}
-                      </p>
+                      <div className="rounded-3xl border border-amber-200/80 bg-amber-50/90 p-4">
+                        <div className="flex items-start gap-3">
+                          <span className="mt-0.5 flex size-8 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+                            <AlertTriangle className="size-4" aria-hidden="true" />
+                          </span>
+                          <div className="space-y-2">
+                            <p className="text-sm font-semibold text-ink">
+                              {t("settings.security.delete.warningTitle")}
+                            </p>
+                            <p className="text-sm leading-6 text-ink-soft">
+                              {t("settings.security.delete.warningText", {
+                                slug: tenantSettings.slug
+                              })}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </section>
+
+                    <div className="space-y-4 rounded-3xl border border-red-200/80 bg-red-50/85 p-5 sm:p-6">
+                      <div className="space-y-2">
+                        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-red-700/80">
+                          {t("settings.security.delete.eyebrow")}
+                        </p>
+                        <h2 className="text-xl font-semibold tracking-tight text-ink">
+                          {t("settings.security.delete.cardTitle")}
+                        </h2>
+                        <p className="text-sm leading-6 text-ink-soft">
+                          {t("settings.security.delete.cardDescription")}
+                        </p>
+                      </div>
+
+                      <div className="space-y-3">
+                        <SecurityImpactItem
+                          label={t("settings.security.delete.impacts.memberships")}
+                        />
+                        <SecurityImpactItem
+                          label={t("settings.security.delete.impacts.documents")}
+                        />
+                        <SecurityImpactItem
+                          label={t("settings.security.delete.impacts.catalog")}
+                        />
+                        <SecurityImpactItem
+                          label={t("settings.security.delete.impacts.account")}
+                        />
+                      </div>
+
+                      {canDeleteTenant ? (
+                        <Button
+                          type="button"
+                          className="w-full justify-center bg-red-600 text-white hover:bg-red-700"
+                          onClick={() => {
+                            setIsDeleteDialogOpen(true);
+                          }}
+                        >
+                          <Trash2 className="mr-2 size-4" aria-hidden="true" />
+                          {t("settings.security.delete.openAction")}
+                        </Button>
+                      ) : (
+                        <div className="rounded-3xl border border-line/70 bg-paper/90 p-4">
+                          <p className="text-sm font-semibold text-ink">
+                            {t("settings.security.delete.lockedTitle")}
+                          </p>
+                          <p className="mt-2 text-sm leading-6 text-ink-soft">
+                            {t("settings.security.delete.lockedDescription")}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </section>
+            ) : null
           ) : null}
         </main>
       </div>
+
+      <Dialog
+        open={isDeleteDialogOpen}
+        onOpenChange={(nextOpen) => {
+          if (!nextOpen) {
+            closeDeleteDialog();
+            return;
+          }
+
+          setIsDeleteDialogOpen(nextOpen);
+        }}
+      >
+        <DialogContent closeLabel={t("shared.closeDialog")} className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{t("settings.security.delete.dialogTitle")}</DialogTitle>
+            <DialogDescription>
+              {t("settings.security.delete.dialogDescription", {
+                tenant: tenantSettings?.name ?? "-"
+              })}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="rounded-3xl border border-red-200/80 bg-red-50/85 p-4">
+              <p className="text-sm font-semibold text-ink">
+                {t("settings.security.delete.confirmationTitle")}
+              </p>
+              <p className="mt-2 text-sm leading-6 text-ink-soft">
+                {t("settings.security.delete.confirmationText", {
+                  slug: tenantSettings?.slug ?? "-"
+                })}
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <label
+                htmlFor="settings-delete-confirmation"
+                className="text-sm font-medium text-ink"
+              >
+                {t("settings.security.delete.confirmationLabel")}
+              </label>
+              <Input
+                id="settings-delete-confirmation"
+                value={deleteConfirmationDraft}
+                onChange={(event) => {
+                  setDeleteConfirmationDraft(event.target.value);
+                }}
+                placeholder={tenantSettings?.slug ?? ""}
+                autoComplete="off"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+              />
+            </div>
+
+            <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={closeDeleteDialog}
+                disabled={deleteTenantAccountMutation.isPending}
+              >
+                {t("settings.security.delete.cancelAction")}
+              </Button>
+              <Button
+                type="button"
+                className="bg-red-600 text-white hover:bg-red-700"
+                onClick={() => {
+                  void handleDeleteTenant();
+                }}
+                disabled={
+                  !isDeleteConfirmationValid ||
+                  deleteTenantAccountMutation.isPending
+                }
+              >
+                {deleteTenantAccountMutation.isPending
+                  ? t("settings.security.delete.submitting")
+                  : t("settings.security.delete.confirmAction")}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -736,6 +958,15 @@ function InfoCard({ label, value }: { label: string; value: string }) {
     <div className="rounded-3xl border border-line/70 bg-paper p-4">
       <p className="text-sm font-semibold text-ink">{label}</p>
       <p className="mt-2 text-sm leading-6 text-ink-soft">{value}</p>
+    </div>
+  );
+}
+
+function SecurityImpactItem({ label }: { label: string }) {
+  return (
+    <div className="flex items-start gap-3 rounded-3xl border border-line/70 bg-paper/90 p-4">
+      <span className="mt-1 flex size-2.5 shrink-0 rounded-full bg-red-500" />
+      <p className="text-sm leading-6 text-ink-soft">{label}</p>
     </div>
   );
 }

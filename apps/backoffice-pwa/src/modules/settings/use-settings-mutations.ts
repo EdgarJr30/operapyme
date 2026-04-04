@@ -2,6 +2,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { useBackofficeAuth } from "@/app/auth-provider";
 import {
+  deleteTenantAccount,
+  type DeleteTenantAccountInput,
   updateSettingsUserProfile,
   updateTenantBrandingSettings,
   type UpdateSettingsUserProfileInput,
@@ -63,7 +65,16 @@ export function useSettingsMutations() {
     }
   });
 
+  const deleteTenantAccountMutation = useMutation({
+    mutationFn: (input: Omit<DeleteTenantAccountInput, "tenantId">) =>
+      deleteTenantAccount({
+        ...input,
+        tenantId: ensureTenantId(activeTenantId)
+      })
+  });
+
   return {
+    deleteTenantAccountMutation,
     updateTenantSettingsMutation,
     updateUserProfileMutation
   };
