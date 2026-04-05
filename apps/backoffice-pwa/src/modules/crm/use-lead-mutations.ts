@@ -4,8 +4,10 @@ import { useBackofficeAuth } from "@/app/auth-provider";
 import {
   convertLeadToCustomer,
   createLead,
+  updateLead,
   type ConvertLeadToCustomerInput,
-  type CreateLeadInput
+  type CreateLeadInput,
+  type UpdateLeadInput
 } from "@/lib/supabase/backoffice-data";
 
 function ensureTenantId(tenantId: string | null) {
@@ -38,6 +40,17 @@ export function useLeadMutations() {
     }
   });
 
+  const updateLeadMutation = useMutation({
+    mutationFn: (input: Omit<UpdateLeadInput, "tenantId">) =>
+      updateLead({
+        ...input,
+        tenantId: ensureTenantId(activeTenantId)
+      }),
+    onSuccess: async () => {
+      await invalidate(ensureTenantId(activeTenantId));
+    }
+  });
+
   const convertLeadToCustomerMutation = useMutation({
     mutationFn: (input: Omit<ConvertLeadToCustomerInput, "tenantId">) =>
       convertLeadToCustomer({
@@ -58,6 +71,7 @@ export function useLeadMutations() {
 
   return {
     convertLeadToCustomerMutation,
-    createLeadMutation
+    createLeadMutation,
+    updateLeadMutation
   };
 }

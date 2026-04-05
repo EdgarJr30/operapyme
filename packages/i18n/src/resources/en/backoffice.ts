@@ -1026,6 +1026,15 @@ const backofficeEn = {
       emptyDescription:
         "The first commercial opportunity will appear here for follow-up and conversion.",
       noContact: "No contact",
+      editAction: "Edit",
+      editModalTitle: "Edit lead",
+      editModalDescription:
+        "Fix lead data without leaving the operating list.",
+      editCancelAction: "Cancel",
+      editSaveAction: "Save changes",
+      editSubmitting: "Saving...",
+      editSuccess: "We updated lead {lead}.",
+      editError: "We could not update the lead. {message}",
       convertAction: "Move to customers",
       convertSubmitting: "Converting...",
       convertSuccess: "{lead} is now in customers.",

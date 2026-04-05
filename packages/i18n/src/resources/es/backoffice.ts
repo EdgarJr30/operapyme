@@ -1028,6 +1028,15 @@ const backofficeEs = {
       emptyDescription:
         "La primera oportunidad comercial aparecera aqui para seguimiento y conversion.",
       noContact: "Sin contacto",
+      editAction: "Editar",
+      editModalTitle: "Editar lead",
+      editModalDescription:
+        "Corrige los datos del lead sin salir del listado operativo.",
+      editCancelAction: "Cancelar",
+      editSaveAction: "Guardar cambios",
+      editSubmitting: "Guardando...",
+      editSuccess: "Actualizamos el lead {lead}.",
+      editError: "No pudimos actualizar el lead. {message}",
       convertAction: "Pasar a cliente",
       convertSubmitting: "Convirtiendo...",
       convertSuccess: "{lead} ya paso a clientes.",
