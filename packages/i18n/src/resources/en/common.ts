@@ -69,6 +69,7 @@ const commonEn = {
     settingsTeam: "Team",
     settingsSecurity: "Security",
     errors: "Errors",
+    import: "Import data",
     more: "More"
   },
   shell: {
@@ -142,7 +143,8 @@ const commonEn = {
       profile: "Account, access security, and basic user details.",
       settings: "Tenant-wide settings, branding, and appearance preferences.",
       admin: "Global audit and controls reserved for authorized profiles.",
-      errors: "Operational incidents and visible error traceability."
+      errors: "Operational incidents and visible error traceability.",
+      import: "Bulk load of customers, leads, and catalog from CSV or Excel."
     },
     notifications: {
       title: "Notifications",

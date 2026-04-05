@@ -23,6 +23,18 @@
 - `expense`
 - `debt`
 
+## Entidades de importacion masiva
+
+- `import_job` — tracking de cada sesion de importacion (status, contadores, batch_tag)
+- `import_staging_row` — filas en staging antes de hacer upsert a la tabla destino
+- `import_row_error` — errores por fila para reporte descargable
+
+Notas:
+- `import_batch_tag uuid` nullable en `customers`, `leads`, `catalog_items` — habilita rollback por sesion
+- Ventana de rollback: 72 horas desde `created_at` del job
+- Entidades soportadas en Fase 1: `customer`, `lead`, `catalog_item`
+- Permisos reutilizados: `crm.write` y `catalog.write` (sin permiso nuevo)
+
 ## Entidades de control
 
 - `audit_log`

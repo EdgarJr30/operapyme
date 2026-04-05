@@ -1,16 +1,24 @@
 import { useEffect, useState } from "react";
 
 import {
-  BriefcaseBusiness,
   BookOpenText,
+  BriefcaseBusiness,
+  Building,
+  Building2,
   ChevronDown,
   ChevronsUpDown,
   FileText,
   House,
+  LayoutDashboard,
   PackageSearch,
+  Palette,
+  Receipt,
   Settings2,
   ShieldCheck,
+  SlidersHorizontal,
+  Upload,
   UserRound,
+  Users,
   UsersRound,
   X
 } from "lucide-react";
@@ -64,6 +72,7 @@ export type ShellNavItemKey =
   | "quotesOverview"
   | "quotesNew"
   | "quotesManage"
+  | "import"
   | "learning"
   | "profile"
   | "admin"
@@ -105,7 +114,7 @@ export const businessNavItems: ShellNavItem[] = [
       {
         to: "/commercial",
         key: "commercialSummary",
-        icon: BriefcaseBusiness
+        icon: LayoutDashboard
       },
       {
         to: "/commercial/leads",
@@ -115,7 +124,7 @@ export const businessNavItems: ShellNavItem[] = [
       {
         to: "/commercial/customers",
         key: "commercialCustomers",
-        icon: UsersRound
+        icon: Building2
       },
       {
         to: "/commercial/quotes",
@@ -125,7 +134,7 @@ export const businessNavItems: ShellNavItem[] = [
       {
         to: "/commercial/invoices",
         key: "commercialInvoices",
-        icon: FileText
+        icon: Receipt
       }
     ]
   },
@@ -155,27 +164,32 @@ export const platformNavItems: ShellNavItem[] = [
       {
         to: "/settings/general",
         key: "settingsGeneral",
-        icon: Settings2
+        icon: SlidersHorizontal
       },
       {
         to: "/settings/tenant",
         key: "settingsTenant",
-        icon: Settings2
+        icon: Building
       },
       {
         to: "/settings/appearance",
         key: "settingsAppearance",
-        icon: Settings2
+        icon: Palette
       },
       {
         to: "/settings/team",
         key: "settingsTeam",
-        icon: Settings2
+        icon: Users
       },
       {
         to: "/settings/security",
         key: "settingsSecurity",
-        icon: Settings2
+        icon: ShieldCheck
+      },
+      {
+        to: "/import",
+        key: "import",
+        icon: Upload
       }
     ]
   },
@@ -324,6 +338,13 @@ export function getRouteMeta(pathname: string): RouteMeta {
     return {
       labelKey: "navigation.quotes",
       descriptionKey: "shell.pageDescriptions.quotes"
+    };
+  }
+
+  if (pathname.startsWith("/import")) {
+    return {
+      labelKey: "navigation.import",
+      descriptionKey: "shell.pageDescriptions.import"
     };
   }
 
@@ -634,7 +655,9 @@ export function BackofficeSidebar({
                                   >
                                     <SidebarMenuSub className="mt-1">
                                       <span className="absolute bottom-2 left-0 top-2 w-px rounded-full bg-sidebar-border" />
-                                      {children?.map((child, childIndex) => (
+                                      {children?.map((child, childIndex) => {
+                                        const ChildIcon = child.icon;
+                                        return (
                                         <motion.div
                                           key={child.to}
                                           initial={{ opacity: 0, x: -6 }}
@@ -655,12 +678,14 @@ export function BackofficeSidebar({
                                               )}
                                             >
                                               <NavLink to={child.to} end onClick={handleNavigate}>
+                                                <ChildIcon className="size-3.5 shrink-0" aria-hidden="true" />
                                                 <span>{t(`navigation.${child.key}`)}</span>
                                               </NavLink>
                                             </SidebarMenuSubButton>
                                           </SidebarMenuSubItem>
                                         </motion.div>
-                                      ))}
+                                        );
+                                      })}
                                     </SidebarMenuSub>
                                   </motion.div>
                                 </motion.div>

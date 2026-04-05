@@ -18,7 +18,8 @@ export const auditEntityKeys = [
   "invoice",
   "expense",
   "error_log",
-  "auth_event"
+  "auth_event",
+  "import_job"
 ] as const;
 
 export const appErrorSeverityKeys = [

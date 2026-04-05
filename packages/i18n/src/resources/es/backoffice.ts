@@ -2022,6 +2022,140 @@ const backofficeEs = {
         errorTitle: "No pudimos eliminar la empresa"
       }
     }
+  },
+  import: {
+    nav: "Importar datos",
+    page: {
+      eyebrow: "Modulo de importacion",
+      title: "Importar datos masivamente",
+      description:
+        "Sube un archivo CSV o Excel con tus registros existentes y los importamos de forma segura con validacion, mapeo de columnas e historial."
+    },
+    entityType: {
+      label: "Que tipo de datos vas a importar?",
+      customer: "Clientes",
+      lead: "Leads",
+      catalog_item: "Productos y servicios"
+    },
+    importMode: {
+      label: "Que deseas hacer con los datos?",
+      create: "Solo crear nuevos registros",
+      update: "Solo actualizar registros existentes",
+      upsert: "Crear nuevos y actualizar existentes"
+    },
+    steps: {
+      upload: "Subir archivo",
+      mapping: "Mapear columnas",
+      preview: "Validar y previsualizar",
+      processing: "Procesando",
+      complete: "Completado"
+    },
+    upload: {
+      title: "Selecciona el archivo",
+      description:
+        "Acepta archivos CSV y Excel (.xlsx). Maximo 5 MB. La primera fila debe contener los nombres de columnas.",
+      dropzoneLabel: "Arrastra tu archivo aqui o haz clic para seleccionarlo",
+      dropzoneHint: "CSV o Excel, maximo 5 MB",
+      fileSelected: "{name} — {count} filas detectadas",
+      downloadTemplate: "Descargar plantilla de {entity}",
+      errors: {
+        tooLarge: "El archivo supera el limite de 5 MB.",
+        invalidFormat: "Solo se aceptan archivos CSV (.csv) y Excel (.xlsx).",
+        noHeaders: "El archivo no tiene fila de encabezados.",
+        noRows: "El archivo esta vacio o solo tiene encabezados.",
+        parseError: "No pudimos leer el archivo. Verifica que no este corrupto."
+      }
+    },
+    mapping: {
+      title: "Mapea las columnas",
+      description:
+        "Indica a que campo del sistema corresponde cada columna de tu archivo. Las columnas sin mapear seran ignoradas.",
+      fileColumnHeader: "Columna en tu archivo",
+      systemFieldHeader: "Campo del sistema",
+      skipOption: "Omitir esta columna",
+      requiredBadge: "Requerido",
+      previewTitle: "Primeras {count} filas con el mapeo actual",
+      autoMappedNotice: "Mapeamos automaticamente {count} de {total} columnas. Revisa y ajusta si es necesario."
+    },
+    preview: {
+      title: "Validacion y resumen",
+      description:
+        "Revisa los resultados de la validacion antes de confirmar la importacion.",
+      validRows: "{count} filas validas",
+      invalidRows: "{count} filas con errores",
+      duplicateRows: "{count} posibles duplicados",
+      showAllRows: "Mostrar todas las filas",
+      showErrorsOnly: "Mostrar solo filas con errores",
+      errorTableRow: "Fila",
+      errorTableField: "Campo",
+      errorTableError: "Error",
+      errorTableValue: "Valor original",
+      continueWithErrors: "Continuar y omitir filas con error",
+      goBackToFix: "Volver a corregir el archivo",
+      noErrors: "Todas las filas son validas. Listo para importar."
+    },
+    processing: {
+      title: "Importando datos...",
+      description:
+        "No cierres esta ventana mientras la importacion este en progreso. Los datos ya guardados se conservan si detienes el proceso.",
+      batchProgress: "Lote {current} de {total}",
+      rowProgress: "{processed} de {total} registros procesados",
+      continueOnError: "Continuar",
+      stopOnError: "Detener importacion",
+      batchErrorTitle: "Error en el lote {batch}",
+      batchErrorDescription: "Hubo un error al procesar este lote. Puedes continuar con el siguiente o detener la importacion."
+    },
+    complete: {
+      title: "Importacion completada",
+      description: "El proceso de importacion finalizo.",
+      created: "{count} registros creados",
+      updated: "{count} registros actualizados",
+      skipped: "{count} registros omitidos",
+      errored: "{count} registros con error",
+      downloadErrorReport: "Descargar reporte de errores",
+      viewImportedRecords: "Ver registros importados",
+      importMore: "Importar mas datos"
+    },
+    history: {
+      title: "Historial de importaciones",
+      description: "Importaciones realizadas en este tenant.",
+      emptyTitle: "Sin importaciones aun",
+      emptyDescription: "Las importaciones que realices apareceran aqui con su estado y detalle.",
+      entity: {
+        customer: "Clientes",
+        lead: "Leads",
+        catalog_item: "Productos y servicios"
+      },
+      mode: {
+        create: "Solo crear",
+        update: "Solo actualizar",
+        upsert: "Crear y actualizar"
+      },
+      status: {
+        pending: "Pendiente",
+        processing: "En proceso",
+        completed: "Completada",
+        failed: "Fallida",
+        rolled_back: "Revertida"
+      },
+      rollbackAction: "Revertir importacion",
+      rollbackConfirmTitle: "Revertir importacion",
+      rollbackConfirmDescription:
+        "Se eliminaran los {count} registros que fueron importados en este lote. Esta accion no se puede deshacer. Continuar?",
+      rollbackConfirm: "Si, revertir",
+      rollbackCancel: "Cancelar",
+      rollbackSuccess: "Importacion revertida correctamente.",
+      rollbackError: "No pudimos revertir la importacion. {message}",
+      rollbackExpired: "El periodo de reversion de 72 horas ya expiro para esta importacion."
+    },
+    errors: {
+      required: "Este campo es requerido.",
+      invalidEmail: "El correo no tiene un formato valido.",
+      invalidEnum: "Valor no permitido. Opciones validas: {values}.",
+      tooLong: "El valor supera los {max} caracteres permitidos.",
+      duplicateInFile: "Este codigo aparece mas de una vez en el archivo.",
+      duplicateInDb: "Ya existe un registro con este codigo en el sistema."
+    }
   }
 };
 

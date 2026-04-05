@@ -2022,6 +2022,140 @@ const backofficeEn = {
         errorTitle: "We could not delete the company"
       }
     }
+  },
+  import: {
+    nav: "Import data",
+    page: {
+      eyebrow: "Import module",
+      title: "Bulk import data",
+      description:
+        "Upload a CSV or Excel file with your existing records and we will import them safely with validation, column mapping, and history."
+    },
+    entityType: {
+      label: "What type of data are you importing?",
+      customer: "Customers",
+      lead: "Leads",
+      catalog_item: "Products and services"
+    },
+    importMode: {
+      label: "What do you want to do with the data?",
+      create: "Only create new records",
+      update: "Only update existing records",
+      upsert: "Create new and update existing"
+    },
+    steps: {
+      upload: "Upload file",
+      mapping: "Map columns",
+      preview: "Validate and preview",
+      processing: "Processing",
+      complete: "Completed"
+    },
+    upload: {
+      title: "Select the file",
+      description:
+        "Accepts CSV and Excel (.xlsx) files. Maximum 5 MB. The first row must contain column names.",
+      dropzoneLabel: "Drag your file here or click to select",
+      dropzoneHint: "CSV or Excel, maximum 5 MB",
+      fileSelected: "{name} — {count} rows detected",
+      downloadTemplate: "Download {entity} template",
+      errors: {
+        tooLarge: "The file exceeds the 5 MB limit.",
+        invalidFormat: "Only CSV (.csv) and Excel (.xlsx) files are accepted.",
+        noHeaders: "The file does not have a header row.",
+        noRows: "The file is empty or only has headers.",
+        parseError: "We could not read the file. Please verify it is not corrupted."
+      }
+    },
+    mapping: {
+      title: "Map the columns",
+      description:
+        "Indicate which system field each column in your file corresponds to. Unmapped columns will be ignored.",
+      fileColumnHeader: "Column in your file",
+      systemFieldHeader: "System field",
+      skipOption: "Skip this column",
+      requiredBadge: "Required",
+      previewTitle: "First {count} rows with current mapping",
+      autoMappedNotice: "We automatically mapped {count} of {total} columns. Review and adjust if needed."
+    },
+    preview: {
+      title: "Validation and summary",
+      description:
+        "Review the validation results before confirming the import.",
+      validRows: "{count} valid rows",
+      invalidRows: "{count} rows with errors",
+      duplicateRows: "{count} possible duplicates",
+      showAllRows: "Show all rows",
+      showErrorsOnly: "Show only rows with errors",
+      errorTableRow: "Row",
+      errorTableField: "Field",
+      errorTableError: "Error",
+      errorTableValue: "Original value",
+      continueWithErrors: "Continue and skip rows with errors",
+      goBackToFix: "Go back to fix the file",
+      noErrors: "All rows are valid. Ready to import."
+    },
+    processing: {
+      title: "Importing data...",
+      description:
+        "Do not close this window while the import is in progress. Data already saved will be preserved if you stop the process.",
+      batchProgress: "Batch {current} of {total}",
+      rowProgress: "{processed} of {total} records processed",
+      continueOnError: "Continue",
+      stopOnError: "Stop import",
+      batchErrorTitle: "Error in batch {batch}",
+      batchErrorDescription: "There was an error processing this batch. You can continue with the next one or stop the import."
+    },
+    complete: {
+      title: "Import completed",
+      description: "The import process has finished.",
+      created: "{count} records created",
+      updated: "{count} records updated",
+      skipped: "{count} records skipped",
+      errored: "{count} records with errors",
+      downloadErrorReport: "Download error report",
+      viewImportedRecords: "View imported records",
+      importMore: "Import more data"
+    },
+    history: {
+      title: "Import history",
+      description: "Imports performed in this tenant.",
+      emptyTitle: "No imports yet",
+      emptyDescription: "Imports you perform will appear here with their status and details.",
+      entity: {
+        customer: "Customers",
+        lead: "Leads",
+        catalog_item: "Products and services"
+      },
+      mode: {
+        create: "Create only",
+        update: "Update only",
+        upsert: "Create and update"
+      },
+      status: {
+        pending: "Pending",
+        processing: "Processing",
+        completed: "Completed",
+        failed: "Failed",
+        rolled_back: "Rolled back"
+      },
+      rollbackAction: "Rollback import",
+      rollbackConfirmTitle: "Rollback import",
+      rollbackConfirmDescription:
+        "The {count} records imported in this batch will be deleted. This action cannot be undone. Continue?",
+      rollbackConfirm: "Yes, rollback",
+      rollbackCancel: "Cancel",
+      rollbackSuccess: "Import rolled back successfully.",
+      rollbackError: "We could not rollback the import. {message}",
+      rollbackExpired: "The 72-hour rollback window has expired for this import."
+    },
+    errors: {
+      required: "This field is required.",
+      invalidEmail: "The email does not have a valid format.",
+      invalidEnum: "Value not allowed. Valid options: {values}.",
+      tooLong: "The value exceeds the allowed {max} characters.",
+      duplicateInFile: "This code appears more than once in the file.",
+      duplicateInDb: "A record with this code already exists in the system."
+    }
   }
 };
 

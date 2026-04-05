@@ -39,6 +39,9 @@ const setupSlugValidationMigrationPath = path.resolve(
 const cleanupTenantBootstrapOverloadMigrationPath = path.resolve(
   "supabase/migrations/20260403210240_drop_legacy_create_tenant_with_owner_overload.sql"
 );
+const importModuleMigrationPath = path.resolve(
+  "supabase/migrations/20260405060000_import_module_foundation.sql"
+);
 
 describe("supabase foundation contracts", () => {
   it("creates the required secure foundation tables", () => {
@@ -215,6 +218,36 @@ describe("supabase foundation contracts", () => {
     expect(migration).toContain(
       "drop function if exists public.create_tenant_with_owner(text, text);"
     );
+  });
+
+  it("creates import_jobs, import_staging_rows, and import_row_errors with RLS and RPCs", () => {
+    const migration = fs.readFileSync(importModuleMigrationPath, "utf8");
+
+    // Core tables
+    expect(migration).toContain("create table if not exists public.import_jobs");
+    expect(migration).toContain("create table if not exists public.import_staging_rows");
+    expect(migration).toContain("create table if not exists public.import_row_errors");
+
+    // RLS enabled on import_jobs (staging rows inherit via cascade policy)
+    expect(migration).toContain("alter table public.import_jobs enable row level security");
+
+    // Rollback batch tag columns on entity tables
+    expect(migration).toContain("add column if not exists import_batch_tag uuid");
+
+    // Required RPCs
+    expect(migration).toContain("create or replace function public.insert_staging_rows");
+    expect(migration).toContain("create or replace function public.update_staging_validation");
+    expect(migration).toContain("create or replace function public.bulk_upsert_customers");
+    expect(migration).toContain("create or replace function public.bulk_upsert_leads");
+    expect(migration).toContain("create or replace function public.bulk_upsert_catalog_items");
+    expect(migration).toContain("create or replace function public.rollback_import_job");
+    expect(migration).toContain("create or replace function public.cleanup_staging_rows");
+
+    // Rollback window guard (72 hours)
+    expect(migration).toContain("72");
+
+    // SECURITY DEFINER on RPCs that bypass RLS for bulk writes
+    expect(migration).toContain("security definer");
   });
 
   it("adds slug availability validation before bootstrapping the first tenant", () => {

@@ -69,6 +69,7 @@ const commonEs = {
     settingsTeam: "Equipo",
     settingsSecurity: "Seguridad",
     errors: "Errores",
+    import: "Importar datos",
     more: "Mas"
   },
   shell: {
@@ -143,7 +144,8 @@ const commonEs = {
       profile: "Cuenta, seguridad de acceso y datos basicos del usuario.",
       settings: "Configuracion transversal del tenant, branding y preferencias.",
       admin: "Auditoria global y controles reservados para perfiles autorizados.",
-      errors: "Incidencias operativas y trazabilidad de errores visibles."
+      errors: "Incidencias operativas y trazabilidad de errores visibles.",
+      import: "Carga masiva de clientes, leads y catalogo desde CSV o Excel."
     },
     notifications: {
       title: "Notificaciones",
