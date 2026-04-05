@@ -590,40 +590,43 @@ export function CommercialInvoicesPage() {
                       {formatMoney(invoice.grandTotal, invoice.currencyCode)}
                     </TableCell>
                     <TableCell className="pr-0">
-                      <div className="flex flex-wrap justify-end gap-2">
+                      <div className="flex items-center justify-end gap-2">
+                        {getNextInvoiceStatuses(invoice.status).length > 0 ? (
+                          <div className="w-36">
+                            <Select
+                              value=""
+                              onChange={(event) => {
+                                requestMoveInvoiceStatus(
+                                  invoice,
+                                  event.target.value as InvoiceStatus
+                                );
+                              }}
+                              disabled={
+                                moveInvoiceStatusMutation.isPending &&
+                                pendingMove?.startsWith(invoice.id)
+                              }
+                              className="h-9! text-xs sm:h-9!"
+                            >
+                              <option value="" disabled>
+                                {t("commercial.documents.movePipelinePlaceholder")}
+                              </option>
+                              {getNextInvoiceStatuses(invoice.status).map(
+                                (targetStatus) => (
+                                  <option key={targetStatus} value={targetStatus}>
+                                    {t(
+                                      `commercial.invoices.statuses.${targetStatus}`
+                                    )}
+                                  </option>
+                                )
+                              )}
+                            </Select>
+                          </div>
+                        ) : null}
+
                         <InvoicePdfDownloadButton
                           invoiceId={invoice.id}
                           invoiceNumber={invoice.invoiceNumber}
                         />
-
-                        {getNextInvoiceStatuses(invoice.status).map((targetStatus) => {
-                          const pendingKey = `${invoice.id}:${targetStatus}`;
-
-                          return (
-                            <Button
-                              key={targetStatus}
-                              type="button"
-                              size="sm"
-                              variant="ghost"
-                              disabled={
-                                moveInvoiceStatusMutation.isPending &&
-                                pendingMove === pendingKey
-                              }
-                              onClick={() => {
-                                requestMoveInvoiceStatus(invoice, targetStatus);
-                              }}
-                            >
-                              {moveInvoiceStatusMutation.isPending &&
-                              pendingMove === pendingKey
-                                ? t("commercial.documents.moving")
-                                : t("commercial.documents.moveTo", {
-                                    status: t(
-                                      `commercial.invoices.statuses.${targetStatus}`
-                                    )
-                                  })}
-                            </Button>
-                          );
-                        })}
                       </div>
                     </TableCell>
                   </TableRow>

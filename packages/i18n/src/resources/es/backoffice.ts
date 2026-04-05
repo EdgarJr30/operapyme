@@ -1215,7 +1215,8 @@ const backofficeEs = {
       reasonPlaceholder: "Describe brevemente el motivo...",
       reasonRequiredError: "El motivo es obligatorio para este cambio de estado.",
       confirmMoveAction: "Confirmar",
-      cancelMoveAction: "Cancelar"
+      cancelMoveAction: "Cancelar",
+      movePipelinePlaceholder: "Mover a..."
     }
   },
   admin: {

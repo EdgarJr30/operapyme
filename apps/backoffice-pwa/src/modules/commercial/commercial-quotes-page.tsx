@@ -391,7 +391,7 @@ export function CommercialQuotesPage() {
                       {formatMoney(quote.grandTotal, quote.currencyCode)}
                     </TableCell>
                     <TableCell className="pr-0">
-                      <div className="flex flex-wrap justify-end gap-2">
+                      <div className="flex items-center justify-end gap-2">
                         <Button
                           type="button"
                           variant="secondary"
@@ -405,37 +405,35 @@ export function CommercialQuotesPage() {
                           {t("commercial.quotes.editAction")}
                         </Button>
 
-                        <QuotePdfDownloadButton
-                          quoteId={quote.id}
-                          quoteNumber={quote.quoteNumber}
-                        />
-
-                        {getNextQuoteStatuses(quote.status).map((targetStatus) => {
-                          const pendingKey = `${quote.id}:${targetStatus}`;
-
-                          return (
-                            <Button
-                              key={targetStatus}
-                              type="button"
-                              size="sm"
-                              variant="ghost"
+                        {getNextQuoteStatuses(quote.status).length > 0 ? (
+                          <div className="w-36">
+                            <Select
+                              value=""
+                              onChange={(event) => {
+                                requestMoveQuoteStatus(
+                                  quote,
+                                  event.target.value as QuoteStatus
+                                );
+                              }}
                               disabled={
                                 moveQuoteStatusMutation.isPending &&
-                                pendingMove === pendingKey
+                                pendingMove?.startsWith(quote.id)
                               }
-                              onClick={() => {
-                                requestMoveQuoteStatus(quote, targetStatus);
-                              }}
+                              className="h-9! text-xs sm:h-9!"
                             >
-                              {moveQuoteStatusMutation.isPending &&
-                              pendingMove === pendingKey
-                                ? t("commercial.documents.moving")
-                                : t("commercial.documents.moveTo", {
-                                    status: t(`quotes.list.status.${targetStatus}`)
-                                  })}
-                            </Button>
-                          );
-                        })}
+                              <option value="" disabled>
+                                {t("commercial.documents.movePipelinePlaceholder")}
+                              </option>
+                              {getNextQuoteStatuses(quote.status).map(
+                                (targetStatus) => (
+                                  <option key={targetStatus} value={targetStatus}>
+                                    {t(`quotes.list.status.${targetStatus}`)}
+                                  </option>
+                                )
+                              )}
+                            </Select>
+                          </div>
+                        ) : null}
 
                         {quote.status === "approved" ? (
                           <Button
@@ -450,6 +448,11 @@ export function CommercialQuotesPage() {
                             {t("commercial.quotes.createInvoiceAction")}
                           </Button>
                         ) : null}
+
+                        <QuotePdfDownloadButton
+                          quoteId={quote.id}
+                          quoteNumber={quote.quoteNumber}
+                        />
                       </div>
                     </TableCell>
                   </TableRow>

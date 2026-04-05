@@ -1213,7 +1213,8 @@ const backofficeEn = {
       reasonPlaceholder: "Briefly describe the reason...",
       reasonRequiredError: "A reason is required for this status change.",
       confirmMoveAction: "Confirm",
-      cancelMoveAction: "Cancel"
+      cancelMoveAction: "Cancel",
+      movePipelinePlaceholder: "Move to..."
     }
   },
   admin: {
