@@ -1,19 +1,29 @@
-import { AnimatePresence, motion } from "motion/react";
-import { useTranslation } from "@operapyme/i18n";
+import { AnimatePresence, motion } from 'motion/react';
+import { useTranslation } from '@operapyme/i18n';
 
-import { useImportWizardState, type WizardStep } from "./use-import-wizard-state";
-import { ImportStepUpload } from "./steps/import-step-upload";
-import { ImportStepMapping } from "./steps/import-step-mapping";
-import { ImportStepPreview } from "./steps/import-step-preview";
-import { ImportStepProcessing } from "./steps/import-step-processing";
-import { ImportStepComplete } from "./steps/import-step-complete";
+import {
+  useImportWizardState,
+  type WizardStep,
+} from './use-import-wizard-state';
+import { ImportStepUpload } from './steps/import-step-upload';
+import { ImportStepMapping } from './steps/import-step-mapping';
+import { ImportStepPreview } from './steps/import-step-preview';
+import { ImportStepProcessing } from './steps/import-step-processing';
+import { ImportStepComplete } from './steps/import-step-complete';
 
-const STEPS: WizardStep[] = ["upload", "mapping", "preview", "processing", "complete"];
+const STEPS: WizardStep[] = [
+  'upload',
+  'mapping',
+  'preview',
+  'processing',
+  'complete',
+];
 
 export function ImportWizard() {
-  const { t } = useTranslation("backoffice");
+  const { t } = useTranslation('backoffice');
   const controls = useImportWizardState();
-  const { state, goToNextStep, goToPrevStep, setStep, setCompleteSummary } = controls;
+  const { state, goToNextStep, goToPrevStep, setStep, setCompleteSummary } =
+    controls;
 
   const currentIdx = STEPS.indexOf(state.step);
 
@@ -32,22 +42,22 @@ export function ImportWizard() {
                 <div className="flex flex-col items-center gap-1">
                   <div
                     className={[
-                      "flex size-7 items-center justify-center rounded-full text-xs font-semibold transition-colors",
+                      'flex size-7 items-center justify-center rounded-full text-xs font-semibold transition-colors',
                       isDone
-                        ? "bg-accent text-white"
+                        ? 'bg-accent text-white'
                         : isCurrent
-                          ? "border-2 border-accent bg-paper text-accent"
-                          : "border-2 border-line bg-paper text-ink-muted"
-                    ].join(" ")}
-                    aria-current={isCurrent ? "step" : undefined}
+                          ? 'border-2 border-accent bg-paper text-accent'
+                          : 'border-2 border-line bg-paper text-ink-muted',
+                    ].join(' ')}
+                    aria-current={isCurrent ? 'step' : undefined}
                   >
-                    {isDone ? "✓" : idx + 1}
+                    {isDone ? '✓' : idx + 1}
                   </div>
                   <span
                     className={[
-                      "hidden text-[10px] sm:block",
-                      isCurrent ? "font-medium text-ink" : "text-ink-muted"
-                    ].join(" ")}
+                      'hidden text-[10px] sm:block',
+                      isCurrent ? 'font-medium text-ink' : 'text-ink-muted',
+                    ].join(' ')}
                   >
                     {stepLabel}
                   </span>
@@ -57,9 +67,9 @@ export function ImportWizard() {
                 {idx < STEPS.length - 1 && (
                   <div
                     className={[
-                      "mx-1 mb-5 h-px flex-1 min-w-[16px] transition-colors sm:mx-2",
-                      idx < currentIdx ? "bg-accent" : "bg-line"
-                    ].join(" ")}
+                      'mx-1 mb-5 h-px flex-1 min-w-4 transition-colors sm:mx-2',
+                      idx < currentIdx ? 'bg-accent' : 'bg-line',
+                    ].join(' ')}
                   />
                 )}
               </li>
@@ -77,11 +87,11 @@ export function ImportWizard() {
           exit={{ opacity: 0, y: -8 }}
           transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
         >
-          {state.step === "upload" && (
+          {state.step === 'upload' && (
             <ImportStepUpload controls={controls} onNext={goToNextStep} />
           )}
 
-          {state.step === "mapping" && (
+          {state.step === 'mapping' && (
             <ImportStepMapping
               controls={controls}
               onNext={goToNextStep}
@@ -89,7 +99,7 @@ export function ImportWizard() {
             />
           )}
 
-          {state.step === "preview" && (
+          {state.step === 'preview' && (
             <ImportStepPreview
               controls={controls}
               onNext={goToNextStep}
@@ -97,17 +107,17 @@ export function ImportWizard() {
             />
           )}
 
-          {state.step === "processing" && (
+          {state.step === 'processing' && (
             <ImportStepProcessing
               controls={controls}
               onComplete={(summary) => {
                 setCompleteSummary(summary);
-                setStep("complete");
+                setStep('complete');
               }}
             />
           )}
 
-          {state.step === "complete" && (
+          {state.step === 'complete' && (
             <ImportStepComplete controls={controls} />
           )}
         </motion.div>
