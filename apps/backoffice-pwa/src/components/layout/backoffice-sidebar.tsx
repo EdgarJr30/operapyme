@@ -676,9 +676,10 @@ export function BackofficeSidebar({
                                                 location.pathname,
                                                 child.to
                                               )}
+                                              className="gap-2.5"
                                             >
                                               <NavLink to={child.to} end onClick={handleNavigate}>
-                                                <ChildIcon className="size-3.5 shrink-0" aria-hidden="true" />
+                                                <ChildIcon className="size-4 shrink-0" aria-hidden="true" />
                                                 <span>{t(`navigation.${child.key}`)}</span>
                                               </NavLink>
                                             </SidebarMenuSubButton>
