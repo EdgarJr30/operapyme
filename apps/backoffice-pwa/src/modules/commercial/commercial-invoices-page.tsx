@@ -200,6 +200,9 @@ export function CommercialInvoicesPage() {
   const [voidReasonError, setVoidReasonError] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [cancelReasonValue, setCancelReasonValue] = useState("");
+  const [cancelReasonError, setCancelReasonError] = useState("");
   const importedQuoteIdRef = useRef<string | null>(null);
   const invoiceSchema = createInvoiceFormSchema(t);
   const { data: customers = [] } = useCustomersData();
@@ -214,8 +217,12 @@ export function CommercialInvoicesPage() {
     isLoading,
     refetch
   } = useInvoicesData();
-  const { createInvoiceMutation, moveInvoiceStatusMutation, updateInvoiceMutation } =
-    useInvoiceMutations();
+  const {
+    cancelInvoiceMutation,
+    createInvoiceMutation,
+    moveInvoiceStatusMutation,
+    updateInvoiceMutation
+  } = useInvoiceMutations();
   const invoiceDetail = useInvoiceDetailData(selectedInvoiceId);
 
   const form = useForm<InvoiceFormValues>({
@@ -408,6 +415,51 @@ export function CommercialInvoicesPage() {
   function closeDrawer() {
     setDrawerOpen(false);
     editForm.reset(buildDefaultValues());
+  }
+
+  function openCancelModal() {
+    setCancelReasonValue("");
+    setCancelReasonError("");
+    setCancelModalOpen(true);
+  }
+
+  function closeCancelModal() {
+    setCancelModalOpen(false);
+    setCancelReasonValue("");
+    setCancelReasonError("");
+  }
+
+  async function handleConfirmCancel() {
+    if (!selectedInvoiceId) {
+      return;
+    }
+
+    const trimmed = cancelReasonValue.trim();
+
+    if (trimmed.length < 10) {
+      setCancelReasonError(t("commercial.invoices.cancelReasonMinError"));
+      return;
+    }
+
+    try {
+      const result = await cancelInvoiceMutation.mutateAsync({
+        invoiceId: selectedInvoiceId,
+        cancelReason: trimmed
+      });
+      toast.success(
+        t("commercial.invoices.cancelSuccess", {
+          reversalNumber: result.reversalInvoiceNumber
+        })
+      );
+      closeCancelModal();
+      closeDrawer();
+    } catch (error) {
+      toast.error(
+        t("commercial.invoices.cancelError", {
+          message: error instanceof Error ? error.message : ""
+        })
+      );
+    }
   }
 
   async function onEditSubmit(values: InvoiceFormValues) {
@@ -712,6 +764,11 @@ export function CommercialInvoicesPage() {
                           <p className="text-xs text-ink-soft">
                             {t("commercial.invoices.voidReasonLabel")}:{" "}
                             {invoice.voidReason}
+                          </p>
+                        ) : null}
+                        {invoice.reversalOfInvoiceId ? (
+                          <p className="text-xs text-ink-soft">
+                            {t("commercial.invoices.reversalBadge")}
                           </p>
                         ) : null}
                       </div>
@@ -1361,6 +1418,76 @@ export function CommercialInvoicesPage() {
         </DialogContent>
       </Dialog>
 
+      {/* Cancel invoice confirmation dialog */}
+      <Dialog
+        open={cancelModalOpen}
+        onOpenChange={(open) => {
+          if (!open && !cancelInvoiceMutation.isPending) {
+            closeCancelModal();
+          }
+        }}
+      >
+        <DialogContent closeLabel={t("shared.closeDialog")} className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
+              {t("commercial.invoices.cancelInvoiceModalTitle")}
+            </DialogTitle>
+            <DialogDescription>
+              {t("commercial.invoices.cancelInvoiceModalDescription")}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label
+                className="text-sm font-medium text-ink"
+                htmlFor="cancel-invoice-reason"
+              >
+                {t("commercial.invoices.cancelReasonLabel")}
+              </label>
+              <Textarea
+                id="cancel-invoice-reason"
+                placeholder={t("commercial.invoices.cancelReasonPlaceholder")}
+                value={cancelReasonValue}
+                onChange={(event) => {
+                  setCancelReasonValue(event.target.value);
+                  if (cancelReasonError) {
+                    setCancelReasonError("");
+                  }
+                }}
+              />
+              {cancelReasonError ? (
+                <p className="text-sm text-peach-400">{cancelReasonError}</p>
+              ) : null}
+            </div>
+
+            <div className="flex flex-wrap justify-end gap-3">
+              <Button
+                type="button"
+                variant="secondary"
+                size="lg"
+                onClick={closeCancelModal}
+                disabled={cancelInvoiceMutation.isPending}
+              >
+                {t("commercial.documents.cancelMoveAction")}
+              </Button>
+              <Button
+                type="button"
+                size="lg"
+                disabled={cancelInvoiceMutation.isPending}
+                onClick={() => {
+                  void handleConfirmCancel();
+                }}
+              >
+                {cancelInvoiceMutation.isPending
+                  ? t("commercial.invoices.cancelSubmitting")
+                  : t("commercial.invoices.cancelInvoiceAction")}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Invoice detail / edit modal */}
       <Dialog
         open={drawerOpen}
@@ -1976,19 +2103,33 @@ export function CommercialInvoicesPage() {
                     </div>
                   </div>
 
-                  <div className="flex justify-end gap-3 pt-2">
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="lg"
-                      onClick={closeDrawer}
-                    >
-                      {t("commercial.invoices.cancelAction")}
-                    </Button>
-                    <InvoicePdfDownloadButton
-                      invoiceId={invoiceDetail.data.id}
-                      invoiceNumber={invoiceDetail.data.invoiceNumber}
-                    />
+                  <div className="flex flex-wrap justify-between gap-3 pt-2">
+                    {invoiceDetail.data.status === "paid" ? (
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="lg"
+                        onClick={openCancelModal}
+                      >
+                        {t("commercial.invoices.cancelInvoiceAction")}
+                      </Button>
+                    ) : (
+                      <span />
+                    )}
+                    <div className="flex gap-3">
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="lg"
+                        onClick={closeDrawer}
+                      >
+                        {t("commercial.invoices.cancelAction")}
+                      </Button>
+                      <InvoicePdfDownloadButton
+                        invoiceId={invoiceDetail.data.id}
+                        invoiceNumber={invoiceDetail.data.invoiceNumber}
+                      />
+                    </div>
                   </div>
                 </div>
               )}

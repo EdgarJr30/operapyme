@@ -1210,6 +1210,17 @@ const backofficeEs = {
       viewAction: "Ver detalle",
       invoiceNumberLabel: "Numero de factura",
       createdAtLabel: "Creada el",
+      cancelInvoiceAction: "Cancelar factura",
+      cancelInvoiceModalTitle: "Cancelar factura pagada",
+      cancelInvoiceModalDescription:
+        "Esta accion es irreversible. Se generara una nota de reverso que anula el efecto contable de esta factura. Describe el motivo con detalle.",
+      cancelReasonLabel: "Motivo de cancelacion",
+      cancelReasonPlaceholder: "Describe el motivo de la cancelacion...",
+      cancelReasonMinError: "El motivo debe tener al menos 10 caracteres.",
+      cancelSubmitting: "Cancelando...",
+      cancelSuccess: "Factura cancelada. Nota de reverso: {reversalNumber}.",
+      cancelError: "No pudimos cancelar la factura. {message}",
+      reversalBadge: "Nota de reverso",
       pdf: {
         downloadAction: "Descargar PDF",
         generatingAction: "Generando PDF...",

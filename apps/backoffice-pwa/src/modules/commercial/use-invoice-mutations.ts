@@ -2,9 +2,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { useBackofficeAuth } from "@/app/auth-provider";
 import {
+  cancelInvoice,
   createInvoice,
   moveInvoiceStatus,
   updateInvoice,
+  type CancelInvoiceInput,
   type CreateInvoiceInput,
   type MoveInvoiceStatusInput,
   type UpdateInvoiceInput
@@ -68,7 +70,26 @@ export function useInvoiceMutations() {
     }
   });
 
+  const cancelInvoiceMutation = useMutation({
+    mutationFn: (input: Omit<CancelInvoiceInput, "tenantId">) =>
+      cancelInvoice({
+        ...input,
+        tenantId: ensureTenantId(activeTenantId)
+      }),
+    onSuccess: async (_result, input) => {
+      const tenantId = ensureTenantId(activeTenantId);
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["invoices", tenantId] }),
+        queryClient.invalidateQueries({ queryKey: ["dashboard-snapshot", tenantId] }),
+        queryClient.invalidateQueries({
+          queryKey: ["invoice-detail", tenantId, input.invoiceId]
+        })
+      ]);
+    }
+  });
+
   return {
+    cancelInvoiceMutation,
     createInvoiceMutation,
     moveInvoiceStatusMutation,
     updateInvoiceMutation

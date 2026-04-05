@@ -1208,6 +1208,17 @@ const backofficeEn = {
       viewAction: "View detail",
       invoiceNumberLabel: "Invoice number",
       createdAtLabel: "Created on",
+      cancelInvoiceAction: "Cancel invoice",
+      cancelInvoiceModalTitle: "Cancel paid invoice",
+      cancelInvoiceModalDescription:
+        "This action is irreversible. A reversal note will be generated to offset the accounting effect of this invoice. Describe the reason in detail.",
+      cancelReasonLabel: "Cancellation reason",
+      cancelReasonPlaceholder: "Describe the reason for the cancellation...",
+      cancelReasonMinError: "The reason must be at least 10 characters.",
+      cancelSubmitting: "Cancelling...",
+      cancelSuccess: "Invoice cancelled. Reversal note: {reversalNumber}.",
+      cancelError: "We could not cancel the invoice. {message}",
+      reversalBadge: "Reversal note",
       pdf: {
         downloadAction: "Download PDF",
         generatingAction: "Generating PDF...",

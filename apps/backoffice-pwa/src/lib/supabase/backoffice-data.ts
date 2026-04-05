@@ -485,6 +485,18 @@ export interface UpdateInvoiceInput {
   lineItems: QuoteLineInput[];
 }
 
+export interface CancelInvoiceInput {
+  tenantId: string;
+  invoiceId: string;
+  cancelReason: string;
+}
+
+export interface CancelInvoiceResult {
+  cancelledInvoiceId: string;
+  reversalInvoiceId: string;
+  reversalInvoiceNumber: string;
+}
+
 const customerSelectFields =
   "id, customer_code, display_name, contact_name, legal_name, email, whatsapp, phone, document_id, notes, source, status, updated_at";
 
@@ -1551,4 +1563,34 @@ export async function moveInvoiceStatus(input: MoveInvoiceStatusInput) {
   }
 
   return mapInvoice(data as RawInvoiceRow);
+}
+
+export async function cancelInvoice(
+  input: CancelInvoiceInput
+): Promise<CancelInvoiceResult> {
+  const client = requireSupabaseClient();
+  const scopedTenantId = requireTenantScope(input.tenantId);
+  const scopedInvoiceId = requireRecordId(input.invoiceId, "Invoice id");
+
+  const { data, error } = await client.rpc("cancel_invoice", {
+    target_tenant_id: scopedTenantId,
+    target_invoice_id: scopedInvoiceId,
+    p_cancel_reason: input.cancelReason
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const result = data as {
+    cancelled_invoice_id: string;
+    reversal_invoice_id: string;
+    reversal_invoice_number: string;
+  };
+
+  return {
+    cancelledInvoiceId: result.cancelled_invoice_id,
+    reversalInvoiceId: result.reversal_invoice_id,
+    reversalInvoiceNumber: result.reversal_invoice_number
+  };
 }
