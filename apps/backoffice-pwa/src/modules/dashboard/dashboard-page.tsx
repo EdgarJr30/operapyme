@@ -16,6 +16,7 @@ import { NavLink } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
 import type {
+  CustomerTransactionSummary,
   CustomerSummary,
   QuoteSummary,
 } from '@/lib/supabase/backoffice-data';
@@ -87,6 +88,16 @@ export function DashboardPage() {
   const activityGroups = useMemo(
     () => groupQuotesByDay(filteredQuotes, t),
     [filteredQuotes, t]
+  );
+  const customerTransactionsByCustomerId = useMemo(
+    () =>
+      new Map(
+        (dashboardData?.customerTransactions ?? []).map((transaction) => [
+          transaction.customerId,
+          transaction,
+        ])
+      ),
+    [dashboardData?.customerTransactions]
   );
 
   return (
@@ -290,7 +301,14 @@ export function DashboardPage() {
                 </div>
               ) : (
                 filteredCustomers.map((customer) => (
-                  <CustomerCard key={customer.id} customer={customer} t={t} />
+                  <CustomerCard
+                    key={customer.id}
+                    customer={customer}
+                    customerTransaction={customerTransactionsByCustomerId.get(
+                      customer.id
+                    )}
+                    t={t}
+                  />
                 ))
               )}
             </div>
@@ -357,12 +375,14 @@ function ActivityRow({ quote }: { quote: ActivityQuote }) {
 
 function CustomerCard({
   customer,
+  customerTransaction,
   t,
 }: {
   customer: CustomerSummary;
+  customerTransaction?: CustomerTransactionSummary;
   t: BackofficeT;
 }) {
-  const invoiceInfo = getCustomerCardInvoice(customer, t);
+  const invoiceInfo = getCustomerCardInvoice(customer, customerTransaction, t);
 
   return (
     <article className="overflow-hidden rounded-[28px] border border-line/60 bg-paper shadow-panel">
@@ -390,7 +410,7 @@ function CustomerCard({
             {t('dashboard.clients.lastTouchLabel')}
           </dt>
           <dd className="text-right text-ink">
-            <time dateTime={customer.updatedAt}>{invoiceInfo.dateLabel}</time>
+            <time dateTime={invoiceInfo.dateTime}>{invoiceInfo.dateLabel}</time>
           </dd>
         </div>
         <div className="flex items-start justify-between gap-x-4">
@@ -654,25 +674,75 @@ function formatCurrency(value: number, currencyCode: string) {
   }
 }
 
-function getCustomerCardInvoice(customer: CustomerSummary, t: BackofficeT) {
-  const statusTone =
-    customer.status === 'active'
-      ? 'positive'
-      : customer.status === 'inactive'
-        ? 'neutral'
-        : 'negative';
+function getCustomerCardInvoice(
+  customer: CustomerSummary,
+  customerTransaction: CustomerTransactionSummary | undefined,
+  t: BackofficeT
+) {
+  if (!customerTransaction) {
+    const statusTone = getCustomerStatusTone(customer.status);
+
+    return {
+      dateTime: customer.updatedAt,
+      dateLabel: formatShortDate(customer.updatedAt),
+      amount: '--',
+      statusTone,
+      statusLabel: t(`dashboard.livePulse.customerStatus.${customer.status}`),
+    };
+  }
+
+  if (customerTransaction.openAmount > 0 && customerTransaction.lastOpenAt) {
+    return {
+      dateTime: customerTransaction.lastOpenAt,
+      dateLabel: formatShortDate(customerTransaction.lastOpenAt),
+      amount: formatCurrency(
+        customerTransaction.openAmount,
+        customerTransaction.currencyCode
+      ),
+      statusTone:
+        customerTransaction.lastOpenStatus === 'draft'
+          ? ('neutral' as const)
+          : ('negative' as const),
+      statusLabel:
+        customerTransaction.lastOpenStatus === 'draft'
+          ? t('commercial.invoices.statuses.draft')
+          : t('dashboard.clients.pendingCollectionStatus'),
+    };
+  }
+
+  if (customerTransaction.paidAmount > 0 && customerTransaction.lastPaidAt) {
+    return {
+      dateTime: customerTransaction.lastPaidAt,
+      dateLabel: formatShortDate(customerTransaction.lastPaidAt),
+      amount: formatCurrency(
+        customerTransaction.paidAmount,
+        customerTransaction.currencyCode
+      ),
+      statusTone: 'positive' as const,
+      statusLabel: t('commercial.invoices.statuses.paid'),
+    };
+  }
 
   return {
+    dateTime: customer.updatedAt,
     dateLabel: formatShortDate(customer.updatedAt),
-    amount:
-      customer.status === 'active'
-        ? '$7,600.00'
-        : customer.status === 'inactive'
-          ? '$14,000.00'
-          : '$2,000.00',
-    statusTone,
-    statusLabel: t(`dashboard.activity.status.${statusTone}`),
+    amount: '--',
+    statusTone: getCustomerStatusTone(customer.status),
+    statusLabel: t(`dashboard.livePulse.customerStatus.${customer.status}`),
   };
+}
+
+function getCustomerStatusTone(
+  status: CustomerSummary['status']
+): QuoteActivityStatus {
+  switch (status) {
+    case 'active':
+      return 'positive';
+    case 'archived':
+      return 'negative';
+    default:
+      return 'neutral';
+  }
 }
 
 function formatShortDate(value: string) {

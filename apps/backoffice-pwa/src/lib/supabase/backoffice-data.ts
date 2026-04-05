@@ -157,11 +157,22 @@ export interface InvoiceDetail extends InvoiceSummary {
   lineItems: QuoteLineItemSummary[];
 }
 
+export interface CustomerTransactionSummary {
+  customerId: string;
+  currencyCode: string;
+  lastPaidAt: string | null;
+  lastOpenAt: string | null;
+  lastOpenStatus: Extract<InvoiceStatus, "draft" | "issued"> | null;
+  paidAmount: number;
+  openAmount: number;
+}
+
 export interface DashboardSnapshot {
   customerCount: number;
   activeCustomerCount: number;
   quoteCount: number;
   openQuoteCount: number;
+  customerTransactions: CustomerTransactionSummary[];
   recentCustomers: CustomerSummary[];
   recentQuotes: QuoteSummary[];
 }
@@ -893,7 +904,6 @@ export async function getDashboardSnapshot(
 ): Promise<DashboardSnapshot> {
   const client = requireSupabaseClient();
   const scopedTenantId = requireTenantScope(tenantId);
-
   const [
     customerCountResult,
     activeCustomerCountResult,
@@ -938,14 +948,130 @@ export async function getDashboardSnapshot(
     }
   }
 
+  const customerTransactions =
+    recentCustomers.length === 0
+      ? []
+      : await listCustomerTransactionsForDashboard(
+          client,
+          scopedTenantId,
+          recentCustomers
+        );
+
   return {
     customerCount: unwrapCount(customerCountResult),
     activeCustomerCount: unwrapCount(activeCustomerCountResult),
     quoteCount: unwrapCount(quoteCountResult),
     openQuoteCount: unwrapCount(openQuoteCountResult),
+    customerTransactions,
     recentCustomers,
     recentQuotes
   };
+}
+
+async function listCustomerTransactionsForDashboard(
+  client: SupabaseClient,
+  tenantId: string,
+  customers: CustomerSummary[]
+): Promise<CustomerTransactionSummary[]> {
+  if (customers.length === 0) {
+    return [];
+  }
+
+  const { data, error } = await client
+    .from("invoices")
+    .select(invoiceSelectFields)
+    .eq("tenant_id", tenantId)
+    .in("status", ["draft", "issued", "paid"])
+    .order("updated_at", { ascending: false });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return summarizeInvoicesByCustomer(
+    (data ?? []) as RawInvoiceRow[],
+    customers
+  );
+}
+
+function summarizeInvoicesByCustomer(
+  rows: RawInvoiceRow[],
+  customers: CustomerSummary[]
+): CustomerTransactionSummary[] {
+  const summaryByCustomer = new Map<string, CustomerTransactionSummary>();
+  const customerIdByNormalizedName = new Map(
+    customers.map((customer) => [
+      normalizeDashboardRecipientName(customer.displayName),
+      customer.id
+    ])
+  );
+  const validCustomerIds = new Set(customers.map((customer) => customer.id));
+
+  for (const row of rows) {
+    const customerId =
+      row.customer_id && validCustomerIds.has(row.customer_id)
+        ? row.customer_id
+        : customerIdByNormalizedName.get(
+            normalizeDashboardRecipientName(row.recipient_display_name)
+          ) ?? null;
+
+    if (!customerId) {
+      continue;
+    }
+
+    const invoice = mapInvoice(row);
+    const current = summaryByCustomer.get(customerId);
+    const invoiceAmount = invoice.status === "void" ? 0 : invoice.grandTotal;
+
+    if (!current) {
+      summaryByCustomer.set(customerId, {
+        customerId,
+        currencyCode: invoice.currencyCode,
+        lastPaidAt: invoice.status === "paid" ? invoice.updatedAt : null,
+        lastOpenAt:
+          invoice.status === "draft" || invoice.status === "issued"
+            ? invoice.updatedAt
+            : null,
+        lastOpenStatus:
+          invoice.status === "draft" || invoice.status === "issued"
+            ? invoice.status
+            : null,
+        paidAmount: invoice.status === "paid" ? invoiceAmount : 0,
+        openAmount:
+          invoice.status === "draft" || invoice.status === "issued"
+            ? invoiceAmount
+            : 0
+      });
+      continue;
+    }
+
+    if (invoice.currencyCode !== current.currencyCode) {
+      continue;
+    }
+
+    if (invoice.status === "paid") {
+      current.paidAmount += invoiceAmount;
+
+      if (!current.lastPaidAt) {
+        current.lastPaidAt = invoice.updatedAt;
+      }
+    }
+
+    if (invoice.status === "draft" || invoice.status === "issued") {
+      current.openAmount += invoiceAmount;
+
+      if (!current.lastOpenAt) {
+        current.lastOpenAt = invoice.updatedAt;
+        current.lastOpenStatus = invoice.status;
+      }
+    }
+  }
+
+  return Array.from(summaryByCustomer.values());
+}
+
+function normalizeDashboardRecipientName(value: string | null | undefined) {
+  return (value ?? "").trim().toLocaleLowerCase();
 }
 
 export async function createCustomer(input: CreateCustomerInput) {

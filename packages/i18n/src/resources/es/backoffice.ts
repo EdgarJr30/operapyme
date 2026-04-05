@@ -180,6 +180,8 @@ const backofficeEs = {
       lastTouchLabel: "Ultimo movimiento",
       sourceLabel: "Origen",
       amountLabel: "Monto",
+      pendingCollectionStatus: "Pendiente de cobro",
+      paidThisMonthStatus: "Pagado este mes",
       optionsLabel: "Opciones para {customer}"
     },
     operatingModel: {
