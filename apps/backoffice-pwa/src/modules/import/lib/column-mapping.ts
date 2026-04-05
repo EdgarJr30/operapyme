@@ -198,6 +198,23 @@ export function autoMapColumns(
       continue;
     }
 
+    // Label match: the platform's own template uses labelEs/labelEn as headers,
+    // so always auto-map when the normalized header matches a field label exactly.
+    let labelMatch: string | undefined;
+    for (const field of fields) {
+      if (
+        normalizeHeader(field.labelEs) === normalized ||
+        normalizeHeader(field.labelEn) === normalized
+      ) {
+        labelMatch = field.key;
+        break;
+      }
+    }
+    if (labelMatch) {
+      mapping[header] = labelMatch;
+      continue;
+    }
+
     // Partial match: check if any field key is contained in the normalized header
     let partialMatch: string | undefined;
     for (const field of fields) {
