@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ReactNode } from 'react';
 
 import {
   ArrowRight,
@@ -7,24 +7,29 @@ import {
   ChevronRight,
   Globe,
   Menu,
-} from "lucide-react";
-import { Link } from "react-router-dom";
+} from 'lucide-react';
+import { Link } from 'react-router-dom';
 
-const navItems = ["Plataforma", "Soluciones", "Precios", "Casos de uso"] as const;
+const navItems = [
+  'Plataforma',
+  'Soluciones',
+  'Precios',
+  'Casos de uso',
+] as const;
 
 const trustItems = [
-  "Retail",
-  "Distribucion",
-  "Servicios",
-  "Logistica",
-  "Operaciones",
-  "Comercial"
+  'Retail',
+  'Distribucion',
+  'Servicios',
+  'Logistica',
+  'Operaciones',
+  'Comercial',
 ] as const;
 
 const clarityPoints = [
-  "Cotizaciones, clientes y seguimiento en un mismo lugar",
-  "Operacion simple para equipos pequenos y medianos",
-  "Implementacion guiada sin complejidad de ERP pesado"
+  'Cotizaciones, clientes y seguimiento en un mismo lugar',
+  'Operacion simple para equipos pequenos y medianos',
+  'Implementacion guiada sin complejidad de ERP pesado',
 ] as const;
 
 function NavLink({ children }: { children: ReactNode }) {
@@ -40,12 +45,12 @@ function NavLink({ children }: { children: ReactNode }) {
 
 export function PublicLandingPage() {
   return (
-    <section className="relative min-h-[100dvh] overflow-hidden bg-[#F4F7F9] text-[#2D3E50] lg:h-[100dvh]">
+    <section className="relative min-h-dvh overflow-hidden bg-[#F4F7F9] text-[#2D3E50] lg:h-dvh">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(75,99,122,0.14),transparent_28%),radial-gradient(circle_at_85%_20%,rgba(255,122,0,0.10),transparent_16%),linear-gradient(180deg,#eef3f7_0%,#f4f7f9_35%,#f4f7f9_100%)]" />
-      <div className="absolute left-[-10%] top-[-8%] h-[32rem] w-[32rem] rounded-full bg-[#4B637A]/10 blur-3xl" />
-      <div className="absolute right-[-8%] top-[8%] h-[22rem] w-[22rem] rounded-full bg-[#FF7A00]/10 blur-3xl" />
+      <div className="absolute left-[-10%] top-[-8%] h-128 w-lg rounded-full bg-[#4B637A]/10 blur-3xl" />
+      <div className="absolute right-[-8%] top-[8%] h-88 w-88 rounded-full bg-[#FF7A00]/10 blur-3xl" />
 
-      <div className="relative mx-auto flex min-h-[100dvh] max-w-[1480px] flex-col px-4 pb-5 pt-4 sm:px-6 lg:px-8 lg:pb-6 xl:px-10">
+      <div className="relative mx-auto flex min-h-dvh max-w-370 flex-col px-4 pb-5 pt-4 sm:px-6 lg:px-8 lg:pb-6 xl:px-10">
         <header className="rounded-[30px] border border-white/60 bg-white/80 px-4 py-3 shadow-[0_14px_40px_rgba(45,62,80,0.08)] backdrop-blur-xl sm:px-5 lg:px-6">
           <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
             <div className="flex flex-wrap items-center gap-3">
@@ -56,7 +61,9 @@ export function PublicLandingPage() {
                 <span className="mr-3 flex h-9 w-9 items-center justify-center rounded-2xl bg-white text-lg font-semibold text-[#2D3E50]">
                   O
                 </span>
-                <span className="text-[18px] font-semibold tracking-[-0.02em]">OperaPyme</span>
+                <span className="text-[18px] font-semibold tracking-[-0.02em]">
+                  OperaPyme
+                </span>
               </a>
 
               <nav className="hidden items-center rounded-full border border-[#D9E1E8] bg-white p-1 lg:flex">
@@ -89,7 +96,7 @@ export function PublicLandingPage() {
               </Link>
               <Link
                 to="/auth"
-                className="inline-flex h-12 items-center rounded-full bg-[#FF7A00] px-5 text-[14px] font-semibold text-white shadow-[0_14px_30px_rgba(255,122,0,0.28)] transition hover:translate-y-[-1px] hover:bg-[#ef7300]"
+                className="inline-flex h-12 items-center rounded-full bg-[#FF7A00] px-5 text-[14px] font-semibold text-white shadow-[0_14px_30px_rgba(255,122,0,0.28)] transition hover:-translate-y-px hover:bg-[#ef7300]"
               >
                 Crear cuenta
               </Link>
@@ -98,8 +105,8 @@ export function PublicLandingPage() {
         </header>
 
         <div className="flex flex-1 items-center py-6 lg:py-8 xl:py-10">
-          <div className="mx-auto grid w-full max-w-[1240px] items-center gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-10 xl:grid-cols-[minmax(0,1fr)_390px]">
-            <div className="mx-auto max-w-[720px] text-center lg:mx-0 lg:max-w-[760px] lg:pl-6 lg:text-left xl:max-w-[800px] xl:pl-10">
+          <div className="mx-auto grid w-full max-w-310 items-center gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-10 xl:grid-cols-[minmax(0,1fr)_390px]">
+            <div className="mx-auto max-w-180 text-center lg:mx-0 lg:max-w-190 lg:pl-6 lg:text-left xl:max-w-200 xl:pl-10">
               <div className="inline-flex items-center gap-2 rounded-full border border-[#D9E1E8] bg-white/85 px-4 py-2 text-[13px] font-medium text-[#4B637A] shadow-[0_10px_24px_rgba(45,62,80,0.04)] backdrop-blur-xl">
                 <BriefcaseBusiness className="h-4 w-4 text-[#FF7A00]" />
                 SaaS para gestion operativa de PyMEs
@@ -109,14 +116,16 @@ export function PublicLandingPage() {
                 Control total para operar tu PyME con claridad.
               </h1>
 
-              <p className="mx-auto mt-5 max-w-[560px] text-[17px] leading-[1.65] tracking-[-0.015em] text-[#5D6E7E] sm:text-[18px] lg:mx-0 lg:max-w-[38rem]">
-                Centraliza ventas, inventario, tareas, facturacion y seguimiento del equipo en una sola plataforma elegante, rapida y facil de entender.
+              <p className="mx-auto mt-5 max-w-140 text-[17px] leading-[1.65] tracking-[-0.015em] text-[#5D6E7E] sm:text-[18px] lg:mx-0 lg:max-w-152">
+                Centraliza ventas, inventario, tareas, facturacion y seguimiento
+                del equipo en una sola plataforma elegante, rapida y facil de
+                entender.
               </p>
 
               <div className="mt-7 flex flex-wrap justify-center gap-4 lg:justify-start">
                 <Link
                   to="/auth"
-                  className="inline-flex h-14 items-center gap-3 rounded-full bg-[#2D3E50] px-6 text-[15px] font-semibold text-white shadow-[0_16px_34px_rgba(45,62,80,0.20)] transition hover:translate-y-[-1px]"
+                  className="inline-flex h-14 items-center gap-3 rounded-full bg-[#2D3E50] px-6 text-[15px] font-semibold text-white shadow-[0_16px_34px_rgba(45,62,80,0.20)] transition hover:-translate-y-px"
                 >
                   Empezar ahora
                   <ArrowRight className="h-4 w-4" />
@@ -146,7 +155,7 @@ export function PublicLandingPage() {
               </div>
             </div>
 
-            <div className="rounded-[32px] border border-white/70 bg-white/82 p-6 text-left shadow-[0_16px_40px_rgba(45,62,80,0.08)] backdrop-blur-xl">
+            <div className="rounded-4xl border border-white/70 bg-white/82 p-6 text-left shadow-[0_16px_40px_rgba(45,62,80,0.08)] backdrop-blur-xl">
               <div className="text-[12px] font-semibold uppercase tracking-[0.22em] text-[#80909E]">
                 Todo claro de inmediato
               </div>
@@ -157,7 +166,10 @@ export function PublicLandingPage() {
 
               <div className="mt-5 space-y-3">
                 {clarityPoints.map((item) => (
-                  <div key={item} className="flex items-start gap-3 text-[15px] leading-[1.55] text-[#4B637A]">
+                  <div
+                    key={item}
+                    className="flex items-start gap-3 text-[15px] leading-[1.55] text-[#4B637A]"
+                  >
                     <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#FF7A00]" />
                     <span>{item}</span>
                   </div>
@@ -185,7 +197,8 @@ export function PublicLandingPage() {
                   Configuracion inicial clara
                 </div>
                 <div className="mt-2 text-[14px] leading-[1.6] text-[#5D6E7E]">
-                  Entras, configuras tu negocio y empiezas a operar sin navegar varias secciones para entender el producto.
+                  Entras, configuras tu negocio y empiezas a operar sin navegar
+                  varias secciones para entender el producto.
                 </div>
               </div>
             </div>
