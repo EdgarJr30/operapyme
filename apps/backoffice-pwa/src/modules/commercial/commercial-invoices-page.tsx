@@ -66,8 +66,18 @@ const invoiceStatusesByFilter: Record<InvoiceTableFilter, InvoiceStatus[]> = {
   all: []
 };
 
-function getNextInvoiceStatuses(status: InvoiceStatus): InvoiceStatus[] {
-  switch (status) {
+function getInvoiceIsReversalNote(invoice: Pick<InvoiceSummary, "reversalOfInvoiceId">) {
+  return Boolean(invoice.reversalOfInvoiceId);
+}
+
+function getNextInvoiceStatuses(
+  invoice: Pick<InvoiceSummary, "status" | "reversalOfInvoiceId">
+): InvoiceStatus[] {
+  if (getInvoiceIsReversalNote(invoice)) {
+    return [];
+  }
+
+  switch (invoice.status) {
     case "draft":
       return ["issued", "void"];
     case "issued":
@@ -81,8 +91,12 @@ function getNextInvoiceStatuses(status: InvoiceStatus): InvoiceStatus[] {
   }
 }
 
-function getInvoiceIsEditable(status: InvoiceStatus): boolean {
-  return status === "draft" || status === "issued";
+function getInvoiceIsEditable(
+  invoice: Pick<InvoiceSummary, "status" | "reversalOfInvoiceId">
+): boolean {
+  return !getInvoiceIsReversalNote(invoice) && (
+    invoice.status === "draft" || invoice.status === "issued"
+  );
 }
 
 function formatMoney(amount: number, currencyCode: string) {
@@ -362,7 +376,7 @@ export function CommercialInvoicesPage() {
 
   useEffect(() => {
     const detail = invoiceDetail.data;
-    if (!detail || !drawerOpen || !getInvoiceIsEditable(detail.status)) {
+    if (!detail || !drawerOpen || !getInvoiceIsEditable(detail)) {
       return;
     }
 
@@ -778,7 +792,7 @@ export function CommercialInvoicesPage() {
                     </TableCell>
                     <TableCell className="pr-0">
                       <div className="flex items-center justify-end gap-2">
-                        {getNextInvoiceStatuses(invoice.status).length > 0 ? (
+                        {getNextInvoiceStatuses(invoice).length > 0 ? (
                           <div className="w-36">
                             <Select
                               value=""
@@ -797,7 +811,7 @@ export function CommercialInvoicesPage() {
                               <option value="" disabled>
                                 {t("commercial.documents.movePipelinePlaceholder")}
                               </option>
-                              {getNextInvoiceStatuses(invoice.status).map(
+                              {getNextInvoiceStatuses(invoice).map(
                                 (targetStatus) => (
                                   <option key={targetStatus} value={targetStatus}>
                                     {t(
@@ -816,7 +830,7 @@ export function CommercialInvoicesPage() {
                           size="sm"
                           onClick={() => openDrawer(invoice.id)}
                         >
-                          {getInvoiceIsEditable(invoice.status)
+                          {getInvoiceIsEditable(invoice)
                             ? t("commercial.invoices.viewEditAction")
                             : t("commercial.invoices.viewAction")}
                         </Button>
@@ -1509,7 +1523,7 @@ export function CommercialInvoicesPage() {
             <>
               <DialogHeader>
                 <DialogTitle>
-                  {getInvoiceIsEditable(invoiceDetail.data.status)
+                  {getInvoiceIsEditable(invoiceDetail.data)
                     ? t("commercial.invoices.editDrawerTitle", {
                         invoiceNumber: invoiceDetail.data.invoiceNumber
                       })
@@ -1518,13 +1532,13 @@ export function CommercialInvoicesPage() {
                       })}
                 </DialogTitle>
                 <DialogDescription>
-                  {getInvoiceIsEditable(invoiceDetail.data.status)
+                  {getInvoiceIsEditable(invoiceDetail.data)
                     ? t("commercial.invoices.editDrawerDescription")
                     : t("commercial.invoices.detailDrawerDescription")}
                 </DialogDescription>
               </DialogHeader>
 
-              {getInvoiceIsEditable(invoiceDetail.data.status) ? (
+              {getInvoiceIsEditable(invoiceDetail.data) ? (
                 <form
                   className="space-y-6"
                   onSubmit={editForm.handleSubmit(onEditSubmit)}
@@ -2104,7 +2118,8 @@ export function CommercialInvoicesPage() {
                   </div>
 
                   <div className="flex flex-wrap justify-between gap-3 pt-2">
-                    {invoiceDetail.data.status === "paid" ? (
+                    {invoiceDetail.data.status === "paid" &&
+                    !getInvoiceIsReversalNote(invoiceDetail.data) ? (
                       <Button
                         type="button"
                         variant="secondary"

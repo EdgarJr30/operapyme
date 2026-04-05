@@ -368,6 +368,10 @@ export interface CreateLeadInput {
   notes?: string | null;
 }
 
+export interface UpdateLeadInput extends CreateLeadInput {
+  leadId: string;
+}
+
 export interface ConvertLeadToCustomerInput {
   tenantId: string;
   leadId: string;
@@ -1171,6 +1175,38 @@ export async function createLead(input: CreateLeadInput) {
   return mapLead(data as RawLeadRow);
 }
 
+export async function updateLead(input: UpdateLeadInput) {
+  const client = requireSupabaseClient();
+  const scopedTenantId = requireTenantScope(input.tenantId);
+  const scopedLeadId = requireRecordId(input.leadId, "Lead id");
+  const payload = {
+    lead_code: normalizeOptionalValue(input.leadCode),
+    display_name: input.displayName.trim(),
+    contact_name: normalizeOptionalValue(input.contactName),
+    email: normalizeOptionalValue(input.email),
+    whatsapp: normalizeOptionalValue(input.whatsapp),
+    phone: normalizeOptionalValue(input.phone),
+    source: input.source,
+    status: input.status,
+    need_summary: normalizeOptionalValue(input.needSummary),
+    notes: normalizeOptionalValue(input.notes)
+  };
+
+  const { data, error } = await client
+    .from("leads")
+    .update(payload)
+    .eq("tenant_id", scopedTenantId)
+    .eq("id", scopedLeadId)
+    .select(leadSelectFields)
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return mapLead(data as RawLeadRow);
+}
+
 export async function createCatalogItem(input: CreateCatalogItemInput) {
   const client = requireSupabaseClient();
   const scopedTenantId = requireTenantScope(input.tenantId);
@@ -1582,7 +1618,13 @@ export async function cancelInvoice(
     throw new Error(error.message);
   }
 
-  const result = data as {
+  const rawResult = Array.isArray(data) ? data[0] : data;
+
+  if (!rawResult) {
+    throw new Error("Cancellation did not return reversal note details.");
+  }
+
+  const result = rawResult as {
     cancelled_invoice_id: string;
     reversal_invoice_id: string;
     reversal_invoice_number: string;
