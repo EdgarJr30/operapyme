@@ -1185,13 +1185,29 @@ const backofficeEn = {
         draft: "Draft",
         issued: "Issued",
         paid: "Paid",
-        void: "Void"
+        void: "Void",
+        cancelled: "Cancelled"
       },
       voidReasonLabel: "Void reason",
       createAction: "Save invoice",
       createSubmitting: "Saving invoice...",
       createSuccess: "Invoice created successfully as {invoiceNumber}.",
       createError: "We could not create the invoice. {message}",
+      editDrawerTitle: "Edit {invoiceNumber}",
+      editDrawerDescription:
+        "Adjust recipient, lines or dates. The invoice number does not change.",
+      detailDrawerTitle: "Invoice {invoiceNumber}",
+      detailDrawerDescription:
+        "This invoice can no longer be edited. You can cancel it if it was a mistake.",
+      readOnlyNotice: "This invoice is in {status} status and cannot be edited directly.",
+      saveChangesAction: "Save changes",
+      saveChangesSubmitting: "Saving changes...",
+      saveChangesSuccess: "{invoiceNumber} updated successfully.",
+      saveChangesError: "We could not save the changes. {message}",
+      viewEditAction: "View / Edit",
+      viewAction: "View detail",
+      invoiceNumberLabel: "Invoice number",
+      createdAtLabel: "Created on",
       pdf: {
         downloadAction: "Download PDF",
         generatingAction: "Generating PDF...",

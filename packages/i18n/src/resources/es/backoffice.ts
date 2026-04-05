@@ -1187,13 +1187,29 @@ const backofficeEs = {
         draft: "Borrador",
         issued: "Emitida",
         paid: "Pagada",
-        void: "Anulada"
+        void: "Anulada",
+        cancelled: "Cancelada"
       },
       voidReasonLabel: "Motivo de anulacion",
       createAction: "Guardar factura",
       createSubmitting: "Guardando factura...",
       createSuccess: "Factura creada correctamente como {invoiceNumber}.",
       createError: "No pudimos crear la factura. {message}",
+      editDrawerTitle: "Editar {invoiceNumber}",
+      editDrawerDescription:
+        "Ajusta receptor, lineas o fechas. El numero de factura no cambia.",
+      detailDrawerTitle: "Factura {invoiceNumber}",
+      detailDrawerDescription:
+        "Esta factura ya no puede editarse. Puedes cancelarla si fue un error.",
+      readOnlyNotice: "Esta factura esta en estado {status} y no admite edicion directa.",
+      saveChangesAction: "Guardar cambios",
+      saveChangesSubmitting: "Guardando cambios...",
+      saveChangesSuccess: "{invoiceNumber} actualizada correctamente.",
+      saveChangesError: "No pudimos guardar los cambios. {message}",
+      viewEditAction: "Ver / Editar",
+      viewAction: "Ver detalle",
+      invoiceNumberLabel: "Numero de factura",
+      createdAtLabel: "Creada el",
       pdf: {
         downloadAction: "Descargar PDF",
         generatingAction: "Generando PDF...",

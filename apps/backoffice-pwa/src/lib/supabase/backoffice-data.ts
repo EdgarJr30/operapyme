@@ -29,7 +29,7 @@ export type QuoteStatus =
   | "rejected"
   | "expired";
 export type SalesDocumentKind = "items" | "services";
-export type InvoiceStatus = "draft" | "issued" | "paid" | "void";
+export type InvoiceStatus = "draft" | "issued" | "paid" | "void" | "cancelled";
 
 export interface CustomerSummary {
   id: string;
@@ -149,6 +149,7 @@ export interface InvoiceSummary {
   dueOn: string | null;
   voidReason: string | null;
   notes: string | null;
+  reversalOfInvoiceId: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -313,6 +314,7 @@ interface RawInvoiceRow {
   notes: string | null;
   created_at: string;
   updated_at: string;
+  reversal_of_invoice_id: string | null;
   line_items?: RawQuoteLineRow[] | null;
 }
 
@@ -462,6 +464,27 @@ export interface MoveInvoiceStatusInput {
   voidReason?: string;
 }
 
+export interface UpdateInvoiceInput {
+  tenantId: string;
+  invoiceId: string;
+  title: string;
+  documentKind: SalesDocumentKind;
+  currencyCode: string;
+  recipientKind: QuoteRecipientKind;
+  customerId?: string | null;
+  leadId?: string | null;
+  recipientDisplayName: string;
+  recipientContactName?: string | null;
+  recipientEmail?: string | null;
+  recipientWhatsApp?: string | null;
+  recipientPhone?: string | null;
+  documentDiscountTotal: number;
+  issuedOn?: string | null;
+  dueOn?: string | null;
+  notes?: string | null;
+  lineItems: QuoteLineInput[];
+}
+
 const customerSelectFields =
   "id, customer_code, display_name, contact_name, legal_name, email, whatsapp, phone, document_id, notes, source, status, updated_at";
 
@@ -480,7 +503,7 @@ const quoteSelectFields =
 const quoteDetailSelectFields = `${quoteSelectFields}, line_items:quote_line_items(${quoteLineSelectFields})`;
 
 const invoiceSelectFields =
-  "id, source_quote_id, customer_id, lead_id, recipient_kind, recipient_display_name, recipient_contact_name, recipient_email, recipient_whatsapp, recipient_phone, invoice_number, title, document_kind, currency_code, subtotal, discount_total, tax_total, grand_total, status, issued_on, due_on, void_reason, notes, created_at, updated_at";
+  "id, source_quote_id, customer_id, lead_id, recipient_kind, recipient_display_name, recipient_contact_name, recipient_email, recipient_whatsapp, recipient_phone, invoice_number, title, document_kind, currency_code, subtotal, discount_total, tax_total, grand_total, status, issued_on, due_on, void_reason, notes, reversal_of_invoice_id, created_at, updated_at";
 
 const invoiceDetailSelectFields = `${invoiceSelectFields}, line_items:invoice_line_items(${quoteLineSelectFields})`;
 
@@ -710,6 +733,7 @@ function mapInvoice(row: RawInvoiceRow): InvoiceSummary {
     dueOn: row.due_on,
     voidReason: row.void_reason ?? null,
     notes: row.notes,
+    reversalOfInvoiceId: row.reversal_of_invoice_id ?? null,
     createdAt: row.created_at,
     updatedAt: row.updated_at
   };
@@ -1446,6 +1470,50 @@ export async function createInvoice(input: CreateInvoiceInput) {
     .select(invoiceSelectFields)
     .eq("tenant_id", scopedTenantId)
     .eq("id", invoiceId)
+    .single();
+
+  if (fetchError) {
+    throw new Error(fetchError.message);
+  }
+
+  return mapInvoice(data as RawInvoiceRow);
+}
+
+export async function updateInvoice(input: UpdateInvoiceInput): Promise<InvoiceSummary> {
+  const client = requireSupabaseClient();
+  const scopedTenantId = requireTenantScope(input.tenantId);
+  const scopedInvoiceId = requireRecordId(input.invoiceId, "Invoice id");
+
+  const { error } = await client.rpc("update_invoice", {
+    target_tenant_id: scopedTenantId,
+    target_invoice_id: scopedInvoiceId,
+    target_title: input.title,
+    target_document_kind: input.documentKind,
+    target_currency_code: input.currencyCode,
+    target_recipient_kind: input.recipientKind,
+    target_line_items: input.lineItems,
+    target_document_discount_total: input.documentDiscountTotal ?? 0,
+    target_customer_id: input.customerId ?? null,
+    target_lead_id: input.leadId ?? null,
+    target_recipient_display_name: input.recipientDisplayName ?? null,
+    target_recipient_contact_name: input.recipientContactName ?? null,
+    target_recipient_email: input.recipientEmail ?? null,
+    target_recipient_whatsapp: input.recipientWhatsApp ?? null,
+    target_recipient_phone: input.recipientPhone ?? null,
+    target_issued_on: input.issuedOn ?? null,
+    target_due_on: input.dueOn ?? null,
+    target_notes: input.notes ?? null
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const { data, error: fetchError } = await client
+    .from("invoices")
+    .select(invoiceSelectFields)
+    .eq("tenant_id", scopedTenantId)
+    .eq("id", scopedInvoiceId)
     .single();
 
   if (fetchError) {

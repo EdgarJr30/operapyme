@@ -24,6 +24,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle
+} from "@/components/ui/sheet";
 import { StatusPill } from "@/components/ui/status-pill";
 import {
   Table,
@@ -49,6 +56,7 @@ import type {
 } from "@/lib/supabase/backoffice-data";
 import { useCatalogItemsData } from "@/modules/catalog/use-catalog-items-data";
 import { InvoicePdfDownloadButton } from "@/modules/commercial/invoice-pdf-download-button";
+import { useInvoiceDetailData } from "@/modules/commercial/use-invoice-detail-data";
 import { useInvoicesData } from "@/modules/commercial/use-invoices-data";
 import { useInvoiceMutations } from "@/modules/commercial/use-invoice-mutations";
 import { useCustomersData } from "@/modules/crm/use-customers-data";
@@ -72,12 +80,16 @@ function getNextInvoiceStatuses(status: InvoiceStatus): InvoiceStatus[] {
     case "issued":
       return ["paid", "void"];
     case "paid":
-      return [];
     case "void":
-      return ["draft"];
+    case "cancelled":
+      return [];
     default:
       return [];
   }
+}
+
+function getInvoiceIsEditable(status: InvoiceStatus): boolean {
+  return status === "draft" || status === "issued";
 }
 
 function formatMoney(amount: number, currencyCode: string) {
@@ -109,6 +121,10 @@ function getInvoiceTone(status: InvoiceStatus) {
       return "success";
     case "void":
       return "warning";
+    case "cancelled":
+      return "warning";
+    default:
+      return "neutral";
   }
 }
 
@@ -189,6 +205,8 @@ export function CommercialInvoicesPage() {
   const [pendingVoidMove, setPendingVoidMove] = useState<InvoiceSummary | null>(null);
   const [voidReasonValue, setVoidReasonValue] = useState("");
   const [voidReasonError, setVoidReasonError] = useState("");
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
   const importedQuoteIdRef = useRef<string | null>(null);
   const invoiceSchema = createInvoiceFormSchema(t);
   const { data: customers = [] } = useCustomersData();
@@ -203,7 +221,9 @@ export function CommercialInvoicesPage() {
     isLoading,
     refetch
   } = useInvoicesData();
-  const { createInvoiceMutation, moveInvoiceStatusMutation } = useInvoiceMutations();
+  const { createInvoiceMutation, moveInvoiceStatusMutation, updateInvoiceMutation } =
+    useInvoiceMutations();
+  const invoiceDetail = useInvoiceDetailData(selectedInvoiceId);
 
   const form = useForm<InvoiceFormValues>({
     resolver: zodResolver(invoiceSchema),
@@ -213,6 +233,25 @@ export function CommercialInvoicesPage() {
     control: form.control,
     name: "lineItems"
   });
+
+  const editForm = useForm<InvoiceFormValues>({
+    resolver: zodResolver(invoiceSchema),
+    defaultValues: buildDefaultValues()
+  });
+  const {
+    fields: editFields,
+    append: editAppend,
+    remove: editRemove
+  } = useFieldArray({
+    control: editForm.control,
+    name: "lineItems"
+  });
+  const editDocumentKind = editForm.watch("documentKind");
+  const editRecipientKind = editForm.watch("recipientKind");
+  const editCatalogOptions = useMemo(
+    () => getCatalogOptions(catalogItems, editDocumentKind),
+    [catalogItems, editDocumentKind]
+  );
 
   const sourceQuoteId = form.watch("sourceQuoteId");
   const documentKind = form.watch("documentKind");
@@ -319,6 +358,104 @@ export function CommercialInvoicesPage() {
         taxTotal: lineItem.taxTotal
       }))
     );
+  }
+
+  useEffect(() => {
+    const detail = invoiceDetail.data;
+    if (!detail || !drawerOpen || !getInvoiceIsEditable(detail.status)) {
+      return;
+    }
+
+    // Compute document-level discount = total discount - sum of line discounts
+    const lineDiscountSum = detail.lineItems.reduce(
+      (sum, li) => sum + li.discountTotal,
+      0
+    );
+    const documentDiscountTotal = Math.max(
+      0,
+      detail.discountTotal - lineDiscountSum
+    );
+
+    editForm.reset({
+      sourceQuoteId: detail.sourceQuoteId ?? "",
+      recipientKind: detail.recipientKind,
+      customerId: detail.customerId ?? "",
+      leadId: detail.leadId ?? "",
+      recipientDisplayName: detail.recipientDisplayName,
+      recipientContactName: detail.recipientContactName ?? "",
+      recipientEmail: detail.recipientEmail ?? "",
+      recipientWhatsApp: detail.recipientWhatsApp ?? "",
+      recipientPhone: detail.recipientPhone ?? "",
+      title: detail.title,
+      documentKind: detail.documentKind,
+      status: detail.status as "draft" | "issued",
+      currencyCode: detail.currencyCode,
+      documentDiscountTotal,
+      issuedOn: detail.issuedOn ?? "",
+      dueOn: detail.dueOn ?? "",
+      notes: detail.notes ?? "",
+      lineItems: detail.lineItems.map((li) => ({
+        catalogItemId: li.catalogItemId ?? "",
+        itemName: li.itemName,
+        itemDescription: li.itemDescription ?? "",
+        quantity: li.quantity,
+        unitLabel: li.unitLabel ?? "",
+        unitPrice: li.unitPrice,
+        discountTotal: li.discountTotal,
+        taxTotal: li.taxTotal
+      }))
+    });
+  }, [drawerOpen, editForm, invoiceDetail.data]);
+
+  function openDrawer(invoiceId: string) {
+    setSelectedInvoiceId(invoiceId);
+    setDrawerOpen(true);
+  }
+
+  function closeDrawer() {
+    setDrawerOpen(false);
+    editForm.reset(buildDefaultValues());
+  }
+
+  async function onEditSubmit(values: InvoiceFormValues) {
+    if (!selectedInvoiceId) {
+      return;
+    }
+
+    try {
+      const updated = await updateInvoiceMutation.mutateAsync({
+        invoiceId: selectedInvoiceId,
+        title: values.title,
+        documentKind: values.documentKind,
+        currencyCode: values.currencyCode,
+        recipientKind: values.recipientKind,
+        customerId: values.recipientKind === "customer" ? values.customerId : null,
+        leadId: values.recipientKind === "lead" ? values.leadId : null,
+        recipientDisplayName: values.recipientDisplayName,
+        recipientContactName: values.recipientContactName,
+        recipientEmail: values.recipientEmail,
+        recipientWhatsApp: values.recipientWhatsApp,
+        recipientPhone: values.recipientPhone,
+        documentDiscountTotal: values.documentDiscountTotal,
+        issuedOn: values.issuedOn,
+        dueOn: values.dueOn,
+        notes: values.notes,
+        lineItems: values.lineItems
+      });
+
+      toast.success(
+        t("commercial.invoices.saveChangesSuccess", {
+          invoiceNumber: updated.invoiceNumber
+        })
+      );
+      closeDrawer();
+    } catch (error) {
+      toast.error(
+        t("commercial.invoices.saveChangesError", {
+          message: error instanceof Error ? error.message : ""
+        })
+      );
+    }
   }
 
   function closeModal() {
@@ -622,6 +759,17 @@ export function CommercialInvoicesPage() {
                             </Select>
                           </div>
                         ) : null}
+
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => openDrawer(invoice.id)}
+                        >
+                          {getInvoiceIsEditable(invoice.status)
+                            ? t("commercial.invoices.viewEditAction")
+                            : t("commercial.invoices.viewAction")}
+                        </Button>
 
                         <InvoicePdfDownloadButton
                           invoiceId={invoice.id}
@@ -1219,6 +1367,644 @@ export function CommercialInvoicesPage() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Invoice detail / edit drawer */}
+      <Sheet
+        open={drawerOpen}
+        onOpenChange={(open) => {
+          if (!open && !updateInvoiceMutation.isPending) {
+            closeDrawer();
+          }
+        }}
+      >
+        <SheetContent
+          className="w-full overflow-y-auto sm:max-w-2xl"
+          aria-describedby="invoice-drawer-description"
+        >
+          {invoiceDetail.isLoading ? (
+            <div className="flex h-full items-center justify-center">
+              <p className="text-sm text-ink-soft">
+                {t("commercial.invoices.loadingTitle")}
+              </p>
+            </div>
+          ) : invoiceDetail.data ? (
+            <>
+              <SheetHeader className="mb-6">
+                <SheetTitle>
+                  {getInvoiceIsEditable(invoiceDetail.data.status)
+                    ? t("commercial.invoices.editDrawerTitle", {
+                        invoiceNumber: invoiceDetail.data.invoiceNumber
+                      })
+                    : t("commercial.invoices.detailDrawerTitle", {
+                        invoiceNumber: invoiceDetail.data.invoiceNumber
+                      })}
+                </SheetTitle>
+                <SheetDescription id="invoice-drawer-description">
+                  {getInvoiceIsEditable(invoiceDetail.data.status)
+                    ? t("commercial.invoices.editDrawerDescription")
+                    : t("commercial.invoices.detailDrawerDescription")}
+                </SheetDescription>
+              </SheetHeader>
+
+              {getInvoiceIsEditable(invoiceDetail.data.status) ? (
+                <form
+                  className="space-y-6"
+                  onSubmit={editForm.handleSubmit(onEditSubmit)}
+                  noValidate
+                  {...buildOperationalAutofillProps("off")}
+                >
+                  <section className="space-y-4">
+                    <p className="text-sm font-semibold text-ink">
+                      {t("commercial.invoices.documentTitle")}
+                    </p>
+
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <Field
+                        label={t("commercial.invoices.documentKindLabel")}
+                        htmlFor="edit-invoice-document-kind"
+                      >
+                        <Select
+                          id="edit-invoice-document-kind"
+                          {...editForm.register("documentKind")}
+                        >
+                          {salesDocumentKindValues.map((value) => (
+                            <option key={value} value={value}>
+                              {t(`commercial.invoices.documentKinds.${value}`)}
+                            </option>
+                          ))}
+                        </Select>
+                      </Field>
+
+                      <Field
+                        label={t("commercial.invoices.invoiceNumberLabel")}
+                        htmlFor="edit-invoice-number"
+                      >
+                        <Input
+                          id="edit-invoice-number"
+                          value={invoiceDetail.data.invoiceNumber}
+                          readOnly
+                          disabled
+                        />
+                      </Field>
+                    </div>
+
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <Field
+                        label={t("quotes.form.titleLabel")}
+                        htmlFor="edit-invoice-title"
+                        error={editForm.formState.errors.title?.message}
+                      >
+                        <Input
+                          id="edit-invoice-title"
+                          placeholder={t("quotes.form.titlePlaceholder")}
+                          {...editForm.register("title")}
+                        />
+                      </Field>
+
+                      <Field
+                        label={t("quotes.form.currencyCodeLabel")}
+                        htmlFor="edit-invoice-currency"
+                        error={editForm.formState.errors.currencyCode?.message}
+                      >
+                        <Input
+                          id="edit-invoice-currency"
+                          {...editForm.register("currencyCode")}
+                        />
+                      </Field>
+                    </div>
+
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <Field
+                        label={t("commercial.invoices.issuedOnLabel")}
+                        htmlFor="edit-invoice-issued-on"
+                      >
+                        <Input
+                          id="edit-invoice-issued-on"
+                          type="date"
+                          {...editForm.register("issuedOn")}
+                        />
+                      </Field>
+
+                      <Field
+                        label={t("commercial.invoices.dueOnLabel")}
+                        htmlFor="edit-invoice-due-on"
+                      >
+                        <Input
+                          id="edit-invoice-due-on"
+                          type="date"
+                          {...editForm.register("dueOn")}
+                        />
+                      </Field>
+                    </div>
+                  </section>
+
+                  <section className="space-y-4">
+                    <p className="text-sm font-semibold text-ink">
+                      {t("commercial.invoices.recipientTitle")}
+                    </p>
+
+                    <Field
+                      label={t("quotes.form.recipientKindLabel")}
+                      htmlFor="edit-invoice-recipient-kind"
+                    >
+                      <Select
+                        id="edit-invoice-recipient-kind"
+                        {...editForm.register("recipientKind")}
+                      >
+                        <option value="customer">
+                          {t("quotes.form.recipientKinds.customer")}
+                        </option>
+                        <option value="lead">
+                          {t("quotes.form.recipientKinds.lead")}
+                        </option>
+                        <option value="ad_hoc">
+                          {t("quotes.form.recipientKinds.ad_hoc")}
+                        </option>
+                      </Select>
+                    </Field>
+
+                    {editRecipientKind === "customer" ? (
+                      <Field
+                        label={t("quotes.form.customerLabel")}
+                        htmlFor="edit-invoice-customer"
+                        error={editForm.formState.errors.customerId?.message}
+                      >
+                        <Select
+                          id="edit-invoice-customer"
+                          {...editForm.register("customerId")}
+                        >
+                          <option value="">
+                            {t("quotes.form.customerPlaceholder")}
+                          </option>
+                          {customers.map((customer) => (
+                            <option key={customer.id} value={customer.id}>
+                              {customer.displayName}
+                            </option>
+                          ))}
+                        </Select>
+                      </Field>
+                    ) : null}
+
+                    {editRecipientKind === "lead" ? (
+                      <Field
+                        label={t("quotes.form.leadLabel")}
+                        htmlFor="edit-invoice-lead"
+                        error={editForm.formState.errors.leadId?.message}
+                      >
+                        <Select
+                          id="edit-invoice-lead"
+                          {...editForm.register("leadId")}
+                        >
+                          <option value="">
+                            {t("quotes.form.leadPlaceholder")}
+                          </option>
+                          {leads.map((lead) => (
+                            <option key={lead.id} value={lead.id}>
+                              {lead.displayName}
+                            </option>
+                          ))}
+                        </Select>
+                      </Field>
+                    ) : null}
+
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <Field
+                        label={t("quotes.form.recipientDisplayNameLabel")}
+                        htmlFor="edit-invoice-recipient-name"
+                        error={
+                          editForm.formState.errors.recipientDisplayName?.message
+                        }
+                      >
+                        <Input
+                          id="edit-invoice-recipient-name"
+                          placeholder={t(
+                            "quotes.form.recipientDisplayNamePlaceholder"
+                          )}
+                          {...editForm.register("recipientDisplayName")}
+                        />
+                      </Field>
+
+                      <Field
+                        label={t("quotes.form.recipientContactNameLabel")}
+                        htmlFor="edit-invoice-contact-name"
+                      >
+                        <Input
+                          id="edit-invoice-contact-name"
+                          placeholder={t(
+                            "quotes.form.recipientContactNamePlaceholder"
+                          )}
+                          {...editForm.register("recipientContactName")}
+                        />
+                      </Field>
+                    </div>
+
+                    <div className="grid gap-4 sm:grid-cols-3">
+                      <Field
+                        label={t("quotes.form.recipientEmailLabel")}
+                        htmlFor="edit-invoice-email"
+                        error={editForm.formState.errors.recipientEmail?.message}
+                      >
+                        <Input
+                          id="edit-invoice-email"
+                          placeholder={t(
+                            "quotes.form.recipientEmailPlaceholder"
+                          )}
+                          {...editForm.register("recipientEmail")}
+                        />
+                      </Field>
+                      <Field
+                        label={t("quotes.form.recipientWhatsAppLabel")}
+                        htmlFor="edit-invoice-whatsapp"
+                      >
+                        <Input
+                          id="edit-invoice-whatsapp"
+                          placeholder={t(
+                            "quotes.form.recipientWhatsAppPlaceholder"
+                          )}
+                          {...editForm.register("recipientWhatsApp")}
+                        />
+                      </Field>
+                      <Field
+                        label={t("quotes.form.recipientPhoneLabel")}
+                        htmlFor="edit-invoice-phone"
+                      >
+                        <Input
+                          id="edit-invoice-phone"
+                          placeholder={t(
+                            "quotes.form.recipientPhonePlaceholder"
+                          )}
+                          {...editForm.register("recipientPhone")}
+                        />
+                      </Field>
+                    </div>
+                  </section>
+
+                  <section className="space-y-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-semibold text-ink">
+                          {t("commercial.invoices.linesTitle")}
+                        </p>
+                        <p className="text-sm text-ink-soft">
+                          {t("commercial.invoices.lineHint")}
+                        </p>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => {
+                          editAppend({
+                            catalogItemId: "",
+                            itemName: "",
+                            itemDescription: "",
+                            quantity: 1,
+                            unitLabel:
+                              editDocumentKind === "items" ? "unidad" : "servicio",
+                            unitPrice: 0,
+                            discountTotal: 0,
+                            taxTotal: 0
+                          });
+                        }}
+                      >
+                        {t("quotes.form.addLineItemAction")}
+                      </Button>
+                    </div>
+
+                    <div className="space-y-4">
+                      {editFields.map((field, index) => (
+                        <div
+                          key={field.id}
+                          className="rounded-3xl border border-line/70 bg-paper/70 p-4"
+                        >
+                          <div className="grid gap-4">
+                            <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_auto]">
+                              <Field
+                                label={t("quotes.form.catalogItemLabel")}
+                                htmlFor={`edit-invoice-line-catalog-${index}`}
+                              >
+                                <Select
+                                  id={`edit-invoice-line-catalog-${index}`}
+                                  {...editForm.register(
+                                    `lineItems.${index}.catalogItemId` as const,
+                                    {
+                                      onChange: (event) => {
+                                        const selectedItem =
+                                          editCatalogOptions.find(
+                                            (ci) => ci.id === event.target.value
+                                          );
+                                        if (!selectedItem) return;
+                                        editForm.setValue(
+                                          `lineItems.${index}.itemName`,
+                                          selectedItem.name
+                                        );
+                                        editForm.setValue(
+                                          `lineItems.${index}.itemDescription`,
+                                          selectedItem.description ?? ""
+                                        );
+                                        editForm.setValue(
+                                          `lineItems.${index}.unitLabel`,
+                                          editDocumentKind === "items"
+                                            ? "unidad"
+                                            : "servicio"
+                                        );
+                                        editForm.setValue(
+                                          `lineItems.${index}.unitPrice`,
+                                          selectedItem.unitPrice ?? 0
+                                        );
+                                      }
+                                    }
+                                  )}
+                                >
+                                  <option value="">
+                                    {t("quotes.form.catalogItemPlaceholder")}
+                                  </option>
+                                  {editCatalogOptions.map((ci) => (
+                                    <option key={ci.id} value={ci.id}>
+                                      {ci.name}
+                                    </option>
+                                  ))}
+                                </Select>
+                              </Field>
+
+                              <div className="flex items-end">
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => editRemove(index)}
+                                  disabled={editFields.length === 1}
+                                >
+                                  {t("quotes.form.removeLineItemAction")}
+                                </Button>
+                              </div>
+                            </div>
+
+                            <div className="grid gap-4 sm:grid-cols-2">
+                              <Field
+                                label={t("quotes.form.lineItemNameLabel")}
+                                htmlFor={`edit-invoice-line-name-${index}`}
+                                error={
+                                  editForm.formState.errors.lineItems?.[index]
+                                    ?.itemName?.message
+                                }
+                              >
+                                <Input
+                                  id={`edit-invoice-line-name-${index}`}
+                                  placeholder={t(
+                                    "quotes.form.lineItemNamePlaceholder"
+                                  )}
+                                  {...editForm.register(
+                                    `lineItems.${index}.itemName` as const
+                                  )}
+                                />
+                              </Field>
+
+                              <Field
+                                label={t("quotes.form.unitLabelLabel")}
+                                htmlFor={`edit-invoice-line-unit-${index}`}
+                              >
+                                <Input
+                                  id={`edit-invoice-line-unit-${index}`}
+                                  placeholder={t(
+                                    "quotes.form.unitLabelPlaceholder"
+                                  )}
+                                  {...editForm.register(
+                                    `lineItems.${index}.unitLabel` as const
+                                  )}
+                                />
+                              </Field>
+                            </div>
+
+                            <Field
+                              label={t("quotes.form.lineItemDescriptionLabel")}
+                              htmlFor={`edit-invoice-line-desc-${index}`}
+                            >
+                              <Textarea
+                                id={`edit-invoice-line-desc-${index}`}
+                                placeholder={t(
+                                  "quotes.form.lineItemDescriptionPlaceholder"
+                                )}
+                                {...editForm.register(
+                                  `lineItems.${index}.itemDescription` as const
+                                )}
+                              />
+                            </Field>
+
+                            <div className="grid gap-4 sm:grid-cols-4">
+                              <Field
+                                label={t("quotes.form.quantityLabel")}
+                                htmlFor={`edit-invoice-line-qty-${index}`}
+                              >
+                                <Input
+                                  id={`edit-invoice-line-qty-${index}`}
+                                  type="number"
+                                  step="1"
+                                  {...editForm.register(
+                                    `lineItems.${index}.quantity` as const,
+                                    { valueAsNumber: true }
+                                  )}
+                                />
+                              </Field>
+                              <Field
+                                label={t("quotes.form.unitPriceLabel")}
+                                htmlFor={`edit-invoice-line-price-${index}`}
+                              >
+                                <Input
+                                  id={`edit-invoice-line-price-${index}`}
+                                  type="number"
+                                  step="1"
+                                  {...editForm.register(
+                                    `lineItems.${index}.unitPrice` as const,
+                                    { valueAsNumber: true }
+                                  )}
+                                />
+                              </Field>
+                              <Field
+                                label={t("quotes.form.discountTotalLabel")}
+                                htmlFor={`edit-invoice-line-discount-${index}`}
+                              >
+                                <Input
+                                  id={`edit-invoice-line-discount-${index}`}
+                                  type="number"
+                                  step="1"
+                                  {...editForm.register(
+                                    `lineItems.${index}.discountTotal` as const,
+                                    { valueAsNumber: true }
+                                  )}
+                                />
+                              </Field>
+                              <Field
+                                label={t("quotes.form.taxTotalLabel")}
+                                htmlFor={`edit-invoice-line-tax-${index}`}
+                              >
+                                <Input
+                                  id={`edit-invoice-line-tax-${index}`}
+                                  type="number"
+                                  step="1"
+                                  {...editForm.register(
+                                    `lineItems.${index}.taxTotal` as const,
+                                    { valueAsNumber: true }
+                                  )}
+                                />
+                              </Field>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="grid gap-4 sm:grid-cols-[160px_minmax(0,1fr)]">
+                      <Field
+                        label={t("quotes.form.documentDiscountAmountLabel")}
+                        htmlFor="edit-invoice-discount"
+                      >
+                        <Input
+                          id="edit-invoice-discount"
+                          type="number"
+                          step="1"
+                          {...editForm.register("documentDiscountTotal", {
+                            valueAsNumber: true
+                          })}
+                        />
+                      </Field>
+
+                      <Field
+                        label={t("quotes.form.notesLabel")}
+                        htmlFor="edit-invoice-notes"
+                      >
+                        <Textarea
+                          id="edit-invoice-notes"
+                          placeholder={t("quotes.form.notesPlaceholder")}
+                          {...editForm.register("notes")}
+                        />
+                      </Field>
+                    </div>
+                  </section>
+
+                  <div className="flex flex-wrap justify-end gap-3 pt-2">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="lg"
+                      onClick={closeDrawer}
+                      disabled={updateInvoiceMutation.isPending}
+                    >
+                      {t("commercial.invoices.cancelAction")}
+                    </Button>
+                    <Button
+                      type="submit"
+                      size="lg"
+                      disabled={updateInvoiceMutation.isPending}
+                    >
+                      {updateInvoiceMutation.isPending
+                        ? t("commercial.invoices.saveChangesSubmitting")
+                        : t("commercial.invoices.saveChangesAction")}
+                    </Button>
+                  </div>
+                </form>
+              ) : (
+                <div className="space-y-4">
+                  <div className="rounded-2xl border border-line/70 bg-paper/70 p-4 space-y-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="space-y-1">
+                        <p className="font-medium text-ink">
+                          {invoiceDetail.data.title}
+                        </p>
+                        <p className="text-sm text-ink-soft">
+                          {invoiceDetail.data.invoiceNumber}
+                        </p>
+                      </div>
+                      <StatusPill tone={getInvoiceTone(invoiceDetail.data.status)}>
+                        {t(
+                          `commercial.invoices.statuses.${invoiceDetail.data.status}`
+                        )}
+                      </StatusPill>
+                    </div>
+
+                    <p className="text-sm text-ink-soft">
+                      {t("commercial.invoices.readOnlyNotice", {
+                        status: t(
+                          `commercial.invoices.statuses.${invoiceDetail.data.status}`
+                        )
+                      })}
+                    </p>
+
+                    <div className="flex items-center justify-between gap-3 border-t border-line/50 pt-3">
+                      <p className="text-sm text-ink-soft">
+                        {t("commercial.invoices.totalLabel")}
+                      </p>
+                      <p className="font-semibold text-ink">
+                        {formatMoney(
+                          invoiceDetail.data.grandTotal,
+                          invoiceDetail.data.currencyCode
+                        )}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-ink">
+                      {t("commercial.invoices.recipientLabel")}
+                    </p>
+                    <p className="text-sm text-ink">
+                      {invoiceDetail.data.recipientDisplayName}
+                    </p>
+                    {invoiceDetail.data.recipientContactName ? (
+                      <p className="text-sm text-ink-soft">
+                        {invoiceDetail.data.recipientContactName}
+                      </p>
+                    ) : null}
+                  </div>
+
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-ink">
+                      {t("commercial.invoices.linesTitle")}
+                    </p>
+                    <div className="divide-y divide-line/50 rounded-2xl border border-line/70 overflow-hidden">
+                      {invoiceDetail.data.lineItems.map((li) => (
+                        <div key={li.id} className="flex justify-between gap-3 p-3">
+                          <div className="space-y-0.5 min-w-0">
+                            <p className="text-sm font-medium text-ink truncate">
+                              {li.itemName}
+                            </p>
+                            {li.itemDescription ? (
+                              <p className="text-xs text-ink-soft">
+                                {li.itemDescription}
+                              </p>
+                            ) : null}
+                          </div>
+                          <p className="text-sm text-ink whitespace-nowrap">
+                            {formatMoney(
+                              li.lineTotal,
+                              invoiceDetail.data!.currencyCode
+                            )}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-3 pt-2">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="lg"
+                      onClick={closeDrawer}
+                    >
+                      {t("commercial.invoices.cancelAction")}
+                    </Button>
+                    <InvoicePdfDownloadButton
+                      invoiceId={invoiceDetail.data.id}
+                      invoiceNumber={invoiceDetail.data.invoiceNumber}
+                    />
+                  </div>
+                </div>
+              )}
+            </>
+          ) : null}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

@@ -4,8 +4,10 @@ import { useBackofficeAuth } from "@/app/auth-provider";
 import {
   createInvoice,
   moveInvoiceStatus,
+  updateInvoice,
   type CreateInvoiceInput,
-  type MoveInvoiceStatusInput
+  type MoveInvoiceStatusInput,
+  type UpdateInvoiceInput
 } from "@/lib/supabase/backoffice-data";
 
 function ensureTenantId(tenantId: string | null) {
@@ -49,8 +51,26 @@ export function useInvoiceMutations() {
     }
   });
 
+  const updateInvoiceMutation = useMutation({
+    mutationFn: (input: Omit<UpdateInvoiceInput, "tenantId">) =>
+      updateInvoice({
+        ...input,
+        tenantId: ensureTenantId(activeTenantId)
+      }),
+    onSuccess: async (updated) => {
+      const tenantId = ensureTenantId(activeTenantId);
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["invoices", tenantId] }),
+        queryClient.invalidateQueries({
+          queryKey: ["invoice-detail", tenantId, updated.id]
+        })
+      ]);
+    }
+  });
+
   return {
     createInvoiceMutation,
-    moveInvoiceStatusMutation
+    moveInvoiceStatusMutation,
+    updateInvoiceMutation
   };
 }
