@@ -352,7 +352,7 @@ export function AppShell() {
                     <button
                       type="button"
                       onClick={() => setIsUserMenuOpen((currentValue) => !currentValue)}
-                      className="inline-flex min-h-10 items-center gap-2.5 rounded-xl border border-line/70 bg-paper px-2.5 py-1.5 shadow-panel transition hover:bg-sand/70"
+                      className="inline-flex min-h-10 cursor-pointer items-center gap-2.5 rounded-xl border border-line/70 bg-paper px-2.5 py-1.5 shadow-panel transition hover:bg-sand/70"
                       aria-label={t("shell.profileMenuLabel")}
                       aria-expanded={isUserMenuOpen}
                     >
@@ -407,7 +407,7 @@ export function AppShell() {
                           <button
                             type="button"
                             onClick={() => setTheme(nextTheme)}
-                            className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-line-strong bg-paper px-4 text-sm font-medium text-ink shadow-panel transition hover:bg-sand/70"
+                            className="mt-4 flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border border-line-strong bg-paper px-4 text-sm font-medium text-ink shadow-panel transition hover:bg-sand/70"
                           >
                             <ThemeIcon className="size-4" aria-hidden="true" />
                             <span>{t(nextTheme === "dark" ? "theme.switchToDark" : "theme.switchToLight")}</span>
@@ -416,7 +416,7 @@ export function AppShell() {
                           <button
                             type="button"
                             onClick={handleOpenProfile}
-                            className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-line-strong bg-paper px-4 text-sm font-medium text-ink shadow-panel transition hover:bg-sand/70"
+                            className="mt-4 flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border border-line-strong bg-paper px-4 text-sm font-medium text-ink shadow-panel transition hover:bg-sand/70"
                           >
                             <UserRound className="size-4" aria-hidden="true" />
                             <span>{t("shell.profileAction")}</span>
@@ -425,7 +425,7 @@ export function AppShell() {
                           <button
                             type="button"
                             onClick={handleSignOut}
-                            className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-line-strong bg-paper px-4 text-sm font-medium text-ink shadow-panel transition hover:bg-sand/70"
+                            className="mt-4 flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border border-line-strong bg-paper px-4 text-sm font-medium text-ink shadow-panel transition hover:bg-sand/70"
                           >
                             <LogOut className="size-4" aria-hidden="true" />
                             <span>{t("shell.signOut")}</span>

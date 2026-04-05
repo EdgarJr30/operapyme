@@ -420,6 +420,7 @@ Reglas:
 6. Soportar zoom y text resizing hasta `200%` sin romper el flujo.
 7. Estados, validacion y prioridad nunca dependen solo del color.
 8. Todo target primario debe respetar `44x44 CSS px`, con preferencia por `48x48`.
+9. **Cursor pointer obligatorio:** Todo elemento interactivo — `<button>`, `<a>`, items de navegacion, tabs, opciones de dropdown, items de sidebar, divs/spans clicables y cualquier control accionable — debe tener `cursor-pointer`. La clase base de `Button` y los componentes de la libreria UI ya lo incluyen; en botones nativos o elementos no-button con `onClick` agregarlo siempre manualmente. Usar `cursor-not-allowed` para estados `disabled` interactivos. Nunca usar `cursor-default` en elementos que disparan una accion.
 
 ## 14. Movimiento
 
@@ -435,18 +436,19 @@ Reglas:
 Antes de cerrar una entrega visual relevante, verificar:
 
 1. Funciona en `320px`, `360px`, `390px`, `768px`, `1280px` y `1440px`.
-2. No hay scroll horizontal en mobile.
-3. Los targets primarios cumplen `44x44`, idealmente `48x48`.
-4. El body text sigue siendo legible sin zoom.
-5. Los formularios usan labels visibles y composicion mobile de una columna.
-6. La pantalla tiene estados de loading, empty, error y permisos coherentes.
-7. La navegacion y las acciones respetan RBAC.
-8. Se usan tokens semanticos y no colores hardcodeados por feature.
-9. Todo texto nuevo sale por `packages/i18n` con `es` y `en`.
-10. El desktop no se comporta como una torre vertical estrecha si la tarea se beneficia del ancho disponible.
-11. El first fold de un overview operativo muestra resumen, acciones y datos reales.
-12. La solucion reutiliza el sistema compartido en vez de inventar patrones locales.
-13. La propuesta cumple los criterios de claridad, interactividad, legibilidad y organizacion inspirados en Apple.
+2. Todos los elementos interactivos muestran `cursor-pointer` (o `cursor-not-allowed` si estan deshabilitados).
+3. No hay scroll horizontal en mobile.
+4. Los targets primarios cumplen `44x44`, idealmente `48x48`.
+5. El body text sigue siendo legible sin zoom.
+6. Los formularios usan labels visibles y composicion mobile de una columna.
+7. La pantalla tiene estados de loading, empty, error y permisos coherentes.
+8. La navegacion y las acciones respetan RBAC.
+9. Se usan tokens semanticos y no colores hardcodeados por feature.
+10. Todo texto nuevo sale por `packages/i18n` con `es` y `en`.
+11. El desktop no se comporta como una torre vertical estrecha si la tarea se beneficia del ancho disponible.
+12. El first fold de un overview operativo muestra resumen, acciones y datos reales.
+13. La solucion reutiliza el sistema compartido en vez de inventar patrones locales.
+14. La propuesta cumple los criterios de claridad, interactividad, legibilidad y organizacion inspirados en Apple.
 
 ## 16. Referencias externas usadas en esta revision
 

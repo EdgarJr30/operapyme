@@ -344,7 +344,7 @@ export function AuthHeroPanel({ aside }: AuthHeroPanelProps) {
             <button
               type="button"
               onClick={() => setMobileMenuOpen(true)}
-              className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700"
+              className="-m-2.5 inline-flex cursor-pointer items-center justify-center rounded-md p-2.5 text-gray-700"
             >
               <span className="sr-only">
                 {t('auth.landing.mobileMenu.open')}
@@ -391,7 +391,7 @@ export function AuthHeroPanel({ aside }: AuthHeroPanelProps) {
                 <button
                   type="button"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="-m-2.5 rounded-md p-2.5 text-gray-700"
+                  className="-m-2.5 cursor-pointer rounded-md p-2.5 text-gray-700"
                 >
                   <span className="sr-only">
                     {t('auth.landing.mobileMenu.close')}
@@ -673,7 +673,7 @@ export function AuthHeroPanel({ aside }: AuthHeroPanelProps) {
               />
               <button
                 type="submit"
-                className="flex-none rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-xs hover:bg-gray-100"
+                className="flex-none cursor-pointer rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-xs hover:bg-gray-100"
               >
                 {t('auth.landing.newsletter.cta')}
               </button>
@@ -841,7 +841,7 @@ export function AuthHeroPanel({ aside }: AuthHeroPanelProps) {
               <div className="mt-4 sm:ml-4 sm:mt-0 sm:shrink-0">
                 <button
                   type="submit"
-                  className="flex w-full items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500"
+                  className="flex w-full cursor-pointer items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500"
                 >
                   {t('auth.landing.footer.subscribe')}
                 </button>

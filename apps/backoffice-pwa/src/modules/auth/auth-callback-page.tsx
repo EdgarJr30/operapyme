@@ -284,7 +284,7 @@ export function AuthCallbackPage() {
                       aria-label={
                         showPassword ? t("auth.form.hidePassword") : t("auth.form.showPassword")
                       }
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500"
                     >
                       {showPassword ? (
                         <EyeOff className="size-5" aria-hidden="true" />
@@ -316,7 +316,7 @@ export function AuthCallbackPage() {
                       aria-label={
                         showConfirmPassword ? t("auth.form.hidePassword") : t("auth.form.showPassword")
                       }
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500"
                     >
                       {showConfirmPassword ? (
                         <EyeOff className="size-5" aria-hidden="true" />

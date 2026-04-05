@@ -59,7 +59,7 @@ export function ThemeSwitcher() {
             disabled={!isMounted}
             onClick={() => setTheme(value)}
             className={cn(
-              "flex min-h-24 items-center gap-3 rounded-3xl border px-4 py-4 text-left transition disabled:cursor-not-allowed disabled:opacity-70",
+              "flex min-h-24 cursor-pointer items-center gap-3 rounded-3xl border px-4 py-4 text-left transition disabled:cursor-not-allowed disabled:opacity-70",
               isActive
                 ? "border-sage-400/70 bg-sage-200/70 text-ink shadow-panel"
                 : "border-line/70 bg-paper/72 text-ink-soft hover:bg-paper/90 hover:text-ink"

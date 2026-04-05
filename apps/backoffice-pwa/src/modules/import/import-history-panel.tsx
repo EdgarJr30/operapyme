@@ -122,7 +122,7 @@ export function ImportHistoryPanel() {
                         <button
                           type="button"
                           onClick={() => setConfirmJobId(job.id)}
-                          className="inline-flex items-center gap-1 text-xs text-ink-muted underline hover:text-red-600 transition-colors"
+                          className="inline-flex cursor-pointer items-center gap-1 text-xs text-ink-muted underline hover:text-red-600 transition-colors"
                         >
                           <RotateCcw className="size-3" aria-hidden />
                           {t("import.history.rollbackAction")}

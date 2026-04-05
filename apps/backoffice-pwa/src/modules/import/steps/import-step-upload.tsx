@@ -75,7 +75,7 @@ export function ImportStepUpload({ controls, onNext }: ImportStepUploadProps) {
                 type="button"
                 onClick={() => setEntityType(type)}
                 className={[
-                  "flex h-11 min-w-35 flex-1 items-center justify-center gap-2 rounded-xl border px-4 text-sm font-medium transition-colors",
+                  "flex h-11 min-w-35 flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl border px-4 text-sm font-medium transition-colors",
                   state.entityType === type
                     ? "border-accent bg-accent/10 text-accent ring-1 ring-accent/30"
                     : "border-line bg-paper text-ink-soft hover:border-accent/50 hover:text-ink"
@@ -104,7 +104,7 @@ export function ImportStepUpload({ controls, onNext }: ImportStepUploadProps) {
                 type="button"
                 onClick={() => setImportMode(mode)}
                 className={[
-                  "flex h-11 items-center gap-3 rounded-xl border px-4 text-sm transition-colors text-left",
+                  "flex h-11 cursor-pointer items-center gap-3 rounded-xl border px-4 text-sm transition-colors text-left",
                   state.importMode === mode
                     ? "border-accent bg-accent/10 text-accent ring-1 ring-accent/30"
                     : "border-line bg-paper text-ink-soft hover:border-accent/50 hover:text-ink"
@@ -159,7 +159,7 @@ export function ImportStepUpload({ controls, onNext }: ImportStepUploadProps) {
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="ml-auto text-xs text-ink-muted underline hover:text-ink"
+                className="ml-auto cursor-pointer text-xs text-ink-muted underline hover:text-ink"
               >
                 Cambiar
               </button>
@@ -168,7 +168,7 @@ export function ImportStepUpload({ controls, onNext }: ImportStepUploadProps) {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="flex h-24 w-full flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-line bg-surface text-sm text-ink-soft transition-colors hover:border-accent/50 hover:text-ink"
+              className="flex h-24 w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-line bg-surface text-sm text-ink-soft transition-colors hover:border-accent/50 hover:text-ink"
             >
               <Upload className="size-5" aria-hidden />
               <span>{t("import.upload.dropzoneLabel")}</span>

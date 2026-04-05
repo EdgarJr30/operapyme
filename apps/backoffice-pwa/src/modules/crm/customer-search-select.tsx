@@ -97,7 +97,7 @@ export function CustomerSearchSelect({
           <button
             type="button"
             aria-label={searchPlaceholder}
-            className="absolute right-3 top-1/2 inline-flex size-5 -translate-y-1/2 items-center justify-center rounded-full text-ink-muted transition hover:bg-sand/70 hover:text-ink"
+            className="absolute right-3 top-1/2 inline-flex size-5 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full text-ink-muted transition hover:bg-sand/70 hover:text-ink"
             onClick={() => {
               setQuery("");
               onChange("");
@@ -125,7 +125,7 @@ export function CustomerSearchSelect({
                   key={customer.id}
                   type="button"
                   className={cn(
-                    "flex w-full items-start justify-between gap-3 rounded-2xl px-3 py-2 text-left transition",
+                    "flex w-full cursor-pointer items-start justify-between gap-3 rounded-2xl px-3 py-2 text-left transition",
                     isSelected
                       ? "bg-brand/10 text-ink"
                       : "hover:bg-sand/50 text-ink"

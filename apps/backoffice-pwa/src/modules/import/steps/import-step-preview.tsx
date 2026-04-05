@@ -101,7 +101,7 @@ export function ImportStepPreview({ controls, onNext, onBack }: ImportStepPrevie
               <button
                 type="button"
                 onClick={() => { setShowErrorsOnly((v) => !v); setPage(0); }}
-                className="text-xs text-accent underline"
+                className="cursor-pointer text-xs text-accent underline"
               >
                 {showErrorsOnly
                   ? t("import.preview.showAllRows")
@@ -159,7 +159,7 @@ export function ImportStepPreview({ controls, onNext, onBack }: ImportStepPrevie
                   type="button"
                   disabled={page === 0}
                   onClick={() => setPage((p) => p - 1)}
-                  className="disabled:opacity-40"
+                  className="cursor-pointer disabled:opacity-40"
                 >
                   ← Anterior
                 </button>
@@ -170,7 +170,7 @@ export function ImportStepPreview({ controls, onNext, onBack }: ImportStepPrevie
                   type="button"
                   disabled={page >= totalPages - 1}
                   onClick={() => setPage((p) => p + 1)}
-                  className="disabled:opacity-40"
+                  className="cursor-pointer disabled:opacity-40"
                 >
                   Siguiente →
                 </button>

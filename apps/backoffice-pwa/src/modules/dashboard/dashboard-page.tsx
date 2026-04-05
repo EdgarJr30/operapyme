@@ -120,7 +120,7 @@ export function DashboardPage() {
                     setRange(option);
                   }}
                   className={cn(
-                    'transition',
+                    'cursor-pointer transition',
                     range === option
                       ? 'text-brand'
                       : 'text-ink-soft hover:text-ink'
@@ -395,7 +395,7 @@ function CustomerCard({
         </div>
         <button
           type="button"
-          className="ml-auto rounded-full p-2 text-ink-muted transition hover:bg-paper hover:text-ink"
+          className="ml-auto cursor-pointer rounded-full p-2 text-ink-muted transition hover:bg-paper hover:text-ink"
           aria-label={t('dashboard.clients.optionsLabel', {
             customer: customer.displayName,
           })}

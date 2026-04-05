@@ -119,7 +119,7 @@ export function CompactTenantPaletteSelector() {
                 }
               }}
               className={cn(
-                "rounded-2xl border p-4 text-left transition",
+                "cursor-pointer rounded-2xl border p-4 text-left transition",
                 isSelected
                   ? "border-brand bg-brand-soft/12 shadow-sm"
                   : "border-line/70 bg-paper hover:border-brand/30 hover:bg-sand/28"
@@ -264,7 +264,7 @@ function PaletteSelectionGrid({
               }}
               className={cn(
                 "w-full text-left",
-                !canEdit ? "cursor-not-allowed opacity-70" : ""
+                !canEdit ? "cursor-not-allowed opacity-70" : "cursor-pointer"
               )}
             >
               <div className="flex items-start justify-between gap-3">

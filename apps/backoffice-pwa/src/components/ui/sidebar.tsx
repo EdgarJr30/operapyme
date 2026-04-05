@@ -308,7 +308,7 @@ export const SidebarTrigger = React.forwardRef<
       type="button"
       data-sidebar="trigger"
       className={cn(
-        "inline-flex size-10 items-center justify-center rounded-xl border border-line/70 bg-paper text-ink shadow-panel transition hover:bg-sand/70",
+        "inline-flex size-10 cursor-pointer items-center justify-center rounded-xl border border-line/70 bg-paper text-ink shadow-panel transition hover:bg-sand/70",
         className
       )}
       onClick={(event) => {
@@ -460,7 +460,7 @@ export const SidebarGroupAction = React.forwardRef<
     type="button"
     data-slot="sidebar-group-action"
     className={cn(
-      "inline-flex size-8 items-center justify-center rounded-lg text-sidebar-muted transition hover:bg-sidebar-elevated hover:text-sidebar-text",
+      "inline-flex size-8 cursor-pointer items-center justify-center rounded-lg text-sidebar-muted transition hover:bg-sidebar-elevated hover:text-sidebar-text",
       className
     )}
     {...props}
@@ -498,7 +498,7 @@ export const SidebarMenuItem = React.forwardRef<
 SidebarMenuItem.displayName = "SidebarMenuItem";
 
 const sidebarMenuButtonVariants = cva(
-  "peer/menu-button flex w-full items-center overflow-hidden rounded-xl text-left text-sm font-medium outline-none transition disabled:pointer-events-none disabled:opacity-50",
+  "peer/menu-button flex w-full cursor-pointer items-center overflow-hidden rounded-xl text-left text-sm font-medium outline-none transition disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       size: {
@@ -554,7 +554,7 @@ export const SidebarMenuAction = React.forwardRef<
     type="button"
     data-slot="sidebar-menu-action"
     className={cn(
-      "absolute right-2 top-1/2 inline-flex size-7 -translate-y-1/2 items-center justify-center rounded-lg text-sidebar-muted transition hover:bg-sidebar-elevated hover:text-sidebar-text",
+      "absolute right-2 top-1/2 inline-flex size-7 -translate-y-1/2 cursor-pointer items-center justify-center rounded-lg text-sidebar-muted transition hover:bg-sidebar-elevated hover:text-sidebar-text",
       className
     )}
     {...props}
@@ -623,7 +623,7 @@ export const SidebarMenuSubButton = React.forwardRef<
       data-slot="sidebar-menu-sub-button"
       data-active={isActive}
       className={cn(
-        "flex min-h-9 items-center rounded-xl px-3 text-[13px] font-medium text-sidebar-muted transition hover:bg-sidebar-elevated hover:text-sidebar-text",
+        "flex min-h-9 cursor-pointer items-center rounded-xl px-3 text-[13px] font-medium text-sidebar-muted transition hover:bg-sidebar-elevated hover:text-sidebar-text",
         "data-[active=true]:bg-sidebar-elevated data-[active=true]:text-sidebar-text data-[active=true]:shadow-panel",
         className
       )}

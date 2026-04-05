@@ -194,7 +194,7 @@ export function AuthPage() {
               <button
                 type="button"
                 onClick={() => setAuthMode(mode === "signin" ? "signup" : "signin")}
-                className="font-semibold text-indigo-600 hover:text-indigo-500"
+                className="cursor-pointer font-semibold text-indigo-600 hover:text-indigo-500"
               >
                 {entryContent.switchAction}
               </button>
@@ -217,8 +217,8 @@ export function AuthPage() {
                     onClick={() => handleSignInViewChange(view)}
                     className={
                       signInView === view
-                        ? "rounded-lg bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm"
-                        : "rounded-lg px-3 py-2 text-sm font-medium text-gray-500"
+                        ? "cursor-pointer rounded-lg bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm"
+                        : "cursor-pointer rounded-lg px-3 py-2 text-sm font-medium text-gray-500"
                     }
                   >
                     {label}
@@ -257,7 +257,7 @@ export function AuthPage() {
                     <button
                       type="button"
                       onClick={() => handleSignInViewChange("recovery")}
-                      className="text-sm font-semibold text-indigo-600 hover:text-indigo-500"
+                      className="cursor-pointer text-sm font-semibold text-indigo-600 hover:text-indigo-500"
                     >
                       {t("auth.form.forgotPassword")}
                     </button>
@@ -280,7 +280,7 @@ export function AuthPage() {
                       aria-label={
                         showPassword ? t("auth.form.hidePassword") : t("auth.form.showPassword")
                       }
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500"
                     >
                       {showPassword ? (
                         <EyeOff className="size-5" aria-hidden="true" />

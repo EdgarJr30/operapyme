@@ -651,7 +651,7 @@ export function QuoteManageWorkspace({
                 setCurrentStep("recipient");
               }}
               className={cn(
-                "w-full rounded-2xl border px-4 py-3 text-left transition",
+                "w-full cursor-pointer rounded-2xl border px-4 py-3 text-left transition",
                 quote.id === selectedQuoteId
                   ? "border-brand/50 bg-brand/10 shadow-panel"
                   : "border-line/70 bg-paper hover:bg-sand/60"
@@ -847,7 +847,7 @@ function QuoteWorkflowLayout({
                   type="button"
                   onClick={() => onStepChange(step)}
                   className={cn(
-                    "rounded-3xl border px-4 py-3 text-left transition",
+                    "cursor-pointer rounded-3xl border px-4 py-3 text-left transition",
                     isActive
                       ? "border-brand/40 bg-brand/10 shadow-soft"
                       : stepIssueCount > 0
@@ -907,7 +907,7 @@ function QuoteWorkflowLayout({
                         key={issue.key}
                         type="button"
                         onClick={() => onStepChange(issue.step)}
-                        className="flex items-start justify-between gap-3 rounded-2xl border border-peach-200/80 bg-paper/85 px-3 py-3 text-left transition hover:bg-paper"
+                        className="flex cursor-pointer items-start justify-between gap-3 rounded-2xl border border-peach-200/80 bg-paper/85 px-3 py-3 text-left transition hover:bg-paper"
                       >
                         <div>
                           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-ink-muted">
@@ -1013,7 +1013,7 @@ function QuoteWorkflowLayout({
                     key={`summary-${issue.key}`}
                     type="button"
                     onClick={() => onStepChange(issue.step)}
-                    className="w-full rounded-2xl border border-line/70 bg-paper/80 px-3 py-3 text-left transition hover:bg-paper"
+                    className="w-full cursor-pointer rounded-2xl border border-line/70 bg-paper/80 px-3 py-3 text-left transition hover:bg-paper"
                   >
                     <p className="text-xs font-semibold uppercase tracking-[0.16em] text-ink-muted">
                       {t(`quotes.form.steps.${issue.step}.title`)}
@@ -1059,7 +1059,7 @@ function RecipientKindPicker({
             type="button"
             onClick={() => onSelect(kind)}
             className={cn(
-              "rounded-3xl border px-4 py-4 text-left transition",
+              "cursor-pointer rounded-3xl border px-4 py-4 text-left transition",
               isActive
                 ? "border-brand/40 bg-brand/10 shadow-soft"
                 : "border-line/70 bg-paper hover:bg-sand/60"

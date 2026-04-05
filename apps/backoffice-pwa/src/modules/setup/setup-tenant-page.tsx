@@ -308,7 +308,7 @@ export function SetupTenantPage() {
               onClick={() => {
                 void signOut();
               }}
-              className="flex min-h-11 items-center gap-2 text-xs text-paper/50 transition-colors hover:text-paper/90"
+              className="flex min-h-11 cursor-pointer items-center gap-2 text-xs text-paper/50 transition-colors hover:text-paper/90"
             >
               <LogOut className="size-3.5" aria-hidden="true" />
               {t('setup.signOut')}
