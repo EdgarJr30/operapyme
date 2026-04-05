@@ -58,6 +58,7 @@ import type {
   QuoteSummary
 } from "@/lib/supabase/backoffice-data";
 import { cn } from "@/lib/utils";
+import { CustomerSearchSelect } from "@/modules/crm/customer-search-select";
 import { useQuoteDetailData } from "@/modules/quotes/use-quote-detail-data";
 import { useQuoteMutations } from "@/modules/quotes/use-quote-mutations";
 
@@ -1228,6 +1229,11 @@ function QuoteFormFields({
     const customer = customers.find((candidate) => candidate.id === customerId);
 
     if (!customer) {
+      setValue("recipientDisplayName", "", { shouldValidate: true });
+      setValue("recipientContactName", "");
+      setValue("recipientEmail", "");
+      setValue("recipientWhatsApp", "");
+      setValue("recipientPhone", "");
       return;
     }
 
@@ -1257,7 +1263,6 @@ function QuoteFormFields({
   }, [leadId, leads, recipientKind, setValue]);
 
   const recipientKindField = register("recipientKind");
-  const customerField = register("customerId");
   const leadField = register("leadId");
 
   if (step === "recipient") {
@@ -1350,32 +1355,21 @@ function QuoteFormFields({
               error={errors.customerId?.message}
               htmlFor={`${idPrefix}-quote-customer`}
             >
-              <Select
+              <CustomerSearchSelect
                 id={`${idPrefix}-quote-customer`}
-                name={customerField.name}
-                onBlur={customerField.onBlur}
-                ref={customerField.ref}
+                customers={customers}
                 value={customerId ?? ""}
-                {...buildOperationalAutofillProps("off")}
-                onChange={(event) => {
-                  customerField.onChange(event);
-                  setValue("customerId", event.target.value, { shouldValidate: true });
+                searchPlaceholder={t("quotes.form.customerSearchPlaceholder")}
+                emptySearchMessage={t("quotes.form.customerSearchEmpty")}
+                noCustomersMessage={t("quotes.form.noCustomersHint")}
+                selectedHint={t("quotes.form.customerSelectedHint")}
+                onChange={(nextCustomerId) => {
+                  setValue("customerId", nextCustomerId, {
+                    shouldDirty: true,
+                    shouldValidate: true
+                  });
                 }}
-              >
-                <option value="">{t("quotes.form.customerPlaceholder")}</option>
-                {customers.map((customer) => (
-                  <option key={customer.id} value={customer.id}>
-                    {customer.displayName}
-                  </option>
-                ))}
-              </Select>
-              {customers.length === 0 ? (
-                <p className="text-sm text-ink-soft">{t("quotes.form.noCustomersHint")}</p>
-              ) : (
-                <p className="text-sm text-ink-soft">
-                  {t("quotes.form.customerSelectedHint")}
-                </p>
-              )}
+              />
             </Field>
           </div>
         ) : recipientKind === "lead" ? (
@@ -1936,52 +1930,13 @@ function QuoteFormFields({
 }
 
 function buildCreateDefaults(
-  customers: CustomerSummary[],
-  leads: LeadSummary[]
+  _customers: CustomerSummary[],
+  _leads: LeadSummary[]
 ): QuoteFormValues {
-  if (customers[0]) {
-    return {
-      recipientKind: "customer",
-      customerId: customers[0].id,
-      leadId: "",
-      recipientDisplayName: customers[0].displayName,
-      recipientContactName: customers[0].contactName ?? "",
-      recipientEmail: customers[0].email ?? "",
-      recipientWhatsApp: customers[0].whatsapp ?? "",
-      recipientPhone: customers[0].phone ?? "",
-      title: "",
-      status: "draft",
-      currencyCode: "USD",
-      documentDiscountPercent: 0,
-      documentDiscountTotal: 0,
-      validUntil: "",
-      notes: "",
-      lineItems: [buildEmptyLineItem()]
-    };
-  }
-
-  if (leads[0]) {
-    return {
-      recipientKind: "lead",
-      customerId: "",
-      leadId: leads[0].id,
-      recipientDisplayName: leads[0].displayName,
-      recipientContactName: leads[0].contactName ?? "",
-      recipientEmail: leads[0].email ?? "",
-      recipientWhatsApp: leads[0].whatsapp ?? "",
-      recipientPhone: leads[0].phone ?? "",
-      title: "",
-      status: "draft",
-      currencyCode: "USD",
-      documentDiscountPercent: 0,
-      documentDiscountTotal: 0,
-      validUntil: "",
-      notes: "",
-      lineItems: [buildEmptyLineItem()]
-    };
-  }
-
-  return buildEmptyQuoteDefaults();
+  return {
+    ...buildEmptyQuoteDefaults(),
+    recipientKind: "customer"
+  };
 }
 
 function buildEmptyLineItem() {

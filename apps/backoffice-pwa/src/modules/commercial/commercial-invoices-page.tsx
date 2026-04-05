@@ -52,6 +52,7 @@ import { InvoicePdfDownloadButton } from "@/modules/commercial/invoice-pdf-downl
 import { useInvoiceDetailData } from "@/modules/commercial/use-invoice-detail-data";
 import { useInvoicesData } from "@/modules/commercial/use-invoices-data";
 import { useInvoiceMutations } from "@/modules/commercial/use-invoice-mutations";
+import { CustomerSearchSelect } from "@/modules/crm/customer-search-select";
 import { useCustomersData } from "@/modules/crm/use-customers-data";
 import { useLeadsData } from "@/modules/crm/use-leads-data";
 import { useQuoteDetailData } from "@/modules/quotes/use-quote-detail-data";
@@ -262,6 +263,8 @@ export function CommercialInvoicesPage() {
   });
   const editDocumentKind = editForm.watch("documentKind");
   const editRecipientKind = editForm.watch("recipientKind");
+  const editCustomerId = editForm.watch("customerId");
+  const editLeadId = editForm.watch("leadId");
   const editCatalogOptions = useMemo(
     () => getCatalogOptions(catalogItems, editDocumentKind),
     [catalogItems, editDocumentKind]
@@ -270,6 +273,8 @@ export function CommercialInvoicesPage() {
   const sourceQuoteId = form.watch("sourceQuoteId");
   const documentKind = form.watch("documentKind");
   const recipientKind = form.watch("recipientKind");
+  const customerId = form.watch("customerId");
+  const leadId = form.watch("leadId");
   const requestedSourceQuoteId = searchParams.get("sourceQuoteId")?.trim() ?? "";
   const selectedQuoteDetail = useQuoteDetailData(
     sourceQuoteId?.trim() ? sourceQuoteId : null
@@ -355,6 +360,56 @@ export function CommercialInvoicesPage() {
     }
   }, [catalogItems, form, replace, selectedQuoteDetail.data]);
 
+  useEffect(() => {
+    if (recipientKind !== "customer") {
+      return;
+    }
+
+    const customer = customers.find((candidate) => candidate.id === customerId);
+
+    if (!customer) {
+      form.setValue("recipientDisplayName", "", { shouldValidate: true });
+      form.setValue("recipientContactName", "");
+      form.setValue("recipientEmail", "");
+      form.setValue("recipientWhatsApp", "");
+      form.setValue("recipientPhone", "");
+      return;
+    }
+
+    form.setValue("recipientDisplayName", customer.displayName, {
+      shouldValidate: true
+    });
+    form.setValue("recipientContactName", customer.contactName ?? "");
+    form.setValue("recipientEmail", customer.email ?? "");
+    form.setValue("recipientWhatsApp", customer.whatsapp ?? "");
+    form.setValue("recipientPhone", customer.phone ?? "");
+  }, [customerId, customers, form, recipientKind]);
+
+  useEffect(() => {
+    if (recipientKind !== "lead") {
+      return;
+    }
+
+    const lead = leads.find((candidate) => candidate.id === leadId);
+
+    if (!lead) {
+      form.setValue("recipientDisplayName", "", { shouldValidate: true });
+      form.setValue("recipientContactName", "");
+      form.setValue("recipientEmail", "");
+      form.setValue("recipientWhatsApp", "");
+      form.setValue("recipientPhone", "");
+      return;
+    }
+
+    form.setValue("recipientDisplayName", lead.displayName, {
+      shouldValidate: true
+    });
+    form.setValue("recipientContactName", lead.contactName ?? "");
+    form.setValue("recipientEmail", lead.email ?? "");
+    form.setValue("recipientWhatsApp", lead.whatsapp ?? "");
+    form.setValue("recipientPhone", lead.phone ?? "");
+  }, [form, leadId, leads, recipientKind]);
+
   function importQuoteLines() {
     if (!selectedQuoteDetail.data) {
       return;
@@ -420,6 +475,56 @@ export function CommercialInvoicesPage() {
       }))
     });
   }, [drawerOpen, editForm, invoiceDetail.data]);
+
+  useEffect(() => {
+    if (editRecipientKind !== "customer") {
+      return;
+    }
+
+    const customer = customers.find((candidate) => candidate.id === editCustomerId);
+
+    if (!customer) {
+      editForm.setValue("recipientDisplayName", "", { shouldValidate: true });
+      editForm.setValue("recipientContactName", "");
+      editForm.setValue("recipientEmail", "");
+      editForm.setValue("recipientWhatsApp", "");
+      editForm.setValue("recipientPhone", "");
+      return;
+    }
+
+    editForm.setValue("recipientDisplayName", customer.displayName, {
+      shouldValidate: true
+    });
+    editForm.setValue("recipientContactName", customer.contactName ?? "");
+    editForm.setValue("recipientEmail", customer.email ?? "");
+    editForm.setValue("recipientWhatsApp", customer.whatsapp ?? "");
+    editForm.setValue("recipientPhone", customer.phone ?? "");
+  }, [customers, editCustomerId, editForm, editRecipientKind]);
+
+  useEffect(() => {
+    if (editRecipientKind !== "lead") {
+      return;
+    }
+
+    const lead = leads.find((candidate) => candidate.id === editLeadId);
+
+    if (!lead) {
+      editForm.setValue("recipientDisplayName", "", { shouldValidate: true });
+      editForm.setValue("recipientContactName", "");
+      editForm.setValue("recipientEmail", "");
+      editForm.setValue("recipientWhatsApp", "");
+      editForm.setValue("recipientPhone", "");
+      return;
+    }
+
+    editForm.setValue("recipientDisplayName", lead.displayName, {
+      shouldValidate: true
+    });
+    editForm.setValue("recipientContactName", lead.contactName ?? "");
+    editForm.setValue("recipientEmail", lead.email ?? "");
+    editForm.setValue("recipientWhatsApp", lead.whatsapp ?? "");
+    editForm.setValue("recipientPhone", lead.phone ?? "");
+  }, [editForm, editLeadId, editRecipientKind, leads]);
 
   function openDrawer(invoiceId: string) {
     setSelectedInvoiceId(invoiceId);
@@ -1090,14 +1195,21 @@ export function CommercialInvoicesPage() {
                   htmlFor="invoice-customer"
                   error={form.formState.errors.customerId?.message}
                 >
-                  <Select id="invoice-customer" {...form.register("customerId")}>
-                    <option value="">{t("quotes.form.customerPlaceholder")}</option>
-                    {customers.map((customer) => (
-                      <option key={customer.id} value={customer.id}>
-                        {customer.displayName}
-                      </option>
-                    ))}
-                  </Select>
+                  <CustomerSearchSelect
+                    id="invoice-customer"
+                    customers={customers}
+                    value={customerId ?? ""}
+                    searchPlaceholder={t("quotes.form.customerSearchPlaceholder")}
+                    emptySearchMessage={t("quotes.form.customerSearchEmpty")}
+                    noCustomersMessage={t("quotes.form.noCustomersHint")}
+                    selectedHint={t("quotes.form.customerSelectedHint")}
+                    onChange={(nextCustomerId) => {
+                      form.setValue("customerId", nextCustomerId, {
+                        shouldDirty: true,
+                        shouldValidate: true
+                      });
+                    }}
+                  />
                 </Field>
               ) : null}
 
@@ -1661,19 +1773,23 @@ export function CommercialInvoicesPage() {
                         htmlFor="edit-invoice-customer"
                         error={editForm.formState.errors.customerId?.message}
                       >
-                        <Select
+                        <CustomerSearchSelect
                           id="edit-invoice-customer"
-                          {...editForm.register("customerId")}
-                        >
-                          <option value="">
-                            {t("quotes.form.customerPlaceholder")}
-                          </option>
-                          {customers.map((customer) => (
-                            <option key={customer.id} value={customer.id}>
-                              {customer.displayName}
-                            </option>
-                          ))}
-                        </Select>
+                          customers={customers}
+                          value={editCustomerId ?? ""}
+                          searchPlaceholder={t(
+                            "quotes.form.customerSearchPlaceholder"
+                          )}
+                          emptySearchMessage={t("quotes.form.customerSearchEmpty")}
+                          noCustomersMessage={t("quotes.form.noCustomersHint")}
+                          selectedHint={t("quotes.form.customerSelectedHint")}
+                          onChange={(nextCustomerId) => {
+                            editForm.setValue("customerId", nextCustomerId, {
+                              shouldDirty: true,
+                              shouldValidate: true
+                            });
+                          }}
+                        />
                       </Field>
                     ) : null}
 

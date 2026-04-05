@@ -821,8 +821,10 @@ const backofficeEs = {
         "Elige el camino que te deje cotizar con menos pasos para este caso.",
       customerLabel: "Cliente",
       customerPlaceholder: "Selecciona un cliente",
+      customerSearchPlaceholder: "Busca por empresa o RNC",
+      customerSearchEmpty: "No encontramos clientes con ese nombre o RNC.",
       customerSelectedHint:
-        "Al elegir un cliente, sus datos se completan en el documento y puedes ajustarlos si hace falta.",
+        "Cliente seleccionado:",
       noCustomersHint:
         "Aun no hay clientes reales. Puedes usar lead existente o lead rapido mientras tanto.",
       leadLabel: "Lead",

@@ -821,8 +821,10 @@ const backofficeEn = {
         "Pick the path that gets this quote out with the fewest steps.",
       customerLabel: "Customer",
       customerPlaceholder: "Select a customer",
+      customerSearchPlaceholder: "Search by company or tax id",
+      customerSearchEmpty: "We could not find customers with that company or tax id.",
       customerSelectedHint:
-        "When you choose a customer, their data fills into the document and you can still adjust it.",
+        "Selected customer:",
       noCustomersHint:
         "There are no live customers yet. You can use an existing lead or a fast lead instead.",
       leadLabel: "Lead",
