@@ -1042,7 +1042,8 @@ const backofficeEs = {
       convertAction: "Pasar a cliente",
       convertSubmitting: "Convirtiendo...",
       convertSuccess: "{lead} ya paso a clientes.",
-      convertError: "No pudimos convertir el lead. {message}"
+      convertError: "No pudimos convertir el lead. {message}",
+      paginationInfo: "Página {current} de {total}"
     },
     customers: {
       pageTitle: "Clientes",

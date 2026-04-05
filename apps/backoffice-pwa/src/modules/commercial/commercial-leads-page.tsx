@@ -42,13 +42,19 @@ export function CommercialLeadsPage() {
   const { convertLeadToCustomerMutation, updateLeadMutation } = useLeadMutations();
   const [pendingLeadId, setPendingLeadId] = useState<string | null>(null);
   const [editingLead, setEditingLead] = useState<LeadSummary | null>(null);
+  const [currentPage, setCurrentPage] = useState(0);
   const leadSchema = createLeadIntakeSchema(t);
   const editForm = useForm<LeadIntakeValues>({
     resolver: zodResolver(leadSchema),
     defaultValues: buildLeadEditDefaults()
   });
 
-  const recentLeads = useMemo(() => leads.slice(0, 6), [leads]);
+  const PAGE_SIZE = 6;
+  const totalPages = Math.max(1, Math.ceil(leads.length / PAGE_SIZE));
+  const paginatedLeads = useMemo(
+    () => leads.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE),
+    [leads, currentPage]
+  );
 
   useEffect(() => {
     if (!editingLead) {
@@ -66,7 +72,7 @@ export function CommercialLeadsPage() {
   }, [editForm, editingLead]);
 
   async function handleConvertLead(leadIndex: number) {
-    const lead = recentLeads[leadIndex];
+    const lead = paginatedLeads[leadIndex];
 
     if (!lead || lead.convertedCustomerId) {
       return;
@@ -143,70 +149,103 @@ export function CommercialLeadsPage() {
             </p>
           </CardHeader>
           <CardContent>
-            {recentLeads.length === 0 ? (
+            {leads.length === 0 ? (
               <EmptyState
                 title={t("commercial.leads.emptyTitle")}
                 description={t("commercial.leads.emptyDescription")}
               />
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>{t("navigation.commercialLeads")}</TableHead>
-                    <TableHead>{t("quotes.form.recipientContactNameLabel")}</TableHead>
-                    <TableHead className="text-right">
-                      {t("commercial.leads.convertAction")}
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {recentLeads.map((lead, index) => (
-                    <TableRow key={lead.id}>
-                      <TableCell>
-                        <div>
-                          <p className="font-medium text-ink">{lead.displayName}</p>
-                          <p className="text-xs text-ink-soft">
-                            {lead.needSummary ?? t("commercial.leads.noContact")}
-                          </p>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {lead.contactName ?? lead.email ?? t("commercial.leads.noContact")}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => {
-                              setEditingLead(lead);
-                            }}
-                            disabled={updateLeadMutation.isPending}
-                          >
-                            {t("commercial.leads.editAction")}
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="secondary"
-                            onClick={() => {
-                              void handleConvertLead(index);
-                            }}
-                            disabled={
-                              convertLeadToCustomerMutation.isPending ||
-                              pendingLeadId === lead.id ||
-                              Boolean(lead.convertedCustomerId)
-                            }
-                          >
-                            {pendingLeadId === lead.id
-                              ? t("commercial.leads.convertSubmitting")
-                              : t("commercial.leads.convertAction")}
-                          </Button>
-                        </div>
-                      </TableCell>
+              <div className="space-y-3">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>{t("navigation.commercialLeads")}</TableHead>
+                      <TableHead>{t("quotes.form.recipientContactNameLabel")}</TableHead>
+                      <TableHead className="text-right">
+                        {t("commercial.leads.convertAction")}
+                      </TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {paginatedLeads.map((lead, index) => (
+                      <TableRow key={lead.id}>
+                        <TableCell>
+                          <div>
+                            <p className="font-medium text-ink">{lead.displayName}</p>
+                            <p className="text-xs text-ink-soft">
+                              {lead.needSummary ?? t("commercial.leads.noContact")}
+                            </p>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {lead.contactName ?? lead.email ?? t("commercial.leads.noContact")}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                setEditingLead(lead);
+                              }}
+                              disabled={updateLeadMutation.isPending}
+                            >
+                              {t("commercial.leads.editAction")}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              onClick={() => {
+                                void handleConvertLead(index);
+                              }}
+                              disabled={
+                                convertLeadToCustomerMutation.isPending ||
+                                pendingLeadId === lead.id ||
+                                Boolean(lead.convertedCustomerId)
+                              }
+                            >
+                              {pendingLeadId === lead.id
+                                ? t("commercial.leads.convertSubmitting")
+                                : t("commercial.leads.convertAction")}
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-between gap-3 pt-1">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      disabled={currentPage === 0}
+                      onClick={() => {
+                        setCurrentPage((p) => p - 1);
+                      }}
+                    >
+                      {t("shared.slider.previous")}
+                    </Button>
+                    <span className="text-xs text-ink-muted">
+                      {t("commercial.leads.paginationInfo", {
+                        current: currentPage + 1,
+                        total: totalPages
+                      })}
+                    </span>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      disabled={currentPage >= totalPages - 1}
+                      onClick={() => {
+                        setCurrentPage((p) => p + 1);
+                      }}
+                    >
+                      {t("shared.slider.next")}
+                    </Button>
+                  </div>
+                )}
+              </div>
             )}
           </CardContent>
         </Card>
