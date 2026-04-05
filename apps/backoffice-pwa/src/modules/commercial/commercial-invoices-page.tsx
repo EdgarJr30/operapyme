@@ -24,13 +24,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle
-} from "@/components/ui/sheet";
 import { StatusPill } from "@/components/ui/status-pill";
 import {
   Table,
@@ -1368,8 +1361,8 @@ export function CommercialInvoicesPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Invoice detail / edit drawer */}
-      <Sheet
+      {/* Invoice detail / edit modal */}
+      <Dialog
         open={drawerOpen}
         onOpenChange={(open) => {
           if (!open && !updateInvoiceMutation.isPending) {
@@ -1377,20 +1370,18 @@ export function CommercialInvoicesPage() {
           }
         }}
       >
-        <SheetContent
-          className="w-full overflow-y-auto sm:max-w-2xl"
-          aria-describedby="invoice-drawer-description"
-        >
+        <DialogContent closeLabel={t("shared.closeDialog")} className="max-w-5xl">
           {invoiceDetail.isLoading ? (
-            <div className="flex h-full items-center justify-center">
-              <p className="text-sm text-ink-soft">
-                {t("commercial.invoices.loadingTitle")}
-              </p>
-            </div>
+            <DialogHeader>
+              <DialogTitle>{t("commercial.invoices.loadingTitle")}</DialogTitle>
+              <DialogDescription>
+                {t("commercial.invoices.loadingDescription")}
+              </DialogDescription>
+            </DialogHeader>
           ) : invoiceDetail.data ? (
             <>
-              <SheetHeader className="mb-6">
-                <SheetTitle>
+              <DialogHeader>
+                <DialogTitle>
                   {getInvoiceIsEditable(invoiceDetail.data.status)
                     ? t("commercial.invoices.editDrawerTitle", {
                         invoiceNumber: invoiceDetail.data.invoiceNumber
@@ -1398,13 +1389,13 @@ export function CommercialInvoicesPage() {
                     : t("commercial.invoices.detailDrawerTitle", {
                         invoiceNumber: invoiceDetail.data.invoiceNumber
                       })}
-                </SheetTitle>
-                <SheetDescription id="invoice-drawer-description">
+                </DialogTitle>
+                <DialogDescription>
                   {getInvoiceIsEditable(invoiceDetail.data.status)
                     ? t("commercial.invoices.editDrawerDescription")
                     : t("commercial.invoices.detailDrawerDescription")}
-                </SheetDescription>
-              </SheetHeader>
+                </DialogDescription>
+              </DialogHeader>
 
               {getInvoiceIsEditable(invoiceDetail.data.status) ? (
                 <form
@@ -2003,8 +1994,8 @@ export function CommercialInvoicesPage() {
               )}
             </>
           ) : null}
-        </SheetContent>
-      </Sheet>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
