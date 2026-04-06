@@ -1821,13 +1821,13 @@ const backofficeEs = {
   settings: {
     header: {
       eyebrow: "Configuracion operativa",
-      title: "Ajustes del tenant",
+      title: "Ajustes de empresa",
       description:
-        "Gestiona tu perfil, la identidad visual del tenant y los accesos del equipo desde una sola superficie protegida por rol y por tenant."
+        "Gestiona tu perfil, los datos de la empresa, la identidad visual compartida y los accesos del equipo desde una sola superficie protegida por rol y por tenant."
     },
     sections: {
       general: "General",
-      tenant: "Tenant",
+      tenant: "Empresa",
       appearance: "Apariencia",
       team: "Equipo",
       security: "Seguridad"
@@ -1884,43 +1884,75 @@ const backofficeEs = {
       themeTitle: "Modo de color",
       themeText:
         "Elige claro, oscuro o sistema para trabajar con la densidad visual que mejor te funcione.",
-      currentTenantTitle: "Tenant activo",
+      currentTenantTitle: "Empresa activa",
       currentTenantText:
-        "La configuracion compartida y los permisos de esta vista siempre dependen del tenant seleccionado."
+        "La configuracion compartida y los permisos de esta vista siempre dependen de la empresa seleccionada."
     },
-    tenant: {
-      title: "Datos del tenant",
+    company: {
+      title: "Datos de empresa",
       description:
-        "Administra la identidad base del tenant activo. Los cambios quedan aislados por tenant y solo pueden editarlos roles con permiso.",
+        "Administra la identidad base de la empresa activa. Los cambios quedan aislados por tenant y solo pueden editarlos roles con permiso.",
       slugLabel: "Slug",
       statusLabel: "Estado",
       updatedLabel: "Ultima actualizacion",
       nameLabel: "Nombre comercial",
-      namePlaceholder: "Nombre del tenant",
+      namePlaceholder: "Nombre visible de la empresa",
+      addressLabel: "Direccion comercial",
+      addressPlaceholder: "Av. Winston Churchill 95, Santo Domingo, Republica Dominicana",
+      phoneLabel: "Telefono principal",
+      phonePlaceholder: "+1 809 555 0140",
+      rncLabel: "RNC",
+      rncPlaceholder: "1-31-12345-6",
+      logoLabel: "Logo de la empresa",
+      logoHelp:
+        "Sube el logo para reutilizarlo en cotizaciones, facturas documentales y futuras descargas PDF.",
+      logoHint:
+        "Formatos permitidos: PNG, JPG o WEBP. Peso maximo: 2 MB.",
+      logoEmptyTitle: "Todavia no hay logo guardado",
+      logoEmptyDescription:
+        "Cuando subas el logo de la empresa lo usaremos como cabecera visual en los documentos PDF.",
+      logoUploadAction: "Subir logo",
+      logoReplaceAction: "Cambiar logo",
+      logoRemoveAction: "Quitar logo",
+      logoPreviewAlt: "Logo de {company}",
+      logoErrorTitle: "No pudimos usar ese logo",
+      logoInvalidType:
+        "Sube un archivo PNG, JPG o WEBP para mantener compatibilidad en los PDF.",
+      logoInvalidSize:
+        "El logo supera el limite de 2 MB. Usa una version mas ligera para continuar.",
       editHelp:
-        "Solo los roles con `tenant.update` pueden guardar cambios de identidad o branding para este tenant.",
+        "Solo los roles con `tenant.update` pueden guardar cambios de identidad o branding para esta empresa.",
       readOnlyHelp:
-        "Tu rol puede revisar los datos del tenant activo, pero no editar su identidad ni su branding.",
-      saveAction: "Guardar tenant",
-      saving: "Guardando tenant...",
-      toastTitle: "Tenant actualizado",
+        "Tu rol puede revisar los datos de la empresa activa, pero no editar su identidad ni su branding.",
+      saveAction: "Guardar empresa",
+      saving: "Guardando empresa...",
+      toastTitle: "Empresa actualizada",
       toastDescription:
-        "La informacion base y la apariencia compartida del tenant ya fueron actualizadas.",
-      errorTitle: "No pudimos actualizar el tenant"
+        "Los datos base de la empresa, su logo y la apariencia compartida ya fueron actualizados.",
+      errorTitle: "No pudimos actualizar la empresa",
+      validation: {
+        nameRequired: "Ingresa el nombre comercial de la empresa.",
+        addressRequired: "Ingresa la direccion comercial de la empresa.",
+        phoneRequired: "Ingresa el telefono principal de la empresa.",
+        phoneInvalid:
+          "Usa un telefono valido con numeros y signos habituales como +, espacios o guiones.",
+        rncInvalid:
+          "El RNC debe tener 9 digitos, con o sin guiones."
+      }
     },
     palette: {
-      title: "Paleta visual del tenant",
+      title: "Paleta visual de la empresa",
       description:
-        "Elige una paleta curada o arma una propia para que todo el tenant comparta una identidad consistente en backoffice y superficies futuras, sin mezclarla con otras empresas.",
+        "Elige una paleta curada o arma una propia para que toda la empresa comparta una identidad consistente en backoffice y superficies futuras, sin mezclarla con otras empresas.",
       sharedBadge: "Una marca, dos apps",
       previewBadge: "Preview en vivo",
       readOnlyBadge: "Solo lectura",
       ruleTitle: "Branding simple, consistente y usable",
       ruleText:
-        "Las paletas base ya nacen equilibradas y la paleta propia del tenant solo pide cuatro colores semilla para mantener contraste, velocidad de configuracion y coherencia operativa.",
-      storageTitle: "Persistencia del tenant",
+        "Las paletas base ya nacen equilibradas y la paleta propia de la empresa solo pide cuatro colores semilla para mantener contraste, velocidad de configuracion y coherencia operativa.",
+      storageTitle: "Persistencia de empresa",
       storageText:
-        "La paleta y sus semillas quedan guardadas sobre el tenant activo para que la identidad compartida no dependa del dispositivo actual ni se mezcle con otros tenants.",
+        "La paleta y sus semillas quedan guardadas sobre la empresa activa para que la identidad compartida no dependa del dispositivo actual ni se mezcle con otros tenants.",
       backofficeTitle: "Backoffice operativo",
       backofficeDescription:
         "Mas estructura, mas densidad util y un fondo contenido para trabajo diario.",
@@ -1946,23 +1978,27 @@ const backofficeEs = {
         tertiaryLabel: "Color de apoyo",
         helperTitle: "Como funciona la paleta propia",
         helperText:
-          "Estos cuatro colores generan superficies, bordes, fondos y estados para mantener una identidad profesional sin abrir un editor avanzado. La configuracion queda aislada dentro del tenant activo.",
+          "Estos cuatro colores generan superficies, bordes, fondos y estados para mantener una identidad profesional sin abrir un editor avanzado. La configuracion queda aislada dentro de la empresa activa.",
         reset: "Restaurar base"
       }
     },
     appearance: {
       saveTitle: "Aplicar cambios visuales",
       saveText:
-        "Guarda el nombre y la paleta para publicar la identidad compartida del tenant activo.",
+        "Guarda el nombre y la paleta para publicar la identidad compartida de la empresa activa.",
       readOnlyText:
-        "Puedes revisar el branding actual, pero tu rol no puede publicar cambios para este tenant.",
+        "Puedes revisar el branding actual, pero tu rol no puede publicar cambios para esta empresa.",
       saveAction: "Guardar apariencia",
-      saving: "Guardando apariencia..."
+      saving: "Guardando apariencia...",
+      toastTitle: "Apariencia actualizada",
+      toastDescription:
+        "La identidad visual compartida de la empresa ya quedo publicada.",
+      errorTitle: "No pudimos actualizar la apariencia"
     },
     team: {
-      title: "Equipo del tenant",
+      title: "Equipo de la empresa",
       description:
-        "Consulta quienes operan dentro del tenant activo y con que roles entran a la aplicacion.",
+        "Consulta quienes operan dentro de la empresa activa y con que roles entran a la aplicacion.",
       loadingDescription:
         "Estamos cargando las membresias visibles para este tenant.",
       emptyDescription:

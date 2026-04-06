@@ -64,7 +64,7 @@ const commonEn = {
     profile: "Profile",
     settings: "Settings",
     settingsGeneral: "General",
-    settingsTenant: "Tenant",
+    settingsTenant: "Company",
     settingsAppearance: "Appearance",
     settingsTeam: "Team",
     settingsSecurity: "Security",
@@ -141,7 +141,7 @@ const commonEn = {
       quotesManage: "Resume existing quotes, adjust details, and keep versioning.",
       learning: "Guides and quick help to operate with more clarity.",
       profile: "Account, access security, and basic user details.",
-      settings: "Tenant-wide settings, branding, and appearance preferences.",
+      settings: "Company settings, branding, and shared appearance preferences.",
       admin: "Global audit and controls reserved for authorized profiles.",
       errors: "Operational incidents and visible error traceability.",
       import: "Bulk load of customers, leads, and catalog from CSV or Excel."

@@ -12,6 +12,8 @@ import {
 
 import { supabase } from "@/lib/supabase/client";
 
+const TENANT_ASSETS_BUCKET = "tenant-assets";
+
 export interface SettingsUserProfile {
   appUserId: string;
   email: string;
@@ -24,6 +26,11 @@ export interface TenantBrandingSettings {
   name: string;
   slug: string;
   status: "active" | "inactive" | "suspended";
+  address: string | null;
+  phone: string | null;
+  rnc: string | null;
+  logoPath: string | null;
+  logoUrl: string | null;
   paletteId: ThemePaletteSelectionId;
   paletteSeedColors: ThemePaletteSeedColors | null;
   createdAt: string;
@@ -53,6 +60,10 @@ interface RawTenantBrandingSettings {
   name: string;
   slug: string;
   status: "active" | "inactive" | "suspended";
+  address: string | null;
+  phone: string | null;
+  rnc: string | null;
+  logo_path: string | null;
   palette_id: ThemePaletteSelectionId | null;
   palette_seed_colors: Partial<ThemePaletteSeedColors> | null;
   created_at: string;
@@ -78,6 +89,10 @@ export interface UpdateSettingsUserProfileInput {
 export interface UpdateTenantBrandingSettingsInput {
   tenantId: string;
   name: string;
+  address: string | null;
+  phone: string | null;
+  rnc: string | null;
+  logoPath: string | null;
   paletteId: ThemePaletteSelectionId;
   paletteSeedColors: ThemePaletteSeedColors | null;
 }
@@ -153,6 +168,34 @@ function parsePaletteSeedColors(
   };
 }
 
+function normalizeOptionalText(value: string | null | undefined) {
+  const normalized = value?.trim() ?? "";
+
+  return normalized.length > 0 ? normalized : null;
+}
+
+async function getTenantLogoSignedUrl(
+  logoPath: string | null | undefined,
+  client?: SupabaseClient
+) {
+  const normalizedLogoPath = normalizeOptionalText(logoPath);
+
+  if (!normalizedLogoPath) {
+    return null;
+  }
+
+  const resolvedClient = ensureClient(client);
+  const { data, error } = await resolvedClient.storage
+    .from(TENANT_ASSETS_BUCKET)
+    .createSignedUrl(normalizedLogoPath, 60 * 60);
+
+  if (error) {
+    return null;
+  }
+
+  return data.signedUrl;
+}
+
 function mapSettingsUserProfile(
   row: RawSettingsUserProfile
 ): SettingsUserProfile {
@@ -164,14 +207,20 @@ function mapSettingsUserProfile(
   };
 }
 
-function mapTenantBrandingSettings(
-  row: RawTenantBrandingSettings
-): TenantBrandingSettings {
+async function mapTenantBrandingSettings(
+  row: RawTenantBrandingSettings,
+  client?: SupabaseClient
+): Promise<TenantBrandingSettings> {
   return {
     id: row.id,
     name: row.name,
     slug: row.slug,
     status: row.status,
+    address: normalizeOptionalText(row.address),
+    phone: normalizeOptionalText(row.phone),
+    rnc: normalizeOptionalText(row.rnc),
+    logoPath: normalizeOptionalText(row.logo_path),
+    logoUrl: await getTenantLogoSignedUrl(row.logo_path, client),
     paletteId: row.palette_id ?? defaultThemePaletteId,
     paletteSeedColors: row.palette_seed_colors
       ? parsePaletteSeedColors(row.palette_seed_colors)
@@ -249,7 +298,7 @@ export async function getTenantBrandingSettings(
   const { data, error } = await resolvedClient
     .from("tenants")
     .select(
-      "id, name, slug, status, palette_id, palette_seed_colors, created_at, updated_at"
+      "id, name, slug, status, address, phone, rnc, logo_path, palette_id, palette_seed_colors, created_at, updated_at"
     )
     .eq("id", tenantId)
     .single();
@@ -264,7 +313,7 @@ export async function getTenantBrandingSettings(
     throw new Error("Tenant branding settings update returned no data.");
   }
 
-  return mapTenantBrandingSettings(row as RawTenantBrandingSettings);
+  return mapTenantBrandingSettings(row as RawTenantBrandingSettings, resolvedClient);
 }
 
 export async function updateTenantBrandingSettings(
@@ -277,6 +326,10 @@ export async function updateTenantBrandingSettings(
     {
       target_tenant_id: input.tenantId,
       next_name: input.name.trim(),
+      next_address: input.address?.trim() ?? "",
+      next_phone: input.phone?.trim() ?? "",
+      next_rnc: input.rnc?.trim() ?? "",
+      next_logo_path: input.logoPath?.trim() ?? "",
       next_palette_id: input.paletteId,
       next_palette_seed_colors: input.paletteSeedColors
     }
@@ -292,7 +345,51 @@ export async function updateTenantBrandingSettings(
     throw new Error("Tenant branding settings update returned no data.");
   }
 
-  return mapTenantBrandingSettings(row as RawTenantBrandingSettings);
+  return mapTenantBrandingSettings(row as RawTenantBrandingSettings, resolvedClient);
+}
+
+export async function uploadTenantLogo(
+  tenantId: string,
+  file: File,
+  client?: SupabaseClient
+) {
+  const resolvedClient = ensureClient(client);
+  const fileExtension = file.name.includes(".")
+    ? file.name.split(".").pop()?.toLowerCase() ?? "png"
+    : "png";
+  const logoPath = `${tenantId}/${crypto.randomUUID()}.${fileExtension}`;
+  const { error } = await resolvedClient.storage
+    .from(TENANT_ASSETS_BUCKET)
+    .upload(logoPath, file, {
+      cacheControl: "3600",
+      upsert: false
+    });
+
+  if (error) {
+    throw error;
+  }
+
+  return logoPath;
+}
+
+export async function deleteTenantLogo(
+  logoPath: string,
+  client?: SupabaseClient
+) {
+  const normalizedLogoPath = normalizeOptionalText(logoPath);
+
+  if (!normalizedLogoPath) {
+    return;
+  }
+
+  const resolvedClient = ensureClient(client);
+  const { error } = await resolvedClient.storage
+    .from(TENANT_ASSETS_BUCKET)
+    .remove([normalizedLogoPath]);
+
+  if (error) {
+    throw error;
+  }
 }
 
 export async function listTenantMembersForSettings(

@@ -42,6 +42,9 @@ const cleanupTenantBootstrapOverloadMigrationPath = path.resolve(
 const importModuleMigrationPath = path.resolve(
   "supabase/migrations/20260405060000_import_module_foundation.sql"
 );
+const companyProfileMigrationPath = path.resolve(
+  "supabase/migrations/20260406110000_company_profile_and_logo_assets.sql"
+);
 
 describe("supabase foundation contracts", () => {
   it("creates the required secure foundation tables", () => {
@@ -265,5 +268,27 @@ describe("supabase foundation contracts", () => {
     expect(migration).toContain(
       "raise exception 'Tenant slug is already in use'"
     );
+  });
+
+  it("adds company profile fields and protected tenant logo storage", () => {
+    const migration = fs.readFileSync(companyProfileMigrationPath, "utf8");
+
+    expect(migration).toContain("add column if not exists address text");
+    expect(migration).toContain("add column if not exists phone text");
+    expect(migration).toContain("add column if not exists rnc text");
+    expect(migration).toContain("add column if not exists logo_path text");
+    expect(migration).toContain("insert into storage.buckets");
+    expect(migration).toContain("tenant-assets");
+    expect(migration).toContain(
+      "create or replace function public.can_manage_tenant_logo_asset"
+    );
+    expect(migration).toContain(
+      "create or replace function public.can_read_tenant_logo_asset"
+    );
+    expect(migration).toContain('create policy "tenant_assets_insert"');
+    expect(migration).toContain(
+      "create or replace function public.update_tenant_branding_settings"
+    );
+    expect(migration).toContain("next_logo_path text default '__KEEP__'");
   });
 });

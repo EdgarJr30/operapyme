@@ -1,7 +1,15 @@
-import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import {
+  type ChangeEvent,
+  type ReactNode,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from "react";
 
 import {
   AlertTriangle,
+  ImageUp,
   Trash2
 } from "lucide-react";
 import {
@@ -33,8 +41,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { StatusPill } from "@/components/ui/status-pill";
+import { Textarea } from "@/components/ui/textarea";
 import { AccessDeniedPage } from "@/modules/auth/access-denied-page";
 import { TenantPaletteSection } from "@/modules/settings/tenant-palette-section";
+import {
+  deleteTenantLogo,
+  uploadTenantLogo
+} from "@/lib/supabase/settings-data";
 import { useSettingsData } from "@/modules/settings/use-settings-data";
 import { useSettingsMutations } from "@/modules/settings/use-settings-mutations";
 
@@ -44,6 +57,13 @@ type SettingsSectionId =
   | "appearance"
   | "team"
   | "security";
+
+const LOGO_MAX_SIZE_BYTES = 2 * 1024 * 1024;
+const ALLOWED_LOGO_MIME_TYPES = new Set([
+  "image/png",
+  "image/jpeg",
+  "image/webp"
+]);
 
 function getStatusTone(status: "active" | "inactive" | "suspended" | "invited") {
   if (status === "active") {
@@ -101,6 +121,18 @@ function getErrorMessage(error: unknown, fallback: string) {
   }
 
   return fallback;
+}
+
+function normalizeDraft(value: string) {
+  return value.trim();
+}
+
+function isCompanyPhoneValid(value: string) {
+  return /^[0-9+()\-.\s]{7,30}$/.test(value);
+}
+
+function isCompanyRncValid(value: string) {
+  return /^[0-9-]{9,11}$/.test(value);
 }
 
 function SettingsState({
@@ -169,9 +201,16 @@ export function SettingsPage() {
     useSettingsMutations();
   const [displayNameDraft, setDisplayNameDraft] = useState("");
   const [tenantNameDraft, setTenantNameDraft] = useState("");
+  const [companyAddressDraft, setCompanyAddressDraft] = useState("");
+  const [companyPhoneDraft, setCompanyPhoneDraft] = useState("");
+  const [companyRncDraft, setCompanyRncDraft] = useState("");
+  const [logoDraftFile, setLogoDraftFile] = useState<File | null>(null);
+  const [isLogoMarkedForRemoval, setIsLogoMarkedForRemoval] = useState(false);
+  const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
   const [deleteConfirmationDraft, setDeleteConfirmationDraft] = useState("");
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const tenantThemeSyncRef = useRef<string | null>(null);
+  const logoInputRef = useRef<HTMLInputElement | null>(null);
   const activeSection = useMemo<SettingsSectionId>(() => {
     if (location.pathname.startsWith("/settings/tenant")) {
       return "tenant";
@@ -204,6 +243,12 @@ export function SettingsPage() {
     }
 
     setTenantNameDraft(tenantSettingsQuery.data.name);
+    setCompanyAddressDraft(tenantSettingsQuery.data.address ?? "");
+    setCompanyPhoneDraft(tenantSettingsQuery.data.phone ?? "");
+    setCompanyRncDraft(tenantSettingsQuery.data.rnc ?? "");
+    setLogoDraftFile(null);
+    setIsLogoMarkedForRemoval(false);
+    setLogoPreviewUrl(tenantSettingsQuery.data.logoUrl);
 
     const syncKey = `${activeTenantId}:${tenantSettingsQuery.data.updatedAt}`;
 
@@ -223,10 +268,30 @@ export function SettingsPage() {
     tenantThemeSyncRef.current = syncKey;
   }, [
     activeTenantId,
+    setCompanyAddressDraft,
+    setCompanyPhoneDraft,
+    setCompanyRncDraft,
     setCustomPalette,
+    setLogoDraftFile,
+    setIsLogoMarkedForRemoval,
+    setLogoPreviewUrl,
     setPaletteId,
+    setTenantNameDraft,
     tenantSettingsQuery.data
   ]);
+
+  useEffect(() => {
+    if (!logoDraftFile) {
+      return;
+    }
+
+    const objectUrl = window.URL.createObjectURL(logoDraftFile);
+    setLogoPreviewUrl(objectUrl);
+
+    return () => {
+      window.URL.revokeObjectURL(objectUrl);
+    };
+  }, [logoDraftFile]);
 
   if (!activeTenantId) {
     return (
@@ -250,11 +315,23 @@ export function SettingsPage() {
   const userProfile = userProfileQuery.data;
   const tenantSettings = tenantSettingsQuery.data;
   const members = tenantMembersQuery.data ?? [];
+  const normalizedTenantNameDraft = normalizeDraft(tenantNameDraft);
+  const normalizedCompanyAddressDraft = normalizeDraft(companyAddressDraft);
+  const normalizedCompanyPhoneDraft = normalizeDraft(companyPhoneDraft);
+  const normalizedCompanyRncDraft = normalizeDraft(companyRncDraft);
 
   const isProfileDirty =
     (displayNameDraft.trim() || "") !== (userProfile?.displayName?.trim() || "");
   const isTenantNameDirty = Boolean(
-    tenantSettings && tenantNameDraft.trim() !== tenantSettings.name
+    tenantSettings && normalizedTenantNameDraft !== tenantSettings.name
+  );
+  const isCompanyFieldsDirty = Boolean(
+    tenantSettings &&
+      (normalizedCompanyAddressDraft !== (tenantSettings.address ?? "") ||
+        normalizedCompanyPhoneDraft !== (tenantSettings.phone ?? "") ||
+        normalizedCompanyRncDraft !== (tenantSettings.rnc ?? "") ||
+        Boolean(logoDraftFile) ||
+        isLogoMarkedForRemoval)
   );
   const isPaletteDirty = Boolean(
     tenantSettings &&
@@ -266,7 +343,8 @@ export function SettingsPage() {
               tenantSettings.paletteSeedColors
             ))))
   );
-  const isTenantSettingsDirty = isTenantNameDirty || isPaletteDirty;
+  const isTenantSettingsDirty =
+    isTenantNameDirty || isCompanyFieldsDirty || isPaletteDirty;
   const deleteConfirmationValue = deleteConfirmationDraft.trim().toLowerCase();
   const deleteConfirmationSlug = tenantSettings?.slug.toLowerCase() ?? "";
   const isDeleteConfirmationValid =
@@ -294,18 +372,85 @@ export function SettingsPage() {
       return;
     }
 
+    if (!normalizedTenantNameDraft) {
+      toast.error(t("settings.company.errorTitle"), {
+        description: t("settings.company.validation.nameRequired")
+      });
+      return;
+    }
+
+    if (!normalizedCompanyAddressDraft) {
+      toast.error(t("settings.company.errorTitle"), {
+        description: t("settings.company.validation.addressRequired")
+      });
+      return;
+    }
+
+    if (!normalizedCompanyPhoneDraft) {
+      toast.error(t("settings.company.errorTitle"), {
+        description: t("settings.company.validation.phoneRequired")
+      });
+      return;
+    }
+
+    if (!isCompanyPhoneValid(normalizedCompanyPhoneDraft)) {
+      toast.error(t("settings.company.errorTitle"), {
+        description: t("settings.company.validation.phoneInvalid")
+      });
+      return;
+    }
+
+    if (
+      normalizedCompanyRncDraft.length > 0 &&
+      !isCompanyRncValid(normalizedCompanyRncDraft)
+    ) {
+      toast.error(t("settings.company.errorTitle"), {
+        description: t("settings.company.validation.rncInvalid")
+      });
+      return;
+    }
+
+    let uploadedLogoPath: string | null = null;
+
     try {
+      let nextLogoPath = tenantSettings.logoPath;
+
+      if (logoDraftFile) {
+        uploadedLogoPath = await uploadTenantLogo(tenantSettings.id, logoDraftFile);
+        nextLogoPath = uploadedLogoPath;
+      } else if (isLogoMarkedForRemoval) {
+        nextLogoPath = null;
+      }
+
       await updateTenantSettingsMutation.mutateAsync({
-        name: tenantNameDraft.trim(),
+        name: normalizedTenantNameDraft,
+        address: normalizedCompanyAddressDraft,
+        phone: normalizedCompanyPhoneDraft,
+        rnc: normalizedCompanyRncDraft || null,
+        logoPath: nextLogoPath,
         paletteId,
         paletteSeedColors: paletteId === "custom" ? customPalette.seeds : null
       });
 
-      toast.success(t("settings.tenant.toastTitle"), {
-        description: t("settings.tenant.toastDescription")
+      if (tenantSettings.logoPath && tenantSettings.logoPath !== nextLogoPath) {
+        void deleteTenantLogo(tenantSettings.logoPath).catch(() => undefined);
+      }
+
+      setLogoDraftFile(null);
+      setIsLogoMarkedForRemoval(false);
+      if (logoInputRef.current) {
+        logoInputRef.current.value = "";
+      }
+
+      toast.success(t("settings.company.toastTitle"), {
+        description: t("settings.company.toastDescription")
       });
     } catch (error) {
-      toast.error(t("settings.tenant.errorTitle"), {
+      if (uploadedLogoPath) {
+        void deleteTenantLogo(uploadedLogoPath).catch(() => undefined);
+      }
+
+      toast.error(t("settings.company.errorTitle"), {
         description: getErrorMessage(error, t("settings.errors.generic"))
       });
     }
@@ -319,18 +464,62 @@ export function SettingsPage() {
     try {
       await updateTenantSettingsMutation.mutateAsync({
         name: tenantSettings.name,
+        address: tenantSettings.address,
+        phone: tenantSettings.phone,
+        rnc: tenantSettings.rnc,
+        logoPath: tenantSettings.logoPath,
         paletteId,
         paletteSeedColors: paletteId === "custom" ? customPalette.seeds : null
       });
 
-      toast.success(t("settings.tenant.toastTitle"), {
-        description: t("settings.tenant.toastDescription")
+      toast.success(t("settings.appearance.toastTitle"), {
+        description: t("settings.appearance.toastDescription")
       });
     } catch (error) {
-      toast.error(t("settings.tenant.errorTitle"), {
+      toast.error(t("settings.appearance.errorTitle"), {
         description: getErrorMessage(error, t("settings.errors.generic"))
       });
     }
+  }
+
+  function handleOpenLogoPicker() {
+    logoInputRef.current?.click();
+  }
+
+  function handleRemoveLogoSelection() {
+    setLogoDraftFile(null);
+    setIsLogoMarkedForRemoval(true);
+    setLogoPreviewUrl(null);
+    if (logoInputRef.current) {
+      logoInputRef.current.value = "";
+    }
+  }
+
+  function handleLogoFileChange(event: ChangeEvent<HTMLInputElement>) {
+    const nextFile = event.target.files?.[0] ?? null;
+
+    if (!nextFile) {
+      return;
+    }
+
+    if (!ALLOWED_LOGO_MIME_TYPES.has(nextFile.type)) {
+      toast.error(t("settings.company.logoErrorTitle"), {
+        description: t("settings.company.logoInvalidType")
+      });
+      event.target.value = "";
+      return;
+    }
+
+    if (nextFile.size > LOGO_MAX_SIZE_BYTES) {
+      toast.error(t("settings.company.logoErrorTitle"), {
+        description: t("settings.company.logoInvalidSize")
+      });
+      event.target.value = "";
+      return;
+    }
+
+    setLogoDraftFile(nextFile);
+    setIsLogoMarkedForRemoval(false);
   }
 
   function closeDeleteDialog() {
@@ -560,43 +749,176 @@ export function SettingsPage() {
               <section className="space-y-4">
                 <Card>
                   <CardHeader>
-                    <CardTitle>{t("settings.tenant.title")}</CardTitle>
+                    <CardTitle>{t("settings.company.title")}</CardTitle>
                     <CardDescription>
-                      {t("settings.tenant.description")}
+                      {t("settings.company.description")}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-5">
+                    <input
+                      ref={logoInputRef}
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp"
+                      className="sr-only"
+                      onChange={handleLogoFileChange}
+                      aria-label={t("settings.company.logoUploadAction")}
+                    />
+
                     <div className="grid gap-4 sm:grid-cols-3">
                       <InfoCard
-                        label={t("settings.tenant.slugLabel")}
+                        label={t("settings.company.slugLabel")}
                         value={tenantSettings.slug}
                       />
                       <InfoCard
-                        label={t("settings.tenant.statusLabel")}
+                        label={t("settings.company.statusLabel")}
                         value={t(`settings.status.${tenantSettings.status}`)}
                       />
                       <InfoCard
-                        label={t("settings.tenant.updatedLabel")}
+                        label={t("settings.company.updatedLabel")}
                         value={formatOptionalDateLabel(tenantSettings.updatedAt)}
                       />
                     </div>
 
-                    <div className="space-y-2">
-                      <label
-                        htmlFor="settings-tenant-name"
-                        className="text-sm font-medium text-ink"
-                      >
-                        {t("settings.tenant.nameLabel")}
-                      </label>
-                      <Input
-                        id="settings-tenant-name"
-                        value={tenantNameDraft}
-                        disabled={!canEditTenant}
-                        onChange={(event) => {
-                          setTenantNameDraft(event.target.value);
-                        }}
-                        placeholder={t("settings.tenant.namePlaceholder")}
-                      />
+                    <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <label
+                            htmlFor="settings-company-name"
+                            className="text-sm font-medium text-ink"
+                          >
+                            {t("settings.company.nameLabel")}
+                          </label>
+                          <Input
+                            id="settings-company-name"
+                            value={tenantNameDraft}
+                            disabled={!canEditTenant}
+                            onChange={(event) => {
+                              setTenantNameDraft(event.target.value);
+                            }}
+                            placeholder={t("settings.company.namePlaceholder")}
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <label
+                            htmlFor="settings-company-address"
+                            className="text-sm font-medium text-ink"
+                          >
+                            {t("settings.company.addressLabel")}
+                          </label>
+                          <Textarea
+                            id="settings-company-address"
+                            value={companyAddressDraft}
+                            disabled={!canEditTenant}
+                            onChange={(event) => {
+                              setCompanyAddressDraft(event.target.value);
+                            }}
+                            placeholder={t("settings.company.addressPlaceholder")}
+                            rows={3}
+                          />
+                        </div>
+
+                        <div className="grid gap-4 sm:grid-cols-2">
+                          <div className="space-y-2">
+                            <label
+                              htmlFor="settings-company-phone"
+                              className="text-sm font-medium text-ink"
+                            >
+                              {t("settings.company.phoneLabel")}
+                            </label>
+                            <Input
+                              id="settings-company-phone"
+                              value={companyPhoneDraft}
+                              disabled={!canEditTenant}
+                              onChange={(event) => {
+                                setCompanyPhoneDraft(event.target.value);
+                              }}
+                              placeholder={t("settings.company.phonePlaceholder")}
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <label
+                              htmlFor="settings-company-rnc"
+                              className="text-sm font-medium text-ink"
+                            >
+                              {t("settings.company.rncLabel")}
+                            </label>
+                            <Input
+                              id="settings-company-rnc"
+                              value={companyRncDraft}
+                              disabled={!canEditTenant}
+                              onChange={(event) => {
+                                setCompanyRncDraft(event.target.value);
+                              }}
+                              placeholder={t("settings.company.rncPlaceholder")}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="rounded-3xl border border-line/70 bg-paper p-4">
+                        <div className="space-y-1">
+                          <p className="text-sm font-semibold text-ink">
+                            {t("settings.company.logoLabel")}
+                          </p>
+                          <p className="text-sm leading-6 text-ink-soft">
+                            {t("settings.company.logoHelp")}
+                          </p>
+                        </div>
+
+                        <div className="mt-4 space-y-4">
+                          <div className="flex min-h-52 items-center justify-center rounded-3xl border border-dashed border-line bg-surface/70 p-4">
+                            {logoPreviewUrl ? (
+                              <img
+                                src={logoPreviewUrl}
+                                alt={t("settings.company.logoPreviewAlt", {
+                                  company: tenantNameDraft.trim() || tenantSettings.name
+                                })}
+                                className="max-h-36 max-w-full object-contain"
+                              />
+                            ) : (
+                              <div className="space-y-2 text-center">
+                                <p className="text-sm font-semibold text-ink">
+                                  {t("settings.company.logoEmptyTitle")}
+                                </p>
+                                <p className="text-sm leading-6 text-ink-soft">
+                                  {t("settings.company.logoEmptyDescription")}
+                                </p>
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="flex flex-wrap gap-3">
+                            <Button
+                              type="button"
+                              variant="secondary"
+                              onClick={handleOpenLogoPicker}
+                              disabled={!canEditTenant}
+                            >
+                              <ImageUp className="size-4" aria-hidden="true" />
+                              {logoPreviewUrl
+                                ? t("settings.company.logoReplaceAction")
+                                : t("settings.company.logoUploadAction")}
+                            </Button>
+                            {logoPreviewUrl ? (
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                onClick={handleRemoveLogoSelection}
+                                disabled={!canEditTenant}
+                              >
+                                <Trash2 className="size-4" aria-hidden="true" />
+                                {t("settings.company.logoRemoveAction")}
+                              </Button>
+                            ) : null}
+                          </div>
+
+                          <p className="text-xs leading-5 text-ink-muted">
+                            {t("settings.company.logoHint")}
+                          </p>
+                        </div>
+                      </div>
                     </div>
 
                     <div className="flex flex-wrap items-center gap-3">
@@ -612,8 +934,8 @@ export function SettingsPage() {
                         }
                       >
                         {updateTenantSettingsMutation.isPending
-                          ? t("settings.tenant.saving")
-                          : t("settings.tenant.saveAction")}
+                          ? t("settings.company.saving")
+                          : t("settings.company.saveAction")}
                       </Button>
                       <StatusPill tone={getStatusTone(tenantSettings.status)}>
                         {t(`settings.status.${tenantSettings.status}`)}

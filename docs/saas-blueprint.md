@@ -19,7 +19,7 @@ La fase actual prioriza fundacion segura, velocidad operativa y claridad de prod
 - gastos
 - deudas
 - reportes operativos
-- settings del tenant
+- settings de empresa
 - cierre permanente y seguro del tenant por propietario
 - auditoria global y logs
 

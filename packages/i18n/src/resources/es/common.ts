@@ -64,7 +64,7 @@ const commonEs = {
     profile: "Perfil",
     settings: "Configuracion",
     settingsGeneral: "General",
-    settingsTenant: "Tenant",
+    settingsTenant: "Empresa",
     settingsAppearance: "Apariencia",
     settingsTeam: "Equipo",
     settingsSecurity: "Seguridad",
@@ -142,7 +142,7 @@ const commonEs = {
       quotesManage: "Retoma cotizaciones existentes, ajusta detalles y conserva versionado.",
       learning: "Guias y ayuda rapida para operar con mas claridad.",
       profile: "Cuenta, seguridad de acceso y datos basicos del usuario.",
-      settings: "Configuracion transversal del tenant, branding y preferencias.",
+      settings: "Configuracion de empresa, branding y preferencias compartidas.",
       admin: "Auditoria global y controles reservados para perfiles autorizados.",
       errors: "Incidencias operativas y trazabilidad de errores visibles.",
       import: "Carga masiva de clientes, leads y catalogo desde CSV o Excel."

@@ -1819,13 +1819,13 @@ const backofficeEn = {
   settings: {
     header: {
       eyebrow: "Operational settings",
-      title: "Tenant settings",
+      title: "Company settings",
       description:
-        "Manage your profile, tenant visual identity, and team access from one surface protected by role and tenant boundaries."
+        "Manage your profile, company details, shared visual identity, and team access from one surface protected by role and tenant boundaries."
     },
     sections: {
       general: "General",
-      tenant: "Tenant",
+      tenant: "Company",
       appearance: "Appearance",
       team: "Team",
       security: "Security"
@@ -1884,43 +1884,75 @@ const backofficeEn = {
       themeTitle: "Color mode",
       themeText:
         "Choose light, dark, or system to work with the visual density that suits you best.",
-      currentTenantTitle: "Active tenant",
+      currentTenantTitle: "Active company",
       currentTenantText:
-        "Shared configuration and permissions in this view always depend on the selected tenant."
+        "Shared configuration and permissions in this view always depend on the selected company."
     },
-    tenant: {
-      title: "Tenant details",
+    company: {
+      title: "Company details",
       description:
-        "Manage the base identity of the active tenant. Changes stay isolated per tenant and only roles with permission can edit them.",
+        "Manage the base identity of the active company. Changes stay isolated per tenant and only roles with permission can edit them.",
       slugLabel: "Slug",
       statusLabel: "Status",
       updatedLabel: "Last update",
       nameLabel: "Business name",
-      namePlaceholder: "Tenant name",
+      namePlaceholder: "Visible company name",
+      addressLabel: "Business address",
+      addressPlaceholder: "Av. Winston Churchill 95, Santo Domingo, Dominican Republic",
+      phoneLabel: "Primary phone",
+      phonePlaceholder: "+1 809 555 0140",
+      rncLabel: "RNC",
+      rncPlaceholder: "1-31-12345-6",
+      logoLabel: "Company logo",
+      logoHelp:
+        "Upload the logo so we can reuse it in quotes, documentary invoices, and future PDF downloads.",
+      logoHint:
+        "Allowed formats: PNG, JPG, or WEBP. Maximum size: 2 MB.",
+      logoEmptyTitle: "There is no saved logo yet",
+      logoEmptyDescription:
+        "Once you upload the company logo we will use it as the visual header in PDF documents.",
+      logoUploadAction: "Upload logo",
+      logoReplaceAction: "Replace logo",
+      logoRemoveAction: "Remove logo",
+      logoPreviewAlt: "{company} logo",
+      logoErrorTitle: "We could not use that logo",
+      logoInvalidType:
+        "Upload a PNG, JPG, or WEBP file to keep PDF compatibility.",
+      logoInvalidSize:
+        "The logo is larger than 2 MB. Use a lighter version to continue.",
       editHelp:
-        "Only roles with `tenant.update` can save identity or branding changes for this tenant.",
+        "Only roles with `tenant.update` can save identity or branding changes for this company.",
       readOnlyHelp:
-        "Your role can review the active tenant data, but cannot edit its identity or branding.",
-      saveAction: "Save tenant",
-      saving: "Saving tenant...",
-      toastTitle: "Tenant updated",
+        "Your role can review the active company data, but cannot edit its identity or branding.",
+      saveAction: "Save company",
+      saving: "Saving company...",
+      toastTitle: "Company updated",
       toastDescription:
-        "The base information and shared appearance of the tenant have been updated.",
-      errorTitle: "We could not update the tenant"
+        "The company base information, logo, and shared appearance have been updated.",
+      errorTitle: "We could not update the company",
+      validation: {
+        nameRequired: "Enter the company business name.",
+        addressRequired: "Enter the company business address.",
+        phoneRequired: "Enter the company primary phone number.",
+        phoneInvalid:
+          "Use a valid phone number with digits and common symbols like +, spaces, or dashes.",
+        rncInvalid:
+          "The RNC must contain 9 digits, with or without dashes."
+      }
     },
     palette: {
-      title: "Tenant visual palette",
+      title: "Company visual palette",
       description:
-        "Choose a curated palette or build your own so the whole tenant shares a consistent identity across backoffice and future surfaces without leaking into other businesses.",
+        "Choose a curated palette or build your own so the whole company shares a consistent identity across backoffice and future surfaces without leaking into other businesses.",
       sharedBadge: "One brand, two apps",
       previewBadge: "Live preview",
       readOnlyBadge: "Read only",
       ruleTitle: "Simple, consistent, usable branding",
       ruleText:
-        "The base palettes already start balanced, and the tenant custom palette only asks for four seed colors to preserve contrast, setup speed, and operational consistency.",
-      storageTitle: "Tenant persistence",
+        "The base palettes already start balanced, and the company custom palette only asks for four seed colors to preserve contrast, setup speed, and operational consistency.",
+      storageTitle: "Company persistence",
       storageText:
-        "The palette and its seed colors are stored on the active tenant so the shared identity does not depend on the current device and does not get mixed with other tenants.",
+        "The palette and its seed colors are stored on the active company so the shared identity does not depend on the current device and does not get mixed with other tenants.",
       backofficeTitle: "Operational backoffice",
       backofficeDescription:
         "More structure, more useful density, and a more contained canvas for daily work.",
@@ -1946,23 +1978,27 @@ const backofficeEn = {
         tertiaryLabel: "Support color",
         helperTitle: "How the custom palette works",
         helperText:
-          "These four colors generate surfaces, borders, backgrounds, and states to keep a professional identity without opening an advanced editor. The configuration stays isolated inside the active tenant.",
+          "These four colors generate surfaces, borders, backgrounds, and states to keep a professional identity without opening an advanced editor. The configuration stays isolated inside the active company.",
         reset: "Restore base"
       }
     },
     appearance: {
       saveTitle: "Apply visual changes",
       saveText:
-        "Save the name and palette to publish the shared identity of the active tenant.",
+        "Save the name and palette to publish the shared identity of the active company.",
       readOnlyText:
-        "You can review the current branding, but your role cannot publish changes for this tenant.",
+        "You can review the current branding, but your role cannot publish changes for this company.",
       saveAction: "Save appearance",
-      saving: "Saving appearance..."
+      saving: "Saving appearance...",
+      toastTitle: "Appearance updated",
+      toastDescription:
+        "The shared company visual identity is now published.",
+      errorTitle: "We could not update the appearance"
     },
     team: {
-      title: "Tenant team",
+      title: "Company team",
       description:
-        "Review who operates inside the active tenant and which roles they use to access the application.",
+        "Review who operates inside the active company and which roles they use to access the application.",
       loadingDescription:
         "We are loading the memberships visible for this tenant.",
       emptyDescription: "There are no additional visible members in this tenant yet.",

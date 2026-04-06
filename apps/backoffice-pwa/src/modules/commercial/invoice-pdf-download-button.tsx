@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { useBackofficeAuth } from "@/app/auth-provider";
 import { Button, type ButtonProps } from "@/components/ui/button";
 import { getInvoiceDetail } from "@/lib/supabase/backoffice-data";
+import { getTenantBrandingSettings } from "@/lib/supabase/settings-data";
 import type { InvoicePdfDocumentProps } from "@/modules/commercial/invoice-pdf-document";
 
 interface InvoicePdfRuntime {
@@ -59,11 +60,6 @@ export function InvoicePdfDownloadButton({
     return membership?.tenantName ?? "OperaPyme";
   }, [accessContext, activeTenantId]);
 
-  const logoUrl =
-    typeof window === "undefined"
-      ? undefined
-      : `${window.location.origin}/pwa-icon.svg`;
-
   async function handleDownload() {
     if (!activeTenantId) {
       toast.error(t("commercial.invoices.pdf.noTenantError"));
@@ -73,14 +69,20 @@ export function InvoicePdfDownloadButton({
     setIsGenerating(true);
 
     try {
-      const invoice = await getInvoiceDetail(activeTenantId, invoiceId);
+      const [invoice, tenantSettings] = await Promise.all([
+        getInvoiceDetail(activeTenantId, invoiceId),
+        getTenantBrandingSettings(activeTenantId)
+      ]);
       const { pdf, InvoicePdfDocument } = await loadInvoicePdfRuntime();
       const blob = await pdf(
         <InvoicePdfDocument
           generatedAt={new Date().toISOString()}
           invoice={invoice}
-          issuerName={activeTenantName}
-          logoUrl={logoUrl}
+          issuerAddress={tenantSettings.address}
+          issuerName={tenantSettings.name || activeTenantName}
+          issuerPhone={tenantSettings.phone}
+          issuerRnc={tenantSettings.rnc}
+          logoUrl={tenantSettings.logoUrl}
           palette={palette}
         />
       ).toBlob();

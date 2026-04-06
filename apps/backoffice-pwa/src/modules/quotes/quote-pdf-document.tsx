@@ -17,7 +17,10 @@ import {
 
 export interface QuotePdfDocumentProps {
   generatedAt: string;
+  issuerAddress?: string | null;
   issuerName: string;
+  issuerPhone?: string | null;
+  issuerRnc?: string | null;
   logoUrl?: string | null;
   palette: ThemePaletteDefinition;
   quote: QuoteDetail;
@@ -25,7 +28,10 @@ export interface QuotePdfDocumentProps {
 
 export function QuotePdfDocument({
   generatedAt,
+  issuerAddress,
   issuerName,
+  issuerPhone,
+  issuerRnc,
   logoUrl,
   palette,
   quote
@@ -59,6 +65,15 @@ export function QuotePdfDocument({
             <View style={styles.brandCopy}>
               <Text style={styles.eyebrow}>Cotizacion comercial</Text>
               <Text style={styles.issuerName}>{issuerName}</Text>
+              {issuerAddress ? (
+                <Text style={styles.issuerMeta}>{issuerAddress}</Text>
+              ) : null}
+              {issuerPhone ? (
+                <Text style={styles.issuerMeta}>Tel: {issuerPhone}</Text>
+              ) : null}
+              {issuerRnc ? (
+                <Text style={styles.issuerMeta}>RNC: {issuerRnc}</Text>
+              ) : null}
               <Text style={styles.documentTitle}>{quote.title}</Text>
             </View>
           </View>
@@ -260,6 +275,11 @@ function createStyles(palette: ThemePaletteDefinition) {
     issuerName: {
       fontSize: 17,
       fontWeight: 700
+    },
+    issuerMeta: {
+      color: palette.colors.inkSoft,
+      fontSize: 9.5,
+      lineHeight: 1.3
     },
     documentTitle: {
       fontSize: 13,

@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { useBackofficeAuth } from "@/app/auth-provider";
 import { Button, type ButtonProps } from "@/components/ui/button";
 import { getQuoteDetail } from "@/lib/supabase/backoffice-data";
+import { getTenantBrandingSettings } from "@/lib/supabase/settings-data";
 import type { QuotePdfDocumentProps } from "@/modules/quotes/quote-pdf-document";
 
 interface QuotePdfRuntime {
@@ -59,11 +60,6 @@ export function QuotePdfDownloadButton({
     return membership?.tenantName ?? "OperaPyme";
   }, [accessContext, activeTenantId]);
 
-  const logoUrl =
-    typeof window === "undefined"
-      ? undefined
-      : `${window.location.origin}/pwa-icon.svg`;
-
   async function handleDownload() {
     if (!activeTenantId) {
       toast.error(t("quotes.pdf.noTenantError"));
@@ -73,13 +69,19 @@ export function QuotePdfDownloadButton({
     setIsGenerating(true);
 
     try {
-      const quote = await getQuoteDetail(activeTenantId, quoteId);
+      const [quote, tenantSettings] = await Promise.all([
+        getQuoteDetail(activeTenantId, quoteId),
+        getTenantBrandingSettings(activeTenantId)
+      ]);
       const { pdf, QuotePdfDocument } = await loadQuotePdfRuntime();
       const blob = await pdf(
         <QuotePdfDocument
           generatedAt={new Date().toISOString()}
-          issuerName={activeTenantName}
-          logoUrl={logoUrl}
+          issuerAddress={tenantSettings.address}
+          issuerName={tenantSettings.name || activeTenantName}
+          issuerPhone={tenantSettings.phone}
+          issuerRnc={tenantSettings.rnc}
+          logoUrl={tenantSettings.logoUrl}
           palette={palette}
           quote={quote}
         />
