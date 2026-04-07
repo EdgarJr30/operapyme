@@ -58,6 +58,7 @@ import {
   getCustomerSourceTranslationKey,
   mapCustomerToFormValues
 } from "@/modules/crm/customer-form-fields";
+import { useNcfTypesData } from "@/modules/commercial/use-ncf-types-data";
 import { useCustomerMutations } from "@/modules/crm/use-customer-mutations";
 import { useCustomersData } from "@/modules/crm/use-customers-data";
 
@@ -102,6 +103,7 @@ export function CommercialCustomersPage() {
     limit: null,
     statuses
   });
+  const { data: ncfTypes = [] } = useNcfTypesData();
   const {
     archiveCustomerMutation,
     createCustomerMutation,
@@ -266,6 +268,7 @@ export function CommercialCustomersPage() {
         await updateCustomerMutation.mutateAsync({
           customerId: selectedCustomer.id,
           ...values,
+          ncfTypeId: values.ncfTypeId || null,
           attachmentName: nextAttachmentName,
           attachmentPath: nextAttachmentPath
         });
@@ -283,6 +286,7 @@ export function CommercialCustomersPage() {
       } else {
         await createCustomerMutation.mutateAsync({
           ...values,
+          ncfTypeId: values.ncfTypeId || null,
           attachmentName: nextAttachmentName,
           attachmentPath: nextAttachmentPath
         });
@@ -652,6 +656,7 @@ export function CommercialCustomersPage() {
               form={form}
               idPrefix={modalMode ?? "customer"}
               customerCode={selectedCustomer?.customerCode ?? null}
+              ncfTypes={ncfTypes}
             />
 
             <div className="space-y-3 rounded-3xl border border-line/70 bg-paper/75 p-4">

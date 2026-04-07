@@ -2,11 +2,13 @@ import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery } from "@tanstack/react-query";
 import { Plus, Search } from "lucide-react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useTranslation } from "@operapyme/i18n";
 import { toast } from "sonner";
 
+import { useBackofficeAuth } from "@/app/auth-provider";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -47,11 +49,17 @@ import type {
   InvoiceSummary,
   QuoteDetail
 } from "@/lib/supabase/backoffice-data";
+import {
+  deleteInvoiceAttachment,
+  getInvoiceAttachmentSignedUrl,
+  uploadInvoiceAttachment
+} from "@/lib/supabase/backoffice-data";
 import { useCatalogItemsData } from "@/modules/catalog/use-catalog-items-data";
 import { InvoicePdfDownloadButton } from "@/modules/commercial/invoice-pdf-download-button";
 import { useInvoiceDetailData } from "@/modules/commercial/use-invoice-detail-data";
 import { useInvoicesData } from "@/modules/commercial/use-invoices-data";
 import { useInvoiceMutations } from "@/modules/commercial/use-invoice-mutations";
+import { useNcfTypesData } from "@/modules/commercial/use-ncf-types-data";
 import { CustomerSearchSelect } from "@/modules/crm/customer-search-select";
 import { useCustomersData } from "@/modules/crm/use-customers-data";
 import { useLeadsData } from "@/modules/crm/use-leads-data";
@@ -148,6 +156,10 @@ function buildDefaultValues(): InvoiceFormValues {
     recipientWhatsApp: "",
     recipientPhone: "",
     title: "",
+    ncfTypeId: "",
+    ncf: "",
+    attachmentName: "",
+    attachmentPath: "",
     documentKind: "services",
     status: "draft",
     currencyCode: "USD",
@@ -205,6 +217,7 @@ function getCatalogOptions(
 
 export function CommercialInvoicesPage() {
   const { t, i18n } = useTranslation("backoffice");
+  const { activeTenantId } = useBackofficeAuth();
   const [searchParams] = useSearchParams();
   const [modalOpen, setModalOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
@@ -219,7 +232,13 @@ export function CommercialInvoicesPage() {
   const [cancelReasonValue, setCancelReasonValue] = useState("");
   const [cancelReasonError, setCancelReasonError] = useState("");
   const importedQuoteIdRef = useRef<string | null>(null);
+  const createAttachmentInputRef = useRef<HTMLInputElement | null>(null);
+  const editAttachmentInputRef = useRef<HTMLInputElement | null>(null);
+  const [createAttachmentDraftFile, setCreateAttachmentDraftFile] = useState<File | null>(null);
+  const [editAttachmentDraftFile, setEditAttachmentDraftFile] = useState<File | null>(null);
+  const [isEditAttachmentMarkedForRemoval, setIsEditAttachmentMarkedForRemoval] = useState(false);
   const invoiceSchema = createInvoiceFormSchema(t);
+  const { data: ncfTypes = [] } = useNcfTypesData();
   const { data: customers = [] } = useCustomersData();
   const { data: leads = [] } = useLeadsData();
   const { data: quotes = [] } = useQuotesData();
@@ -239,6 +258,22 @@ export function CommercialInvoicesPage() {
     updateInvoiceMutation
   } = useInvoiceMutations();
   const invoiceDetail = useInvoiceDetailData(selectedInvoiceId);
+
+  const detailAttachmentUrlQuery = useQuery({
+    queryKey: ["invoice-attachment", invoiceDetail.data?.attachmentPath ?? "none"],
+    queryFn: () => getInvoiceAttachmentSignedUrl(invoiceDetail.data?.attachmentPath),
+    enabled: Boolean(invoiceDetail.data?.attachmentPath)
+  });
+  const editAttachmentUrlQuery = useQuery({
+    queryKey: ["invoice-attachment-edit", invoiceDetail.data?.attachmentPath ?? "none"],
+    queryFn: () => getInvoiceAttachmentSignedUrl(invoiceDetail.data?.attachmentPath),
+    enabled: Boolean(
+      selectedInvoiceId &&
+        invoiceDetail.data?.attachmentPath &&
+        !editAttachmentDraftFile &&
+        !isEditAttachmentMarkedForRemoval
+    )
+  });
 
   const form = useForm<InvoiceFormValues>({
     resolver: zodResolver(invoiceSchema),
@@ -383,6 +418,7 @@ export function CommercialInvoicesPage() {
     form.setValue("recipientEmail", customer.email ?? "");
     form.setValue("recipientWhatsApp", customer.whatsapp ?? "");
     form.setValue("recipientPhone", customer.phone ?? "");
+    form.setValue("ncfTypeId", customer.ncfTypeId ?? "");
   }, [customerId, customers, form, recipientKind]);
 
   useEffect(() => {
@@ -463,6 +499,10 @@ export function CommercialInvoicesPage() {
       issuedOn: detail.issuedOn ?? "",
       dueOn: detail.dueOn ?? "",
       notes: detail.notes ?? "",
+      ncfTypeId: detail.ncfTypeId ?? "",
+      ncf: detail.ncf ?? "",
+      attachmentName: detail.attachmentName ?? "",
+      attachmentPath: detail.attachmentPath ?? "",
       lineItems: detail.lineItems.map((li) => ({
         catalogItemId: li.catalogItemId ?? "",
         itemName: li.itemName,
@@ -474,6 +514,8 @@ export function CommercialInvoicesPage() {
         taxTotal: li.taxTotal
       }))
     });
+    setEditAttachmentDraftFile(null);
+    setIsEditAttachmentMarkedForRemoval(false);
   }, [drawerOpen, editForm, invoiceDetail.data]);
 
   useEffect(() => {
@@ -499,6 +541,7 @@ export function CommercialInvoicesPage() {
     editForm.setValue("recipientEmail", customer.email ?? "");
     editForm.setValue("recipientWhatsApp", customer.whatsapp ?? "");
     editForm.setValue("recipientPhone", customer.phone ?? "");
+    editForm.setValue("ncfTypeId", customer.ncfTypeId ?? "");
   }, [customers, editCustomerId, editForm, editRecipientKind]);
 
   useEffect(() => {
@@ -534,6 +577,11 @@ export function CommercialInvoicesPage() {
   function closeDrawer() {
     setDrawerOpen(false);
     editForm.reset(buildDefaultValues());
+    setEditAttachmentDraftFile(null);
+    setIsEditAttachmentMarkedForRemoval(false);
+    if (editAttachmentInputRef.current) {
+      editAttachmentInputRef.current.value = "";
+    }
   }
 
   function openCancelModal() {
@@ -586,7 +634,25 @@ export function CommercialInvoicesPage() {
       return;
     }
 
+    let uploadedAttachmentPath: string | null = null;
+
     try {
+      const currentDetail = invoiceDetail.data;
+      let nextAttachmentName: string | null = currentDetail?.attachmentName ?? null;
+      let nextAttachmentPath: string | null = currentDetail?.attachmentPath ?? null;
+
+      if (editAttachmentDraftFile && activeTenantId) {
+        uploadedAttachmentPath = await uploadInvoiceAttachment(
+          activeTenantId,
+          editAttachmentDraftFile
+        );
+        nextAttachmentPath = uploadedAttachmentPath;
+        nextAttachmentName = editAttachmentDraftFile.name;
+      } else if (isEditAttachmentMarkedForRemoval) {
+        nextAttachmentPath = null;
+        nextAttachmentName = null;
+      }
+
       const updated = await updateInvoiceMutation.mutateAsync({
         invoiceId: selectedInvoiceId,
         title: values.title,
@@ -604,8 +670,20 @@ export function CommercialInvoicesPage() {
         issuedOn: values.issuedOn,
         dueOn: values.dueOn,
         notes: values.notes,
+        ncfTypeId: values.ncfTypeId || null,
+        ncf: values.ncf || null,
+        attachmentName: nextAttachmentName,
+        attachmentPath: nextAttachmentPath,
         lineItems: values.lineItems
       });
+
+      // Delete old attachment from storage if replaced or removed
+      if (
+        currentDetail?.attachmentPath &&
+        currentDetail.attachmentPath !== nextAttachmentPath
+      ) {
+        void deleteInvoiceAttachment(currentDetail.attachmentPath).catch(() => undefined);
+      }
 
       toast.success(
         t("commercial.invoices.saveChangesSuccess", {
@@ -614,6 +692,9 @@ export function CommercialInvoicesPage() {
       );
       closeDrawer();
     } catch (error) {
+      if (uploadedAttachmentPath) {
+        void deleteInvoiceAttachment(uploadedAttachmentPath).catch(() => undefined);
+      }
       toast.error(
         t("commercial.invoices.saveChangesError", {
           message: error instanceof Error ? error.message : ""
@@ -626,10 +707,28 @@ export function CommercialInvoicesPage() {
     setModalOpen(false);
     form.reset(buildDefaultValues());
     importedQuoteIdRef.current = null;
+    setCreateAttachmentDraftFile(null);
+    if (createAttachmentInputRef.current) {
+      createAttachmentInputRef.current.value = "";
+    }
   }
 
   async function onSubmit(values: InvoiceFormValues) {
+    let uploadedAttachmentPath: string | null = null;
+
     try {
+      let nextAttachmentName: string | null = null;
+      let nextAttachmentPath: string | null = null;
+
+      if (createAttachmentDraftFile && activeTenantId) {
+        uploadedAttachmentPath = await uploadInvoiceAttachment(
+          activeTenantId,
+          createAttachmentDraftFile
+        );
+        nextAttachmentPath = uploadedAttachmentPath;
+        nextAttachmentName = createAttachmentDraftFile.name;
+      }
+
       const invoice = await createInvoiceMutation.mutateAsync({
         sourceQuoteId: values.sourceQuoteId || null,
         recipientKind: values.recipientKind,
@@ -648,6 +747,10 @@ export function CommercialInvoicesPage() {
         notes: values.notes,
         issuedOn: values.issuedOn,
         dueOn: values.dueOn,
+        ncfTypeId: values.ncfTypeId || null,
+        ncf: values.ncf || null,
+        attachmentName: nextAttachmentName,
+        attachmentPath: nextAttachmentPath,
         lineItems: values.lineItems
       });
 
@@ -658,6 +761,9 @@ export function CommercialInvoicesPage() {
       );
       closeModal();
     } catch (error) {
+      if (uploadedAttachmentPath) {
+        void deleteInvoiceAttachment(uploadedAttachmentPath).catch(() => undefined);
+      }
       toast.error(
         t("commercial.invoices.createError", {
           message: error instanceof Error ? error.message : ""
@@ -1370,7 +1476,7 @@ export function CommercialInvoicesPage() {
                             </option>
                             {catalogOptions.map((catalogItem) => (
                               <option key={catalogItem.id} value={catalogItem.id}>
-                                {catalogItem.name}
+                                {catalogItem.itemCode ? `[${catalogItem.itemCode}] ` : ""}{catalogItem.name}
                               </option>
                             ))}
                           </Select>
@@ -1517,6 +1623,90 @@ export function CommercialInvoicesPage() {
                     {...form.register("notes")}
                   />
                 </Field>
+              </div>
+            </section>
+
+            <section className="space-y-4">
+              <p className="text-sm font-semibold text-ink">
+                {t("commercial.invoices.fiscalTitle")}
+              </p>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                {ncfTypes.length > 0 ? (
+                  <Field
+                    label={t("commercial.invoices.ncfTypeLabel")}
+                    htmlFor="invoice-ncf-type"
+                  >
+                    <Select id="invoice-ncf-type" {...form.register("ncfTypeId")}>
+                      <option value="">{t("commercial.invoices.ncfTypeEmpty")}</option>
+                      {ncfTypes.map((ncfType) => (
+                        <option key={ncfType.id} value={ncfType.id}>
+                          {ncfType.code} - {ncfType.label}
+                        </option>
+                      ))}
+                    </Select>
+                  </Field>
+                ) : null}
+
+                <Field
+                  label={t("commercial.invoices.ncfLabel")}
+                  htmlFor="invoice-ncf"
+                  error={form.formState.errors.ncf?.message}
+                >
+                  <Input
+                    id="invoice-ncf"
+                    placeholder={t("commercial.invoices.ncfPlaceholder")}
+                    {...form.register("ncf")}
+                  />
+                </Field>
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-ink">
+                  {t("commercial.invoices.attachmentLabel")}
+                </p>
+                <p className="text-sm text-ink-soft">
+                  {t("commercial.invoices.attachmentHint")}
+                </p>
+                <input
+                  ref={createAttachmentInputRef}
+                  type="file"
+                  accept=".pdf,.png,.jpg,.jpeg,.webp,.doc,.docx,.xls,.xlsx"
+                  className="hidden"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0] ?? null;
+                    setCreateAttachmentDraftFile(file);
+                  }}
+                />
+                {createAttachmentDraftFile ? (
+                  <div className="flex items-center gap-3 rounded-2xl border border-line/70 bg-paper/70 p-3">
+                    <p className="min-w-0 flex-1 truncate text-sm text-ink">
+                      {createAttachmentDraftFile.name}
+                    </p>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setCreateAttachmentDraftFile(null);
+                        if (createAttachmentInputRef.current) {
+                          createAttachmentInputRef.current.value = "";
+                        }
+                      }}
+                    >
+                      {t("commercial.invoices.attachmentRemoveAction")}
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => createAttachmentInputRef.current?.click()}
+                  >
+                    {t("commercial.invoices.attachmentUploadAction")}
+                  </Button>
+                )}
               </div>
             </section>
 
@@ -1969,7 +2159,7 @@ export function CommercialInvoicesPage() {
                                   </option>
                                   {editCatalogOptions.map((ci) => (
                                     <option key={ci.id} value={ci.id}>
-                                      {ci.name}
+                                      {ci.itemCode ? `[${ci.itemCode}] ` : ""}{ci.name}
                                     </option>
                                   ))}
                                 </Select>
@@ -2130,6 +2320,123 @@ export function CommercialInvoicesPage() {
                     </div>
                   </section>
 
+                  <section className="space-y-4">
+                    <p className="text-sm font-semibold text-ink">
+                      {t("commercial.invoices.fiscalTitle")}
+                    </p>
+
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      {ncfTypes.length > 0 ? (
+                        <Field
+                          label={t("commercial.invoices.ncfTypeLabel")}
+                          htmlFor="edit-invoice-ncf-type"
+                        >
+                          <Select id="edit-invoice-ncf-type" {...editForm.register("ncfTypeId")}>
+                            <option value="">{t("commercial.invoices.ncfTypeEmpty")}</option>
+                            {ncfTypes.map((ncfType) => (
+                              <option key={ncfType.id} value={ncfType.id}>
+                                {ncfType.code} - {ncfType.label}
+                              </option>
+                            ))}
+                          </Select>
+                        </Field>
+                      ) : null}
+
+                      <Field
+                        label={t("commercial.invoices.ncfLabel")}
+                        htmlFor="edit-invoice-ncf"
+                        error={editForm.formState.errors.ncf?.message}
+                      >
+                        <Input
+                          id="edit-invoice-ncf"
+                          placeholder={t("commercial.invoices.ncfPlaceholder")}
+                          {...editForm.register("ncf")}
+                        />
+                      </Field>
+                    </div>
+
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium text-ink">
+                        {t("commercial.invoices.attachmentLabel")}
+                      </p>
+                      <p className="text-sm text-ink-soft">
+                        {t("commercial.invoices.attachmentHint")}
+                      </p>
+                      <input
+                        ref={editAttachmentInputRef}
+                        type="file"
+                        accept=".pdf,.png,.jpg,.jpeg,.webp,.doc,.docx,.xls,.xlsx"
+                        className="hidden"
+                        onChange={(event) => {
+                          const file = event.target.files?.[0] ?? null;
+                          setEditAttachmentDraftFile(file);
+                          setIsEditAttachmentMarkedForRemoval(false);
+                        }}
+                      />
+                      {editAttachmentDraftFile ? (
+                        <div className="flex items-center gap-3 rounded-2xl border border-line/70 bg-paper/70 p-3">
+                          <p className="min-w-0 flex-1 truncate text-sm text-ink">
+                            {editAttachmentDraftFile.name}
+                          </p>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setEditAttachmentDraftFile(null);
+                              if (editAttachmentInputRef.current) {
+                                editAttachmentInputRef.current.value = "";
+                              }
+                            }}
+                          >
+                            {t("commercial.invoices.attachmentRemoveAction")}
+                          </Button>
+                        </div>
+                      ) : invoiceDetail.data?.attachmentName && !isEditAttachmentMarkedForRemoval ? (
+                        <div className="flex items-center gap-3 rounded-2xl border border-line/70 bg-paper/70 p-3">
+                          <p className="min-w-0 flex-1 truncate text-sm text-ink">
+                            {invoiceDetail.data.attachmentName}
+                          </p>
+                          {editAttachmentUrlQuery.data ? (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => window.open(editAttachmentUrlQuery.data ?? undefined, "_blank", "noopener,noreferrer")}
+                            >
+                              {t("commercial.invoices.attachmentOpenAction")}
+                            </Button>
+                          ) : null}
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setIsEditAttachmentMarkedForRemoval(true)}
+                          >
+                            {t("commercial.invoices.attachmentRemoveAction")}
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => editAttachmentInputRef.current?.click()}
+                          >
+                            {t("commercial.invoices.attachmentReplaceAction")}
+                          </Button>
+                        </div>
+                      ) : (
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => editAttachmentInputRef.current?.click()}
+                        >
+                          {t("commercial.invoices.attachmentUploadAction")}
+                        </Button>
+                      )}
+                    </div>
+                  </section>
+
                   <div className="flex flex-wrap justify-end gap-3 pt-2">
                     <Button
                       type="button"
@@ -2205,6 +2512,45 @@ export function CommercialInvoicesPage() {
                     ) : null}
                   </div>
 
+                  {(() => {
+                    const selectedCustomer = customers.find(
+                      (c) => c.id === invoiceDetail.data!.customerId
+                    );
+                    const ncfType = ncfTypes.find(
+                      (n) => n.id === invoiceDetail.data!.ncfTypeId
+                    );
+                    const hasRnc = selectedCustomer?.documentId;
+                    const hasNcf = invoiceDetail.data.ncf || ncfType;
+
+                    return (hasRnc || hasNcf) ? (
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium text-ink">
+                          {t("commercial.invoices.fiscalTitle")}
+                        </p>
+                        <div className="rounded-2xl border border-line/70 bg-paper/70 p-3 space-y-2">
+                          {hasRnc ? (
+                            <div className="flex items-center justify-between gap-2">
+                              <p className="text-xs text-ink-soft">{t("crm.customerForm.documentIdLabel")}</p>
+                              <p className="text-sm font-medium text-ink">{selectedCustomer!.documentId}</p>
+                            </div>
+                          ) : null}
+                          {ncfType ? (
+                            <div className="flex items-center justify-between gap-2">
+                              <p className="text-xs text-ink-soft">{t("commercial.invoices.ncfTypeLabel")}</p>
+                              <p className="text-sm text-ink">{ncfType.code} - {ncfType.label}</p>
+                            </div>
+                          ) : null}
+                          {invoiceDetail.data.ncf ? (
+                            <div className="flex items-center justify-between gap-2">
+                              <p className="text-xs text-ink-soft">{t("commercial.invoices.ncfLabel")}</p>
+                              <p className="text-sm font-mono text-ink">{invoiceDetail.data.ncf}</p>
+                            </div>
+                          ) : null}
+                        </div>
+                      </div>
+                    ) : null;
+                  })()}
+
                   <div className="space-y-2">
                     <p className="text-sm font-medium text-ink">
                       {t("commercial.invoices.linesTitle")}
@@ -2213,9 +2559,16 @@ export function CommercialInvoicesPage() {
                       {invoiceDetail.data.lineItems.map((li) => (
                         <div key={li.id} className="flex justify-between gap-3 p-3">
                           <div className="space-y-0.5 min-w-0">
-                            <p className="text-sm font-medium text-ink truncate">
-                              {li.itemName}
-                            </p>
+                            <div className="flex items-baseline gap-1.5 min-w-0">
+                              {li.itemCode ? (
+                                <span className="shrink-0 text-xs font-mono text-ink-muted">
+                                  [{li.itemCode}]
+                                </span>
+                              ) : null}
+                              <p className="text-sm font-medium text-ink truncate">
+                                {li.itemName}
+                              </p>
+                            </div>
                             {li.itemDescription ? (
                               <p className="text-xs text-ink-soft">
                                 {li.itemDescription}
@@ -2232,6 +2585,14 @@ export function CommercialInvoicesPage() {
                       ))}
                     </div>
                   </div>
+
+                  {invoiceDetail.data.attachmentName ? (
+                    <AttachmentRow
+                      attachmentName={invoiceDetail.data.attachmentName}
+                      url={detailAttachmentUrlQuery.data}
+                      openLabel={t("commercial.invoices.attachmentOpenAction")}
+                    />
+                  ) : null}
 
                   <div className="flex flex-wrap justify-between gap-3 pt-2">
                     {invoiceDetail.data.status === "paid" &&
@@ -2268,6 +2629,32 @@ export function CommercialInvoicesPage() {
           ) : null}
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+function AttachmentRow({
+  attachmentName,
+  url,
+  openLabel
+}: {
+  attachmentName: string;
+  url: string | null | undefined;
+  openLabel: string;
+}) {
+  return (
+    <div className="flex items-center gap-3 rounded-2xl border border-line/70 bg-paper/70 p-3">
+      <p className="min-w-0 flex-1 truncate text-sm text-ink">{attachmentName}</p>
+      {url ? (
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => window.open(url, "_blank", "noopener,noreferrer")}
+        >
+          {openLabel}
+        </Button>
+      ) : null}
     </div>
   );
 }

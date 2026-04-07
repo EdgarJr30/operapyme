@@ -13,7 +13,7 @@ import {
   customerStatusValues,
   type CustomerFormValues
 } from "@/lib/forms/customer-form-schema";
-import type { CustomerSummary } from "@/lib/supabase/backoffice-data";
+import type { CustomerSummary, NcfType } from "@/lib/supabase/backoffice-data";
 
 export const customerFormDefaultValues: CustomerFormValues = {
   displayName: "",
@@ -26,6 +26,7 @@ export const customerFormDefaultValues: CustomerFormValues = {
   isForeign: false,
   passportId: "",
   websiteUrl: "",
+  ncfTypeId: "",
   source: "manual",
   status: "active",
   notes: ""
@@ -45,6 +46,7 @@ export function mapCustomerToFormValues(
     isForeign: customer.isForeign,
     passportId: customer.passportId ?? "",
     websiteUrl: customer.websiteUrl ?? "",
+    ncfTypeId: customer.ncfTypeId ?? "",
     source: toCustomerSource(customer.source),
     status: customer.status,
     notes: customer.notes ?? ""
@@ -84,11 +86,13 @@ export function toCustomerSource(
 export function CustomerFormFields({
   form,
   idPrefix,
-  customerCode
+  customerCode,
+  ncfTypes = []
 }: {
   form: UseFormReturn<CustomerFormValues>;
   idPrefix: string;
   customerCode?: string | null;
+  ncfTypes?: NcfType[];
 }) {
   const { t } = useTranslation("backoffice");
   const {
@@ -261,6 +265,27 @@ export function CustomerFormFields({
             {...buildOperationalAutofillProps("off")}
             {...register("passportId")}
           />
+        </Field>
+      ) : null}
+
+      {ncfTypes.length > 0 ? (
+        <Field
+          label={t("crm.customerForm.ncfTypeLabel")}
+          hint={t("crm.customerForm.ncfTypeHint")}
+          htmlFor={`${idPrefix}-customer-ncf-type`}
+        >
+          <Select
+            id={`${idPrefix}-customer-ncf-type`}
+            {...buildOperationalAutofillProps("off")}
+            {...register("ncfTypeId")}
+          >
+            <option value="">{t("crm.customerForm.ncfTypeEmpty")}</option>
+            {ncfTypes.map((ncfType) => (
+              <option key={ncfType.id} value={ncfType.id}>
+                {ncfType.code} - {ncfType.label}
+              </option>
+            ))}
+          </Select>
         </Field>
       ) : null}
 

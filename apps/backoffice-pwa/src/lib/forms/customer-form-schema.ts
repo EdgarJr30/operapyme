@@ -50,6 +50,7 @@ export function createCustomerFormSchema(t: TFunction<"backoffice">) {
       .refine((value) => value === "" || isWebsiteUrlValid(value), {
         message: t("crm.customerForm.validation.websiteUrl")
       }),
+    ncfTypeId: z.string().optional(),
     source: z.enum(customerSourceValues),
     status: z.enum(customerStatusValues),
     notes: z.string().max(500, t("crm.customerForm.validation.notesMax"))

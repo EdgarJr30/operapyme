@@ -4,6 +4,16 @@ import { supabase } from "@/lib/supabase/client";
 
 const CUSTOMER_ATTACHMENTS_BUCKET = "customer-attachments";
 const QUOTE_ATTACHMENTS_BUCKET = "quote-attachments";
+const INVOICE_ATTACHMENTS_BUCKET = "invoice-attachments";
+
+export interface NcfType {
+  id: string;
+  code: string;
+  label: string;
+  description: string | null;
+  isActive: boolean;
+  sortOrder: number;
+}
 
 export type CustomerStatus = "active" | "inactive" | "archived";
 export type LeadStatus =
@@ -49,6 +59,7 @@ export interface CustomerSummary {
   websiteUrl: string | null;
   attachmentName: string | null;
   attachmentPath: string | null;
+  ncfTypeId: string | null;
   notes: string | null;
   source: string;
   status: CustomerStatus;
@@ -169,6 +180,10 @@ export interface InvoiceSummary {
   voidReason: string | null;
   notes: string | null;
   reversalOfInvoiceId: string | null;
+  ncfTypeId: string | null;
+  ncf: string | null;
+  attachmentName: string | null;
+  attachmentPath: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -201,6 +216,15 @@ interface CountResult {
   count: number | null;
 }
 
+interface RawNcfTypeRow {
+  id: string;
+  code: string;
+  label: string;
+  description: string | null;
+  is_active: boolean;
+  sort_order: number;
+}
+
 interface RawCustomerRow {
   id: string;
   customer_code: string | null;
@@ -216,6 +240,7 @@ interface RawCustomerRow {
   website_url: string | null;
   attachment_name: string | null;
   attachment_path: string | null;
+  ncf_type_id: string | null;
   notes: string | null;
   source: string;
   status: CustomerStatus;
@@ -350,6 +375,10 @@ interface RawInvoiceRow {
   created_at: string;
   updated_at: string;
   reversal_of_invoice_id: string | null;
+  ncf_type_id: string | null;
+  ncf: string | null;
+  attachment_name: string | null;
+  attachment_path: string | null;
   line_items?: RawQuoteLineRow[] | null;
 }
 
@@ -367,6 +396,7 @@ export interface CreateCustomerInput {
   websiteUrl?: string | null;
   attachmentName?: string | null;
   attachmentPath?: string | null;
+  ncfTypeId?: string | null;
   source: string;
   status: CustomerStatus;
   notes?: string | null;
@@ -387,6 +417,7 @@ export interface UpdateCustomerInput {
   websiteUrl?: string | null;
   attachmentName?: string | null;
   attachmentPath?: string | null;
+  ncfTypeId?: string | null;
   source: string;
   status: CustomerStatus;
   notes?: string | null;
@@ -505,6 +536,10 @@ export interface CreateInvoiceInput {
   notes?: string | null;
   issuedOn?: string | null;
   dueOn?: string | null;
+  ncfTypeId?: string | null;
+  ncf?: string | null;
+  attachmentName?: string | null;
+  attachmentPath?: string | null;
   lineItems: QuoteLineInput[];
 }
 
@@ -533,6 +568,10 @@ export interface UpdateInvoiceInput {
   issuedOn?: string | null;
   dueOn?: string | null;
   notes?: string | null;
+  ncfTypeId?: string | null;
+  ncf?: string | null;
+  attachmentName?: string | null;
+  attachmentPath?: string | null;
   lineItems: QuoteLineInput[];
 }
 
@@ -548,8 +587,11 @@ export interface CancelInvoiceResult {
   reversalInvoiceNumber: string;
 }
 
+const ncfTypeSelectFields =
+  "id, code, label, description, is_active, sort_order";
+
 const customerSelectFields =
-  "id, customer_code, display_name, contact_name, legal_name, email, whatsapp, phone, document_id, is_foreign, passport_id, website_url, attachment_name, attachment_path, notes, source, status, created_at, updated_at";
+  "id, customer_code, display_name, contact_name, legal_name, email, whatsapp, phone, document_id, is_foreign, passport_id, website_url, attachment_name, attachment_path, ncf_type_id, notes, source, status, created_at, updated_at";
 
 const leadSelectFields =
   "id, lead_code, display_name, contact_name, email, whatsapp, phone, source, status, need_summary, notes, converted_customer_id, converted_at, updated_at";
@@ -566,7 +608,7 @@ const quoteSelectFields =
 const quoteDetailSelectFields = `${quoteSelectFields}, line_items:quote_line_items(${quoteLineSelectFields})`;
 
 const invoiceSelectFields =
-  "id, source_quote_id, customer_id, lead_id, recipient_kind, recipient_display_name, recipient_contact_name, recipient_email, recipient_whatsapp, recipient_phone, invoice_number, title, document_kind, currency_code, subtotal, discount_total, tax_total, grand_total, status, issued_on, due_on, void_reason, notes, reversal_of_invoice_id, created_at, updated_at";
+  "id, source_quote_id, customer_id, lead_id, recipient_kind, recipient_display_name, recipient_contact_name, recipient_email, recipient_whatsapp, recipient_phone, invoice_number, title, document_kind, currency_code, subtotal, discount_total, tax_total, grand_total, status, issued_on, due_on, void_reason, notes, reversal_of_invoice_id, ncf_type_id, ncf, attachment_name, attachment_path, created_at, updated_at";
 
 const invoiceDetailSelectFields = `${invoiceSelectFields}, line_items:invoice_line_items(${quoteLineSelectFields})`;
 
@@ -648,6 +690,17 @@ function normalizeQuoteLineItems(lineItems: QuoteLineInput[]) {
   }));
 }
 
+function mapNcfType(row: RawNcfTypeRow): NcfType {
+  return {
+    id: row.id,
+    code: row.code,
+    label: row.label,
+    description: row.description,
+    isActive: row.is_active,
+    sortOrder: row.sort_order
+  };
+}
+
 function mapCustomer(row: RawCustomerRow): CustomerSummary {
   return {
     id: row.id,
@@ -664,6 +717,7 @@ function mapCustomer(row: RawCustomerRow): CustomerSummary {
     websiteUrl: row.website_url,
     attachmentName: row.attachment_name,
     attachmentPath: row.attachment_path,
+    ncfTypeId: row.ncf_type_id,
     notes: row.notes,
     source: row.source,
     status: row.status,
@@ -821,6 +875,10 @@ function mapInvoice(row: RawInvoiceRow): InvoiceSummary {
     voidReason: row.void_reason ?? null,
     notes: row.notes,
     reversalOfInvoiceId: row.reversal_of_invoice_id ?? null,
+    ncfTypeId: row.ncf_type_id ?? null,
+    ncf: row.ncf ?? null,
+    attachmentName: row.attachment_name ?? null,
+    attachmentPath: row.attachment_path ?? null,
     createdAt: row.created_at,
     updatedAt: row.updated_at
   };
@@ -831,6 +889,21 @@ function mapInvoiceDetail(row: RawInvoiceRow): InvoiceDetail {
     ...mapInvoice(row),
     lineItems: (row.line_items ?? []).map(mapQuoteLine)
   };
+}
+
+export async function listNcfTypes(): Promise<NcfType[]> {
+  const client = requireSupabaseClient();
+  const { data, error } = await client
+    .from("ncf_types")
+    .select(ncfTypeSelectFields)
+    .eq("is_active", true)
+    .order("sort_order", { ascending: true });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return ((data ?? []) as RawNcfTypeRow[]).map(mapNcfType);
 }
 
 export async function listCustomersForTenant(
@@ -1310,6 +1383,67 @@ export async function getQuoteAttachmentSignedUrl(
   return data.signedUrl;
 }
 
+export async function uploadInvoiceAttachment(tenantId: string, file: File) {
+  const client = requireSupabaseClient();
+  const scopedTenantId = requireTenantScope(tenantId);
+  const fileExtension = file.name.includes(".")
+    ? file.name.split(".").pop()?.toLowerCase() ?? "bin"
+    : "bin";
+  const attachmentPath = `${scopedTenantId}/invoices/${crypto.randomUUID()}.${fileExtension}`;
+  const { error } = await client.storage
+    .from(INVOICE_ATTACHMENTS_BUCKET)
+    .upload(attachmentPath, file, {
+      cacheControl: "3600",
+      upsert: false
+    });
+
+  if (error) {
+    throw error;
+  }
+
+  return attachmentPath;
+}
+
+export async function deleteInvoiceAttachment(
+  attachmentPath: string | null | undefined
+) {
+  const normalizedAttachmentPath = normalizeOptionalValue(attachmentPath);
+
+  if (!normalizedAttachmentPath) {
+    return;
+  }
+
+  const client = requireSupabaseClient();
+  const { error } = await client.storage
+    .from(INVOICE_ATTACHMENTS_BUCKET)
+    .remove([normalizedAttachmentPath]);
+
+  if (error) {
+    throw error;
+  }
+}
+
+export async function getInvoiceAttachmentSignedUrl(
+  attachmentPath: string | null | undefined
+) {
+  const normalizedAttachmentPath = normalizeOptionalValue(attachmentPath);
+
+  if (!normalizedAttachmentPath) {
+    return null;
+  }
+
+  const client = requireSupabaseClient();
+  const { data, error } = await client.storage
+    .from(INVOICE_ATTACHMENTS_BUCKET)
+    .createSignedUrl(normalizedAttachmentPath, 60 * 60);
+
+  if (error) {
+    return null;
+  }
+
+  return data.signedUrl;
+}
+
 export async function getCustomerBalanceSummary(
   tenantId: string,
   customerId: string
@@ -1370,6 +1504,7 @@ export async function createCustomer(input: CreateCustomerInput) {
     website_url: normalizeWebsiteUrl(input.websiteUrl),
     attachment_name: normalizeOptionalValue(input.attachmentName),
     attachment_path: normalizeOptionalValue(input.attachmentPath),
+    ncf_type_id: normalizeOptionalValue(input.ncfTypeId) || null,
     source: input.source,
     status: input.status,
     notes: normalizeOptionalValue(input.notes)
@@ -1498,6 +1633,7 @@ export async function updateCustomer(input: UpdateCustomerInput) {
     website_url: normalizeWebsiteUrl(input.websiteUrl),
     attachment_name: normalizeOptionalValue(input.attachmentName),
     attachment_path: normalizeOptionalValue(input.attachmentPath),
+    ncf_type_id: normalizeOptionalValue(input.ncfTypeId) || null,
     source: input.source,
     status: input.status,
     notes: normalizeOptionalValue(input.notes)
@@ -1759,7 +1895,11 @@ export async function createInvoice(input: CreateInvoiceInput) {
     target_recipient_phone: normalizeOptionalValue(input.recipientPhone),
     target_issued_on: normalizeOptionalValue(input.issuedOn),
     target_due_on: normalizeOptionalValue(input.dueOn),
-    target_notes: normalizeOptionalValue(input.notes)
+    target_notes: normalizeOptionalValue(input.notes),
+    target_ncf_type_id: input.ncfTypeId ?? null,
+    target_ncf: normalizeOptionalValue(input.ncf),
+    target_attachment_name: normalizeOptionalValue(input.attachmentName),
+    target_attachment_path: normalizeOptionalValue(input.attachmentPath)
   });
 
   if (error) {
@@ -1792,7 +1932,7 @@ export async function updateInvoice(input: UpdateInvoiceInput): Promise<InvoiceS
     target_document_kind: input.documentKind,
     target_currency_code: input.currencyCode,
     target_recipient_kind: input.recipientKind,
-    target_line_items: input.lineItems,
+    target_line_items: normalizeQuoteLineItems(input.lineItems),
     target_document_discount_total: input.documentDiscountTotal ?? 0,
     target_customer_id: input.customerId ?? null,
     target_lead_id: input.leadId ?? null,
@@ -1803,7 +1943,11 @@ export async function updateInvoice(input: UpdateInvoiceInput): Promise<InvoiceS
     target_recipient_phone: input.recipientPhone ?? null,
     target_issued_on: input.issuedOn ?? null,
     target_due_on: input.dueOn ?? null,
-    target_notes: input.notes ?? null
+    target_notes: input.notes ?? null,
+    target_ncf_type_id: input.ncfTypeId ?? null,
+    target_ncf: normalizeOptionalValue(input.ncf),
+    target_attachment_name: normalizeOptionalValue(input.attachmentName),
+    target_attachment_path: normalizeOptionalValue(input.attachmentPath)
   });
 
   if (error) {

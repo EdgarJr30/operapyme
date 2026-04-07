@@ -80,6 +80,10 @@ export function createInvoiceFormSchema(t: TFunction<"backoffice">) {
       issuedOn: z.string().optional(),
       dueOn: z.string().optional(),
       notes: z.string().max(500, t("quotes.form.validation.notesMax")),
+      ncfTypeId: z.string().optional(),
+      ncf: z.string().max(19, t("commercial.invoices.validation.ncfMax")).optional(),
+      attachmentName: z.string().optional(),
+      attachmentPath: z.string().optional(),
       lineItems: z
         .array(lineItemSchema)
         .min(1, t("quotes.form.validation.lineItemsMin"))
