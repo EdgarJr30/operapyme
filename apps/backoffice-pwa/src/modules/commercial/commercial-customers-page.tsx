@@ -682,7 +682,7 @@ export function CommercialCustomersPage() {
                     variant="secondary"
                     className="gap-2"
                     onClick={() => {
-                      window.open(editAttachmentQuery.data, "_blank", "noreferrer");
+                      window.open(editAttachmentQuery.data ?? undefined, "_blank", "noreferrer");
                     }}
                   >
                     <ExternalLink className="size-4" />
