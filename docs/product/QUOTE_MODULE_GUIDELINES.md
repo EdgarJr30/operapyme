@@ -59,13 +59,15 @@ Para descuentos por linea:
 Una cotizacion profesional necesita:
 
 - numero del documento
-- fecha de emision
+- fecha del documento o emision
 - fecha de validez
 - branding visible
 - receptor claro
 - line items legibles
+- codigo del articulo cuando aplique
 - subtotal, descuentos, impuestos y total
 - notas o condiciones comerciales
+- anexo historico opcional para contexto de soporte
 
 ### Versionado y seguridad
 
@@ -85,6 +87,9 @@ Por eso:
 - `leads` se materializa como entidad minima de CRM
 - `quotes` ahora guarda receptor vinculado y snapshot documental
 - `quote_line_items` guarda el detalle comercial persistido
+- `quote_line_items` tambien debe poder conservar `item_code` como snapshot documental cuando exista
+- `quotes` debe guardar `issued_on` como fecha documental editable, separada de `created_at`
+- `quotes` puede guardar un solo anexo historico por documento en esta fase
 - `quotes` deja de depender de `customer_id` obligatorio para soportar `lead` y `ad_hoc`
 
 ### PDF

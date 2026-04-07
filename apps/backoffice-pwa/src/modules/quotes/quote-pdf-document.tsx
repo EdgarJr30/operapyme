@@ -112,7 +112,7 @@ export function QuotePdfDocument({
             <MetaRow label="Numero" value={quote.quoteNumber} styles={styles} accent />
             <MetaRow
               label="Emitida"
-              value={formatDate(quote.createdAt)}
+              value={formatDate(quote.issuedOn ?? quote.createdAt)}
               styles={styles}
             />
             <MetaRow
@@ -178,6 +178,9 @@ export function QuotePdfDocument({
             >
               <View style={[styles.cell, { flex: 3.2 }]}>
                 <Text style={styles.lineTitle}>{lineItem.itemName}</Text>
+                {lineItem.itemCode ? (
+                  <Text style={styles.lineMeta}>Codigo: {lineItem.itemCode}</Text>
+                ) : null}
                 {lineItem.itemDescription ? (
                   <Text style={styles.lineDescription}>{lineItem.itemDescription}</Text>
                 ) : null}

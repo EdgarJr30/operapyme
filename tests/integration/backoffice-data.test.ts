@@ -647,7 +647,10 @@ describe("backoffice data access", () => {
         grand_total: "159.20",
         status: "draft",
         version: 1,
+        issued_on: "2026-04-05",
         valid_until: "2026-04-30",
+        attachment_name: "historial-northline.pdf",
+        attachment_path: "tenant-1/quotes/file-1.pdf",
         notes: "temporary qa check",
         created_at: "2026-03-25T00:00:00.000Z",
         updated_at: "2026-03-26T00:00:00.000Z",
@@ -676,11 +679,15 @@ describe("backoffice data access", () => {
       status: "draft",
       currencyCode: "usd",
       documentDiscountTotal: 6,
+      issuedOn: "2026-04-05",
+      attachmentName: "historial-northline.pdf",
+      attachmentPath: "tenant-1/quotes/file-1.pdf",
       validUntil: "2026-04-30",
       notes: " temporary qa check ",
       lineItems: [
         {
           catalogItemId: "item-1",
+          itemCode: "SKU-001",
           itemName: "Mantenimiento preventivo",
           itemDescription: "Visita tecnica trimestral",
           quantity: 1,
@@ -701,6 +708,7 @@ describe("backoffice data access", () => {
       target_line_items: [
         {
           catalogItemId: "item-1",
+          itemCode: "SKU-001",
           itemName: "Mantenimiento preventivo",
           itemDescription: "Visita tecnica trimestral",
           quantity: 1,
@@ -718,7 +726,10 @@ describe("backoffice data access", () => {
       target_recipient_email: "sales@northline.test",
       target_recipient_whatsapp: null,
       target_recipient_phone: null,
+      target_issued_on: "2026-04-05",
       target_valid_until: "2026-04-30",
+      target_attachment_name: "historial-northline.pdf",
+      target_attachment_path: "tenant-1/quotes/file-1.pdf",
       target_notes: "temporary qa check"
     });
     expect(quote).toEqual(
@@ -784,7 +795,10 @@ describe("backoffice data access", () => {
         grand_total: "950.00",
         status: "draft",
         version: 1,
+        issued_on: "2026-04-07",
         valid_until: null,
+        attachment_name: null,
+        attachment_path: null,
         notes: null,
         created_at: "2026-03-25T00:00:00.000Z",
         updated_at: "2026-03-26T00:00:00.000Z",
@@ -813,11 +827,13 @@ describe("backoffice data access", () => {
       status: "draft",
       currencyCode: "usd",
       documentDiscountTotal: 0,
+      issuedOn: "2026-04-07",
       validUntil: "",
       notes: "",
       lineItems: [
         {
           catalogItemId: null,
+          itemCode: "",
           itemName: "Paquete express",
           itemDescription: "",
           quantity: 1,
@@ -838,6 +854,7 @@ describe("backoffice data access", () => {
       target_line_items: [
         {
           catalogItemId: null,
+          itemCode: null,
           itemName: "Paquete express",
           itemDescription: null,
           quantity: 1,
@@ -855,7 +872,10 @@ describe("backoffice data access", () => {
       target_recipient_email: "ana@test.dev",
       target_recipient_whatsapp: null,
       target_recipient_phone: null,
+      target_issued_on: "2026-04-07",
       target_valid_until: null,
+      target_attachment_name: null,
+      target_attachment_path: null,
       target_notes: null
     });
   });
@@ -881,7 +901,10 @@ describe("backoffice data access", () => {
         grand_total: "216.20",
         status: "sent",
         version: 2,
+        issued_on: "2026-04-12",
         valid_until: "2026-05-15",
+        attachment_name: null,
+        attachment_path: null,
         notes: "temporary qa update",
         created_at: "2026-03-25T00:00:00.000Z",
         updated_at: "2026-03-26T00:00:00.000Z",
@@ -912,11 +935,13 @@ describe("backoffice data access", () => {
       status: "sent",
       currencyCode: "dop",
       documentDiscountTotal: 8,
+      issuedOn: "2026-04-12",
       validUntil: "2026-05-15",
       notes: " temporary qa update ",
       lineItems: [
         {
           catalogItemId: "item-1",
+          itemCode: "SKU-001",
           itemName: "Mantenimiento preventivo",
           itemDescription: "Visita tecnica trimestral",
           quantity: 1,
@@ -939,6 +964,7 @@ describe("backoffice data access", () => {
       target_line_items: [
         {
           catalogItemId: "item-1",
+          itemCode: "SKU-001",
           itemName: "Mantenimiento preventivo",
           itemDescription: "Visita tecnica trimestral",
           quantity: 1,
@@ -956,7 +982,10 @@ describe("backoffice data access", () => {
       target_recipient_email: "sales@northline.test",
       target_recipient_whatsapp: null,
       target_recipient_phone: null,
+      target_issued_on: "2026-04-12",
       target_valid_until: "2026-05-15",
+      target_attachment_name: null,
+      target_attachment_path: null,
       target_notes: "temporary qa update"
     });
     expect(quote).toEqual(

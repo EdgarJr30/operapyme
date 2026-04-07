@@ -98,8 +98,8 @@ La fase 2 ya deja listos estos bloques iniciales:
 - `customers`: base multi-tenant para clientes del CRM
 - `customers.contact_name`: contacto principal para los flujos comerciales del CRM
 - `leads`: base multi-tenant para oportunidades y receptores previos a cliente
-- `quotes`: base multi-tenant para cotizaciones con version, receptor flexible y snapshot documental
-- `quote_line_items`: detalle comercial persistido por cotizacion
+- `quotes`: base multi-tenant para cotizaciones con version, receptor flexible, `issued_on`, snapshot documental y un anexo opcional por documento
+- `quote_line_items`: detalle comercial persistido por cotizacion, incluyendo `item_code` documental cuando exista
 - `quote_number_sequences`: contador interno por tenant y anio para generar numeros `COT-YYYY-######`
 - `invoices`: base multi-tenant para facturas documentales internas con receptor flexible y origen opcional en cotizacion
 - `invoice_line_items`: detalle facturable persistido por factura

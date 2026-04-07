@@ -1,7 +1,7 @@
 import { type ReactNode, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { Pencil, Plus, Search } from "lucide-react";
+import { Paperclip, Pencil, Plus, Search } from "lucide-react";
 import { useTranslation } from "@operapyme/i18n";
 import { toast } from "sonner";
 
@@ -355,7 +355,16 @@ export function CommercialQuotesPage() {
                     <TableCell className="pl-0">
                       <div className="space-y-1">
                         <p className="font-medium text-ink">{quote.title}</p>
-                        <p className="text-sm text-ink-soft">{quote.quoteNumber}</p>
+                        <p className="text-sm text-ink-soft">
+                          {quote.quoteNumber} ·{" "}
+                          {formatDate(quote.issuedOn ?? quote.createdAt, i18n.language)}
+                        </p>
+                        {quote.attachmentName ? (
+                          <p className="inline-flex items-center gap-1 text-xs text-ink-soft">
+                            <Paperclip className="size-3.5" />
+                            {quote.attachmentName}
+                          </p>
+                        ) : null}
                       </div>
                     </TableCell>
                     <TableCell>

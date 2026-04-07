@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase/client";
 
 const CUSTOMER_ATTACHMENTS_BUCKET = "customer-attachments";
+const QUOTE_ATTACHMENTS_BUCKET = "quote-attachments";
 
 export type CustomerStatus = "active" | "inactive" | "archived";
 export type LeadStatus =
@@ -97,6 +98,7 @@ export interface CatalogItemSummary {
 export interface QuoteLineItemSummary {
   id: string;
   catalogItemId: string | null;
+  itemCode?: string | null;
   sortOrder: number;
   itemName: string;
   itemDescription: string | null;
@@ -128,7 +130,10 @@ export interface QuoteSummary {
   grandTotal: number;
   status: QuoteStatus;
   version: number;
+  issuedOn?: string | null;
   validUntil: string | null;
+  attachmentName?: string | null;
+  attachmentPath?: string | null;
   cancellationReason: string | null;
   notes: string | null;
   createdAt: string;
@@ -275,6 +280,7 @@ interface RawCatalogItemRow {
 interface RawQuoteLineRow {
   id: string;
   catalog_item_id: string | null;
+  item_code?: string | null;
   sort_order: number;
   item_name: string;
   item_description: string | null;
@@ -306,7 +312,10 @@ interface RawQuoteRow {
   grand_total: number | string;
   status: QuoteStatus;
   version: number;
+  issued_on?: string | null;
   valid_until: string | null;
+  attachment_name?: string | null;
+  attachment_path?: string | null;
   cancellation_reason: string | null;
   notes: string | null;
   created_at: string;
@@ -432,6 +441,7 @@ export interface UpdateCatalogItemInput extends CreateCatalogItemInput {
 
 export interface QuoteLineInput {
   catalogItemId?: string | null;
+  itemCode?: string | null;
   itemName: string;
   itemDescription?: string | null;
   quantity: number;
@@ -455,6 +465,9 @@ export interface CreateQuoteInput {
   status: QuoteStatus;
   currencyCode: string;
   documentDiscountTotal: number;
+  issuedOn?: string | null;
+  attachmentName?: string | null;
+  attachmentPath?: string | null;
   notes?: string | null;
   validUntil?: string | null;
   lineItems: QuoteLineInput[];
@@ -545,10 +558,10 @@ const catalogItemSelectFields =
   "id, item_code, name, description, category, kind, visibility, pricing_mode, currency_code, unit_price, status, notes, updated_at";
 
 const quoteLineSelectFields =
-  "id, catalog_item_id, sort_order, item_name, item_description, quantity, unit_label, unit_price, discount_total, tax_total, line_subtotal, line_total";
+  "id, catalog_item_id, item_code, sort_order, item_name, item_description, quantity, unit_label, unit_price, discount_total, tax_total, line_subtotal, line_total";
 
 const quoteSelectFields =
-  "id, customer_id, lead_id, recipient_kind, recipient_display_name, recipient_contact_name, recipient_email, recipient_whatsapp, recipient_phone, quote_number, title, currency_code, subtotal, discount_total, tax_total, grand_total, status, version, valid_until, cancellation_reason, notes, created_at, updated_at";
+  "id, customer_id, lead_id, recipient_kind, recipient_display_name, recipient_contact_name, recipient_email, recipient_whatsapp, recipient_phone, quote_number, title, currency_code, subtotal, discount_total, tax_total, grand_total, status, version, issued_on, valid_until, attachment_name, attachment_path, cancellation_reason, notes, created_at, updated_at";
 
 const quoteDetailSelectFields = `${quoteSelectFields}, line_items:quote_line_items(${quoteLineSelectFields})`;
 
@@ -624,6 +637,7 @@ function normalizeCatalogPrice(
 function normalizeQuoteLineItems(lineItems: QuoteLineInput[]) {
   return lineItems.map((lineItem) => ({
     catalogItemId: normalizeOptionalValue(lineItem.catalogItemId ?? null),
+    itemCode: normalizeOptionalValue(lineItem.itemCode),
     itemName: lineItem.itemName.trim(),
     itemDescription: normalizeOptionalValue(lineItem.itemDescription),
     quantity: lineItem.quantity,
@@ -729,6 +743,7 @@ function mapQuoteLine(row: RawQuoteLineRow): QuoteLineItemSummary {
   return {
     id: row.id,
     catalogItemId: row.catalog_item_id,
+    itemCode: row.item_code ?? null,
     sortOrder: row.sort_order,
     itemName: row.item_name,
     itemDescription: row.item_description,
@@ -762,7 +777,10 @@ function mapQuote(row: RawQuoteRow): QuoteSummary {
     grandTotal: Number(row.grand_total ?? 0),
     status: row.status,
     version: row.version,
+    issuedOn: row.issued_on ?? null,
     validUntil: row.valid_until,
+    attachmentName: row.attachment_name ?? null,
+    attachmentPath: row.attachment_path ?? null,
     cancellationReason: row.cancellation_reason ?? null,
     notes: row.notes,
     createdAt: row.created_at,
@@ -1191,6 +1209,27 @@ export async function uploadCustomerAttachment(
   return attachmentPath;
 }
 
+export async function uploadQuoteAttachment(tenantId: string, file: File) {
+  const client = requireSupabaseClient();
+  const scopedTenantId = requireTenantScope(tenantId);
+  const fileExtension = file.name.includes(".")
+    ? file.name.split(".").pop()?.toLowerCase() ?? "bin"
+    : "bin";
+  const attachmentPath = `${scopedTenantId}/quotes/${crypto.randomUUID()}.${fileExtension}`;
+  const { error } = await client.storage
+    .from(QUOTE_ATTACHMENTS_BUCKET)
+    .upload(attachmentPath, file, {
+      cacheControl: "3600",
+      upsert: false
+    });
+
+  if (error) {
+    throw error;
+  }
+
+  return attachmentPath;
+}
+
 export async function deleteCustomerAttachment(
   attachmentPath: string | null | undefined
 ) {
@@ -1210,6 +1249,25 @@ export async function deleteCustomerAttachment(
   }
 }
 
+export async function deleteQuoteAttachment(
+  attachmentPath: string | null | undefined
+) {
+  const normalizedAttachmentPath = normalizeOptionalValue(attachmentPath);
+
+  if (!normalizedAttachmentPath) {
+    return;
+  }
+
+  const client = requireSupabaseClient();
+  const { error } = await client.storage
+    .from(QUOTE_ATTACHMENTS_BUCKET)
+    .remove([normalizedAttachmentPath]);
+
+  if (error) {
+    throw error;
+  }
+}
+
 export async function getCustomerAttachmentSignedUrl(
   attachmentPath: string | null | undefined
 ) {
@@ -1222,6 +1280,27 @@ export async function getCustomerAttachmentSignedUrl(
   const client = requireSupabaseClient();
   const { data, error } = await client.storage
     .from(CUSTOMER_ATTACHMENTS_BUCKET)
+    .createSignedUrl(normalizedAttachmentPath, 60 * 60);
+
+  if (error) {
+    return null;
+  }
+
+  return data.signedUrl;
+}
+
+export async function getQuoteAttachmentSignedUrl(
+  attachmentPath: string | null | undefined
+) {
+  const normalizedAttachmentPath = normalizeOptionalValue(attachmentPath);
+
+  if (!normalizedAttachmentPath) {
+    return null;
+  }
+
+  const client = requireSupabaseClient();
+  const { data, error } = await client.storage
+    .from(QUOTE_ATTACHMENTS_BUCKET)
     .createSignedUrl(normalizedAttachmentPath, 60 * 60);
 
   if (error) {
@@ -1519,7 +1598,10 @@ export async function createQuote(input: CreateQuoteInput) {
     target_recipient_email: normalizeOptionalValue(input.recipientEmail),
     target_recipient_whatsapp: normalizeOptionalValue(input.recipientWhatsApp),
     target_recipient_phone: normalizeOptionalValue(input.recipientPhone),
+    target_issued_on: normalizeOptionalValue(input.issuedOn),
     target_valid_until: normalizeOptionalValue(input.validUntil),
+    target_attachment_name: normalizeOptionalValue(input.attachmentName),
+    target_attachment_path: normalizeOptionalValue(input.attachmentPath),
     target_notes: normalizeOptionalValue(input.notes)
   });
 
@@ -1590,7 +1672,10 @@ export async function updateQuote(input: UpdateQuoteInput) {
     target_recipient_email: normalizeOptionalValue(input.recipientEmail),
     target_recipient_whatsapp: normalizeOptionalValue(input.recipientWhatsApp),
     target_recipient_phone: normalizeOptionalValue(input.recipientPhone),
+    target_issued_on: normalizeOptionalValue(input.issuedOn),
     target_valid_until: normalizeOptionalValue(input.validUntil),
+    target_attachment_name: normalizeOptionalValue(input.attachmentName),
+    target_attachment_path: normalizeOptionalValue(input.attachmentPath),
     target_notes: normalizeOptionalValue(input.notes)
   });
 

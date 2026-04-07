@@ -1,6 +1,15 @@
-import { type ReactNode, useEffect, useMemo, useState } from "react";
+import {
+  type ChangeEvent,
+  type ReactNode,
+  type RefObject,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery } from "@tanstack/react-query";
 import {
   useFieldArray,
   useForm,
@@ -14,8 +23,11 @@ import {
   BadgeCheck,
   CheckCircle2,
   CircleAlert,
+  Eye,
   FileText,
   Layers3,
+  Paperclip,
+  Trash2,
   type LucideIcon,
   UserRound
 } from "lucide-react";
@@ -33,6 +45,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useBackofficeAuth } from "@/app/auth-provider";
 import {
   createQuoteFormSchema,
   quoteRecipientKindValues,
@@ -56,6 +69,11 @@ import type {
   QuoteDetail,
   QuoteRecipientKind,
   QuoteSummary
+} from "@/lib/supabase/backoffice-data";
+import {
+  deleteQuoteAttachment,
+  getQuoteAttachmentSignedUrl,
+  uploadQuoteAttachment
 } from "@/lib/supabase/backoffice-data";
 import { cn } from "@/lib/utils";
 import { CustomerSearchSelect } from "@/modules/crm/customer-search-select";
@@ -119,11 +137,29 @@ export function QuoteEditorWorkspace({
   quoteId = null
 }: QuoteEditorWorkspaceProps) {
   const { t } = useTranslation("backoffice");
+  const { activeTenantId } = useBackofficeAuth();
   const { createQuoteMutation, updateQuoteMutation } = useQuoteMutations();
   const quoteFormSchema = createQuoteFormSchema(t);
   const [currentStep, setCurrentStep] = useState<QuoteFormStepKey>("recipient");
+  const [attachmentDraftFile, setAttachmentDraftFile] = useState<File | null>(null);
+  const [isAttachmentMarkedForRemoval, setIsAttachmentMarkedForRemoval] =
+    useState(false);
+  const attachmentInputRef = useRef<HTMLInputElement | null>(null);
   const quoteDetailQuery = useQuoteDetailData(mode === "edit" ? quoteId : null);
   const quoteDetail = quoteDetailQuery.data ?? null;
+  const attachmentPreviewName =
+    attachmentDraftFile?.name ??
+    (isAttachmentMarkedForRemoval ? null : quoteDetail?.attachmentName ?? null);
+  const quoteAttachmentUrlQuery = useQuery({
+    queryKey: ["quote-attachment", quoteDetail?.attachmentPath ?? "none"],
+    queryFn: () => getQuoteAttachmentSignedUrl(quoteDetail?.attachmentPath),
+    enabled: Boolean(
+      mode === "edit" &&
+        quoteDetail?.attachmentPath &&
+        !attachmentDraftFile &&
+        !isAttachmentMarkedForRemoval
+    )
+  });
 
   const form = useForm<QuoteFormValues>({
     resolver: zodResolver(quoteFormSchema),
@@ -136,6 +172,12 @@ export function QuoteEditorWorkspace({
 
   useEffect(() => {
     setCurrentStep("recipient");
+    setAttachmentDraftFile(null);
+    setIsAttachmentMarkedForRemoval(false);
+
+    if (attachmentInputRef.current) {
+      attachmentInputRef.current.value = "";
+    }
 
     if (mode === "create") {
       form.reset(buildCreateDefaults(customers, leads));
@@ -150,6 +192,13 @@ export function QuoteEditorWorkspace({
   useEffect(() => {
     if (mode !== "edit" || !quoteDetail) {
       return;
+    }
+
+    setAttachmentDraftFile(null);
+    setIsAttachmentMarkedForRemoval(false);
+
+    if (attachmentInputRef.current) {
+      attachmentInputRef.current.value = "";
     }
 
     form.reset(buildUpdateDefaults(quoteDetail));
@@ -189,7 +238,36 @@ export function QuoteEditorWorkspace({
   };
 
   async function onSubmit(values: QuoteFormValues) {
+    if (!activeTenantId) {
+      toast.error(t("quotes.form.noTenantError"));
+      return;
+    }
+
+    let uploadedAttachmentPath: string | null = null;
+
     try {
+      const currentAttachmentPath =
+        mode === "edit" ? quoteDetail?.attachmentPath ?? null : null;
+      const currentAttachmentName =
+        mode === "edit" ? quoteDetail?.attachmentName ?? null : null;
+      let nextAttachmentPath =
+        isAttachmentMarkedForRemoval && !attachmentDraftFile
+          ? null
+          : currentAttachmentPath;
+      let nextAttachmentName =
+        isAttachmentMarkedForRemoval && !attachmentDraftFile
+          ? null
+          : currentAttachmentName;
+
+      if (attachmentDraftFile) {
+        uploadedAttachmentPath = await uploadQuoteAttachment(
+          activeTenantId,
+          attachmentDraftFile
+        );
+        nextAttachmentPath = uploadedAttachmentPath;
+        nextAttachmentName = attachmentDraftFile.name;
+      }
+
       if (mode === "edit") {
         if (!quoteDetail) {
           toast.error(t("quotes.form.noQuoteSelected"));
@@ -199,12 +277,25 @@ export function QuoteEditorWorkspace({
         await updateQuoteMutation.mutateAsync({
           quoteId: quoteDetail.id,
           version: quoteDetail.version,
-          ...toQuotePayload(values)
+          ...toQuotePayload(values),
+          attachmentName: nextAttachmentName,
+          attachmentPath: nextAttachmentPath
         });
         toast.success(t("quotes.form.updateSuccess"));
+
+        if (
+          currentAttachmentPath &&
+          currentAttachmentPath !== nextAttachmentPath
+        ) {
+          void deleteQuoteAttachment(currentAttachmentPath).catch(() => undefined);
+        }
       } else {
         const createdQuote = await createQuoteMutation.mutateAsync(
-          toQuotePayload(values)
+          {
+            ...toQuotePayload(values),
+            attachmentName: nextAttachmentName,
+            attachmentPath: nextAttachmentPath
+          }
         );
         toast.success(
           t("quotes.form.createSuccess", { quoteNumber: createdQuote.quoteNumber })
@@ -216,8 +307,18 @@ export function QuoteEditorWorkspace({
       if (mode === "create") {
         form.reset(buildCreateDefaults(customers, leads));
         setCurrentStep("recipient");
+        setAttachmentDraftFile(null);
+        setIsAttachmentMarkedForRemoval(false);
+
+        if (attachmentInputRef.current) {
+          attachmentInputRef.current.value = "";
+        }
       }
     } catch (error) {
+      if (uploadedAttachmentPath) {
+        void deleteQuoteAttachment(uploadedAttachmentPath).catch(() => undefined);
+      }
+
       toast.error(
         mode === "edit"
           ? t("quotes.form.updateError", {
@@ -354,8 +455,15 @@ export function QuoteEditorWorkspace({
         catalogItems={catalogItems}
         customers={customers}
         leads={leads}
+        attachmentDraftFile={attachmentDraftFile}
+        attachmentInputRef={attachmentInputRef}
+        attachmentPreviewName={attachmentPreviewName}
+        attachmentUrl={quoteAttachmentUrlQuery.data ?? null}
         form={form}
         idPrefix={mode === "create" ? "create" : "edit"}
+        isAttachmentMarkedForRemoval={isAttachmentMarkedForRemoval}
+        onAttachmentDraftChange={setAttachmentDraftFile}
+        onAttachmentRemovalChange={setIsAttachmentMarkedForRemoval}
         quoteNumber={quoteDetail?.quoteNumber ?? null}
         step={currentStep}
       />
@@ -1086,19 +1194,33 @@ function RecipientKindPicker({
 }
 
 function QuoteFormFields({
+  attachmentDraftFile,
+  attachmentInputRef,
+  attachmentPreviewName,
+  attachmentUrl,
   catalogItems,
   customers,
   leads,
   form,
   idPrefix,
+  isAttachmentMarkedForRemoval = false,
+  onAttachmentDraftChange,
+  onAttachmentRemovalChange,
   quoteNumber,
   step
 }: {
+  attachmentDraftFile?: File | null;
+  attachmentInputRef?: RefObject<HTMLInputElement | null>;
+  attachmentPreviewName?: string | null;
+  attachmentUrl?: string | null;
   catalogItems: CatalogItemSummary[];
   customers: CustomerSummary[];
   leads: LeadSummary[];
   form: UseFormReturn<QuoteFormValues>;
   idPrefix: string;
+  isAttachmentMarkedForRemoval?: boolean;
+  onAttachmentDraftChange?: (file: File | null) => void;
+  onAttachmentRemovalChange?: (marked: boolean) => void;
   quoteNumber?: string | null;
   step: QuoteFormStepKey;
 }) {
@@ -1122,6 +1244,9 @@ function QuoteFormFields({
   const documentDiscountPercent = watch("documentDiscountPercent") ?? 0;
   const lineItems = watch("lineItems") ?? [];
   const documentDiscountBase = calculateQuoteDocumentDiscountBase(lineItems);
+  const hasAttachmentControls =
+    typeof onAttachmentDraftChange === "function" &&
+    typeof onAttachmentRemovalChange === "function";
 
   const syncLineItemDiscounts = ({
     discountPercent,
@@ -1546,7 +1671,7 @@ function QuoteFormFields({
           </Field>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-3">
           <Field
             label={t("quotes.form.currencyCodeLabel")}
             error={errors.currencyCode?.message}
@@ -1558,6 +1683,19 @@ function QuoteFormFields({
               maxLength={3}
               {...buildOperationalAutofillProps("off")}
               {...register("currencyCode")}
+            />
+          </Field>
+
+          <Field
+            label={t("quotes.form.issuedOnLabel")}
+            error={errors.issuedOn?.message}
+            htmlFor={`${idPrefix}-quote-issued-on`}
+          >
+            <Input
+              id={`${idPrefix}-quote-issued-on`}
+              type="date"
+              {...buildOperationalAutofillProps("off")}
+              {...register("issuedOn")}
             />
           </Field>
 
@@ -1574,6 +1712,99 @@ function QuoteFormFields({
             />
           </Field>
         </div>
+
+        {hasAttachmentControls ? (
+          <div className="rounded-3xl border border-line/70 bg-paper/72 p-4">
+            <div className="flex items-start gap-3">
+              <span className="inline-flex size-10 items-center justify-center rounded-2xl bg-paper/85 text-ink-soft shadow-panel">
+                <Paperclip className="size-4.5" />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-ink">
+                  {t("quotes.form.attachmentTitle")}
+                </p>
+                <p className="mt-1 text-sm leading-6 text-ink-soft">
+                  {t("quotes.form.attachmentDescription")}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-4 space-y-3">
+              <input
+                ref={attachmentInputRef}
+                id={`${idPrefix}-quote-attachment`}
+                type="file"
+                accept=".pdf,.png,.jpg,.jpeg,.webp,.doc,.docx,.xls,.xlsx"
+                className="hidden"
+                onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                  const nextFile = event.target.files?.[0] ?? null;
+                  onAttachmentDraftChange?.(nextFile);
+                  onAttachmentRemovalChange?.(false);
+                }}
+              />
+
+              <div className="flex flex-wrap gap-3">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => {
+                    attachmentInputRef?.current?.click();
+                  }}
+                >
+                  <Paperclip className="size-4" />
+                  {attachmentPreviewName
+                    ? t("quotes.form.replaceAttachmentAction")
+                    : t("quotes.form.addAttachmentAction")}
+                </Button>
+
+                {attachmentUrl ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => {
+                      window.open(attachmentUrl, "_blank", "noopener,noreferrer");
+                    }}
+                  >
+                    <Eye className="size-4" />
+                    {t("quotes.form.viewAttachmentAction")}
+                  </Button>
+                ) : null}
+
+                {attachmentPreviewName ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => {
+                      onAttachmentDraftChange?.(null);
+                      onAttachmentRemovalChange?.(true);
+
+                      if (attachmentInputRef?.current) {
+                        attachmentInputRef.current.value = "";
+                      }
+                    }}
+                  >
+                    <Trash2 className="size-4" />
+                    {t("quotes.form.removeAttachmentAction")}
+                  </Button>
+                ) : null}
+              </div>
+
+              <div className="rounded-2xl border border-line/70 bg-paper px-4 py-3">
+                <p className="text-sm font-medium text-ink">
+                  {attachmentPreviewName ??
+                    t("quotes.form.attachmentEmpty")}
+                </p>
+                <p className="mt-1 text-sm text-ink-soft">
+                  {attachmentDraftFile
+                    ? t("quotes.form.attachmentPendingUpload")
+                    : isAttachmentMarkedForRemoval
+                      ? t("quotes.form.attachmentRemovedHint")
+                      : t("quotes.form.attachmentHint")}
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : null}
 
         <div className="rounded-3xl border border-line/70 bg-paper/72 p-4">
           <p className="text-sm font-semibold text-ink">
@@ -1753,7 +1984,20 @@ function QuoteFormFields({
                 </Select>
               </Field>
 
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-4 sm:grid-cols-3">
+                <Field
+                  label={t("quotes.form.itemCodeLabel")}
+                  error={errors.lineItems?.[index]?.itemCode?.message}
+                  htmlFor={`${idPrefix}-line-item-code-${index}`}
+                >
+                  <Input
+                    id={`${idPrefix}-line-item-code-${index}`}
+                    placeholder={t("quotes.form.itemCodePlaceholder")}
+                    {...buildOperationalAutofillProps("off")}
+                    {...register(`lineItems.${index}.itemCode`)}
+                  />
+                </Field>
+
                 <Field
                   label={t("quotes.form.lineItemNameLabel")}
                   error={errors.lineItems?.[index]?.itemName?.message}
@@ -1930,18 +2174,48 @@ function QuoteFormFields({
 }
 
 function buildCreateDefaults(
-  _customers: CustomerSummary[],
-  _leads: LeadSummary[]
+  customers: CustomerSummary[],
+  leads: LeadSummary[]
 ): QuoteFormValues {
+  const firstCustomer = customers[0] ?? null;
+  const firstLead = leads[0] ?? null;
+
+  if (firstCustomer) {
+    return {
+      ...buildEmptyQuoteDefaults(),
+      recipientKind: "customer",
+      customerId: firstCustomer.id,
+      recipientDisplayName: firstCustomer.displayName,
+      recipientContactName: firstCustomer.contactName ?? "",
+      recipientEmail: firstCustomer.email ?? "",
+      recipientWhatsApp: firstCustomer.whatsapp ?? "",
+      recipientPhone: firstCustomer.phone ?? ""
+    };
+  }
+
+  if (firstLead) {
+    return {
+      ...buildEmptyQuoteDefaults(),
+      recipientKind: "lead",
+      leadId: firstLead.id,
+      recipientDisplayName: firstLead.displayName,
+      recipientContactName: firstLead.contactName ?? "",
+      recipientEmail: firstLead.email ?? "",
+      recipientWhatsApp: firstLead.whatsapp ?? "",
+      recipientPhone: firstLead.phone ?? ""
+    };
+  }
+
   return {
     ...buildEmptyQuoteDefaults(),
-    recipientKind: "customer"
+    recipientKind: "ad_hoc"
   };
 }
 
 function buildEmptyLineItem() {
   return {
     catalogItemId: "",
+    itemCode: "",
     itemName: "",
     itemDescription: "",
     quantity: 1,
@@ -1966,6 +2240,7 @@ function buildEmptyQuoteDefaults(): QuoteFormValues {
     title: "",
     status: "draft",
     currencyCode: "USD",
+    issuedOn: buildTodayDateValue(),
     documentDiscountPercent: 0,
     documentDiscountTotal: 0,
     validUntil: "",
@@ -1987,6 +2262,7 @@ function buildUpdateDefaults(quote: QuoteDetail): QuoteFormValues {
     title: quote.title,
     status: quote.status,
     currencyCode: quote.currencyCode,
+    issuedOn: quote.issuedOn ?? buildTodayDateValue(),
     documentDiscountPercent: calculateQuoteDocumentDiscountPercentFromAmount({
       discountTotal: calculateQuoteDocumentDiscountTotalFromCombinedDiscount({
         lineItems: quote.lineItems,
@@ -2004,6 +2280,7 @@ function buildUpdateDefaults(quote: QuoteDetail): QuoteFormValues {
       quote.lineItems.length > 0
         ? quote.lineItems.map((lineItem) => ({
             catalogItemId: lineItem.catalogItemId ?? "",
+            itemCode: lineItem.itemCode ?? "",
             itemName: lineItem.itemName,
             itemDescription: lineItem.itemDescription ?? "",
             quantity: lineItem.quantity,
@@ -2034,6 +2311,7 @@ function toQuotePayload(values: QuoteFormValues) {
     title: values.title,
     status: values.status,
     currencyCode: values.currencyCode,
+    issuedOn: values.issuedOn,
     documentDiscountTotal: values.documentDiscountTotal,
     validUntil: values.validUntil,
     notes: values.notes,
@@ -2067,6 +2345,7 @@ function hydrateLineItemFromCatalog({
   setValue(`lineItems.${index}.itemName`, selectedItem.name, {
     shouldValidate: true
   });
+  setValue(`lineItems.${index}.itemCode`, selectedItem.itemCode ?? "");
   setValue(`lineItems.${index}.itemDescription`, selectedItem.description ?? "");
   setValue(`lineItems.${index}.unitLabel`, getDefaultUnitLabel(selectedItem, t));
   setValue(`lineItems.${index}.unitPrice`, selectedItem.unitPrice ?? 0);
@@ -2104,7 +2383,9 @@ function buildCatalogOptionLabel(
       ? t("quotes.form.catalogItemOnRequest")
       : formatCurrency(item.unitPrice, item.currencyCode);
 
-  return `${item.name} · ${priceLabel}`;
+  return item.itemCode
+    ? `${item.itemCode} · ${item.name} · ${priceLabel}`
+    : `${item.name} · ${priceLabel}`;
 }
 
 function formatCurrency(value: number, currencyCode: string) {
@@ -2121,6 +2402,10 @@ function formatCurrency(value: number, currencyCode: string) {
 
 function normalizeFieldNumber(value: number | undefined) {
   return typeof value === "number" && Number.isFinite(value) ? value : 0;
+}
+
+function buildTodayDateValue() {
+  return new Date().toISOString().slice(0, 10);
 }
 
 function guideToFirstInvalidField({
@@ -2184,6 +2469,7 @@ function getFieldsForStep(
       "title",
       "status",
       "currencyCode",
+      "issuedOn",
       "documentDiscountPercent",
       "documentDiscountTotal",
       "validUntil"
@@ -2199,6 +2485,7 @@ function getFieldsForStep(
   for (let index = 0; index < lineItemCount; index += 1) {
     lineItemFields.push(
       `lineItems.${index}.catalogItemId` as QuoteFieldPath,
+      `lineItems.${index}.itemCode` as QuoteFieldPath,
       `lineItems.${index}.itemName` as QuoteFieldPath,
       `lineItems.${index}.itemDescription` as QuoteFieldPath,
       `lineItems.${index}.quantity` as QuoteFieldPath,
@@ -2310,6 +2597,7 @@ function getStepForField(fieldPath: string): QuoteFormStepKey {
     fieldPath === "title" ||
     fieldPath === "status" ||
     fieldPath === "currencyCode" ||
+    fieldPath === "issuedOn" ||
     fieldPath === "documentDiscountPercent" ||
     fieldPath === "documentDiscountTotal" ||
     fieldPath === "validUntil"
@@ -2337,6 +2625,7 @@ function getFieldLabel(
 
     const lineFieldLabels: Record<string, string> = {
       catalogItemId: t("quotes.form.catalogItemLabel"),
+      itemCode: t("quotes.form.itemCodeLabel"),
       itemName: t("quotes.form.lineItemNameLabel"),
       itemDescription: t("quotes.form.lineItemDescriptionLabel"),
       quantity: t("quotes.form.quantityLabel"),
@@ -2362,6 +2651,7 @@ function getFieldLabel(
     title: t("quotes.form.titleLabel"),
     status: t("quotes.form.statusLabel"),
     currencyCode: t("quotes.form.currencyCodeLabel"),
+    issuedOn: t("quotes.form.issuedOnLabel"),
     documentDiscountPercent: t("quotes.form.documentDiscountPercentLabel"),
     documentDiscountTotal: t("quotes.form.documentDiscountAmountLabel"),
     validUntil: t("quotes.form.validUntilLabel"),

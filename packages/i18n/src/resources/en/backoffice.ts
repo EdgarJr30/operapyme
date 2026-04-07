@@ -766,7 +766,7 @@ const backofficeEn = {
       workflowDescription:
         "Reduce visual noise and keep only the useful fields visible at each step.",
       workflowRecipientHint: "Step 1: define the recipient and contact channels.",
-      workflowDocumentHint: "Step 2: adjust status, currency, and document validity.",
+      workflowDocumentHint: "Step 2: adjust the document date, status, currency, and validity.",
       workflowItemsHint: "Step 3 and 4: build line items, review totals, and close with notes.",
       newDraftLabel: "New draft",
       summaryTitle: "Quick summary",
@@ -785,7 +785,7 @@ const backofficeEn = {
         "There are {count} items to review before closing the quote.",
       reviewChecklistTitle: "Final review",
       reviewChecklistRecipient: "Confirm the recipient and channels visible in the document.",
-      reviewChecklistDocument: "Verify validity date, status, and commercial narrative.",
+      reviewChecklistDocument: "Verify the document date, validity, status, and commercial narrative.",
       reviewChecklistItems: "Confirm line items, discounts, taxes, and the computed total.",
       backStepAction: "Previous step",
       nextStepAction: "Next step",
@@ -819,6 +819,7 @@ const backofficeEn = {
         "Review {label}. There are still {count} items to fix.",
       updateSuccess: "Quote updated successfully.",
       updateError: "We could not update the quote. {message}",
+      noTenantError: "You need an active tenant before saving the quote.",
       noQuoteSelected: "Select a quote before trying to update it.",
       recordLabel: "Quote to update",
       noQuotesOption: "There are no quotes yet",
@@ -889,6 +890,7 @@ const backofficeEn = {
       statusLabel: "Status",
       currencyCodeLabel: "Currency",
       currencyCodePlaceholder: "USD",
+      issuedOnLabel: "Document date",
       documentDiscountTitle: "Document-level discount",
       documentDiscountDescription:
         "Apply a general adjustment to the full quote after line-level discounts.",
@@ -906,6 +908,8 @@ const backofficeEn = {
       catalogItemLabel: "Related catalog item",
       catalogItemPlaceholder: "Select a catalog item or capture it manually",
       catalogItemOnRequest: "On request",
+      itemCodeLabel: "Item code",
+      itemCodePlaceholder: "ART-001",
       lineItemNameLabel: "Service or product name",
       lineItemNamePlaceholder: "Quarterly preventive maintenance",
       lineItemDescriptionLabel: "Description",
@@ -933,6 +937,20 @@ const backofficeEn = {
       notesLabel: "Notes",
       notesPlaceholder:
         "Commercial terms, delivery conditions, or internal clarifications.",
+      attachmentTitle: "Historical attachment",
+      attachmentDescription:
+        "Attach one supporting file per quote so users can review background details without overloading the main document.",
+      addAttachmentAction: "Add attachment",
+      replaceAttachmentAction: "Replace attachment",
+      viewAttachmentAction: "View attachment",
+      removeAttachmentAction: "Remove attachment",
+      attachmentEmpty: "There is no attachment yet.",
+      attachmentHint:
+        "Accepts PDF, image, Word, or Excel. For now, each quote supports only one attachment.",
+      attachmentPendingUpload:
+        "This file will upload when you save the quote.",
+      attachmentRemovedHint:
+        "The current attachment will be removed when you save the quote.",
       validation: {
         customerRequired: "Select a customer before saving.",
         leadRequired: "Select a lead before saving.",
@@ -960,6 +978,7 @@ const backofficeEn = {
         documentDiscountTotalExceeded:
           "Document discount cannot exceed the net subtotal after line discounts.",
         lineItemsMin: "Add at least one line item to the quote.",
+        itemCodeMax: "Keep the item code under 60 characters.",
         lineItemNameMin: "Each line needs a visible name.",
         lineItemNameMax:
           "Keep the line item name under 160 characters.",

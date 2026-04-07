@@ -26,6 +26,7 @@ export const quoteStatusValues = [
 export function createQuoteFormSchema(t: TFunction<"backoffice">) {
   const lineItemSchema = z.object({
     catalogItemId: z.string().optional(),
+    itemCode: z.string().max(60, t("quotes.form.validation.itemCodeMax")),
     itemName: z
       .string()
       .min(2, t("quotes.form.validation.lineItemNameMin"))
@@ -86,6 +87,7 @@ export function createQuoteFormSchema(t: TFunction<"backoffice">) {
         .string()
         .min(3, t("quotes.form.validation.currencyCode"))
         .max(3, t("quotes.form.validation.currencyCode")),
+      issuedOn: z.string().optional(),
       documentDiscountPercent: z
         .number()
         .min(0, t("quotes.form.validation.documentDiscountPercent"))

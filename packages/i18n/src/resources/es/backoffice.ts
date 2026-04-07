@@ -766,7 +766,7 @@ const backofficeEs = {
       workflowDescription:
         "Reduce ruido visual y deja solo los campos utiles en cada momento del trabajo.",
       workflowRecipientHint: "Paso 1: define receptor y canales de contacto.",
-      workflowDocumentHint: "Paso 2: ajusta estado, moneda y validez del documento.",
+      workflowDocumentHint: "Paso 2: ajusta fecha, estado, moneda y validez del documento.",
       workflowItemsHint: "Paso 3 y 4: arma lineas, revisa totales y cierra notas.",
       newDraftLabel: "Borrador nuevo",
       summaryTitle: "Resumen rapido",
@@ -785,7 +785,7 @@ const backofficeEs = {
         "Hay {count} alertas por revisar antes de cerrar la cotizacion.",
       reviewChecklistTitle: "Revision final",
       reviewChecklistRecipient: "Confirma el receptor y los canales visibles en el documento.",
-      reviewChecklistDocument: "Verifica fecha de validez, estado y narrativa comercial.",
+      reviewChecklistDocument: "Verifica fecha del documento, vigencia, estado y narrativa comercial.",
       reviewChecklistItems: "Confirma lineas, descuentos, impuestos y total calculado.",
       backStepAction: "Paso anterior",
       nextStepAction: "Siguiente paso",
@@ -819,6 +819,7 @@ const backofficeEs = {
         "Revisa {label}. Todavia quedan {count} alertas por resolver.",
       updateSuccess: "Cotizacion actualizada correctamente.",
       updateError: "No pudimos actualizar la cotizacion. {message}",
+      noTenantError: "Necesitas un tenant activo antes de guardar la cotizacion.",
       noQuoteSelected: "Selecciona una cotizacion antes de intentar actualizarla.",
       recordLabel: "Cotizacion a actualizar",
       noQuotesOption: "No hay cotizaciones todavia",
@@ -889,6 +890,7 @@ const backofficeEs = {
       statusLabel: "Estado",
       currencyCodeLabel: "Moneda",
       currencyCodePlaceholder: "USD",
+      issuedOnLabel: "Fecha del documento",
       documentDiscountTitle: "Descuento global del documento",
       documentDiscountDescription:
         "Aplica un ajuste general a la cotizacion completa despues de los descuentos por linea.",
@@ -906,6 +908,8 @@ const backofficeEs = {
       catalogItemLabel: "Catalogo relacionado",
       catalogItemPlaceholder: "Selecciona un item del catalogo o captura manual",
       catalogItemOnRequest: "A solicitud",
+      itemCodeLabel: "Codigo del articulo",
+      itemCodePlaceholder: "ART-001",
       lineItemNameLabel: "Nombre del servicio o producto",
       lineItemNamePlaceholder: "Mantenimiento preventivo trimestral",
       lineItemDescriptionLabel: "Descripcion",
@@ -933,6 +937,20 @@ const backofficeEs = {
       notesLabel: "Notas",
       notesPlaceholder:
         "Terminos comerciales, condiciones de entrega o aclaraciones internas.",
+      attachmentTitle: "Anexo historico",
+      attachmentDescription:
+        "Adjunta un solo archivo de soporte por cotizacion para consultar antecedentes sin recargar el documento principal.",
+      addAttachmentAction: "Agregar anexo",
+      replaceAttachmentAction: "Reemplazar anexo",
+      viewAttachmentAction: "Ver anexo",
+      removeAttachmentAction: "Quitar anexo",
+      attachmentEmpty: "Todavia no hay anexo cargado.",
+      attachmentHint:
+        "Admite PDF, imagen, Word o Excel. Por ahora solo un anexo por cotizacion.",
+      attachmentPendingUpload:
+        "Este archivo se cargara cuando guardes la cotizacion.",
+      attachmentRemovedHint:
+        "El anexo actual se quitara cuando guardes la cotizacion.",
       validation: {
         customerRequired: "Selecciona un cliente antes de guardar.",
         leadRequired: "Selecciona un lead antes de guardar.",
@@ -961,6 +979,8 @@ const backofficeEs = {
         documentDiscountTotalExceeded:
           "El descuento global no puede superar el subtotal neto despues de los descuentos por linea.",
         lineItemsMin: "Agrega al menos una linea a la cotizacion.",
+        itemCodeMax:
+          "Mantener el codigo del articulo por debajo de 60 caracteres.",
         lineItemNameMin: "Cada linea necesita un nombre visible.",
         lineItemNameMax:
           "Mantener el nombre de la linea por debajo de 160 caracteres.",

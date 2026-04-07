@@ -161,6 +161,7 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 - conversion `lead -> cliente` ya corre con proteccion idempotente, deshabilita reenvios en UI y saca los leads convertidos del flujo operativo por defecto
 - cards de overview en dashboard, CRM y comercial ya usan slider interno capped para no crecer en vertical cuando aumentan los registros recientes
 - cotizaciones ya soportan cliente, lead existente o lead rapido, persisten line items y generan PDF profesional bajo demanda
+- cotizaciones ahora tambien soportan fecha documental editable, snapshot de codigo por articulo y un anexo historico unico por documento
 - facturas documentales internas ya soportan articulos o servicios, origen opcional en cotizacion, line items reales en Supabase y descarga PDF bajo demanda
 - Gestion Comercial ya expone pipelines operativos para mover cotizaciones y facturas entre estados sin abrir siempre el editor completo
 - rutas `/admin/*` reservadas para auditoria y errores globales
