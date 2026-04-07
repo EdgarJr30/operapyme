@@ -232,7 +232,24 @@ export function CustomerFormFields({
             {...register("phone")}
           />
         </Field>
+      </div>
 
+      <label
+        htmlFor={`${idPrefix}-customer-is-foreign`}
+        className="inline-flex cursor-pointer items-center gap-2"
+      >
+        <input
+          id={`${idPrefix}-customer-is-foreign`}
+          type="checkbox"
+          className="size-3.5 rounded border border-line-strong text-brand focus:ring-2 focus:ring-brand/30"
+          {...register("isForeign")}
+        />
+        <span className="text-xs text-ink-soft">
+          {t("crm.customerForm.isForeignLabel")}
+        </span>
+      </label>
+
+      {isForeign ? (
         <Field
           label={t("crm.customerForm.passportIdLabel")}
           error={errors.passportId?.message}
@@ -241,34 +258,11 @@ export function CustomerFormFields({
           <Input
             id={`${idPrefix}-customer-passport`}
             placeholder={t("crm.customerForm.passportIdPlaceholder")}
-            disabled={!isForeign}
             {...buildOperationalAutofillProps("off")}
             {...register("passportId")}
           />
         </Field>
-      </div>
-
-      <div className="rounded-3xl border border-line/70 bg-paper/70 p-4">
-        <label
-          htmlFor={`${idPrefix}-customer-is-foreign`}
-          className="flex cursor-pointer items-start gap-3"
-        >
-          <input
-            id={`${idPrefix}-customer-is-foreign`}
-            type="checkbox"
-            className="mt-1 size-4 rounded border border-line-strong text-brand focus:ring-2 focus:ring-brand/30"
-            {...register("isForeign")}
-          />
-          <span className="space-y-1">
-            <span className="block text-sm font-medium text-ink">
-              {t("crm.customerForm.isForeignLabel")}
-            </span>
-            <span className="block text-sm leading-6 text-ink-soft">
-              {t("crm.customerForm.isForeignHint")}
-            </span>
-          </span>
-        </label>
-      </div>
+      ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Field

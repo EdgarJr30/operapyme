@@ -124,6 +124,11 @@ export function CommercialCustomersPage() {
   const attachmentPreviewName =
     attachmentDraftFile?.name ??
     (isAttachmentMarkedForRemoval ? null : selectedCustomer?.attachmentName ?? null);
+  const editAttachmentQuery = useQuery({
+    queryKey: ["customer-attachment", selectedCustomer?.attachmentPath ?? "none"],
+    queryFn: () => getCustomerAttachmentSignedUrl(selectedCustomer?.attachmentPath),
+    enabled: Boolean(modalMode === "edit" && selectedCustomer?.attachmentPath && !attachmentDraftFile && !isAttachmentMarkedForRemoval)
+  });
   const detailAttachmentQuery = useQuery({
     queryKey: ["customer-attachment", detailCustomer?.attachmentPath ?? "none"],
     queryFn: () => getCustomerAttachmentSignedUrl(detailCustomer?.attachmentPath),
@@ -671,6 +676,19 @@ export function CommercialCustomersPage() {
                     ? t("crm.customerForm.attachmentReplaceAction")
                     : t("crm.customerForm.attachmentUploadAction")}
                 </Button>
+                {editAttachmentQuery.data ? (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    className="gap-2"
+                    onClick={() => {
+                      window.open(editAttachmentQuery.data, "_blank", "noreferrer");
+                    }}
+                  >
+                    <ExternalLink className="size-4" />
+                    {t("crm.customerForm.attachmentOpenAction")}
+                  </Button>
+                ) : null}
                 {attachmentPreviewName ? (
                   <Button
                     type="button"
@@ -745,10 +763,12 @@ export function CommercialCustomersPage() {
                   label={t("crm.customerForm.documentIdLabel")}
                   value={detailCustomer.documentId ?? "—"}
                 />
-                <DetailCard
-                  label={t("crm.customerForm.passportIdLabel")}
-                  value={detailCustomer.passportId ?? "—"}
-                />
+                {detailCustomer.isForeign ? (
+                  <DetailCard
+                    label={t("crm.customerForm.passportIdLabel")}
+                    value={detailCustomer.passportId ?? "—"}
+                  />
+                ) : null}
               </div>
 
               <section className="space-y-3">
