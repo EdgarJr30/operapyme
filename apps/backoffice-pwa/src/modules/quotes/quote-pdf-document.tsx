@@ -160,6 +160,7 @@ export function QuotePdfDocument({
         </View>
 
         {/* Line items table */}
+        <View style={styles.tableWrapper}>
         <View style={styles.tableShell}>
           <View style={styles.tableHeaderRow}>
             <Cell text="Detalle" flex={3.2} styles={styles} header />
@@ -217,6 +218,7 @@ export function QuotePdfDocument({
               />
             </View>
           ))}
+        </View>
         </View>
 
         {/* Footer area: notes + totals */}
@@ -345,24 +347,19 @@ function createStyles(palette: ThemePaletteDefinition) {
       lineHeight: 1.2
     },
     issuerMetaGrid: {
-      flexDirection: "row",
-      flexWrap: "wrap",
+      flexDirection: "column",
       marginTop: 3,
-      rowGap: 2
+      gap: 2
     },
     issuerMeta: {
-      width: "50%",
       color: palette.colors.inkSoft,
       fontSize: 9.5,
-      lineHeight: 1.4,
-      paddingRight: 6
+      lineHeight: 1.4
     },
     issuerMetaFull: {
-      width: "100%",
       color: palette.colors.inkSoft,
       fontSize: 9.5,
-      lineHeight: 1.4,
-      paddingRight: 6
+      lineHeight: 1.4
     },
     documentTitle: {
       marginTop: 4,
@@ -448,11 +445,14 @@ function createStyles(palette: ThemePaletteDefinition) {
       color: palette.colors.ink,
       lineHeight: 1.35
     },
-    tableShell: {
+    tableWrapper: {
       marginTop: 22,
       borderWidth: 1,
       borderColor: palette.colors.line,
-      borderRadius: 14,
+      borderRadius: 14
+    },
+    tableShell: {
+      borderRadius: 13,
       overflow: "hidden"
     },
     tableHeaderRow: {
