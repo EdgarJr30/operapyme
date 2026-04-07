@@ -1,6 +1,39 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
-  <rect width="128" height="128" rx="32" fill="#FFFDF9"/>
-  <rect x="14" y="14" width="100" height="100" rx="28" fill="#F7F4EF"/>
-  <path d="M34 40H94L69 90H58L34 40Z" fill="#99C3B0"/>
-  <path d="M64 27L94 40H34L64 27Z" fill="#A9C4E5"/>
+  <!--
+    "o" center: (38, 54)  R=32  r=13  thickness=19
+    "p" center: (76, 54)  R=32  r=13  thickness=19
+    Overlap x: [44, 70]  width=26
+    Clip: diagonal from (44,62) to (70,46) — follows arc-crossing angle
+  -->
+  <defs>
+    <clipPath id="wv">
+      <path d="M 44 0 L 70 0 L 70 46 L 44 62 Z"/>
+    </clipPath>
+  </defs>
+
+  <!-- LAYER 1: "p" ring + descender — Orange -->
+  <path
+    d="M 76 22 A 32 32 0 1 1 76 86 A 32 32 0 1 1 76 22 Z
+       M 76 41 A 13 13 0 1 0 76 67 A 13 13 0 1 0 76 41 Z"
+    fill="#FF7A00" fill-rule="evenodd"
+  />
+  <!-- p descender: inner/left → fine point, outer/right → rounded curve -->
+  <path
+    d="M 50 66 L 50 98 Q 58 106 66 90 L 66 66 Z"
+    fill="#FF7A00"
+  />
+
+  <!-- LAYER 2: "o" ring — Navy -->
+  <path
+    d="M 38 22 A 32 32 0 1 1 38 86 A 32 32 0 1 1 38 22 Z
+       M 38 41 A 13 13 0 1 0 38 67 A 13 13 0 1 0 38 41 Z"
+    fill="#2D3E50" fill-rule="evenodd"
+  />
+
+  <!-- LAYER 3: "p" clipped to upper-overlap (diagonal boundary) -->
+  <path
+    d="M 76 22 A 32 32 0 1 1 76 86 A 32 32 0 1 1 76 22 Z
+       M 76 41 A 13 13 0 1 0 76 67 A 13 13 0 1 0 76 41 Z"
+    fill="#FF7A00" fill-rule="evenodd" clip-path="url(#wv)"
+  />
 </svg>

@@ -1903,21 +1903,24 @@ const backofficeEn = {
       phonePlaceholder: "+1 809 555 0140",
       rncLabel: "RNC",
       rncPlaceholder: "1-31-12345-6",
+      cedulaLabel: "ID number (individual)",
+      cedulaPlaceholder: "001-1234567-8",
       logoLabel: "Company logo",
       logoHelp:
         "Upload the logo so we can reuse it in quotes, documentary invoices, and future PDF downloads.",
       logoHint:
-        "Allowed formats: PNG, JPG, or WEBP. Maximum size: 2 MB.",
+        "Allowed formats: PNG, JPG, WEBP, or SVG. Maximum size: 2 MB.",
       logoEmptyTitle: "There is no saved logo yet",
       logoEmptyDescription:
         "Once you upload the company logo we will use it as the visual header in PDF documents.",
+      logoDropHere: "Drop the file here",
       logoUploadAction: "Upload logo",
       logoReplaceAction: "Replace logo",
       logoRemoveAction: "Remove logo",
       logoPreviewAlt: "{company} logo",
       logoErrorTitle: "We could not use that logo",
       logoInvalidType:
-        "Upload a PNG, JPG, or WEBP file to keep PDF compatibility.",
+        "Upload a PNG, JPG, WEBP, or SVG file to continue.",
       logoInvalidSize:
         "The logo is larger than 2 MB. Use a lighter version to continue.",
       editHelp:
@@ -1937,7 +1940,9 @@ const backofficeEn = {
         phoneInvalid:
           "Use a valid phone number with digits and common symbols like +, spaces, or dashes.",
         rncInvalid:
-          "The RNC must contain 9 digits, with or without dashes."
+          "The RNC must contain 9 digits, with or without dashes.",
+        cedulaInvalid:
+          "The ID number must have 11 digits. Valid format: 001-1234567-8."
       }
     },
     palette: {

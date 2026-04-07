@@ -197,6 +197,7 @@ Reglas:
 5. El sidebar desktop puede ser mas utilitario y denso si mejora orientacion y velocidad.
 6. Evitar sidebars convertidos en cards gigantes o composiciones demasiado editoriales.
 7. El cambio de tenant debe sentirse visible y cercano porque cambia datos y permisos.
+8. Si el sidebar desktop soporta modo colapsado, debe ofrecer un toggle explicito y visible con direccion lateral clara, conservar acceso inmediato para reexpandirlo y animar el cambio con `motion` respetando `prefers-reduced-motion`.
 
 ### 7.2 Navegacion mobile
 

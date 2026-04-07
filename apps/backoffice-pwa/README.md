@@ -74,6 +74,7 @@ Para magic link y recovery en produccion, `VITE_PUBLIC_SITE_URL` debe apuntar a 
 ## Shell y navegacion
 
 - desktop: sidebar fijo, sin scroll, compacto y utility-first; el contenido principal nunca mueve el rail al hacer scroll
+- desktop: el header del sidebar expone un toggle lateral con chevrons `<` y `>` para colapsar o expandir el rail con animacion de `motion`, manteniendo el modo icon-only como estado estable
 - desktop: tipografia, controles y bloques con densidad mas compacta para evitar cards infladas y mantener una lectura mas sobria y profesional
 - header: breadcrumbs, busqueda corta, notificaciones operativas y menu de usuario
 - mobile: tab bar inferior para `Inicio`, `Gestion Comercial` y `Catalogo`, con el resto en un drawer lateral mas directo y consistente con el sidebar desktop

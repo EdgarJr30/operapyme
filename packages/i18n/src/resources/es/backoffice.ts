@@ -1903,21 +1903,24 @@ const backofficeEs = {
       phonePlaceholder: "+1 809 555 0140",
       rncLabel: "RNC",
       rncPlaceholder: "1-31-12345-6",
+      cedulaLabel: "Cédula (persona física)",
+      cedulaPlaceholder: "001-1234567-8",
       logoLabel: "Logo de la empresa",
       logoHelp:
         "Sube el logo para reutilizarlo en cotizaciones, facturas documentales y futuras descargas PDF.",
       logoHint:
-        "Formatos permitidos: PNG, JPG o WEBP. Peso maximo: 2 MB.",
+        "Formatos permitidos: PNG, JPG, WEBP o SVG. Peso maximo: 2 MB.",
       logoEmptyTitle: "Todavia no hay logo guardado",
       logoEmptyDescription:
         "Cuando subas el logo de la empresa lo usaremos como cabecera visual en los documentos PDF.",
+      logoDropHere: "Suelta el archivo aqui",
       logoUploadAction: "Subir logo",
       logoReplaceAction: "Cambiar logo",
       logoRemoveAction: "Quitar logo",
       logoPreviewAlt: "Logo de {company}",
       logoErrorTitle: "No pudimos usar ese logo",
       logoInvalidType:
-        "Sube un archivo PNG, JPG o WEBP para mantener compatibilidad en los PDF.",
+        "Sube un archivo PNG, JPG, WEBP o SVG para continuar.",
       logoInvalidSize:
         "El logo supera el limite de 2 MB. Usa una version mas ligera para continuar.",
       editHelp:
@@ -1937,7 +1940,9 @@ const backofficeEs = {
         phoneInvalid:
           "Usa un telefono valido con numeros y signos habituales como +, espacios o guiones.",
         rncInvalid:
-          "El RNC debe tener 9 digitos, con o sin guiones."
+          "El RNC debe tener 9 digitos, con o sin guiones.",
+        cedulaInvalid:
+          "La cedula debe tener 11 digitos. Formato valido: 001-1234567-8."
       }
     },
     palette: {

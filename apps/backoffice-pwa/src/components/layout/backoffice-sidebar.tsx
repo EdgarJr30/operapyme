@@ -5,6 +5,8 @@ import {
   BriefcaseBusiness,
   Building,
   Building2,
+  ChevronLeft,
+  ChevronRight,
   ChevronDown,
   ChevronsUpDown,
   FileText,
@@ -56,6 +58,7 @@ import {
   TooltipContent,
   TooltipTrigger
 } from "@/components/ui/tooltip";
+import { backofficeTransition } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 export type ShellNavItemKey =
@@ -457,19 +460,32 @@ export function BackofficeSidebar({
     getInitialNavGroups(sections, location.pathname)
   );
   const footerYear = new Date().getFullYear();
-  const footerLegalLabel = t("shell.sidebarFooterLegal")
-    .replace("{year}", String(footerYear))
-    .replace("{tenant}", activeTenantName);
+  const footerLegalLabel = t("shell.sidebarFooterLegal").replace(
+    "{year}",
+    String(footerYear)
+  );
 
   useEffect(() => {
     setOpenGroups(getInitialNavGroups(sections, location.pathname));
   }, [location.pathname, sections]);
+
+  const handleDesktopSidebarToggle = () => {
+    if (isMobile) {
+      return;
+    }
+
+    setOpen(isCollapsed);
+  };
 
   const handleNavigate = () => {
     if (isMobile) {
       setOpenMobile(false);
     }
   };
+
+  const desktopToggleLabel = isCollapsed
+    ? t("shell.expandSidebarLabel")
+    : t("shell.collapseSidebarLabel");
 
   return (
     <Sidebar
@@ -487,41 +503,104 @@ export function BackofficeSidebar({
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
+              asChild
               className={cn(
                 "h-auto min-h-0 rounded-2xl border border-sidebar-border bg-sidebar-elevated px-3 py-3 hover:bg-sidebar-border/80 data-[active=true]:shadow-none",
-                isCollapsed ? "justify-center px-2 py-2.5" : ""
+                isCollapsed ? "px-2 py-2.5" : ""
               )}
               title={isCollapsed ? activeTenantName : undefined}
             >
-              <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-[#2f5cff] text-white shadow-soft">
-                <img
-                  src="/pwa-icon.svg"
-                  alt={t("shell.productName")}
-                  className="size-6"
-                />
-              </div>
+              <motion.div
+                layout
+                transition={backofficeTransition}
+                className={cn(
+                  "relative flex items-center",
+                  isCollapsed ? "flex-col justify-center gap-2" : "gap-3"
+                )}
+              >
+                <motion.div
+                  layout
+                  transition={backofficeTransition}
+                  className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-2xl"
+                >
+                  <img
+                    src="/pwa-icon.svg"
+                    alt={t("shell.productName")}
+                    className="size-10"
+                  />
+                </motion.div>
 
-              {!isCollapsed ? (
-                <>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-[15px] font-semibold text-sidebar-text">
-                      {activeTenantName}
-                    </p>
-                    <p className="truncate text-sm text-sidebar-muted">
-                      {businessRoleLabel}
-                    </p>
-                  </div>
-                  {isMobile ? (
-                    <X className="size-4.5 shrink-0 text-sidebar-muted" aria-hidden="true" />
+                <AnimatePresence initial={false} mode="popLayout">
+                  {!isCollapsed ? (
+                    <motion.div
+                      key="sidebar-expanded-header"
+                      layout
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -10 }}
+                      transition={backofficeTransition}
+                      className="flex min-w-0 flex-1 items-center gap-2"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-[15px] font-semibold text-sidebar-text">
+                          {activeTenantName}
+                        </p>
+                        <p className="truncate text-sm text-sidebar-muted">
+                          {businessRoleLabel}
+                        </p>
+                      </div>
+
+                      {isMobile ? (
+                        <X className="size-4.5 shrink-0 text-sidebar-muted" aria-hidden="true" />
+                      ) : (
+                        <motion.button
+                          type="button"
+                          onClick={handleDesktopSidebarToggle}
+                          aria-label={desktopToggleLabel}
+                          title={desktopToggleLabel}
+                          className="inline-flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-sidebar-border/80 bg-sidebar-surface text-sidebar-muted transition hover:bg-sidebar-border/70 hover:text-sidebar-text"
+                          whileTap={{ scale: 0.96 }}
+                        >
+                          <motion.span
+                            animate={{ x: -1 }}
+                            transition={backofficeTransition}
+                          >
+                            <ChevronLeft className="size-4.5" aria-hidden="true" />
+                          </motion.span>
+                        </motion.button>
+                      )}
+                    </motion.div>
                   ) : (
-                    <div className="flex flex-col items-center justify-center text-sidebar-muted">
-                      <ChevronsUpDown className="size-4.5" aria-hidden="true" />
-                    </div>
+                    <motion.button
+                      key="sidebar-collapsed-header"
+                      type="button"
+                      onClick={handleDesktopSidebarToggle}
+                      aria-label={desktopToggleLabel}
+                      title={desktopToggleLabel}
+                      initial={{ opacity: 0, y: 6, scale: 0.92 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 4, scale: 0.92 }}
+                      transition={backofficeTransition}
+                      className={cn(
+                        "inline-flex size-9 items-center justify-center rounded-xl border border-sidebar-border/80 bg-sidebar-surface text-sidebar-muted shadow-panel transition hover:bg-sidebar-border/70 hover:text-sidebar-text",
+                        isMobile ? "hidden" : "cursor-pointer"
+                      )}
+                      whileTap={{ scale: 0.96 }}
+                    >
+                      <motion.span
+                        animate={{ x: 1 }}
+                        transition={backofficeTransition}
+                      >
+                        <ChevronRight className="size-4.5" aria-hidden="true" />
+                      </motion.span>
+                    </motion.button>
                   )}
-                </>
-              ) : (
-                <span className="sr-only">{activeTenantName}</span>
-              )}
+                </AnimatePresence>
+
+                {isCollapsed ? (
+                  <span className="sr-only">{activeTenantName}</span>
+                ) : null}
+              </motion.div>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

@@ -3,10 +3,12 @@ import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva } from "class-variance-authority";
 import { PanelLeft } from "lucide-react";
+import { motion } from "motion/react";
 
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { backofficeTransition } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 const SIDEBAR_KEYBOARD_SHORTCUT = "b";
@@ -229,6 +231,11 @@ export const Sidebar = React.forwardRef<
       );
     }
 
+    const desktopWidth =
+      state === "collapsed" && collapsible === "icon"
+        ? SIDEBAR_WIDTH_ICON
+        : SIDEBAR_WIDTH;
+
     return (
       <div
         data-slot="sidebar-wrapper"
@@ -238,18 +245,20 @@ export const Sidebar = React.forwardRef<
         data-side={side}
         className="group peer hidden text-sidebar-text lg:block"
       >
-        <div
+        <motion.div
           className={cn(
-            "relative h-svh w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear",
+            "relative h-svh bg-transparent",
             collapsible === "icon" &&
               "group-data-[collapsible=icon]:w-(--sidebar-width-icon)"
           )}
+          animate={{ width: desktopWidth }}
+          transition={backofficeTransition}
         />
         <div
           ref={ref}
           data-slot="sidebar-container"
           className={cn(
-            "fixed inset-y-0 z-40 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear lg:flex",
+            "fixed inset-y-0 z-40 hidden h-svh lg:flex",
             side === "left"
               ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
               : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
@@ -258,6 +267,7 @@ export const Sidebar = React.forwardRef<
             variant === "floating" || variant === "inset" ? "p-2" : "",
             className
           )}
+          style={{ width: desktopWidth }}
           {...props}
         >
           <div

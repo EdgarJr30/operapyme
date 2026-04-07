@@ -130,6 +130,7 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 - scaffold inicial del backoffice en progreso
 - shell operativo del backoffice alineado con sidebar desktop, navbar superior y bottom navigation movil
 - shell del backoffice ya migrado a `shadcn/ui` sidebar con base `Radix UI`, manteniendo la misma estructura operativa de navegacion
+- sidebar desktop del backoffice ahora se puede colapsar y reexpandir desde un toggle lateral con animacion de `motion`, conservando un rail icon-only estable
 - baseline visual del backoffice hoy es light-first con `Slate operativo` como paleta por defecto `#2D3E50 / #FF7A00 / #4B637A / #F4F7F9`
 - dashboard del backoffice ya usa composicion desktop mas horizontal, con overview 8/4, KPIs dentro del first fold y columna lateral de foco operativo
 - landing publica compactada como experiencia one-page, con hero editorial y contexto clave visible sin depender del scroll

@@ -113,7 +113,7 @@ const commonEs = {
     collapseSidebarLabel: "Colapsar menu lateral",
     expandSidebarLabel: "Expandir menu lateral",
     sidebarFooterLegal:
-      "© {year} {tenant}. Todos los derechos reservados.",
+      "© {year} OperaPyme. Todos los derechos reservados.",
     sidebarFooterProduct: "OperaPyme backoffice",
     breadcrumbsLabel: "Ruta actual",
     searchLabel: "Buscar en el workspace",

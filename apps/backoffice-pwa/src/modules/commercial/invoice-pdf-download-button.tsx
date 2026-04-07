@@ -79,6 +79,7 @@ export function InvoicePdfDownloadButton({
           generatedAt={new Date().toISOString()}
           invoice={invoice}
           issuerAddress={tenantSettings.address}
+          issuerCedula={tenantSettings.cedula}
           issuerName={tenantSettings.name || activeTenantName}
           issuerPhone={tenantSettings.phone}
           issuerRnc={tenantSettings.rnc}

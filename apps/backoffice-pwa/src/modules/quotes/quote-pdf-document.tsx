@@ -18,6 +18,7 @@ import {
 export interface QuotePdfDocumentProps {
   generatedAt: string;
   issuerAddress?: string | null;
+  issuerCedula?: string | null;
   issuerName: string;
   issuerPhone?: string | null;
   issuerRnc?: string | null;
@@ -29,6 +30,7 @@ export interface QuotePdfDocumentProps {
 export function QuotePdfDocument({
   generatedAt,
   issuerAddress,
+  issuerCedula,
   issuerName,
   issuerPhone,
   issuerRnc,
@@ -51,10 +53,16 @@ export function QuotePdfDocument({
       subject={quote.title}
     >
       <Page size="A4" style={styles.page}>
+        {/* Top accent bar */}
+        <View style={styles.accentBar} fixed />
+
+        {/* Header */}
         <View style={styles.header}>
           <View style={styles.brandBlock}>
-            {logoUrl ? (
-              <Image style={styles.logo} src={logoUrl} />
+            {logoUrl && !logoUrl.toLowerCase().includes(".svg") ? (
+              <View style={styles.logoContainer}>
+                <Image style={styles.logo} src={logoUrl} />
+              </View>
             ) : (
               <View style={styles.logoFallback}>
                 <Text style={styles.logoFallbackText}>
@@ -74,12 +82,15 @@ export function QuotePdfDocument({
               {issuerRnc ? (
                 <Text style={styles.issuerMeta}>RNC: {issuerRnc}</Text>
               ) : null}
+              {issuerCedula ? (
+                <Text style={styles.issuerMeta}>Cédula: {issuerCedula}</Text>
+              ) : null}
               <Text style={styles.documentTitle}>{quote.title}</Text>
             </View>
           </View>
 
           <View style={styles.metaCard}>
-            <MetaRow label="Numero" value={quote.quoteNumber} styles={styles} />
+            <MetaRow label="Numero" value={quote.quoteNumber} styles={styles} accent />
             <MetaRow
               label="Emitida"
               value={formatDate(quote.createdAt)}
@@ -94,6 +105,7 @@ export function QuotePdfDocument({
           </View>
         </View>
 
+        {/* Recipient section */}
         <View style={styles.recipientSection}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Destinatario</Text>
@@ -128,6 +140,7 @@ export function QuotePdfDocument({
           </View>
         </View>
 
+        {/* Line items table */}
         <View style={styles.tableShell}>
           <View style={styles.tableHeaderRow}>
             <Cell text="Detalle" flex={3.2} styles={styles} header />
@@ -135,11 +148,14 @@ export function QuotePdfDocument({
             <Cell text="Precio" flex={1} styles={styles} header />
             <Cell text="Desc." flex={0.9} styles={styles} header />
             <Cell text="Impuesto" flex={0.9} styles={styles} header />
-            <Cell text="Total" flex={1} styles={styles} header />
+            <Cell text="Total" flex={1} styles={styles} header last />
           </View>
 
-          {quote.lineItems.map((lineItem) => (
-            <View key={lineItem.id} style={styles.tableRow}>
+          {quote.lineItems.map((lineItem, index) => (
+            <View
+              key={lineItem.id}
+              style={[styles.tableRow, index % 2 === 1 ? styles.tableRowAlt : {}]}
+            >
               <View style={[styles.cell, { flex: 3.2 }]}>
                 <Text style={styles.lineTitle}>{lineItem.itemName}</Text>
                 {lineItem.itemDescription ? (
@@ -153,39 +169,43 @@ export function QuotePdfDocument({
                 text={formatNumber(lineItem.quantity)}
                 flex={0.8}
                 styles={styles}
+                alt={index % 2 === 1}
               />
               <Cell
                 text={formatCurrency(lineItem.unitPrice, quote.currencyCode)}
                 flex={1}
                 styles={styles}
+                alt={index % 2 === 1}
               />
               <Cell
                 text={formatCurrency(lineItem.discountTotal, quote.currencyCode)}
                 flex={0.9}
                 styles={styles}
+                alt={index % 2 === 1}
               />
               <Cell
                 text={formatCurrency(lineItem.taxTotal, quote.currencyCode)}
                 flex={0.9}
                 styles={styles}
+                alt={index % 2 === 1}
               />
               <Cell
                 text={formatCurrency(lineItem.lineTotal, quote.currencyCode)}
                 flex={1}
                 styles={styles}
+                alt={index % 2 === 1}
+                last
               />
             </View>
           ))}
         </View>
 
+        {/* Footer area: notes + totals */}
         <View style={styles.footerArea}>
           <View style={styles.notesCard}>
             <Text style={styles.notesTitle}>Notas y condiciones</Text>
             <Text style={styles.notesBody}>
               {quote.notes?.trim() || "Sin notas adicionales para esta version."}
-            </Text>
-            <Text style={styles.generatedAt}>
-              Generado el {formatDateTime(generatedAt)}
             </Text>
           </View>
 
@@ -219,6 +239,14 @@ export function QuotePdfDocument({
             </View>
           </View>
         </View>
+
+        {/* Document footer — always at bottom */}
+        <View style={styles.docFooter} fixed>
+          <View style={styles.docFooterDivider} />
+          <Text style={styles.docFooterText}>
+            Generado el {formatDateTime(generatedAt)} · OperaPyme
+          </Text>
+        </View>
       </Page>
     </Document>
   );
@@ -227,72 +255,98 @@ export function QuotePdfDocument({
 function createStyles(palette: ThemePaletteDefinition) {
   return StyleSheet.create({
     page: {
-      paddingTop: 32,
-      paddingRight: 32,
-      paddingBottom: 36,
-      paddingLeft: 32,
+      paddingTop: 36,
+      paddingRight: 36,
+      paddingBottom: 52,
+      paddingLeft: 36,
       backgroundColor: palette.colors.paper,
       color: palette.colors.ink,
       fontSize: 10.5
     },
+    accentBar: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      height: 4,
+      backgroundColor: palette.colors.primary400
+    },
     header: {
       flexDirection: "row",
       justifyContent: "space-between",
-      gap: 18
+      gap: 20,
+      alignItems: "flex-start"
     },
     brandBlock: {
       flexDirection: "row",
-      gap: 14,
-      flex: 1
+      gap: 16,
+      flex: 1,
+      alignItems: "flex-start"
+    },
+    logoContainer: {
+      width: 76,
+      height: 76,
+      borderRadius: 12,
+      backgroundColor: "#ffffff",
+      borderWidth: 1,
+      borderColor: palette.colors.line,
+      alignItems: "center",
+      justifyContent: "center",
+      padding: 6
     },
     logo: {
-      width: 52,
-      height: 52,
+      width: 64,
+      height: 64,
       objectFit: "contain"
     },
     logoFallback: {
-      width: 52,
-      height: 52,
-      borderRadius: 16,
+      width: 76,
+      height: 76,
+      borderRadius: 12,
       backgroundColor: palette.colors.primary300,
       alignItems: "center",
       justifyContent: "center"
     },
     logoFallbackText: {
-      fontSize: 16,
+      fontSize: 22,
       fontWeight: 700,
       color: palette.colors.ink
     },
     brandCopy: {
-      gap: 4,
-      flex: 1
+      gap: 3,
+      flex: 1,
+      paddingTop: 2
     },
     eyebrow: {
-      color: palette.colors.inkMuted,
-      fontSize: 9,
-      textTransform: "uppercase"
+      color: palette.colors.primary400,
+      fontSize: 8.5,
+      textTransform: "uppercase",
+      fontWeight: 600,
+      letterSpacing: 0.8
     },
     issuerName: {
-      fontSize: 17,
-      fontWeight: 700
+      fontSize: 19,
+      fontWeight: 700,
+      lineHeight: 1.2
     },
     issuerMeta: {
       color: palette.colors.inkSoft,
       fontSize: 9.5,
-      lineHeight: 1.3
+      lineHeight: 1.4
     },
     documentTitle: {
-      fontSize: 13,
+      marginTop: 4,
+      fontSize: 12,
       color: palette.colors.inkSoft
     },
     metaCard: {
-      width: 172,
-      borderRadius: 16,
+      width: 178,
+      borderRadius: 14,
       borderWidth: 1,
       borderColor: palette.colors.line,
       backgroundColor: palette.colors.sand,
       padding: 14,
-      gap: 8
+      gap: 9
     },
     metaRow: {
       flexDirection: "row",
@@ -309,9 +363,15 @@ function createStyles(palette: ThemePaletteDefinition) {
       fontWeight: 600,
       textAlign: "right"
     },
+    metaValueAccent: {
+      color: palette.colors.primary400,
+      fontSize: 10,
+      fontWeight: 700,
+      textAlign: "right"
+    },
     recipientSection: {
       marginTop: 22,
-      borderRadius: 18,
+      borderRadius: 14,
       borderWidth: 1,
       borderColor: palette.colors.line,
       backgroundColor: palette.colors.sand,
@@ -321,15 +381,22 @@ function createStyles(palette: ThemePaletteDefinition) {
     sectionHeader: {
       flexDirection: "row",
       justifyContent: "space-between",
+      alignItems: "center",
       gap: 8
     },
     sectionTitle: {
-      fontSize: 12,
+      fontSize: 11,
       fontWeight: 700
     },
     sectionSubtitle: {
-      fontSize: 9.5,
-      color: palette.colors.inkSoft
+      fontSize: 9,
+      color: palette.colors.inkSoft,
+      backgroundColor: palette.colors.primary200,
+      paddingTop: 2,
+      paddingBottom: 2,
+      paddingLeft: 7,
+      paddingRight: 7,
+      borderRadius: 20
     },
     recipientGrid: {
       flexDirection: "row",
@@ -338,12 +405,13 @@ function createStyles(palette: ThemePaletteDefinition) {
     },
     recipientField: {
       width: "47%",
-      gap: 4
+      gap: 3
     },
     fieldLabel: {
-      fontSize: 8.5,
+      fontSize: 8,
       color: palette.colors.inkMuted,
-      textTransform: "uppercase"
+      textTransform: "uppercase",
+      letterSpacing: 0.5
     },
     fieldValue: {
       fontSize: 10.5,
@@ -354,12 +422,13 @@ function createStyles(palette: ThemePaletteDefinition) {
       marginTop: 22,
       borderWidth: 1,
       borderColor: palette.colors.line,
-      borderRadius: 18,
-      overflow: "hidden"
+      borderRadius: 14
     },
     tableHeaderRow: {
       flexDirection: "row",
-      backgroundColor: palette.colors.primary200
+      backgroundColor: palette.colors.primary400,
+      borderTopLeftRadius: 13,
+      borderTopRightRadius: 13
     },
     tableRow: {
       flexDirection: "row",
@@ -367,19 +436,25 @@ function createStyles(palette: ThemePaletteDefinition) {
       borderTopColor: palette.colors.line,
       backgroundColor: "#ffffff"
     },
+    tableRowAlt: {
+      backgroundColor: palette.colors.sand
+    },
     cell: {
-      paddingTop: 12,
+      paddingTop: 11,
       paddingRight: 10,
-      paddingBottom: 12,
+      paddingBottom: 11,
       paddingLeft: 10,
       borderRightWidth: 1,
       borderRightColor: palette.colors.line,
       justifyContent: "flex-start"
     },
-    cellHeader: {
-      fontSize: 9,
+    cellLast: {
+      borderRightWidth: 0
+    },
+    cellHeaderText: {
+      fontSize: 8.5,
       fontWeight: 700,
-      color: palette.colors.ink
+      color: "#ffffff"
     },
     cellText: {
       fontSize: 9.5,
@@ -390,13 +465,13 @@ function createStyles(palette: ThemePaletteDefinition) {
       fontWeight: 700
     },
     lineDescription: {
-      marginTop: 4,
+      marginTop: 3,
       fontSize: 9,
       lineHeight: 1.4,
       color: palette.colors.inkSoft
     },
     lineMeta: {
-      marginTop: 4,
+      marginTop: 3,
       fontSize: 8.5,
       color: palette.colors.inkMuted
     },
@@ -407,7 +482,7 @@ function createStyles(palette: ThemePaletteDefinition) {
     },
     notesCard: {
       flex: 1,
-      borderRadius: 18,
+      borderRadius: 14,
       borderWidth: 1,
       borderColor: palette.colors.line,
       backgroundColor: palette.colors.sand,
@@ -415,27 +490,22 @@ function createStyles(palette: ThemePaletteDefinition) {
       gap: 8
     },
     notesTitle: {
-      fontSize: 11,
+      fontSize: 10,
       fontWeight: 700
     },
     notesBody: {
       fontSize: 9.5,
       color: palette.colors.inkSoft,
-      lineHeight: 1.5
-    },
-    generatedAt: {
-      marginTop: 10,
-      fontSize: 8.5,
-      color: palette.colors.inkMuted
+      lineHeight: 1.55
     },
     totalsCard: {
-      width: 210,
-      borderRadius: 18,
+      width: 216,
+      borderRadius: 14,
       borderWidth: 1,
       borderColor: palette.colors.line,
       backgroundColor: palette.colors.sand,
       padding: 16,
-      gap: 8
+      gap: 9
     },
     totalDivider: {
       height: 1,
@@ -449,13 +519,29 @@ function createStyles(palette: ThemePaletteDefinition) {
       gap: 8
     },
     totalLabel: {
-      fontSize: 12,
+      fontSize: 13,
       fontWeight: 700
     },
     totalValue: {
-      fontSize: 12,
+      fontSize: 13,
       fontWeight: 700,
-      color: palette.colors.ink
+      color: palette.colors.primary400
+    },
+    docFooter: {
+      position: "absolute",
+      bottom: 20,
+      left: 36,
+      right: 36,
+      gap: 6
+    },
+    docFooterDivider: {
+      height: 1,
+      backgroundColor: palette.colors.line
+    },
+    docFooterText: {
+      fontSize: 8,
+      color: palette.colors.inkMuted,
+      textAlign: "center"
     }
   });
 }
@@ -463,16 +549,18 @@ function createStyles(palette: ThemePaletteDefinition) {
 function MetaRow({
   label,
   value,
+  accent = false,
   styles
 }: {
   label: string;
   value: string;
+  accent?: boolean;
   styles: ReturnType<typeof createStyles>;
 }) {
   return (
     <View style={styles.metaRow}>
       <Text style={styles.metaLabel}>{label}</Text>
-      <Text style={styles.metaValue}>{value}</Text>
+      <Text style={accent ? styles.metaValueAccent : styles.metaValue}>{value}</Text>
     </View>
   );
 }
@@ -498,11 +586,15 @@ function Cell({
   text,
   flex,
   header = false,
+  alt = false,
+  last = false,
   styles
 }: {
   text: string;
   flex: number;
   header?: boolean;
+  alt?: boolean;
+  last?: boolean;
   styles: ReturnType<typeof createStyles>;
 }) {
   return (
@@ -510,10 +602,11 @@ function Cell({
       style={[
         styles.cell,
         { flex },
-        ...(header ? [] : [{ backgroundColor: "#ffffff" }])
+        last ? styles.cellLast : {},
+        !header && alt ? styles.tableRowAlt : {}
       ]}
     >
-      <Text style={header ? styles.cellHeader : styles.cellText}>{text}</Text>
+      <Text style={header ? styles.cellHeaderText : styles.cellText}>{text}</Text>
     </View>
   );
 }

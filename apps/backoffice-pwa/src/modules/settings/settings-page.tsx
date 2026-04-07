@@ -62,8 +62,47 @@ const LOGO_MAX_SIZE_BYTES = 2 * 1024 * 1024;
 const ALLOWED_LOGO_MIME_TYPES = new Set([
   "image/png",
   "image/jpeg",
-  "image/webp"
+  "image/webp",
+  "image/svg+xml"
 ]);
+
+const SVG_MAX_DIMENSION = 512;
+
+async function svgFileToPng(file: File): Promise<File> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const srcW = img.naturalWidth || SVG_MAX_DIMENSION;
+        const srcH = img.naturalHeight || SVG_MAX_DIMENSION;
+        const scale = Math.min(SVG_MAX_DIMENSION / srcW, SVG_MAX_DIMENSION / srcH, 1);
+        const canvasW = Math.round(srcW * scale);
+        const canvasH = Math.round(srcH * scale);
+        const canvas = document.createElement("canvas");
+        canvas.width = canvasW;
+        canvas.height = canvasH;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          reject(new Error("Canvas not available"));
+          return;
+        }
+        ctx.drawImage(img, 0, 0, canvasW, canvasH);
+        canvas.toBlob((blob) => {
+          if (!blob) {
+            reject(new Error("Canvas export failed"));
+            return;
+          }
+          resolve(new File([blob], file.name.replace(/\.svg$/i, ".png"), { type: "image/png" }));
+        }, "image/png");
+      };
+      img.onerror = () => reject(new Error("SVG load failed"));
+      img.src = reader.result as string;
+    };
+    reader.onerror = () => reject(new Error("File read failed"));
+    reader.readAsDataURL(file);
+  });
+}
 
 function getStatusTone(status: "active" | "inactive" | "suspended" | "invited") {
   if (status === "active") {
@@ -135,6 +174,10 @@ function isCompanyRncValid(value: string) {
   return /^[0-9-]{9,11}$/.test(value);
 }
 
+function isCompanyCedulaValid(value: string) {
+  return /^\d{3}-\d{7}-\d$/.test(value) || /^\d{11}$/.test(value);
+}
+
 function SettingsState({
   title,
   description,
@@ -204,9 +247,11 @@ export function SettingsPage() {
   const [companyAddressDraft, setCompanyAddressDraft] = useState("");
   const [companyPhoneDraft, setCompanyPhoneDraft] = useState("");
   const [companyRncDraft, setCompanyRncDraft] = useState("");
+  const [companyCedulaDraft, setCompanyCedulaDraft] = useState("");
   const [logoDraftFile, setLogoDraftFile] = useState<File | null>(null);
   const [isLogoMarkedForRemoval, setIsLogoMarkedForRemoval] = useState(false);
   const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
+  const [isDraggingLogo, setIsDraggingLogo] = useState(false);
   const [deleteConfirmationDraft, setDeleteConfirmationDraft] = useState("");
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const tenantThemeSyncRef = useRef<string | null>(null);
@@ -246,6 +291,7 @@ export function SettingsPage() {
     setCompanyAddressDraft(tenantSettingsQuery.data.address ?? "");
     setCompanyPhoneDraft(tenantSettingsQuery.data.phone ?? "");
     setCompanyRncDraft(tenantSettingsQuery.data.rnc ?? "");
+    setCompanyCedulaDraft(tenantSettingsQuery.data.cedula ?? "");
     setLogoDraftFile(null);
     setIsLogoMarkedForRemoval(false);
     setLogoPreviewUrl(tenantSettingsQuery.data.logoUrl);
@@ -319,6 +365,7 @@ export function SettingsPage() {
   const normalizedCompanyAddressDraft = normalizeDraft(companyAddressDraft);
   const normalizedCompanyPhoneDraft = normalizeDraft(companyPhoneDraft);
   const normalizedCompanyRncDraft = normalizeDraft(companyRncDraft);
+  const normalizedCompanyCedulaDraft = normalizeDraft(companyCedulaDraft);
 
   const isProfileDirty =
     (displayNameDraft.trim() || "") !== (userProfile?.displayName?.trim() || "");
@@ -330,6 +377,7 @@ export function SettingsPage() {
       (normalizedCompanyAddressDraft !== (tenantSettings.address ?? "") ||
         normalizedCompanyPhoneDraft !== (tenantSettings.phone ?? "") ||
         normalizedCompanyRncDraft !== (tenantSettings.rnc ?? "") ||
+        normalizedCompanyCedulaDraft !== (tenantSettings.cedula ?? "") ||
         Boolean(logoDraftFile) ||
         isLogoMarkedForRemoval)
   );
@@ -410,6 +458,16 @@ export function SettingsPage() {
       return;
     }
 
+    if (
+      normalizedCompanyCedulaDraft.length > 0 &&
+      !isCompanyCedulaValid(normalizedCompanyCedulaDraft)
+    ) {
+      toast.error(t("settings.company.errorTitle"), {
+        description: t("settings.company.validation.cedulaInvalid")
+      });
+      return;
+    }
+
     let uploadedLogoPath: string | null = null;
 
     try {
@@ -427,6 +485,7 @@ export function SettingsPage() {
         address: normalizedCompanyAddressDraft,
         phone: normalizedCompanyPhoneDraft,
         rnc: normalizedCompanyRncDraft || null,
+        cedula: normalizedCompanyCedulaDraft || null,
         logoPath: nextLogoPath,
         paletteId,
         paletteSeedColors: paletteId === "custom" ? customPalette.seeds : null
@@ -467,6 +526,7 @@ export function SettingsPage() {
         address: tenantSettings.address,
         phone: tenantSettings.phone,
         rnc: tenantSettings.rnc,
+        cedula: tenantSettings.cedula,
         logoPath: tenantSettings.logoPath,
         paletteId,
         paletteSeedColors: paletteId === "custom" ? customPalette.seeds : null
@@ -495,31 +555,70 @@ export function SettingsPage() {
     }
   }
 
-  function handleLogoFileChange(event: ChangeEvent<HTMLInputElement>) {
-    const nextFile = event.target.files?.[0] ?? null;
-
-    if (!nextFile) {
-      return;
-    }
-
-    if (!ALLOWED_LOGO_MIME_TYPES.has(nextFile.type)) {
+  async function processLogoFile(rawFile: File) {
+    if (!ALLOWED_LOGO_MIME_TYPES.has(rawFile.type)) {
       toast.error(t("settings.company.logoErrorTitle"), {
         description: t("settings.company.logoInvalidType")
       });
-      event.target.value = "";
       return;
     }
 
-    if (nextFile.size > LOGO_MAX_SIZE_BYTES) {
+    if (rawFile.size > LOGO_MAX_SIZE_BYTES) {
       toast.error(t("settings.company.logoErrorTitle"), {
         description: t("settings.company.logoInvalidSize")
       });
-      event.target.value = "";
       return;
     }
 
-    setLogoDraftFile(nextFile);
+    let fileToStore = rawFile;
+    if (rawFile.type === "image/svg+xml") {
+      try {
+        fileToStore = await svgFileToPng(rawFile);
+      } catch {
+        toast.error(t("settings.company.logoErrorTitle"), {
+          description: t("settings.company.logoInvalidType")
+        });
+        return;
+      }
+    }
+
+    setLogoDraftFile(fileToStore);
     setIsLogoMarkedForRemoval(false);
+  }
+
+  function handleLogoFileChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0] ?? null;
+    if (!file) return;
+    event.target.value = "";
+    void processLogoFile(file);
+  }
+
+  function handleLogoDragEnter(event: React.DragEvent<HTMLDivElement>) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (canEditTenant) setIsDraggingLogo(true);
+  }
+
+  function handleLogoDragOver(event: React.DragEvent<HTMLDivElement>) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  function handleLogoDragLeave(event: React.DragEvent<HTMLDivElement>) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!event.currentTarget.contains(event.relatedTarget as Node)) {
+      setIsDraggingLogo(false);
+    }
+  }
+
+  function handleLogoDrop(event: React.DragEvent<HTMLDivElement>) {
+    event.preventDefault();
+    event.stopPropagation();
+    setIsDraggingLogo(false);
+    if (!canEditTenant) return;
+    const file = event.dataTransfer.files[0];
+    if (file) void processLogoFile(file);
   }
 
   function closeDeleteDialog() {
@@ -758,7 +857,7 @@ export function SettingsPage() {
                     <input
                       ref={logoInputRef}
                       type="file"
-                      accept="image/png,image/jpeg,image/webp"
+                      accept="image/png,image/jpeg,image/webp,image/svg+xml"
                       className="sr-only"
                       onChange={handleLogoFileChange}
                       aria-label={t("settings.company.logoUploadAction")}
@@ -854,6 +953,24 @@ export function SettingsPage() {
                               placeholder={t("settings.company.rncPlaceholder")}
                             />
                           </div>
+
+                          <div className="space-y-2">
+                            <label
+                              htmlFor="settings-company-cedula"
+                              className="text-sm font-medium text-ink"
+                            >
+                              {t("settings.company.cedulaLabel")}
+                            </label>
+                            <Input
+                              id="settings-company-cedula"
+                              value={companyCedulaDraft}
+                              disabled={!canEditTenant}
+                              onChange={(event) => {
+                                setCompanyCedulaDraft(event.target.value);
+                              }}
+                              placeholder={t("settings.company.cedulaPlaceholder")}
+                            />
+                          </div>
                         </div>
                       </div>
 
@@ -868,23 +985,38 @@ export function SettingsPage() {
                         </div>
 
                         <div className="mt-4 space-y-4">
-                          <div className="flex min-h-52 items-center justify-center rounded-3xl border border-dashed border-line bg-surface/70 p-4">
+                          <div
+                            className={[
+                              "relative h-52 w-full cursor-default overflow-hidden rounded-3xl border border-dashed transition-colors",
+                              isDraggingLogo && canEditTenant
+                                ? "border-primary bg-primary/5"
+                                : "border-line bg-surface/70"
+                            ].join(" ")}
+                            onDragEnter={handleLogoDragEnter}
+                            onDragOver={handleLogoDragOver}
+                            onDragLeave={handleLogoDragLeave}
+                            onDrop={handleLogoDrop}
+                          >
                             {logoPreviewUrl ? (
                               <img
                                 src={logoPreviewUrl}
                                 alt={t("settings.company.logoPreviewAlt", {
                                   company: tenantNameDraft.trim() || tenantSettings.name
                                 })}
-                                className="max-h-36 max-w-full object-contain"
+                                className="absolute inset-0 h-full w-full object-contain p-6"
                               />
                             ) : (
-                              <div className="space-y-2 text-center">
+                              <div className="flex h-full flex-col items-center justify-center gap-2 p-4 text-center">
                                 <p className="text-sm font-semibold text-ink">
-                                  {t("settings.company.logoEmptyTitle")}
+                                  {isDraggingLogo && canEditTenant
+                                    ? t("settings.company.logoDropHere")
+                                    : t("settings.company.logoEmptyTitle")}
                                 </p>
-                                <p className="text-sm leading-6 text-ink-soft">
-                                  {t("settings.company.logoEmptyDescription")}
-                                </p>
+                                {!(isDraggingLogo && canEditTenant) && (
+                                  <p className="text-sm leading-6 text-ink-soft">
+                                    {t("settings.company.logoEmptyDescription")}
+                                  </p>
+                                )}
                               </div>
                             )}
                           </div>

@@ -18,6 +18,7 @@ import {
 export interface InvoicePdfDocumentProps {
   generatedAt: string;
   issuerAddress?: string | null;
+  issuerCedula?: string | null;
   issuerName: string;
   issuerPhone?: string | null;
   issuerRnc?: string | null;
@@ -29,6 +30,7 @@ export interface InvoicePdfDocumentProps {
 export function InvoicePdfDocument({
   generatedAt,
   issuerAddress,
+  issuerCedula,
   issuerName,
   issuerPhone,
   issuerRnc,
@@ -51,10 +53,16 @@ export function InvoicePdfDocument({
       subject={invoice.title}
     >
       <Page size="A4" style={styles.page}>
+        {/* Top accent bar */}
+        <View style={styles.accentBar} fixed />
+
+        {/* Header */}
         <View style={styles.header}>
           <View style={styles.brandBlock}>
-            {logoUrl ? (
-              <Image style={styles.logo} src={logoUrl} />
+            {logoUrl && !logoUrl.toLowerCase().includes(".svg") ? (
+              <View style={styles.logoContainer}>
+                <Image style={styles.logo} src={logoUrl} />
+              </View>
             ) : (
               <View style={styles.logoFallback}>
                 <Text style={styles.logoFallbackText}>
@@ -74,12 +82,15 @@ export function InvoicePdfDocument({
               {issuerRnc ? (
                 <Text style={styles.issuerMeta}>RNC: {issuerRnc}</Text>
               ) : null}
+              {issuerCedula ? (
+                <Text style={styles.issuerMeta}>Cédula: {issuerCedula}</Text>
+              ) : null}
               <Text style={styles.documentTitle}>{invoice.title}</Text>
             </View>
           </View>
 
           <View style={styles.metaCard}>
-            <MetaRow label="Numero" value={invoice.invoiceNumber} styles={styles} />
+            <MetaRow label="Numero" value={invoice.invoiceNumber} styles={styles} accent />
             <MetaRow
               label="Emitida"
               value={invoice.issuedOn ? formatDate(invoice.issuedOn) : "Sin fecha"}
@@ -94,6 +105,7 @@ export function InvoicePdfDocument({
           </View>
         </View>
 
+        {/* Recipient section */}
         <View style={styles.recipientSection}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Receptor</Text>
@@ -130,6 +142,7 @@ export function InvoicePdfDocument({
           </View>
         </View>
 
+        {/* Line items table */}
         <View style={styles.tableShell}>
           <View style={styles.tableHeaderRow}>
             <Cell text="Detalle" flex={3.2} styles={styles} header />
@@ -137,11 +150,14 @@ export function InvoicePdfDocument({
             <Cell text="Precio" flex={1} styles={styles} header />
             <Cell text="Desc." flex={0.9} styles={styles} header />
             <Cell text="Impuesto" flex={0.9} styles={styles} header />
-            <Cell text="Total" flex={1} styles={styles} header />
+            <Cell text="Total" flex={1} styles={styles} header last />
           </View>
 
-          {invoice.lineItems.map((lineItem) => (
-            <View key={lineItem.id} style={styles.tableRow}>
+          {invoice.lineItems.map((lineItem, index) => (
+            <View
+              key={lineItem.id}
+              style={[styles.tableRow, index % 2 === 1 ? styles.tableRowAlt : {}]}
+            >
               <View style={[styles.cell, { flex: 3.2 }]}>
                 <Text style={styles.lineTitle}>{lineItem.itemName}</Text>
                 {lineItem.itemDescription ? (
@@ -151,39 +167,47 @@ export function InvoicePdfDocument({
                   <Text style={styles.lineMeta}>Unidad: {lineItem.unitLabel}</Text>
                 ) : null}
               </View>
-              <Cell text={formatNumber(lineItem.quantity)} flex={0.8} styles={styles} />
+              <Cell
+                text={formatNumber(lineItem.quantity)}
+                flex={0.8}
+                styles={styles}
+                alt={index % 2 === 1}
+              />
               <Cell
                 text={formatCurrency(lineItem.unitPrice, invoice.currencyCode)}
                 flex={1}
                 styles={styles}
+                alt={index % 2 === 1}
               />
               <Cell
                 text={formatCurrency(lineItem.discountTotal, invoice.currencyCode)}
                 flex={0.9}
                 styles={styles}
+                alt={index % 2 === 1}
               />
               <Cell
                 text={formatCurrency(lineItem.taxTotal, invoice.currencyCode)}
                 flex={0.9}
                 styles={styles}
+                alt={index % 2 === 1}
               />
               <Cell
                 text={formatCurrency(lineItem.lineTotal, invoice.currencyCode)}
                 flex={1}
                 styles={styles}
+                alt={index % 2 === 1}
+                last
               />
             </View>
           ))}
         </View>
 
+        {/* Footer area: notes + totals */}
         <View style={styles.footerArea}>
           <View style={styles.notesCard}>
             <Text style={styles.notesTitle}>Notas y condiciones</Text>
             <Text style={styles.notesBody}>
               {invoice.notes?.trim() || "Sin notas adicionales para esta factura."}
-            </Text>
-            <Text style={styles.generatedAt}>
-              Generado el {formatDateTime(generatedAt)}
             </Text>
           </View>
 
@@ -217,6 +241,14 @@ export function InvoicePdfDocument({
             </View>
           </View>
         </View>
+
+        {/* Document footer — always at bottom */}
+        <View style={styles.docFooter} fixed>
+          <View style={styles.docFooterDivider} />
+          <Text style={styles.docFooterText}>
+            Generado el {formatDateTime(generatedAt)} · OperaPyme
+          </Text>
+        </View>
       </Page>
     </Document>
   );
@@ -225,158 +257,209 @@ export function InvoicePdfDocument({
 function createStyles(palette: ThemePaletteDefinition) {
   return StyleSheet.create({
     page: {
-      paddingTop: 32,
-      paddingRight: 32,
-      paddingBottom: 36,
-      paddingLeft: 32,
+      paddingTop: 36,
+      paddingRight: 36,
+      paddingBottom: 52,
+      paddingLeft: 36,
       backgroundColor: palette.colors.paper,
       color: palette.colors.ink,
       fontSize: 10.5
     },
+    accentBar: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      height: 4,
+      backgroundColor: palette.colors.primary400
+    },
     header: {
       flexDirection: "row",
       justifyContent: "space-between",
-      gap: 18
+      gap: 20,
+      alignItems: "flex-start"
     },
     brandBlock: {
       flexDirection: "row",
-      gap: 14,
-      flex: 1
+      gap: 16,
+      flex: 1,
+      alignItems: "flex-start"
+    },
+    logoContainer: {
+      width: 76,
+      height: 76,
+      borderRadius: 12,
+      backgroundColor: "#ffffff",
+      borderWidth: 1,
+      borderColor: palette.colors.line,
+      alignItems: "center",
+      justifyContent: "center",
+      padding: 6
     },
     logo: {
-      width: 52,
-      height: 52,
+      width: 64,
+      height: 64,
       objectFit: "contain"
     },
     logoFallback: {
-      width: 52,
-      height: 52,
-      borderRadius: 16,
+      width: 76,
+      height: 76,
+      borderRadius: 12,
       backgroundColor: palette.colors.primary300,
       alignItems: "center",
       justifyContent: "center"
     },
     logoFallbackText: {
-      fontSize: 16,
+      fontSize: 22,
       fontWeight: 700,
       color: palette.colors.ink
     },
     brandCopy: {
-      gap: 4,
-      flex: 1
+      gap: 3,
+      flex: 1,
+      paddingTop: 2
     },
     eyebrow: {
-      color: palette.colors.inkMuted,
-      fontSize: 9,
-      textTransform: "uppercase"
+      color: palette.colors.primary400,
+      fontSize: 8.5,
+      textTransform: "uppercase",
+      fontWeight: 600,
+      letterSpacing: 0.8
     },
     issuerName: {
-      fontSize: 18,
-      fontWeight: 700
+      fontSize: 19,
+      fontWeight: 700,
+      lineHeight: 1.2
     },
     issuerMeta: {
       color: palette.colors.inkSoft,
       fontSize: 9.5,
-      lineHeight: 1.3
+      lineHeight: 1.4
     },
     documentTitle: {
+      marginTop: 4,
       fontSize: 12,
       color: palette.colors.inkSoft
     },
     metaCard: {
-      width: 180,
-      borderRadius: 18,
+      width: 178,
+      borderRadius: 14,
       borderWidth: 1,
       borderColor: palette.colors.line,
       backgroundColor: palette.colors.sand,
-      paddingTop: 12,
-      paddingRight: 14,
-      paddingBottom: 12,
-      paddingLeft: 14,
+      padding: 14,
+      gap: 9
+    },
+    metaRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
       gap: 8
+    },
+    metaLabel: {
+      color: palette.colors.inkMuted,
+      fontSize: 9
+    },
+    metaValue: {
+      color: palette.colors.ink,
+      fontSize: 9.5,
+      fontWeight: 600,
+      textAlign: "right"
+    },
+    metaValueAccent: {
+      color: palette.colors.primary400,
+      fontSize: 10,
+      fontWeight: 700,
+      textAlign: "right"
     },
     recipientSection: {
       marginTop: 22,
-      borderRadius: 20,
+      borderRadius: 14,
       borderWidth: 1,
       borderColor: palette.colors.line,
-      backgroundColor: "#FFFFFF",
-      paddingTop: 16,
-      paddingRight: 16,
-      paddingBottom: 16,
-      paddingLeft: 16
+      backgroundColor: palette.colors.sand,
+      padding: 16,
+      gap: 12
     },
     sectionHeader: {
       flexDirection: "row",
       justifyContent: "space-between",
-      alignItems: "center"
+      alignItems: "center",
+      gap: 8
     },
     sectionTitle: {
-      fontSize: 12,
+      fontSize: 11,
       fontWeight: 700
     },
     sectionSubtitle: {
       fontSize: 9,
-      textTransform: "uppercase",
-      color: palette.colors.inkMuted
+      color: palette.colors.inkSoft,
+      backgroundColor: palette.colors.primary200,
+      paddingTop: 2,
+      paddingBottom: 2,
+      paddingLeft: 7,
+      paddingRight: 7,
+      borderRadius: 20
     },
     recipientGrid: {
-      marginTop: 12,
       flexDirection: "row",
       flexWrap: "wrap",
-      gap: 10
+      gap: 12
     },
-    fieldCard: {
-      width: "48%",
-      borderRadius: 16,
-      backgroundColor: palette.colors.sand,
-      paddingTop: 10,
-      paddingRight: 12,
-      paddingBottom: 10,
-      paddingLeft: 12,
-      gap: 4
+    recipientField: {
+      width: "47%",
+      gap: 3
     },
     fieldLabel: {
-      fontSize: 8.5,
+      fontSize: 8,
+      color: palette.colors.inkMuted,
       textTransform: "uppercase",
-      color: palette.colors.inkMuted
+      letterSpacing: 0.5
     },
     fieldValue: {
-      fontSize: 10,
-      color: palette.colors.ink
+      fontSize: 10.5,
+      color: palette.colors.ink,
+      lineHeight: 1.35
     },
     tableShell: {
       marginTop: 22,
-      borderRadius: 20,
-      overflow: "hidden",
       borderWidth: 1,
-      borderColor: palette.colors.line
+      borderColor: palette.colors.line,
+      borderRadius: 14
     },
     tableHeaderRow: {
       flexDirection: "row",
-      backgroundColor: palette.colors.primary300
+      backgroundColor: palette.colors.primary400,
+      borderTopLeftRadius: 13,
+      borderTopRightRadius: 13
     },
     tableRow: {
       flexDirection: "row",
       borderTopWidth: 1,
       borderTopColor: palette.colors.line,
-      backgroundColor: "#FFFFFF"
+      backgroundColor: "#ffffff"
+    },
+    tableRowAlt: {
+      backgroundColor: palette.colors.sand
     },
     cell: {
-      paddingTop: 12,
+      paddingTop: 11,
       paddingRight: 10,
-      paddingBottom: 12,
+      paddingBottom: 11,
       paddingLeft: 10,
-      justifyContent: "center"
+      borderRightWidth: 1,
+      borderRightColor: palette.colors.line,
+      justifyContent: "flex-start"
     },
-    cellHeader: {
+    cellLast: {
+      borderRightWidth: 0
+    },
+    cellHeaderText: {
       fontSize: 8.5,
       fontWeight: 700,
-      textTransform: "uppercase",
-      color: palette.colors.ink
+      color: "#ffffff"
     },
     cellText: {
-      fontSize: 9.6,
+      fontSize: 9.5,
       color: palette.colors.ink
     },
     lineTitle: {
@@ -384,14 +467,14 @@ function createStyles(palette: ThemePaletteDefinition) {
       fontWeight: 700
     },
     lineDescription: {
-      marginTop: 4,
+      marginTop: 3,
       fontSize: 9,
-      color: palette.colors.inkSoft,
-      lineHeight: 1.45
+      lineHeight: 1.4,
+      color: palette.colors.inkSoft
     },
     lineMeta: {
-      marginTop: 6,
-      fontSize: 8.4,
+      marginTop: 3,
+      fontSize: 8.5,
       color: palette.colors.inkMuted
     },
     footerArea: {
@@ -401,74 +484,66 @@ function createStyles(palette: ThemePaletteDefinition) {
     },
     notesCard: {
       flex: 1,
-      borderRadius: 20,
+      borderRadius: 14,
       borderWidth: 1,
       borderColor: palette.colors.line,
-      backgroundColor: "#FFFFFF",
-      paddingTop: 16,
-      paddingRight: 16,
-      paddingBottom: 16,
-      paddingLeft: 16,
-      gap: 10
+      backgroundColor: palette.colors.sand,
+      padding: 16,
+      gap: 8
     },
     notesTitle: {
-      fontSize: 11,
+      fontSize: 10,
       fontWeight: 700
     },
     notesBody: {
       fontSize: 9.5,
-      lineHeight: 1.5,
-      color: palette.colors.inkSoft
-    },
-    generatedAt: {
-      fontSize: 8.5,
-      color: palette.colors.inkMuted
+      color: palette.colors.inkSoft,
+      lineHeight: 1.55
     },
     totalsCard: {
-      width: 200,
-      borderRadius: 20,
+      width: 216,
+      borderRadius: 14,
       borderWidth: 1,
       borderColor: palette.colors.line,
       backgroundColor: palette.colors.sand,
-      paddingTop: 16,
-      paddingRight: 16,
-      paddingBottom: 16,
-      paddingLeft: 16,
-      gap: 8
-    },
-    metaRow: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      gap: 12
-    },
-    metaLabel: {
-      fontSize: 9,
-      color: palette.colors.inkSoft
-    },
-    metaValue: {
-      fontSize: 9.5,
-      fontWeight: 700,
-      color: palette.colors.ink
+      padding: 16,
+      gap: 9
     },
     totalDivider: {
-      marginTop: 2,
-      borderTopWidth: 1,
-      borderTopColor: palette.colors.line
+      height: 1,
+      backgroundColor: palette.colors.line,
+      marginTop: 4,
+      marginBottom: 4
     },
     totalRow: {
       flexDirection: "row",
       justifyContent: "space-between",
-      alignItems: "center",
-      marginTop: 4
+      gap: 8
     },
     totalLabel: {
-      fontSize: 11,
+      fontSize: 13,
       fontWeight: 700
     },
     totalValue: {
-      fontSize: 14,
-      fontWeight: 800,
+      fontSize: 13,
+      fontWeight: 700,
       color: palette.colors.primary400
+    },
+    docFooter: {
+      position: "absolute",
+      bottom: 20,
+      left: 36,
+      right: 36,
+      gap: 6
+    },
+    docFooterDivider: {
+      height: 1,
+      backgroundColor: palette.colors.line
+    },
+    docFooterText: {
+      fontSize: 8,
+      color: palette.colors.inkMuted,
+      textAlign: "center"
     }
   });
 }
@@ -476,16 +551,18 @@ function createStyles(palette: ThemePaletteDefinition) {
 function MetaRow({
   label,
   value,
+  accent = false,
   styles
 }: {
   label: string;
   value: string;
+  accent?: boolean;
   styles: ReturnType<typeof createStyles>;
 }) {
   return (
     <View style={styles.metaRow}>
       <Text style={styles.metaLabel}>{label}</Text>
-      <Text style={styles.metaValue}>{value}</Text>
+      <Text style={accent ? styles.metaValueAccent : styles.metaValue}>{value}</Text>
     </View>
   );
 }
@@ -500,7 +577,7 @@ function RecipientField({
   styles: ReturnType<typeof createStyles>;
 }) {
   return (
-    <View style={styles.fieldCard}>
+    <View style={styles.recipientField}>
       <Text style={styles.fieldLabel}>{label}</Text>
       <Text style={styles.fieldValue}>{value}</Text>
     </View>
@@ -508,28 +585,44 @@ function RecipientField({
 }
 
 function Cell({
+  text,
   flex,
   header = false,
-  styles,
-  text
+  alt = false,
+  last = false,
+  styles
 }: {
+  text: string;
   flex: number;
   header?: boolean;
+  alt?: boolean;
+  last?: boolean;
   styles: ReturnType<typeof createStyles>;
-  text: string;
 }) {
   return (
-    <View style={[styles.cell, { flex }]}>
-      <Text style={header ? styles.cellHeader : styles.cellText}>{text}</Text>
+    <View
+      style={[
+        styles.cell,
+        { flex },
+        last ? styles.cellLast : {},
+        !header && alt ? styles.tableRowAlt : {}
+      ]}
+    >
+      <Text style={header ? styles.cellHeaderText : styles.cellText}>{text}</Text>
     </View>
   );
 }
 
 function formatCurrency(amount: number, currencyCode: string) {
-  return new Intl.NumberFormat("es-DO", {
-    style: "currency",
-    currency: currencyCode
-  }).format(amount);
+  try {
+    return new Intl.NumberFormat("es-DO", {
+      style: "currency",
+      currency: currencyCode.toUpperCase(),
+      maximumFractionDigits: 2
+    }).format(amount);
+  } catch {
+    return `${currencyCode.toUpperCase()} ${amount.toFixed(2)}`;
+  }
 }
 
 function formatDate(value: string) {
@@ -541,10 +634,15 @@ function formatDate(value: string) {
 }
 
 function formatDateTime(value: string) {
+  const date = new Date(value);
+
   return new Intl.DateTimeFormat("es-DO", {
-    dateStyle: "medium",
-    timeStyle: "short"
-  }).format(new Date(value));
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  }).format(date);
 }
 
 function formatNumber(value: number) {
@@ -555,14 +653,14 @@ function formatNumber(value: number) {
 
 function formatRecipientKind(value: InvoiceDetail["recipientKind"]) {
   if (value === "customer") {
-    return "Cliente";
+    return "Cliente vinculado";
   }
 
   if (value === "lead") {
-    return "Lead";
+    return "Lead vinculado";
   }
 
-  return "Ad hoc";
+  return "Lead rapido";
 }
 
 function formatStatus(value: InvoiceDetail["status"]) {

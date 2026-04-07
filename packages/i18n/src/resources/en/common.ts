@@ -112,7 +112,7 @@ const commonEn = {
     closeMenuLabel: "Close main menu",
     collapseSidebarLabel: "Collapse sidebar",
     expandSidebarLabel: "Expand sidebar",
-    sidebarFooterLegal: "© {year} {tenant}. All rights reserved.",
+    sidebarFooterLegal: "© {year} OperaPyme. All rights reserved.",
     sidebarFooterProduct: "OperaPyme backoffice",
     breadcrumbsLabel: "Current route",
     searchLabel: "Search the workspace",

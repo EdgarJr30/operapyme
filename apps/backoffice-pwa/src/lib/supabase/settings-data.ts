@@ -29,6 +29,7 @@ export interface TenantBrandingSettings {
   address: string | null;
   phone: string | null;
   rnc: string | null;
+  cedula: string | null;
   logoPath: string | null;
   logoUrl: string | null;
   paletteId: ThemePaletteSelectionId;
@@ -63,6 +64,7 @@ interface RawTenantBrandingSettings {
   address: string | null;
   phone: string | null;
   rnc: string | null;
+  cedula: string | null;
   logo_path: string | null;
   palette_id: ThemePaletteSelectionId | null;
   palette_seed_colors: Partial<ThemePaletteSeedColors> | null;
@@ -92,6 +94,7 @@ export interface UpdateTenantBrandingSettingsInput {
   address: string | null;
   phone: string | null;
   rnc: string | null;
+  cedula: string | null;
   logoPath: string | null;
   paletteId: ThemePaletteSelectionId;
   paletteSeedColors: ThemePaletteSeedColors | null;
@@ -219,6 +222,7 @@ async function mapTenantBrandingSettings(
     address: normalizeOptionalText(row.address),
     phone: normalizeOptionalText(row.phone),
     rnc: normalizeOptionalText(row.rnc),
+    cedula: normalizeOptionalText(row.cedula),
     logoPath: normalizeOptionalText(row.logo_path),
     logoUrl: await getTenantLogoSignedUrl(row.logo_path, client),
     paletteId: row.palette_id ?? defaultThemePaletteId,
@@ -329,6 +333,7 @@ export async function updateTenantBrandingSettings(
       next_address: input.address?.trim() ?? "",
       next_phone: input.phone?.trim() ?? "",
       next_rnc: input.rnc?.trim() ?? "",
+      next_cedula: input.cedula?.trim() ?? "",
       next_logo_path: input.logoPath?.trim() ?? "",
       next_palette_id: input.paletteId,
       next_palette_seed_colors: input.paletteSeedColors
