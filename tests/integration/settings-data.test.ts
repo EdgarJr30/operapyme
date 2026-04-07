@@ -56,8 +56,12 @@ describe("settings data access", () => {
         slug: "operapyme-demo",
         status: "active",
         address: "Av. 27 de Febrero 12, Santo Domingo",
+        website_url: "operapyme.com",
+        email: "hola@operapyme.com",
         phone: "+1 809 555 0140",
+        secondary_phone: "+1 829 555 0141",
         rnc: "1-31-12345-6",
+        cedula: "001-1234567-8",
         logo_path: "tenant-1/logo.png",
         palette_id: "slate",
         palette_seed_colors: null,
@@ -90,8 +94,12 @@ describe("settings data access", () => {
       slug: "operapyme-demo",
       status: "active",
       address: "Av. 27 de Febrero 12, Santo Domingo",
+      websiteUrl: "operapyme.com",
+      email: "hola@operapyme.com",
       phone: "+1 809 555 0140",
+      secondaryPhone: "+1 829 555 0141",
       rnc: "1-31-12345-6",
+      cedula: "001-1234567-8",
       logoPath: "tenant-1/logo.png",
       logoUrl: "https://example.test/logo-signed",
       paletteId: "slate",
@@ -110,8 +118,12 @@ describe("settings data access", () => {
           slug: "northline-industrial",
           status: "active",
           address: "Av. Sarasota 10",
+          website_url: "northline.do",
+          email: "operaciones@northline.do",
           phone: "+1 829 555 0102",
+          secondary_phone: "+1 829 555 0103",
           rnc: null,
+          cedula: null,
           logo_path: null,
           palette_id: "slate",
           palette_seed_colors: null,
@@ -126,8 +138,12 @@ describe("settings data access", () => {
       tenantId: "tenant-1",
       name: "Northline Industrial",
       address: "Av. Sarasota 10",
+      websiteUrl: "northline.do",
+      email: "operaciones@northline.do",
       phone: "+1 829 555 0102",
+      secondaryPhone: "+1 829 555 0103",
       rnc: null,
+      cedula: null,
       logoPath: null,
       paletteId: "slate",
       paletteSeedColors: null
@@ -139,15 +155,22 @@ describe("settings data access", () => {
         target_tenant_id: "tenant-1",
         next_name: "Northline Industrial",
         next_address: "Av. Sarasota 10",
+        next_website_url: "northline.do",
+        next_email: "operaciones@northline.do",
         next_phone: "+1 829 555 0102",
+        next_secondary_phone: "+1 829 555 0103",
         next_rnc: "",
+        next_cedula: "",
         next_logo_path: "",
         next_palette_id: "slate",
         next_palette_seed_colors: null
       }
     );
     expect(settings.address).toBe("Av. Sarasota 10");
+    expect(settings.websiteUrl).toBe("northline.do");
+    expect(settings.email).toBe("operaciones@northline.do");
     expect(settings.phone).toBe("+1 829 555 0102");
+    expect(settings.secondaryPhone).toBe("+1 829 555 0103");
     expect(settings.logoPath).toBeNull();
     expect(settings.logoUrl).toBeNull();
   });

@@ -19,9 +19,12 @@ export interface QuotePdfDocumentProps {
   generatedAt: string;
   issuerAddress?: string | null;
   issuerCedula?: string | null;
+  issuerEmail?: string | null;
   issuerName: string;
   issuerPhone?: string | null;
   issuerRnc?: string | null;
+  issuerSecondaryPhone?: string | null;
+  issuerWebsiteUrl?: string | null;
   logoUrl?: string | null;
   palette: ThemePaletteDefinition;
   quote: QuoteDetail;
@@ -31,9 +34,12 @@ export function QuotePdfDocument({
   generatedAt,
   issuerAddress,
   issuerCedula,
+  issuerEmail,
   issuerName,
   issuerPhone,
   issuerRnc,
+  issuerSecondaryPhone,
+  issuerWebsiteUrl,
   logoUrl,
   palette,
   quote
@@ -78,6 +84,17 @@ export function QuotePdfDocument({
               ) : null}
               {issuerPhone ? (
                 <Text style={styles.issuerMeta}>Tel: {issuerPhone}</Text>
+              ) : null}
+              {issuerSecondaryPhone ? (
+                <Text style={styles.issuerMeta}>
+                  Tel. secundario: {issuerSecondaryPhone}
+                </Text>
+              ) : null}
+              {issuerEmail ? (
+                <Text style={styles.issuerMeta}>Correo: {issuerEmail}</Text>
+              ) : null}
+              {issuerWebsiteUrl ? (
+                <Text style={styles.issuerMeta}>Web: {issuerWebsiteUrl}</Text>
               ) : null}
               {issuerRnc ? (
                 <Text style={styles.issuerMeta}>RNC: {issuerRnc}</Text>

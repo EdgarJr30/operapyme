@@ -152,6 +152,7 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 - dashboard, Gestion Comercial y catalogo ya leen datos reales de Supabase en modo read-first
 - Gestion Comercial y catalogo ya pueden crear y actualizar registros reales dentro del tenant activo
 - `/settings` ya funciona como modulo operativo de usuario final con perfil, datos de empresa, branding persistente, logo reusable para PDFs y directorio de equipo protegido por rol y tenant
+- la ficha de empresa del tenant ya persiste direccion comercial, direccion Internet, correo, telefono principal, telefono secundario, RNC y cedula, y esos datos alimentan tambien los PDFs documentales
 - `/settings/security` ahora funciona como zona de borrado permanente del tenant con confirmacion por slug, permiso dedicado `tenant.delete` y cleanup de cuenta via Edge Function cuando aplica
 - Gestion Comercial ya concentra leads, clientes, cotizaciones y facturas documentales internas dentro del tenant activo
 - `/commercial/customers` ya abre en vista table-first con busqueda, filtro por estado, modal reutilizable para crear/editar y archivado logico sin borrado fisico

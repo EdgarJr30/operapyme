@@ -1899,8 +1899,14 @@ const backofficeEs = {
       namePlaceholder: "Nombre visible de la empresa",
       addressLabel: "Direccion comercial",
       addressPlaceholder: "Av. Winston Churchill 95, Santo Domingo, Republica Dominicana",
+      websiteLabel: "Direccion Internet",
+      websitePlaceholder: "www.operapyme.com",
+      emailLabel: "Correo electronico",
+      emailPlaceholder: "hola@operapyme.com",
       phoneLabel: "Telefono principal",
       phonePlaceholder: "+1 809 555 0140",
+      secondaryPhoneLabel: "Telefono secundario",
+      secondaryPhonePlaceholder: "+1 829 555 0199",
       rncLabel: "RNC",
       rncPlaceholder: "1-31-12345-6",
       cedulaLabel: "Cédula (persona física)",
@@ -1936,9 +1942,14 @@ const backofficeEs = {
       validation: {
         nameRequired: "Ingresa el nombre comercial de la empresa.",
         addressRequired: "Ingresa la direccion comercial de la empresa.",
+        websiteInvalid:
+          "Usa una direccion de Internet valida, por ejemplo operapyme.com o https://operapyme.com.",
+        emailInvalid: "Usa un correo electronico valido para la empresa.",
         phoneRequired: "Ingresa el telefono principal de la empresa.",
         phoneInvalid:
           "Usa un telefono valido con numeros y signos habituales como +, espacios o guiones.",
+        secondaryPhoneInvalid:
+          "Usa un telefono secundario valido con numeros y signos habituales como +, espacios o guiones.",
         rncInvalid:
           "El RNC debe tener 9 digitos, con o sin guiones.",
         cedulaInvalid:

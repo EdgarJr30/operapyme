@@ -79,9 +79,12 @@ export function QuotePdfDownloadButton({
           generatedAt={new Date().toISOString()}
           issuerAddress={tenantSettings.address}
           issuerCedula={tenantSettings.cedula}
+          issuerEmail={tenantSettings.email}
           issuerName={tenantSettings.name || activeTenantName}
           issuerPhone={tenantSettings.phone}
           issuerRnc={tenantSettings.rnc}
+          issuerSecondaryPhone={tenantSettings.secondaryPhone}
+          issuerWebsiteUrl={tenantSettings.websiteUrl}
           logoUrl={tenantSettings.logoUrl}
           palette={palette}
           quote={quote}

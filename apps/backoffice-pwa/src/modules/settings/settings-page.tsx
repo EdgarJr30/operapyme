@@ -178,6 +178,28 @@ function isCompanyCedulaValid(value: string) {
   return /^\d{3}-\d{7}-\d$/.test(value) || /^\d{11}$/.test(value);
 }
 
+function isCompanyEmailValid(value: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function isCompanyWebsiteValid(value: string) {
+  if (/\s/.test(value)) {
+    return false;
+  }
+
+  const normalizedValue =
+    value.startsWith("http://") || value.startsWith("https://")
+      ? value
+      : `https://${value}`;
+
+  try {
+    const url = new URL(normalizedValue);
+    return Boolean(url.hostname);
+  } catch {
+    return false;
+  }
+}
+
 function SettingsState({
   title,
   description,
@@ -245,7 +267,10 @@ export function SettingsPage() {
   const [displayNameDraft, setDisplayNameDraft] = useState("");
   const [tenantNameDraft, setTenantNameDraft] = useState("");
   const [companyAddressDraft, setCompanyAddressDraft] = useState("");
+  const [companyWebsiteDraft, setCompanyWebsiteDraft] = useState("");
+  const [companyEmailDraft, setCompanyEmailDraft] = useState("");
   const [companyPhoneDraft, setCompanyPhoneDraft] = useState("");
+  const [companySecondaryPhoneDraft, setCompanySecondaryPhoneDraft] = useState("");
   const [companyRncDraft, setCompanyRncDraft] = useState("");
   const [companyCedulaDraft, setCompanyCedulaDraft] = useState("");
   const [logoDraftFile, setLogoDraftFile] = useState<File | null>(null);
@@ -289,7 +314,10 @@ export function SettingsPage() {
 
     setTenantNameDraft(tenantSettingsQuery.data.name);
     setCompanyAddressDraft(tenantSettingsQuery.data.address ?? "");
+    setCompanyWebsiteDraft(tenantSettingsQuery.data.websiteUrl ?? "");
+    setCompanyEmailDraft(tenantSettingsQuery.data.email ?? "");
     setCompanyPhoneDraft(tenantSettingsQuery.data.phone ?? "");
+    setCompanySecondaryPhoneDraft(tenantSettingsQuery.data.secondaryPhone ?? "");
     setCompanyRncDraft(tenantSettingsQuery.data.rnc ?? "");
     setCompanyCedulaDraft(tenantSettingsQuery.data.cedula ?? "");
     setLogoDraftFile(null);
@@ -315,8 +343,11 @@ export function SettingsPage() {
   }, [
     activeTenantId,
     setCompanyAddressDraft,
+    setCompanyEmailDraft,
     setCompanyPhoneDraft,
+    setCompanySecondaryPhoneDraft,
     setCompanyRncDraft,
+    setCompanyWebsiteDraft,
     setCustomPalette,
     setLogoDraftFile,
     setIsLogoMarkedForRemoval,
@@ -363,7 +394,12 @@ export function SettingsPage() {
   const members = tenantMembersQuery.data ?? [];
   const normalizedTenantNameDraft = normalizeDraft(tenantNameDraft);
   const normalizedCompanyAddressDraft = normalizeDraft(companyAddressDraft);
+  const normalizedCompanyWebsiteDraft = normalizeDraft(companyWebsiteDraft);
+  const normalizedCompanyEmailDraft = normalizeDraft(companyEmailDraft);
   const normalizedCompanyPhoneDraft = normalizeDraft(companyPhoneDraft);
+  const normalizedCompanySecondaryPhoneDraft = normalizeDraft(
+    companySecondaryPhoneDraft
+  );
   const normalizedCompanyRncDraft = normalizeDraft(companyRncDraft);
   const normalizedCompanyCedulaDraft = normalizeDraft(companyCedulaDraft);
 
@@ -375,7 +411,11 @@ export function SettingsPage() {
   const isCompanyFieldsDirty = Boolean(
     tenantSettings &&
       (normalizedCompanyAddressDraft !== (tenantSettings.address ?? "") ||
+        normalizedCompanyWebsiteDraft !== (tenantSettings.websiteUrl ?? "") ||
+        normalizedCompanyEmailDraft !== (tenantSettings.email ?? "") ||
         normalizedCompanyPhoneDraft !== (tenantSettings.phone ?? "") ||
+        normalizedCompanySecondaryPhoneDraft !==
+          (tenantSettings.secondaryPhone ?? "") ||
         normalizedCompanyRncDraft !== (tenantSettings.rnc ?? "") ||
         normalizedCompanyCedulaDraft !== (tenantSettings.cedula ?? "") ||
         Boolean(logoDraftFile) ||
@@ -441,9 +481,39 @@ export function SettingsPage() {
       return;
     }
 
+    if (
+      normalizedCompanyWebsiteDraft.length > 0 &&
+      !isCompanyWebsiteValid(normalizedCompanyWebsiteDraft)
+    ) {
+      toast.error(t("settings.company.errorTitle"), {
+        description: t("settings.company.validation.websiteInvalid")
+      });
+      return;
+    }
+
+    if (
+      normalizedCompanyEmailDraft.length > 0 &&
+      !isCompanyEmailValid(normalizedCompanyEmailDraft)
+    ) {
+      toast.error(t("settings.company.errorTitle"), {
+        description: t("settings.company.validation.emailInvalid")
+      });
+      return;
+    }
+
     if (!isCompanyPhoneValid(normalizedCompanyPhoneDraft)) {
       toast.error(t("settings.company.errorTitle"), {
         description: t("settings.company.validation.phoneInvalid")
+      });
+      return;
+    }
+
+    if (
+      normalizedCompanySecondaryPhoneDraft.length > 0 &&
+      !isCompanyPhoneValid(normalizedCompanySecondaryPhoneDraft)
+    ) {
+      toast.error(t("settings.company.errorTitle"), {
+        description: t("settings.company.validation.secondaryPhoneInvalid")
       });
       return;
     }
@@ -483,7 +553,10 @@ export function SettingsPage() {
       await updateTenantSettingsMutation.mutateAsync({
         name: normalizedTenantNameDraft,
         address: normalizedCompanyAddressDraft,
+        websiteUrl: normalizedCompanyWebsiteDraft || null,
+        email: normalizedCompanyEmailDraft || null,
         phone: normalizedCompanyPhoneDraft,
+        secondaryPhone: normalizedCompanySecondaryPhoneDraft || null,
         rnc: normalizedCompanyRncDraft || null,
         cedula: normalizedCompanyCedulaDraft || null,
         logoPath: nextLogoPath,
@@ -524,7 +597,10 @@ export function SettingsPage() {
       await updateTenantSettingsMutation.mutateAsync({
         name: tenantSettings.name,
         address: tenantSettings.address,
+        websiteUrl: tenantSettings.websiteUrl,
+        email: tenantSettings.email,
         phone: tenantSettings.phone,
+        secondaryPhone: tenantSettings.secondaryPhone,
         rnc: tenantSettings.rnc,
         cedula: tenantSettings.cedula,
         logoPath: tenantSettings.logoPath,
@@ -920,6 +996,44 @@ export function SettingsPage() {
                         <div className="grid gap-4 sm:grid-cols-2">
                           <div className="space-y-2">
                             <label
+                              htmlFor="settings-company-website"
+                              className="text-sm font-medium text-ink"
+                            >
+                              {t("settings.company.websiteLabel")}
+                            </label>
+                            <Input
+                              id="settings-company-website"
+                              type="url"
+                              value={companyWebsiteDraft}
+                              disabled={!canEditTenant}
+                              onChange={(event) => {
+                                setCompanyWebsiteDraft(event.target.value);
+                              }}
+                              placeholder={t("settings.company.websitePlaceholder")}
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <label
+                              htmlFor="settings-company-email"
+                              className="text-sm font-medium text-ink"
+                            >
+                              {t("settings.company.emailLabel")}
+                            </label>
+                            <Input
+                              id="settings-company-email"
+                              type="email"
+                              value={companyEmailDraft}
+                              disabled={!canEditTenant}
+                              onChange={(event) => {
+                                setCompanyEmailDraft(event.target.value);
+                              }}
+                              placeholder={t("settings.company.emailPlaceholder")}
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <label
                               htmlFor="settings-company-phone"
                               className="text-sm font-medium text-ink"
                             >
@@ -933,6 +1047,24 @@ export function SettingsPage() {
                                 setCompanyPhoneDraft(event.target.value);
                               }}
                               placeholder={t("settings.company.phonePlaceholder")}
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <label
+                              htmlFor="settings-company-secondary-phone"
+                              className="text-sm font-medium text-ink"
+                            >
+                              {t("settings.company.secondaryPhoneLabel")}
+                            </label>
+                            <Input
+                              id="settings-company-secondary-phone"
+                              value={companySecondaryPhoneDraft}
+                              disabled={!canEditTenant}
+                              onChange={(event) => {
+                                setCompanySecondaryPhoneDraft(event.target.value);
+                              }}
+                              placeholder={t("settings.company.secondaryPhonePlaceholder")}
                             />
                           </div>
 

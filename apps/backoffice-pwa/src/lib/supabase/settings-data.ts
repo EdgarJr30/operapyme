@@ -27,7 +27,10 @@ export interface TenantBrandingSettings {
   slug: string;
   status: "active" | "inactive" | "suspended";
   address: string | null;
+  websiteUrl: string | null;
+  email: string | null;
   phone: string | null;
+  secondaryPhone: string | null;
   rnc: string | null;
   cedula: string | null;
   logoPath: string | null;
@@ -62,7 +65,10 @@ interface RawTenantBrandingSettings {
   slug: string;
   status: "active" | "inactive" | "suspended";
   address: string | null;
+  website_url: string | null;
+  email: string | null;
   phone: string | null;
+  secondary_phone: string | null;
   rnc: string | null;
   cedula: string | null;
   logo_path: string | null;
@@ -92,7 +98,10 @@ export interface UpdateTenantBrandingSettingsInput {
   tenantId: string;
   name: string;
   address: string | null;
+  websiteUrl: string | null;
+  email: string | null;
   phone: string | null;
+  secondaryPhone: string | null;
   rnc: string | null;
   cedula: string | null;
   logoPath: string | null;
@@ -220,7 +229,10 @@ async function mapTenantBrandingSettings(
     slug: row.slug,
     status: row.status,
     address: normalizeOptionalText(row.address),
+    websiteUrl: normalizeOptionalText(row.website_url),
+    email: normalizeOptionalText(row.email),
     phone: normalizeOptionalText(row.phone),
+    secondaryPhone: normalizeOptionalText(row.secondary_phone),
     rnc: normalizeOptionalText(row.rnc),
     cedula: normalizeOptionalText(row.cedula),
     logoPath: normalizeOptionalText(row.logo_path),
@@ -302,7 +314,7 @@ export async function getTenantBrandingSettings(
   const { data, error } = await resolvedClient
     .from("tenants")
     .select(
-      "id, name, slug, status, address, phone, rnc, logo_path, palette_id, palette_seed_colors, created_at, updated_at"
+      "id, name, slug, status, address, website_url, email, phone, secondary_phone, rnc, cedula, logo_path, palette_id, palette_seed_colors, created_at, updated_at"
     )
     .eq("id", tenantId)
     .single();
@@ -331,7 +343,10 @@ export async function updateTenantBrandingSettings(
       target_tenant_id: input.tenantId,
       next_name: input.name.trim(),
       next_address: input.address?.trim() ?? "",
+      next_website_url: input.websiteUrl?.trim() ?? "",
+      next_email: input.email?.trim() ?? "",
       next_phone: input.phone?.trim() ?? "",
+      next_secondary_phone: input.secondaryPhone?.trim() ?? "",
       next_rnc: input.rnc?.trim() ?? "",
       next_cedula: input.cedula?.trim() ?? "",
       next_logo_path: input.logoPath?.trim() ?? "",

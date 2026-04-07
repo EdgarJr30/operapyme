@@ -1899,8 +1899,14 @@ const backofficeEn = {
       namePlaceholder: "Visible company name",
       addressLabel: "Business address",
       addressPlaceholder: "Av. Winston Churchill 95, Santo Domingo, Dominican Republic",
+      websiteLabel: "Internet address",
+      websitePlaceholder: "www.operapyme.com",
+      emailLabel: "Email address",
+      emailPlaceholder: "hello@operapyme.com",
       phoneLabel: "Primary phone",
       phonePlaceholder: "+1 809 555 0140",
+      secondaryPhoneLabel: "Secondary phone",
+      secondaryPhonePlaceholder: "+1 829 555 0199",
       rncLabel: "RNC",
       rncPlaceholder: "1-31-12345-6",
       cedulaLabel: "ID number (individual)",
@@ -1936,9 +1942,14 @@ const backofficeEn = {
       validation: {
         nameRequired: "Enter the company business name.",
         addressRequired: "Enter the company business address.",
+        websiteInvalid:
+          "Use a valid internet address, for example operapyme.com or https://operapyme.com.",
+        emailInvalid: "Use a valid company email address.",
         phoneRequired: "Enter the company primary phone number.",
         phoneInvalid:
           "Use a valid phone number with digits and common symbols like +, spaces, or dashes.",
+        secondaryPhoneInvalid:
+          "Use a valid secondary phone number with digits and common symbols like +, spaces, or dashes.",
         rncInvalid:
           "The RNC must contain 9 digits, with or without dashes.",
         cedulaInvalid:
