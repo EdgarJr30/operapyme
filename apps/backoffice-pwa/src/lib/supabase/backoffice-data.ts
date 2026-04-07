@@ -2,6 +2,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { supabase } from "@/lib/supabase/client";
 
+const CUSTOMER_ATTACHMENTS_BUCKET = "customer-attachments";
+
 export type CustomerStatus = "active" | "inactive" | "archived";
 export type LeadStatus =
   | "new"
@@ -41,10 +43,22 @@ export interface CustomerSummary {
   whatsapp: string | null;
   phone: string | null;
   documentId: string | null;
+  isForeign: boolean;
+  passportId: string | null;
+  websiteUrl: string | null;
+  attachmentName: string | null;
+  attachmentPath: string | null;
   notes: string | null;
   source: string;
   status: CustomerStatus;
+  createdAt: string;
   updatedAt: string;
+}
+
+export interface CustomerBalanceSummary {
+  currencyCode: string;
+  openAmount: number;
+  paidAmount: number;
 }
 
 export interface LeadSummary {
@@ -192,10 +206,22 @@ interface RawCustomerRow {
   whatsapp: string | null;
   phone: string | null;
   document_id: string | null;
+  is_foreign: boolean | null;
+  passport_id: string | null;
+  website_url: string | null;
+  attachment_name: string | null;
+  attachment_path: string | null;
   notes: string | null;
   source: string;
   status: CustomerStatus;
+  created_at: string;
   updated_at: string;
+}
+
+interface RawCustomerBalanceRow {
+  currency_code: string;
+  grand_total: number | string;
+  status: InvoiceStatus;
 }
 
 interface RawLeadRow {
@@ -320,7 +346,6 @@ interface RawInvoiceRow {
 
 export interface CreateCustomerInput {
   tenantId: string;
-  customerCode?: string | null;
   displayName: string;
   contactName: string;
   legalName?: string | null;
@@ -328,6 +353,11 @@ export interface CreateCustomerInput {
   whatsapp?: string | null;
   phone?: string | null;
   documentId?: string | null;
+  isForeign?: boolean;
+  passportId?: string | null;
+  websiteUrl?: string | null;
+  attachmentName?: string | null;
+  attachmentPath?: string | null;
   source: string;
   status: CustomerStatus;
   notes?: string | null;
@@ -336,7 +366,6 @@ export interface CreateCustomerInput {
 export interface UpdateCustomerInput {
   tenantId: string;
   customerId: string;
-  customerCode?: string | null;
   displayName: string;
   contactName: string;
   legalName?: string | null;
@@ -344,6 +373,11 @@ export interface UpdateCustomerInput {
   whatsapp?: string | null;
   phone?: string | null;
   documentId?: string | null;
+  isForeign?: boolean;
+  passportId?: string | null;
+  websiteUrl?: string | null;
+  attachmentName?: string | null;
+  attachmentPath?: string | null;
   source: string;
   status: CustomerStatus;
   notes?: string | null;
@@ -502,7 +536,7 @@ export interface CancelInvoiceResult {
 }
 
 const customerSelectFields =
-  "id, customer_code, display_name, contact_name, legal_name, email, whatsapp, phone, document_id, notes, source, status, updated_at";
+  "id, customer_code, display_name, contact_name, legal_name, email, whatsapp, phone, document_id, is_foreign, passport_id, website_url, attachment_name, attachment_path, notes, source, status, created_at, updated_at";
 
 const leadSelectFields =
   "id, lead_code, display_name, contact_name, email, whatsapp, phone, source, status, need_summary, notes, converted_customer_id, converted_at, updated_at";
@@ -563,6 +597,19 @@ function normalizeOptionalValue(value: string | null | undefined) {
   return nextValue ? nextValue : null;
 }
 
+function normalizeWebsiteUrl(value: string | null | undefined) {
+  const normalizedValue = normalizeOptionalValue(value);
+
+  if (!normalizedValue) {
+    return null;
+  }
+
+  return normalizedValue.startsWith("http://") ||
+    normalizedValue.startsWith("https://")
+    ? normalizedValue
+    : `https://${normalizedValue}`;
+}
+
 function normalizeCatalogPrice(
   pricingMode: CatalogItemPricingMode,
   unitPrice: number | null | undefined
@@ -598,9 +645,15 @@ function mapCustomer(row: RawCustomerRow): CustomerSummary {
     whatsapp: row.whatsapp,
     phone: row.phone,
     documentId: row.document_id,
+    isForeign: row.is_foreign ?? false,
+    passportId: row.passport_id,
+    websiteUrl: row.website_url,
+    attachmentName: row.attachment_name,
+    attachmentPath: row.attachment_path,
     notes: row.notes,
     source: row.source,
     status: row.status,
+    createdAt: row.created_at,
     updatedAt: row.updated_at
   };
 }
@@ -1114,12 +1167,118 @@ function normalizeDashboardRecipientName(value: string | null | undefined) {
   return (value ?? "").trim().toLocaleLowerCase();
 }
 
+export async function uploadCustomerAttachment(
+  tenantId: string,
+  file: File
+) {
+  const client = requireSupabaseClient();
+  const scopedTenantId = requireTenantScope(tenantId);
+  const fileExtension = file.name.includes(".")
+    ? file.name.split(".").pop()?.toLowerCase() ?? "bin"
+    : "bin";
+  const attachmentPath = `${scopedTenantId}/customers/${crypto.randomUUID()}.${fileExtension}`;
+  const { error } = await client.storage
+    .from(CUSTOMER_ATTACHMENTS_BUCKET)
+    .upload(attachmentPath, file, {
+      cacheControl: "3600",
+      upsert: false
+    });
+
+  if (error) {
+    throw error;
+  }
+
+  return attachmentPath;
+}
+
+export async function deleteCustomerAttachment(
+  attachmentPath: string | null | undefined
+) {
+  const normalizedAttachmentPath = normalizeOptionalValue(attachmentPath);
+
+  if (!normalizedAttachmentPath) {
+    return;
+  }
+
+  const client = requireSupabaseClient();
+  const { error } = await client.storage
+    .from(CUSTOMER_ATTACHMENTS_BUCKET)
+    .remove([normalizedAttachmentPath]);
+
+  if (error) {
+    throw error;
+  }
+}
+
+export async function getCustomerAttachmentSignedUrl(
+  attachmentPath: string | null | undefined
+) {
+  const normalizedAttachmentPath = normalizeOptionalValue(attachmentPath);
+
+  if (!normalizedAttachmentPath) {
+    return null;
+  }
+
+  const client = requireSupabaseClient();
+  const { data, error } = await client.storage
+    .from(CUSTOMER_ATTACHMENTS_BUCKET)
+    .createSignedUrl(normalizedAttachmentPath, 60 * 60);
+
+  if (error) {
+    return null;
+  }
+
+  return data.signedUrl;
+}
+
+export async function getCustomerBalanceSummary(
+  tenantId: string,
+  customerId: string
+): Promise<CustomerBalanceSummary[]> {
+  const client = requireSupabaseClient();
+  const scopedTenantId = requireTenantScope(tenantId);
+  const scopedCustomerId = requireRecordId(customerId, "Customer id");
+  const { data, error } = await client
+    .from("invoices")
+    .select("currency_code, grand_total, status")
+    .eq("tenant_id", scopedTenantId)
+    .eq("customer_id", scopedCustomerId)
+    .in("status", ["draft", "issued", "paid"]);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const balanceMap = new Map<string, CustomerBalanceSummary>();
+
+  for (const row of (data ?? []) as RawCustomerBalanceRow[]) {
+    const currencyCode = row.currency_code?.trim().toUpperCase() || "USD";
+    const entry = balanceMap.get(currencyCode) ?? {
+      currencyCode,
+      openAmount: 0,
+      paidAmount: 0
+    };
+    const amount = Number(row.grand_total ?? 0);
+
+    if (row.status === "paid") {
+      entry.paidAmount += amount;
+    } else {
+      entry.openAmount += amount;
+    }
+
+    balanceMap.set(currencyCode, entry);
+  }
+
+  return Array.from(balanceMap.values()).sort((left, right) =>
+    left.currencyCode.localeCompare(right.currencyCode)
+  );
+}
+
 export async function createCustomer(input: CreateCustomerInput) {
   const client = requireSupabaseClient();
   const scopedTenantId = requireTenantScope(input.tenantId);
   const payload = {
     tenant_id: scopedTenantId,
-    customer_code: normalizeOptionalValue(input.customerCode),
     display_name: input.displayName.trim(),
     contact_name: input.contactName.trim(),
     legal_name: normalizeOptionalValue(input.legalName),
@@ -1127,6 +1286,11 @@ export async function createCustomer(input: CreateCustomerInput) {
     whatsapp: normalizeOptionalValue(input.whatsapp),
     phone: normalizeOptionalValue(input.phone),
     document_id: normalizeOptionalValue(input.documentId),
+    is_foreign: Boolean(input.isForeign),
+    passport_id: normalizeOptionalValue(input.passportId),
+    website_url: normalizeWebsiteUrl(input.websiteUrl),
+    attachment_name: normalizeOptionalValue(input.attachmentName),
+    attachment_path: normalizeOptionalValue(input.attachmentPath),
     source: input.source,
     status: input.status,
     notes: normalizeOptionalValue(input.notes)
@@ -1243,7 +1407,6 @@ export async function updateCustomer(input: UpdateCustomerInput) {
   const scopedTenantId = requireTenantScope(input.tenantId);
   const scopedCustomerId = requireRecordId(input.customerId, "Customer id");
   const payload = {
-    customer_code: normalizeOptionalValue(input.customerCode),
     display_name: input.displayName.trim(),
     contact_name: input.contactName.trim(),
     legal_name: normalizeOptionalValue(input.legalName),
@@ -1251,6 +1414,11 @@ export async function updateCustomer(input: UpdateCustomerInput) {
     whatsapp: normalizeOptionalValue(input.whatsapp),
     phone: normalizeOptionalValue(input.phone),
     document_id: normalizeOptionalValue(input.documentId),
+    is_foreign: Boolean(input.isForeign),
+    passport_id: normalizeOptionalValue(input.passportId),
+    website_url: normalizeWebsiteUrl(input.websiteUrl),
+    attachment_name: normalizeOptionalValue(input.attachmentName),
+    attachment_path: normalizeOptionalValue(input.attachmentPath),
     source: input.source,
     status: input.status,
     notes: normalizeOptionalValue(input.notes)

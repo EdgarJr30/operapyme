@@ -18,7 +18,6 @@ export const customerStatusValues = [
 
 export function createCustomerFormSchema(t: TFunction<"backoffice">) {
   return z.object({
-    customerCode: z.string().max(40, t("crm.customerForm.validation.customerCodeMax")),
     displayName: z
       .string()
       .min(2, t("crm.customerForm.validation.displayNameMin"))
@@ -40,11 +39,47 @@ export function createCustomerFormSchema(t: TFunction<"backoffice">) {
     documentId: z
       .string()
       .max(60, t("crm.customerForm.validation.documentIdMax")),
+    isForeign: z.boolean(),
+    passportId: z
+      .string()
+      .max(60, t("crm.customerForm.validation.passportIdMax")),
+    websiteUrl: z
+      .string()
+      .trim()
+      .max(160, t("crm.customerForm.validation.websiteUrlMax"))
+      .refine((value) => value === "" || isWebsiteUrlValid(value), {
+        message: t("crm.customerForm.validation.websiteUrl")
+      }),
     source: z.enum(customerSourceValues),
     status: z.enum(customerStatusValues),
     notes: z.string().max(500, t("crm.customerForm.validation.notesMax"))
+  }).superRefine((value, ctx) => {
+    if (value.isForeign && value.passportId.trim().length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: t("crm.customerForm.validation.passportIdRequired"),
+        path: ["passportId"]
+      });
+    }
   });
 }
 
 export type CustomerFormValues = z.infer<ReturnType<typeof createCustomerFormSchema>>;
 
+function isWebsiteUrlValid(value: string) {
+  if (/\s/.test(value)) {
+    return false;
+  }
+
+  const normalizedValue =
+    value.startsWith("http://") || value.startsWith("https://")
+      ? value
+      : `https://${value}`;
+
+  try {
+    const url = new URL(normalizedValue);
+    return Boolean(url.hostname);
+  } catch {
+    return false;
+  }
+}

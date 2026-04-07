@@ -1,6 +1,7 @@
 import React from "react";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { vi } from "vitest";
 
 import { I18nextProvider } from "@operapyme/i18n";
@@ -26,6 +27,12 @@ vi.mock("@/modules/crm/use-customer-mutations", () => ({
   useCustomerMutations: customersPageMocks.useCustomerMutations
 }));
 
+vi.mock("@/app/auth-provider", () => ({
+  useBackofficeAuth: () => ({
+    activeTenantId: "tenant-1"
+  })
+}));
+
 vi.mock("sonner", () => ({
   toast: toastMocks
 }));
@@ -41,9 +48,15 @@ const allCustomers = [
     whatsapp: "+1 809 555 0100",
     phone: null,
     documentId: null,
+    isForeign: false,
+    passportId: null,
+    websiteUrl: null,
+    attachmentName: null,
+    attachmentPath: null,
     notes: "Cliente operativo",
     source: "whatsapp",
     status: "active",
+    createdAt: "2026-04-01T00:00:00.000Z",
     updatedAt: "2026-04-03T00:00:00.000Z"
   },
   {
@@ -56,9 +69,15 @@ const allCustomers = [
     whatsapp: null,
     phone: null,
     documentId: null,
+    isForeign: false,
+    passportId: null,
+    websiteUrl: null,
+    attachmentName: null,
+    attachmentPath: null,
     notes: null,
     source: "manual",
     status: "archived",
+    createdAt: "2026-03-30T00:00:00.000Z",
     updatedAt: "2026-04-02T00:00:00.000Z"
   }
 ];
@@ -82,11 +101,20 @@ function buildMutationState() {
 
 function renderPage() {
   const i18n = setupBackofficeI18n();
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false
+      }
+    }
+  });
 
   return render(
-    <I18nextProvider i18n={i18n}>
-      <CommercialCustomersPage />
-    </I18nextProvider>
+    <QueryClientProvider client={queryClient}>
+      <I18nextProvider i18n={i18n}>
+        <CommercialCustomersPage />
+      </I18nextProvider>
+    </QueryClientProvider>
   );
 }
 

@@ -156,6 +156,7 @@ Estamos construyendo una plataforma comercial operativa enfocada en:
 - `/settings/security` ahora funciona como zona de borrado permanente del tenant con confirmacion por slug, permiso dedicado `tenant.delete` y cleanup de cuenta via Edge Function cuando aplica
 - Gestion Comercial ya concentra leads, clientes, cotizaciones y facturas documentales internas dentro del tenant activo
 - `/commercial/customers` ya abre en vista table-first con busqueda, filtro por estado, modal reutilizable para crear/editar y archivado logico sin borrado fisico
+- `/commercial/customers` ahora genera codigos `C00001` por tenant desde base de datos, soporta `RNC / cedula`, pasaporte para extranjeros, sitio web, anexo y ficha lateral con saldo de cuenta
 - `/commercial/quotes` ya abre en vista table-first con busqueda, filtro por estado, acciones operativas desde la tabla y modal reutilizable para crear/editar sin salir del listado
 - conversion `lead -> cliente` ya corre con proteccion idempotente, deshabilita reenvios en UI y saca los leads convertidos del flujo operativo por defecto
 - cards de overview en dashboard, CRM y comercial ya usan slider interno capped para no crecer en vertical cuando aumentan los registros recientes

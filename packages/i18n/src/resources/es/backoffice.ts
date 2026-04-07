@@ -410,8 +410,12 @@ const backofficeEs = {
       noCustomersOption: "No hay clientes todavia",
       noCustomersHint:
         "Primero crea un cliente real para habilitar el flujo de actualizacion.",
-      customerCodeLabel: "Codigo interno",
-      customerCodePlaceholder: "CLI-001",
+      customerCodeLabel: "Codigo de cliente",
+      customerCodePending: "Se asigna al guardar",
+      customerCodeAutoHint:
+        "El sistema asigna el codigo automaticamente con el formato C00001.",
+      customerCodeLockedHint:
+        "Este codigo se genera una sola vez y no se puede editar.",
       displayNameLabel: "Nombre visible",
       displayNamePlaceholder: "Northline Industrial",
       contactNameLabel: "Contacto principal",
@@ -424,15 +428,29 @@ const backofficeEs = {
       whatsappPlaceholder: "+1 809 555 0186",
       phoneLabel: "Telefono alterno",
       phonePlaceholder: "+1 809 555 0140",
-      documentIdLabel: "Documento o RNC",
+      documentIdLabel: "RNC / Cedula",
       documentIdPlaceholder: "101-5555555-1",
+      isForeignLabel: "Cliente extranjero",
+      isForeignHint:
+        "Activalo cuando el cliente no use RNC o cedula local y necesite pasaporte.",
+      passportIdLabel: "Pasaporte",
+      passportIdPlaceholder: "AA1234567",
+      websiteUrlLabel: "Sitio web",
+      websiteUrlPlaceholder: "www.operapyme.com",
+      attachmentLabel: "Anexo del cliente",
+      attachmentHint:
+        "Sube un documento, contrato o soporte de referencia para esta ficha.",
+      attachmentUploadAction: "Cargar anexo",
+      attachmentReplaceAction: "Reemplazar anexo",
+      attachmentRemoveAction: "Quitar anexo",
+      attachmentOpenAction: "Abrir anexo",
+      attachmentEmpty: "Todavia no hay anexo cargado.",
       sourceLabel: "Origen",
       statusLabel: "Estado",
-      notesLabel: "Notas operativas",
+      notesLabel: "Comentarios",
       notesPlaceholder:
-        "Contexto comercial, necesidades recurrentes o detalles relevantes para seguimiento.",
+        "Contexto comercial, acuerdos o detalles relevantes para seguimiento.",
       validation: {
-        customerCodeMax: "Mantener el codigo por debajo de 40 caracteres.",
         displayNameMin: "Ingresa el nombre visible del cliente.",
         displayNameMax: "Mantener el nombre visible por debajo de 120 caracteres.",
         contactNameMin: "Ingresa el contacto principal.",
@@ -443,7 +461,12 @@ const backofficeEs = {
         whatsappMax: "Mantener el WhatsApp por debajo de 30 caracteres.",
         phoneMax: "Mantener el telefono por debajo de 30 caracteres.",
         documentIdMax: "Mantener el documento por debajo de 60 caracteres.",
-        notesMax: "Mantener las notas por debajo de 500 caracteres."
+        passportIdMax: "Mantener el pasaporte por debajo de 60 caracteres.",
+        passportIdRequired:
+          "Marca el pasaporte cuando el cliente extranjero no use RNC o cedula.",
+        websiteUrl: "Ingresa un sitio web valido o deja el campo vacio.",
+        websiteUrlMax: "Mantener el sitio web por debajo de 160 caracteres.",
+        notesMax: "Mantener los comentarios por debajo de 500 caracteres."
       }
     },
     validation: {
@@ -1067,6 +1090,7 @@ const backofficeEs = {
       noContact: "Sin correo ni WhatsApp",
       actionsLabel: "Acciones",
       createAction: "Nuevo cliente",
+      viewAction: "Ver ficha",
       editAction: "Editar",
       archiveAction: "Archivar",
       cancelAction: "Cancelar",
@@ -1085,6 +1109,20 @@ const backofficeEs = {
       editModalTitle: "Actualizar cliente",
       editModalDescription:
         "Corrige datos, estado u observaciones del cliente sin salir del listado.",
+      detailDescription:
+        "Consulta la ficha completa del cliente, su saldo abierto y los datos de soporte sin salir de la mesa operativa.",
+      detailBalanceTitle: "Saldo de cuenta",
+      detailBalanceLoading: "Estamos calculando el saldo del cliente.",
+      detailBalanceError: "No pudimos calcular el saldo ahora mismo.",
+      detailBalanceEmpty:
+        "Todavia no hay facturas documentales ligadas a este cliente.",
+      detailBalanceOpenLabel: "Saldo abierto",
+      detailBalancePaidLabel: "Pagado",
+      detailProfileTitle: "Perfil comercial",
+      detailExtraTitle: "Soporte y comentarios",
+      detailCommentsEmpty: "Todavia no hay comentarios registrados.",
+      detailBooleanYes: "Si",
+      detailBooleanNo: "No",
       filters: {
         operational: "Activos e inactivos",
         archived: "Archivados",

@@ -16,7 +16,6 @@ import {
 import type { CustomerSummary } from "@/lib/supabase/backoffice-data";
 
 export const customerFormDefaultValues: CustomerFormValues = {
-  customerCode: "",
   displayName: "",
   contactName: "",
   legalName: "",
@@ -24,6 +23,9 @@ export const customerFormDefaultValues: CustomerFormValues = {
   whatsapp: "",
   phone: "",
   documentId: "",
+  isForeign: false,
+  passportId: "",
+  websiteUrl: "",
   source: "manual",
   status: "active",
   notes: ""
@@ -33,7 +35,6 @@ export function mapCustomerToFormValues(
   customer: CustomerSummary
 ): CustomerFormValues {
   return {
-    customerCode: customer.customerCode ?? "",
     displayName: customer.displayName,
     contactName: customer.contactName ?? "",
     legalName: customer.legalName ?? "",
@@ -41,6 +42,9 @@ export function mapCustomerToFormValues(
     whatsapp: customer.whatsapp ?? "",
     phone: customer.phone ?? "",
     documentId: customer.documentId ?? "",
+    isForeign: customer.isForeign,
+    passportId: customer.passportId ?? "",
+    websiteUrl: customer.websiteUrl ?? "",
     source: toCustomerSource(customer.source),
     status: customer.status,
     notes: customer.notes ?? ""
@@ -79,21 +83,43 @@ export function toCustomerSource(
 
 export function CustomerFormFields({
   form,
-  idPrefix
+  idPrefix,
+  customerCode
 }: {
   form: UseFormReturn<CustomerFormValues>;
   idPrefix: string;
+  customerCode?: string | null;
 }) {
   const { t } = useTranslation("backoffice");
   const {
     formState: { errors },
-    register
+    register,
+    watch
   } = form;
   const autofillSection = `section-${idPrefix}-customer`;
+  const isForeign = watch("isForeign");
 
   return (
     <>
       <div className="grid gap-4 sm:grid-cols-2">
+        <Field
+          label={t("crm.customerForm.customerCodeLabel")}
+          htmlFor={`${idPrefix}-customer-code`}
+          hint={
+            customerCode
+              ? t("crm.customerForm.customerCodeLockedHint")
+              : t("crm.customerForm.customerCodeAutoHint")
+          }
+        >
+          <Input
+            id={`${idPrefix}-customer-code`}
+            value={customerCode ?? t("crm.customerForm.customerCodePending")}
+            readOnly
+            disabled
+            {...buildOperationalAutofillProps("off")}
+          />
+        </Field>
+
         <Field
           label={t("crm.customerForm.displayNameLabel")}
           error={errors.displayName?.message}
@@ -122,19 +148,6 @@ export function CustomerFormFields({
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field
-          label={t("crm.customerForm.customerCodeLabel")}
-          error={errors.customerCode?.message}
-          htmlFor={`${idPrefix}-customer-code`}
-        >
-          <Input
-            id={`${idPrefix}-customer-code`}
-            placeholder={t("crm.customerForm.customerCodePlaceholder")}
-            {...buildOperationalAutofillProps("off")}
-            {...register("customerCode")}
-          />
-        </Field>
-
         <Field
           label={t("crm.customerForm.legalNameLabel")}
           error={errors.legalName?.message}
@@ -180,6 +193,34 @@ export function CustomerFormFields({
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Field
+          label={t("crm.customerForm.documentIdLabel")}
+          error={errors.documentId?.message}
+          htmlFor={`${idPrefix}-customer-document`}
+        >
+          <Input
+            id={`${idPrefix}-customer-document`}
+            placeholder={t("crm.customerForm.documentIdPlaceholder")}
+            {...buildOperationalAutofillProps("off")}
+            {...register("documentId")}
+          />
+        </Field>
+
+        <Field
+          label={t("crm.customerForm.websiteUrlLabel")}
+          error={errors.websiteUrl?.message}
+          htmlFor={`${idPrefix}-customer-website`}
+        >
+          <Input
+            id={`${idPrefix}-customer-website`}
+            placeholder={t("crm.customerForm.websiteUrlPlaceholder")}
+            {...buildOperationalAutofillProps("url")}
+            {...register("websiteUrl")}
+          />
+        </Field>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field
           label={t("crm.customerForm.phoneLabel")}
           error={errors.phone?.message}
           htmlFor={`${idPrefix}-customer-phone`}
@@ -193,17 +234,40 @@ export function CustomerFormFields({
         </Field>
 
         <Field
-          label={t("crm.customerForm.documentIdLabel")}
-          error={errors.documentId?.message}
-          htmlFor={`${idPrefix}-customer-document`}
+          label={t("crm.customerForm.passportIdLabel")}
+          error={errors.passportId?.message}
+          htmlFor={`${idPrefix}-customer-passport`}
         >
           <Input
-            id={`${idPrefix}-customer-document`}
-            placeholder={t("crm.customerForm.documentIdPlaceholder")}
+            id={`${idPrefix}-customer-passport`}
+            placeholder={t("crm.customerForm.passportIdPlaceholder")}
+            disabled={!isForeign}
             {...buildOperationalAutofillProps("off")}
-            {...register("documentId")}
+            {...register("passportId")}
           />
         </Field>
+      </div>
+
+      <div className="rounded-3xl border border-line/70 bg-paper/70 p-4">
+        <label
+          htmlFor={`${idPrefix}-customer-is-foreign`}
+          className="flex cursor-pointer items-start gap-3"
+        >
+          <input
+            id={`${idPrefix}-customer-is-foreign`}
+            type="checkbox"
+            className="mt-1 size-4 rounded border border-line-strong text-brand focus:ring-2 focus:ring-brand/30"
+            {...register("isForeign")}
+          />
+          <span className="space-y-1">
+            <span className="block text-sm font-medium text-ink">
+              {t("crm.customerForm.isForeignLabel")}
+            </span>
+            <span className="block text-sm leading-6 text-ink-soft">
+              {t("crm.customerForm.isForeignHint")}
+            </span>
+          </span>
+        </label>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -263,17 +327,19 @@ export function CustomerFormFields({
 interface FieldProps {
   children: ReactNode;
   error?: string;
+  hint?: string;
   htmlFor: string;
   label: string;
 }
 
-function Field({ children, error, htmlFor, label }: FieldProps) {
+function Field({ children, error, hint, htmlFor, label }: FieldProps) {
   return (
     <div className="space-y-2">
       <label htmlFor={htmlFor} className="text-sm font-medium text-ink">
         {label}
       </label>
       {children}
+      {!error && hint ? <p className="text-sm text-ink-soft">{hint}</p> : null}
       {error ? <p className="text-sm text-peach-400">{error}</p> : null}
     </div>
   );

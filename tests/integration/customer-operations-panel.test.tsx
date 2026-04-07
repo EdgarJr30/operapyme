@@ -48,9 +48,15 @@ function renderPanel() {
             whatsapp: "+1 809 555 0100",
             phone: null,
             documentId: null,
+            isForeign: false,
+            passportId: null,
+            websiteUrl: null,
+            attachmentName: null,
+            attachmentPath: null,
             notes: "Cliente inicial",
             source: "manual",
             status: "active",
+            createdAt: "2026-03-20T00:00:00.000Z",
             updatedAt: "2026-03-26T00:00:00.000Z"
           }
         ]}

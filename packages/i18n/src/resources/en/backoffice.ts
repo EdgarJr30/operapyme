@@ -410,8 +410,12 @@ const backofficeEn = {
       noCustomersOption: "There are no customers yet",
       noCustomersHint:
         "Create a live customer first to unlock the update flow.",
-      customerCodeLabel: "Internal code",
-      customerCodePlaceholder: "CLI-001",
+      customerCodeLabel: "Customer code",
+      customerCodePending: "Assigned on save",
+      customerCodeAutoHint:
+        "The system assigns this code automatically using the C00001 format.",
+      customerCodeLockedHint:
+        "This code is generated once and cannot be edited.",
       displayNameLabel: "Display name",
       displayNamePlaceholder: "Northline Industrial",
       contactNameLabel: "Primary contact",
@@ -424,15 +428,29 @@ const backofficeEn = {
       whatsappPlaceholder: "+1 809 555 0186",
       phoneLabel: "Alternate phone",
       phonePlaceholder: "+1 809 555 0140",
-      documentIdLabel: "Document or tax id",
+      documentIdLabel: "RNC / ID card",
       documentIdPlaceholder: "101-5555555-1",
+      isForeignLabel: "Foreign customer",
+      isForeignHint:
+        "Turn this on when the customer does not use a local RNC or ID card and needs a passport instead.",
+      passportIdLabel: "Passport",
+      passportIdPlaceholder: "AA1234567",
+      websiteUrlLabel: "Website",
+      websiteUrlPlaceholder: "www.operapyme.com",
+      attachmentLabel: "Customer attachment",
+      attachmentHint:
+        "Upload a document, contract, or support file for this record.",
+      attachmentUploadAction: "Upload attachment",
+      attachmentReplaceAction: "Replace attachment",
+      attachmentRemoveAction: "Remove attachment",
+      attachmentOpenAction: "Open attachment",
+      attachmentEmpty: "There is no attachment yet.",
       sourceLabel: "Source",
       statusLabel: "Status",
-      notesLabel: "Operational notes",
+      notesLabel: "Comments",
       notesPlaceholder:
-        "Commercial context, recurring needs, or important follow-up details.",
+        "Commercial context, agreements, or important follow-up details.",
       validation: {
-        customerCodeMax: "Keep the code under 40 characters.",
         displayNameMin: "Enter the customer display name.",
         displayNameMax: "Keep the display name under 120 characters.",
         contactNameMin: "Enter the primary contact.",
@@ -443,7 +461,12 @@ const backofficeEn = {
         whatsappMax: "Keep the WhatsApp number under 30 characters.",
         phoneMax: "Keep the phone number under 30 characters.",
         documentIdMax: "Keep the document under 60 characters.",
-        notesMax: "Keep the notes under 500 characters."
+        passportIdMax: "Keep the passport under 60 characters.",
+        passportIdRequired:
+          "Enter the passport when the customer is marked as foreign.",
+        websiteUrl: "Enter a valid website or leave the field empty.",
+        websiteUrlMax: "Keep the website under 160 characters.",
+        notesMax: "Keep the comments under 500 characters."
       }
     },
     validation: {
@@ -1065,6 +1088,7 @@ const backofficeEn = {
       noContact: "No email or WhatsApp",
       actionsLabel: "Actions",
       createAction: "New customer",
+      viewAction: "View profile",
       editAction: "Edit",
       archiveAction: "Archive",
       cancelAction: "Cancel",
@@ -1083,6 +1107,20 @@ const backofficeEn = {
       editModalTitle: "Update customer",
       editModalDescription:
         "Correct data, status, or notes without leaving the table.",
+      detailDescription:
+        "Review the full customer profile, open balance, and support data without leaving the operating workspace.",
+      detailBalanceTitle: "Account balance",
+      detailBalanceLoading: "We are calculating the customer balance.",
+      detailBalanceError: "We could not calculate the balance right now.",
+      detailBalanceEmpty:
+        "There are no internal invoices linked to this customer yet.",
+      detailBalanceOpenLabel: "Open balance",
+      detailBalancePaidLabel: "Paid",
+      detailProfileTitle: "Commercial profile",
+      detailExtraTitle: "Support and comments",
+      detailCommentsEmpty: "There are no comments yet.",
+      detailBooleanYes: "Yes",
+      detailBooleanNo: "No",
       filters: {
         operational: "Active and inactive",
         archived: "Archived",

@@ -62,9 +62,15 @@ describe("backoffice data access", () => {
           whatsapp: "+1 809 555 0186",
           phone: "+1 809 555 0140",
           document_id: "101-5555555-1",
+          is_foreign: false,
+          passport_id: null,
+          website_url: "https://northline.test",
+          attachment_name: "ficha.pdf",
+          attachment_path: "tenant-1/customers/ficha.pdf",
           notes: "Cliente clave",
           source: "manual",
           status: "active",
+          created_at: "2026-03-20T00:00:00.000Z",
           updated_at: "2026-03-26T00:00:00.000Z"
         }
       ],
@@ -93,9 +99,15 @@ describe("backoffice data access", () => {
         whatsapp: "+1 809 555 0186",
         phone: "+1 809 555 0140",
         documentId: "101-5555555-1",
+        isForeign: false,
+        passportId: null,
+        websiteUrl: "https://northline.test",
+        attachmentName: "ficha.pdf",
+        attachmentPath: "tenant-1/customers/ficha.pdf",
         notes: "Cliente clave",
         source: "manual",
         status: "active",
+        createdAt: "2026-03-20T00:00:00.000Z",
         updatedAt: "2026-03-26T00:00:00.000Z"
       }
     ]);
@@ -114,9 +126,15 @@ describe("backoffice data access", () => {
           whatsapp: null,
           phone: null,
           document_id: null,
+          is_foreign: false,
+          passport_id: null,
+          website_url: null,
+          attachment_name: null,
+          attachment_path: null,
           notes: null,
           source: "manual",
           status: "archived",
+          created_at: "2026-03-21T00:00:00.000Z",
           updated_at: "2026-03-27T00:00:00.000Z"
         }
       ],
@@ -311,6 +329,39 @@ describe("backoffice data access", () => {
       ],
       error: null
     });
+    const customerTransactionsQuery = createThenableBuilder({
+      data: [
+        {
+          id: "invoice-1",
+          source_quote_id: null,
+          customer_id: "customer-1",
+          lead_id: null,
+          recipient_kind: "customer",
+          recipient_display_name: "Northline Industrial",
+          recipient_contact_name: "Andrea Castillo",
+          recipient_email: "sales@northline.test",
+          recipient_whatsapp: null,
+          recipient_phone: null,
+          invoice_number: "FAC-2026-000120",
+          title: "Factura Northline",
+          currency_code: "USD",
+          subtotal: "4800.00",
+          discount_total: "0.00",
+          tax_total: "0.00",
+          grand_total: "4800.00",
+          status: "issued"
+          ,
+          issued_on: null,
+          due_on: null,
+          void_reason: null,
+          notes: null,
+          reversal_of_invoice_id: null,
+          created_at: "2026-03-25T00:00:00.000Z",
+          updated_at: "2026-03-27T00:00:00.000Z"
+        }
+      ],
+      error: null
+    });
 
     supabaseMocks.from
       .mockReturnValueOnce(customerCountQuery)
@@ -318,7 +369,8 @@ describe("backoffice data access", () => {
       .mockReturnValueOnce(quoteCountQuery)
       .mockReturnValueOnce(openQuoteCountQuery)
       .mockReturnValueOnce(recentCustomersQuery)
-      .mockReturnValueOnce(recentQuotesQuery);
+      .mockReturnValueOnce(recentQuotesQuery)
+      .mockReturnValueOnce(customerTransactionsQuery);
 
     const snapshot = await getDashboardSnapshot("tenant-1");
 
@@ -327,6 +379,17 @@ describe("backoffice data access", () => {
       activeCustomerCount: 4,
       quoteCount: 3,
       openQuoteCount: 2,
+      customerTransactions: [
+        {
+          customerId: "customer-1",
+          currencyCode: "USD",
+          lastPaidAt: null,
+          lastOpenAt: "2026-03-27T00:00:00.000Z",
+          lastOpenStatus: "issued",
+          paidAmount: 0,
+          openAmount: 4800
+        }
+      ],
       recentCustomers: [
         expect.objectContaining({
           id: "customer-1",
@@ -361,9 +424,15 @@ describe("backoffice data access", () => {
         whatsapp: null,
         phone: null,
         document_id: null,
+        is_foreign: false,
+        passport_id: null,
+        website_url: null,
+        attachment_name: null,
+        attachment_path: null,
         notes: null,
         source: "manual",
         status: "active",
+        created_at: "2026-03-20T00:00:00.000Z",
         updated_at: "2026-03-26T00:00:00.000Z"
       },
       error: null
@@ -373,7 +442,6 @@ describe("backoffice data access", () => {
 
     await createCustomer({
       tenantId: "tenant-1",
-      customerCode: "   ",
       displayName: "  Northline Industrial  ",
       contactName: "  Andrea Castillo  ",
       legalName: " ",
@@ -381,6 +449,11 @@ describe("backoffice data access", () => {
       whatsapp: undefined,
       phone: "",
       documentId: " ",
+      isForeign: false,
+      passportId: " ",
+      websiteUrl: " ",
+      attachmentName: " ",
+      attachmentPath: " ",
       source: "manual",
       status: "active",
       notes: ""
@@ -388,7 +461,6 @@ describe("backoffice data access", () => {
 
     expect(customerInsertQuery.insert).toHaveBeenCalledWith({
       tenant_id: "tenant-1",
-      customer_code: null,
       display_name: "Northline Industrial",
       contact_name: "Andrea Castillo",
       legal_name: null,
@@ -396,6 +468,11 @@ describe("backoffice data access", () => {
       whatsapp: null,
       phone: null,
       document_id: null,
+      is_foreign: false,
+      passport_id: null,
+      website_url: null,
+      attachment_name: null,
+      attachment_path: null,
       source: "manual",
       status: "active",
       notes: null
@@ -414,9 +491,15 @@ describe("backoffice data access", () => {
         whatsapp: null,
         phone: null,
         document_id: null,
+        is_foreign: false,
+        passport_id: null,
+        website_url: null,
+        attachment_name: null,
+        attachment_path: null,
         notes: null,
         source: "manual",
         status: "archived",
+        created_at: "2026-03-20T00:00:00.000Z",
         updated_at: "2026-03-29T00:00:00.000Z"
       },
       error: null
