@@ -45,6 +45,7 @@ create index if not exists import_jobs_tenant_id_idx
 
 alter table public.import_jobs enable row level security;
 
+drop policy if exists "import_jobs_select" on public.import_jobs;
 create policy "import_jobs_select"
   on public.import_jobs for select
   using (
@@ -52,6 +53,7 @@ create policy "import_jobs_select"
     has_tenant_permission(tenant_id, 'catalog.read')
   );
 
+drop policy if exists "import_jobs_insert" on public.import_jobs;
 create policy "import_jobs_insert"
   on public.import_jobs for insert
   with check (
@@ -59,6 +61,7 @@ create policy "import_jobs_insert"
     has_tenant_permission(tenant_id, 'catalog.write')
   );
 
+drop policy if exists "import_jobs_update" on public.import_jobs;
 create policy "import_jobs_update"
   on public.import_jobs for update
   using (
@@ -67,6 +70,7 @@ create policy "import_jobs_update"
   );
 
 -- tracking trigger
+drop trigger if exists import_jobs_touch_tracking on public.import_jobs;
 create trigger import_jobs_touch_tracking
   before insert or update on public.import_jobs
   for each row execute function public.touch_tracking_columns();
@@ -94,6 +98,7 @@ create index if not exists import_staging_rows_job_status_idx
 
 alter table public.import_staging_rows enable row level security;
 
+drop policy if exists "import_staging_rows_select" on public.import_staging_rows;
 create policy "import_staging_rows_select"
   on public.import_staging_rows for select
   using (
@@ -101,6 +106,7 @@ create policy "import_staging_rows_select"
     has_tenant_permission(tenant_id, 'catalog.read')
   );
 
+drop policy if exists "import_staging_rows_insert" on public.import_staging_rows;
 create policy "import_staging_rows_insert"
   on public.import_staging_rows for insert
   with check (
@@ -108,6 +114,7 @@ create policy "import_staging_rows_insert"
     has_tenant_permission(tenant_id, 'catalog.write')
   );
 
+drop policy if exists "import_staging_rows_update" on public.import_staging_rows;
 create policy "import_staging_rows_update"
   on public.import_staging_rows for update
   using (
@@ -115,6 +122,7 @@ create policy "import_staging_rows_update"
     has_tenant_permission(tenant_id, 'catalog.write')
   );
 
+drop policy if exists "import_staging_rows_delete" on public.import_staging_rows;
 create policy "import_staging_rows_delete"
   on public.import_staging_rows for delete
   using (
@@ -144,6 +152,7 @@ create index if not exists import_row_errors_job_id_idx
 
 alter table public.import_row_errors enable row level security;
 
+drop policy if exists "import_row_errors_select" on public.import_row_errors;
 create policy "import_row_errors_select"
   on public.import_row_errors for select
   using (
@@ -151,6 +160,7 @@ create policy "import_row_errors_select"
     has_tenant_permission(tenant_id, 'catalog.read')
   );
 
+drop policy if exists "import_row_errors_insert" on public.import_row_errors;
 create policy "import_row_errors_insert"
   on public.import_row_errors for insert
   with check (
@@ -159,6 +169,7 @@ create policy "import_row_errors_insert"
   );
 
 -- tracking trigger
+drop trigger if exists import_row_errors_touch_tracking on public.import_row_errors;
 create trigger import_row_errors_touch_tracking
   before insert or update on public.import_row_errors
   for each row execute function public.touch_tracking_columns();

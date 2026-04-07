@@ -11,7 +11,7 @@ drop function if exists public.update_tenant_branding_settings(uuid, text, text,
 drop function if exists public.update_tenant_branding_settings(uuid, text, text, jsonb, text, text, text, text);
 drop function if exists public.update_tenant_branding_settings(uuid, text, text, jsonb, text, text, text, text, text);
 
-create function public.update_tenant_branding_settings(
+create or replace function public.update_tenant_branding_settings(
   target_tenant_id uuid,
   next_name text,
   next_palette_id text,
