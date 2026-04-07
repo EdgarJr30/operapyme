@@ -468,11 +468,11 @@ export const appRoutes: RouteObject[] = [
       },
       {
         path: "settings",
-        element: <Navigate replace to="/settings/general" />
+        element: <Navigate replace to="/settings/tenant" />
       },
       {
         path: "settings/general",
-        lazy: loadSettingsRoute
+        element: <Navigate replace to="/profile" />
       },
       {
         path: "settings/tenant",

@@ -19,6 +19,46 @@ interface QuotePdfRuntime {
 }
 
 let quotePdfRuntimePromise: Promise<QuotePdfRuntime> | null = null;
+let brandWatermarkPromise: Promise<string | null> | null = null;
+
+function loadBrandWatermark(): Promise<string | null> {
+  if (!brandWatermarkPromise) {
+    brandWatermarkPromise = (async () => {
+      try {
+        const response = await fetch("/operapyme-logo.svg");
+        const svgText = await response.text();
+        const blob = new Blob([svgText], { type: "image/svg+xml" });
+        const objectUrl = URL.createObjectURL(blob);
+        return await new Promise<string>((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            canvas.width = 960;
+            canvas.height = 260;
+            const ctx = canvas.getContext("2d");
+            if (!ctx) {
+              URL.revokeObjectURL(objectUrl);
+              reject(new Error("Canvas context unavailable"));
+              return;
+            }
+            ctx.scale(2, 2);
+            ctx.drawImage(img, 0, 0, 480, 130);
+            URL.revokeObjectURL(objectUrl);
+            resolve(canvas.toDataURL("image/png"));
+          };
+          img.onerror = () => {
+            URL.revokeObjectURL(objectUrl);
+            reject(new Error("SVG load failed"));
+          };
+          img.src = objectUrl;
+        });
+      } catch {
+        return null;
+      }
+    })();
+  }
+  return brandWatermarkPromise;
+}
 
 function loadQuotePdfRuntime() {
   if (!quotePdfRuntimePromise) {
@@ -69,9 +109,10 @@ export function QuotePdfDownloadButton({
     setIsGenerating(true);
 
     try {
-      const [quote, tenantSettings] = await Promise.all([
+      const [quote, tenantSettings, watermarkUrl] = await Promise.all([
         getQuoteDetail(activeTenantId, quoteId),
-        getTenantBrandingSettings(activeTenantId)
+        getTenantBrandingSettings(activeTenantId),
+        loadBrandWatermark()
       ]);
       const { pdf, QuotePdfDocument } = await loadQuotePdfRuntime();
       const blob = await pdf(
@@ -86,6 +127,7 @@ export function QuotePdfDownloadButton({
           issuerSecondaryPhone={tenantSettings.secondaryPhone}
           issuerWebsiteUrl={tenantSettings.websiteUrl}
           logoUrl={tenantSettings.logoUrl}
+          watermarkUrl={watermarkUrl}
           palette={palette}
           quote={quote}
         />

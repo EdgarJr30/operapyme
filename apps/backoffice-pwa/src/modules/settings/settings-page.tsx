@@ -23,7 +23,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 import { useBackofficeAuth } from "@/app/auth-provider";
-import { ThemeSwitcher } from "@/components/layout/theme-switcher";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -52,7 +51,6 @@ import { useSettingsData } from "@/modules/settings/use-settings-data";
 import { useSettingsMutations } from "@/modules/settings/use-settings-mutations";
 
 type SettingsSectionId =
-  | "general"
   | "tenant"
   | "appearance"
   | "team"
@@ -228,7 +226,7 @@ export function SettingsPage() {
   const { t } = useTranslation("backoffice");
   const navigate = useNavigate();
   const location = useLocation();
-  const { accessContext, activeTenantId, refreshAccessContext, signOut, user } =
+  const { accessContext, activeTenantId, refreshAccessContext, signOut } =
     useBackofficeAuth();
   const { customPalette, paletteId, setCustomPalette, setPaletteId } =
     useTenantTheme();
@@ -256,15 +254,13 @@ export function SettingsPage() {
       canManageMembers
   );
 
-  const { tenantSettingsQuery, tenantMembersQuery, userProfileQuery } =
+  const { tenantSettingsQuery, tenantMembersQuery } =
     useSettingsData(canManageMembers);
   const {
     deleteTenantAccountMutation,
-    updateTenantSettingsMutation,
-    updateUserProfileMutation
+    updateTenantSettingsMutation
   } =
     useSettingsMutations();
-  const [displayNameDraft, setDisplayNameDraft] = useState("");
   const [tenantNameDraft, setTenantNameDraft] = useState("");
   const [companyAddressDraft, setCompanyAddressDraft] = useState("");
   const [companyWebsiteDraft, setCompanyWebsiteDraft] = useState("");
@@ -298,14 +294,8 @@ export function SettingsPage() {
       return "security";
     }
 
-    return "general";
+    return "tenant";
   }, [location.pathname]);
-
-  useEffect(() => {
-    if (userProfileQuery.data) {
-      setDisplayNameDraft(userProfileQuery.data.displayName ?? "");
-    }
-  }, [userProfileQuery.data]);
 
   useEffect(() => {
     if (!tenantSettingsQuery.data || !activeTenantId) {
@@ -389,7 +379,6 @@ export function SettingsPage() {
       ? activeRoleKeys.map((roleKey) => t(`settings.roles.${roleKey}`)).join(" / ")
       : t("settings.roles.tenant_member");
 
-  const userProfile = userProfileQuery.data;
   const tenantSettings = tenantSettingsQuery.data;
   const members = tenantMembersQuery.data ?? [];
   const normalizedTenantNameDraft = normalizeDraft(tenantNameDraft);
@@ -403,8 +392,6 @@ export function SettingsPage() {
   const normalizedCompanyRncDraft = normalizeDraft(companyRncDraft);
   const normalizedCompanyCedulaDraft = normalizeDraft(companyCedulaDraft);
 
-  const isProfileDirty =
-    (displayNameDraft.trim() || "") !== (userProfile?.displayName?.trim() || "");
   const isTenantNameDirty = Boolean(
     tenantSettings && normalizedTenantNameDraft !== tenantSettings.name
   );
@@ -438,22 +425,6 @@ export function SettingsPage() {
   const isDeleteConfirmationValid =
     deleteConfirmationValue.length > 0 &&
     deleteConfirmationValue === deleteConfirmationSlug;
-
-  async function handleSaveProfile() {
-    try {
-      await updateUserProfileMutation.mutateAsync({
-        displayName: displayNameDraft.trim() || null
-      });
-
-      toast.success(t("settings.profile.toastTitle"), {
-        description: t("settings.profile.toastDescription")
-      });
-    } catch (error) {
-      toast.error(t("settings.profile.errorTitle"), {
-        description: getErrorMessage(error, t("settings.errors.generic"))
-      });
-    }
-  }
 
   async function handleSaveTenant() {
     if (!tenantSettings) {
@@ -777,122 +748,6 @@ export function SettingsPage() {
       </section>
       <div className="space-y-4">
         <main className="min-w-0 space-y-4">
-          {activeSection === "general" ? (
-            <section className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t("settings.profile.title")}</CardTitle>
-                  <CardDescription>
-                    {t("settings.profile.description")}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-5">
-                  {userProfileQuery.isLoading ? (
-                    <p className="text-sm leading-6 text-ink-soft">
-                      {t("settings.states.loadingDescription")}
-                    </p>
-                  ) : userProfileQuery.isError ? (
-                    <p className="text-sm leading-6 text-ink-soft">
-                      {t("settings.profile.loadError", {
-                        message:
-                          userProfileQuery.error instanceof Error
-                            ? userProfileQuery.error.message
-                            : ""
-                      })}
-                    </p>
-                  ) : (
-                    <>
-                      <div className="grid gap-4 sm:grid-cols-2">
-                        <InfoCard
-                          label={t("settings.profile.emailLabel")}
-                          value={userProfile?.email ?? user?.email ?? "-"}
-                        />
-                        <InfoCard
-                          label={t("settings.profile.roleLabel")}
-                          value={currentRoleLabel}
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <label
-                          htmlFor="settings-display-name"
-                          className="text-sm font-medium text-ink"
-                        >
-                          {t("settings.profile.displayNameLabel")}
-                        </label>
-                        <Input
-                          id="settings-display-name"
-                          value={displayNameDraft}
-                          onChange={(event) => {
-                            setDisplayNameDraft(event.target.value);
-                          }}
-                          placeholder={t("settings.profile.displayNamePlaceholder")}
-                        />
-                      </div>
-
-                      <div className="flex flex-wrap gap-3">
-                        <Button
-                          type="button"
-                          onClick={() => {
-                            void handleSaveProfile();
-                          }}
-                          disabled={
-                            !isProfileDirty || updateUserProfileMutation.isPending
-                          }
-                        >
-                          {updateUserProfileMutation.isPending
-                            ? t("settings.profile.saving")
-                            : t("settings.profile.saveAction")}
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="secondary"
-                          onClick={() => {
-                            navigate("/profile");
-                          }}
-                        >
-                          {t("settings.profile.openProfileAction")}
-                        </Button>
-                      </div>
-                    </>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t("settings.preferences.title")}</CardTitle>
-                  <CardDescription>
-                    {t("settings.preferences.description")}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-5">
-                  <div className="space-y-3 rounded-3xl border border-line/70 bg-paper p-4">
-                    <p className="text-sm font-semibold text-ink">
-                      {t("settings.preferences.themeTitle")}
-                    </p>
-                    <ThemeSwitcher />
-                    <p className="text-sm leading-6 text-ink-soft">
-                      {t("settings.preferences.themeText")}
-                    </p>
-                  </div>
-
-                  <div className="space-y-3 rounded-3xl border border-line/70 bg-paper p-4">
-                    <p className="text-sm font-semibold text-ink">
-                      {t("settings.preferences.currentTenantTitle")}
-                    </p>
-                    <p className="text-sm leading-6 text-ink-soft">
-                      {activeTenantMembership?.tenantName ?? t("settings.states.noTenantTitle")}
-                    </p>
-                    <p className="text-sm leading-6 text-ink-soft">
-                      {t("settings.preferences.currentTenantText")}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </section>
-          ) : null}
-
           {activeSection === "tenant" ? (
             tenantSettingsQuery.isLoading ? (
               <SettingsState

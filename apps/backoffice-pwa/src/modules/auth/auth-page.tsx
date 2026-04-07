@@ -9,7 +9,7 @@ import {
 import { motion } from "motion/react";
 
 import { useTranslation } from "@operapyme/i18n";
-import { Navigate } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { toast } from "sonner";
 
 import { useBackofficeAuth } from "@/app/auth-provider";
@@ -185,6 +185,15 @@ export function AuthPage() {
           className="mx-auto w-full max-w-sm lg:w-96"
         >
           <div>
+            <Link
+              to="/"
+              className="mb-6 inline-flex cursor-pointer items-center gap-1.5 text-sm text-gray-500 transition hover:text-gray-800"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+              Ir al inicio
+            </Link>
             <img alt="OperaPyme" src="/favicon.svg" className="h-10 w-auto rounded-xl" />
             <h2 className="mt-8 text-2xl font-bold tracking-tight text-gray-900">
               {entryContent.title}

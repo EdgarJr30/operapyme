@@ -17,7 +17,6 @@ import {
   Receipt,
   Settings2,
   ShieldCheck,
-  SlidersHorizontal,
   Upload,
   UserRound,
   Users,
@@ -80,7 +79,6 @@ export type ShellNavItemKey =
   | "profile"
   | "admin"
   | "settings"
-  | "settingsGeneral"
   | "settingsTenant"
   | "settingsAppearance"
   | "settingsTeam"
@@ -155,7 +153,7 @@ export const platformNavItems: ShellNavItem[] = [
     icon: BookOpenText
   },
   {
-    to: "/settings/general",
+    to: "/settings/tenant",
     key: "settings",
     icon: Settings2,
     children: [
@@ -163,11 +161,6 @@ export const platformNavItems: ShellNavItem[] = [
         to: "/profile",
         key: "profile",
         icon: UserRound
-      },
-      {
-        to: "/settings/general",
-        key: "settingsGeneral",
-        icon: SlidersHorizontal
       },
       {
         to: "/settings/tenant",
@@ -404,13 +397,6 @@ export function getRouteMeta(pathname: string): RouteMeta {
     if (pathname.startsWith("/settings/security")) {
       return {
         labelKey: "navigation.settingsSecurity",
-        descriptionKey: "shell.pageDescriptions.settings"
-      };
-    }
-
-    if (pathname.startsWith("/settings/general")) {
-      return {
-        labelKey: "navigation.settingsGeneral",
         descriptionKey: "shell.pageDescriptions.settings"
       };
     }

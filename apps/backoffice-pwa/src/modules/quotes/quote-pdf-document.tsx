@@ -26,6 +26,7 @@ export interface QuotePdfDocumentProps {
   issuerSecondaryPhone?: string | null;
   issuerWebsiteUrl?: string | null;
   logoUrl?: string | null;
+  watermarkUrl?: string | null;
   palette: ThemePaletteDefinition;
   quote: QuoteDetail;
 }
@@ -41,6 +42,7 @@ export function QuotePdfDocument({
   issuerSecondaryPhone,
   issuerWebsiteUrl,
   logoUrl,
+  watermarkUrl,
   palette,
   quote
 }: QuotePdfDocumentProps) {
@@ -66,9 +68,7 @@ export function QuotePdfDocument({
         <View style={styles.header}>
           <View style={styles.brandBlock}>
             {logoUrl && !logoUrl.toLowerCase().includes(".svg") ? (
-              <View style={styles.logoContainer}>
-                <Image style={styles.logo} src={logoUrl} />
-              </View>
+              <Image style={styles.logo} src={logoUrl} />
             ) : (
               <View style={styles.logoFallback}>
                 <Text style={styles.logoFallbackText}>
@@ -79,29 +79,31 @@ export function QuotePdfDocument({
             <View style={styles.brandCopy}>
               <Text style={styles.eyebrow}>Cotizacion comercial</Text>
               <Text style={styles.issuerName}>{issuerName}</Text>
-              {issuerAddress ? (
-                <Text style={styles.issuerMeta}>{issuerAddress}</Text>
-              ) : null}
-              {issuerPhone ? (
-                <Text style={styles.issuerMeta}>Tel: {issuerPhone}</Text>
-              ) : null}
-              {issuerSecondaryPhone ? (
-                <Text style={styles.issuerMeta}>
-                  Tel. secundario: {issuerSecondaryPhone}
-                </Text>
-              ) : null}
-              {issuerEmail ? (
-                <Text style={styles.issuerMeta}>Correo: {issuerEmail}</Text>
-              ) : null}
-              {issuerWebsiteUrl ? (
-                <Text style={styles.issuerMeta}>Web: {issuerWebsiteUrl}</Text>
-              ) : null}
-              {issuerRnc ? (
-                <Text style={styles.issuerMeta}>RNC: {issuerRnc}</Text>
-              ) : null}
-              {issuerCedula ? (
-                <Text style={styles.issuerMeta}>Cédula: {issuerCedula}</Text>
-              ) : null}
+              <View style={styles.issuerMetaGrid}>
+                {issuerAddress ? (
+                  <Text style={styles.issuerMeta}>{issuerAddress}</Text>
+                ) : null}
+                {issuerPhone ? (
+                  <Text style={styles.issuerMeta}>Tel: {issuerPhone}</Text>
+                ) : null}
+                {issuerSecondaryPhone ? (
+                  <Text style={styles.issuerMeta}>
+                    Tel 2: {issuerSecondaryPhone}
+                  </Text>
+                ) : null}
+                {issuerEmail ? (
+                  <Text style={styles.issuerMetaFull}>Correo: {issuerEmail}</Text>
+                ) : null}
+                {issuerWebsiteUrl ? (
+                  <Text style={styles.issuerMetaFull}>Web: {issuerWebsiteUrl}</Text>
+                ) : null}
+                {issuerRnc ? (
+                  <Text style={styles.issuerMeta}>RNC: {issuerRnc}</Text>
+                ) : null}
+                {issuerCedula ? (
+                  <Text style={styles.issuerMeta}>Cédula: {issuerCedula}</Text>
+                ) : null}
+              </View>
               <Text style={styles.documentTitle}>{quote.title}</Text>
             </View>
           </View>
@@ -260,9 +262,16 @@ export function QuotePdfDocument({
         {/* Document footer — always at bottom */}
         <View style={styles.docFooter} fixed>
           <View style={styles.docFooterDivider} />
-          <Text style={styles.docFooterText}>
-            Generado el {formatDateTime(generatedAt)} · OperaPyme
-          </Text>
+          <View style={styles.docFooterRow}>
+            <Text style={styles.docFooterText}>
+              Generado el {formatDateTime(generatedAt)}
+            </Text>
+            {watermarkUrl ? (
+              <Image style={styles.docFooterLogo} src={watermarkUrl} />
+            ) : (
+              <Text style={styles.docFooterText}>OperaPyme</Text>
+            )}
+          </View>
         </View>
       </Page>
     </Document>
@@ -300,20 +309,9 @@ function createStyles(palette: ThemePaletteDefinition) {
       flex: 1,
       alignItems: "flex-start"
     },
-    logoContainer: {
+    logo: {
       width: 76,
       height: 76,
-      borderRadius: 12,
-      backgroundColor: "#ffffff",
-      borderWidth: 1,
-      borderColor: palette.colors.line,
-      alignItems: "center",
-      justifyContent: "center",
-      padding: 6
-    },
-    logo: {
-      width: 64,
-      height: 64,
       objectFit: "contain"
     },
     logoFallback: {
@@ -346,10 +344,25 @@ function createStyles(palette: ThemePaletteDefinition) {
       fontWeight: 700,
       lineHeight: 1.2
     },
+    issuerMetaGrid: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      marginTop: 3,
+      rowGap: 2
+    },
     issuerMeta: {
+      width: "50%",
       color: palette.colors.inkSoft,
       fontSize: 9.5,
-      lineHeight: 1.4
+      lineHeight: 1.4,
+      paddingRight: 6
+    },
+    issuerMetaFull: {
+      width: "100%",
+      color: palette.colors.inkSoft,
+      fontSize: 9.5,
+      lineHeight: 1.4,
+      paddingRight: 6
     },
     documentTitle: {
       marginTop: 4,
@@ -439,7 +452,8 @@ function createStyles(palette: ThemePaletteDefinition) {
       marginTop: 22,
       borderWidth: 1,
       borderColor: palette.colors.line,
-      borderRadius: 14
+      borderRadius: 14,
+      overflow: "hidden"
     },
     tableHeaderRow: {
       flexDirection: "row",
@@ -555,10 +569,19 @@ function createStyles(palette: ThemePaletteDefinition) {
       height: 1,
       backgroundColor: palette.colors.line
     },
+    docFooterRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center"
+    },
     docFooterText: {
       fontSize: 8,
-      color: palette.colors.inkMuted,
-      textAlign: "center"
+      color: palette.colors.inkMuted
+    },
+    docFooterLogo: {
+      height: 14,
+      width: 52,
+      objectFit: "contain"
     }
   });
 }

@@ -19,7 +19,7 @@ const navItems = [
 
 const trustItems = [
   'Retail',
-  'Distribucion',
+  'Distribución',
   'Servicios',
   'Logistica',
   'Operaciones',
@@ -28,7 +28,7 @@ const trustItems = [
 
 const clarityPoints = [
   'Cotizaciones, clientes y seguimiento en un mismo lugar',
-  'Operacion simple para equipos pequenos y medianos',
+  'Operación simple para equipos pequeños y medianos',
   'Implementacion guiada sin complejidad de ERP pesado',
 ] as const;
 
@@ -58,9 +58,11 @@ export function PublicLandingPage() {
                 href="#"
                 className="inline-flex h-14 items-center rounded-full bg-[#2D3E50] px-5 text-white shadow-[0_12px_30px_rgba(45,62,80,0.18)]"
               >
-                <span className="mr-3 flex h-9 w-9 items-center justify-center rounded-2xl bg-white text-lg font-semibold text-[#2D3E50]">
-                  O
-                </span>
+                <img
+                  src="/favicon.svg"
+                  alt=""
+                  className="mr-3 h-9 w-9 rounded-2xl bg-white p-1.5"
+                />
                 <span className="text-[18px] font-semibold tracking-[-0.02em]">
                   OperaPyme
                 </span>
@@ -80,13 +82,13 @@ export function PublicLandingPage() {
             <div className="flex flex-wrap items-center gap-3 xl:justify-end">
               <button className="inline-flex h-12 cursor-pointer items-center gap-2 rounded-full border border-[#D9E1E8] bg-white px-4 text-[14px] font-medium text-[#2D3E50] transition hover:bg-[#F4F7F9]">
                 <Globe className="h-4 w-4" />
-                Espanol
+                Español
               </button>
               <Link
                 to="/auth"
                 className="inline-flex h-12 items-center rounded-full bg-white px-5 text-[14px] font-semibold text-[#2D3E50] transition hover:bg-[#F4F7F9]"
               >
-                Iniciar sesion
+                Iniciar sesión
               </Link>
               <Link
                 to="/auth"
@@ -117,8 +119,8 @@ export function PublicLandingPage() {
               </h1>
 
               <p className="mx-auto mt-5 max-w-140 text-[17px] leading-[1.65] tracking-[-0.015em] text-[#5D6E7E] sm:text-[18px] lg:mx-0 lg:max-w-152">
-                Centraliza ventas, inventario, tareas, facturacion y seguimiento
-                del equipo en una sola plataforma elegante, rapida y facil de
+                Centraliza ventas, inventario, tareas, facturación y seguimiento
+                del equipo en una sola plataforma elegante, rápida y fácil de
                 entender.
               </p>
 
@@ -142,11 +144,11 @@ export function PublicLandingPage() {
               <div className="mt-8 flex flex-wrap items-center justify-center gap-x-7 gap-y-3 text-[14px] text-[#5D6E7E] lg:justify-start">
                 <div className="inline-flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-[#FF7A00]" />
-                  Implementacion clara y rapida
+                  Implementación clara y rápida
                 </div>
                 <div className="inline-flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-[#FF7A00]" />
-                  Diseno simple para equipos reales
+                  Diseño simple para equipos reales
                 </div>
                 <div className="inline-flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-[#FF7A00]" />
@@ -194,7 +196,7 @@ export function PublicLandingPage() {
 
               <div className="mt-6 rounded-[26px] border border-[#D9E1E8] bg-white px-4 py-4">
                 <div className="text-[14px] font-semibold text-[#2D3E50]">
-                  Configuracion inicial clara
+                  Configuración inicial clara
                 </div>
                 <div className="mt-2 text-[14px] leading-[1.6] text-[#5D6E7E]">
                   Entras, configuras tu negocio y empiezas a operar sin navegar

@@ -1,12 +1,13 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 
-import { KeyRound, Mail, ShieldCheck, UserRound } from "lucide-react";
+import { Mail, UserRound } from "lucide-react";
 
 import { getPrimaryTenantMembership } from "@operapyme/domain";
 import { useTranslation } from "@operapyme/i18n";
 import { toast } from "sonner";
 
 import { useBackofficeAuth } from "@/app/auth-provider";
+import { ThemeSwitcher } from "@/components/layout/theme-switcher";
 import {
   Card,
   CardContent,
@@ -17,6 +18,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { StatusPill } from "@/components/ui/status-pill";
 import { Button } from "@/components/ui/button";
+import { useSettingsData } from "@/modules/settings/use-settings-data";
+import { useSettingsMutations } from "@/modules/settings/use-settings-mutations";
 
 export function ProfilePage() {
   const { t } = useTranslation("backoffice");
@@ -24,6 +27,10 @@ export function ProfilePage() {
   const [password, setPasswordValue] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [displayNameDraft, setDisplayNameDraft] = useState("");
+
+  const { userProfileQuery } = useSettingsData(false);
+  const { updateUserProfileMutation } = useSettingsMutations();
 
   const activeTenantMembership = getPrimaryTenantMembership(
     accessContext,
@@ -34,6 +41,32 @@ export function ProfilePage() {
   const roleLabel = accessContext?.isGlobalAdmin
     ? "global_admin"
     : activeTenantMembership?.tenantRoleKeys.join(", ") || "tenant_member";
+
+  const userProfile = userProfileQuery.data;
+  const isProfileDirty =
+    (displayNameDraft.trim() || "") !== (userProfile?.displayName?.trim() || "");
+
+  useEffect(() => {
+    if (userProfile) {
+      setDisplayNameDraft(userProfile.displayName ?? "");
+    }
+  }, [userProfile]);
+
+  async function handleSaveProfile() {
+    try {
+      await updateUserProfileMutation.mutateAsync({
+        displayName: displayNameDraft.trim() || null
+      });
+      toast.success(t("settings.profile.toastTitle"), {
+        description: t("settings.profile.toastDescription")
+      });
+    } catch (error) {
+      toast.error(t("settings.profile.errorTitle"), {
+        description:
+          error instanceof Error ? error.message : t("settings.errors.generic")
+      });
+    }
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -206,46 +239,94 @@ export function ProfilePage() {
         </Card>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-2">
+      <section className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
         <Card>
-          <CardContent className="space-y-3">
-            <div className="flex size-12 items-center justify-center rounded-2xl bg-sand-strong">
-              <Mail className="size-5 text-ink" />
+          <CardHeader>
+            <CardTitle>{t("settings.profile.title")}</CardTitle>
+            <CardDescription>
+              {t("settings.profile.description")}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-5">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="rounded-3xl border border-line/70 bg-paper p-4">
+                <p className="text-sm font-semibold text-ink">
+                  {t("settings.profile.emailLabel")}
+                </p>
+                <p className="mt-2 text-sm leading-6 text-ink-soft">
+                  {userProfile?.email ?? user?.email ?? "-"}
+                </p>
+              </div>
+              <div className="rounded-3xl border border-line/70 bg-paper p-4">
+                <p className="text-sm font-semibold text-ink">
+                  {t("settings.profile.roleLabel")}
+                </p>
+                <p className="mt-2 text-sm leading-6 text-ink-soft">
+                  {roleLabel}
+                </p>
+              </div>
             </div>
-            <p className="text-sm font-semibold text-ink">
-              {t("profile.methods.magicLinkTitle")}
-            </p>
-            <p className="text-sm leading-6 text-ink-soft">
-              {t("profile.methods.magicLinkText")}
-            </p>
+
+            <div className="space-y-2">
+              <label
+                htmlFor="profile-display-name"
+                className="text-sm font-medium text-ink"
+              >
+                {t("settings.profile.displayNameLabel")}
+              </label>
+              <Input
+                id="profile-display-name"
+                value={displayNameDraft}
+                onChange={(event) => {
+                  setDisplayNameDraft(event.target.value);
+                }}
+                placeholder={t("settings.profile.displayNamePlaceholder")}
+              />
+            </div>
+
+            <Button
+              type="button"
+              onClick={() => {
+                void handleSaveProfile();
+              }}
+              disabled={!isProfileDirty || updateUserProfileMutation.isPending}
+            >
+              {updateUserProfileMutation.isPending
+                ? t("settings.profile.saving")
+                : t("settings.profile.saveAction")}
+            </Button>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="space-y-3">
-            <div className="flex size-12 items-center justify-center rounded-2xl bg-sand-strong">
-              <KeyRound className="size-5 text-ink" />
+          <CardHeader>
+            <CardTitle>{t("settings.preferences.title")}</CardTitle>
+            <CardDescription>
+              {t("settings.preferences.description")}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-5">
+            <div className="space-y-3 rounded-3xl border border-line/70 bg-paper p-4">
+              <p className="text-sm font-semibold text-ink">
+                {t("settings.preferences.themeTitle")}
+              </p>
+              <ThemeSwitcher />
+              <p className="text-sm leading-6 text-ink-soft">
+                {t("settings.preferences.themeText")}
+              </p>
             </div>
-            <p className="text-sm font-semibold text-ink">
-              {t("profile.methods.passwordTitle")}
-            </p>
-            <p className="text-sm leading-6 text-ink-soft">
-              {t("profile.methods.passwordText")}
-            </p>
-          </CardContent>
-        </Card>
 
-        <Card className="md:col-span-2">
-          <CardContent className="space-y-3">
-            <div className="flex size-12 items-center justify-center rounded-2xl bg-sand-strong">
-              <ShieldCheck className="size-5 text-ink" />
+            <div className="space-y-3 rounded-3xl border border-line/70 bg-paper p-4">
+              <p className="text-sm font-semibold text-ink">
+                {t("settings.preferences.currentTenantTitle")}
+              </p>
+              <p className="text-sm leading-6 text-ink-soft">
+                {activeTenantMembership?.tenantName ?? "-"}
+              </p>
+              <p className="text-sm leading-6 text-ink-soft">
+                {t("settings.preferences.currentTenantText")}
+              </p>
             </div>
-            <p className="text-sm font-semibold text-ink">
-              {t("profile.security.title")}
-            </p>
-            <p className="text-sm leading-6 text-ink-soft">
-              {t("profile.security.description")}
-            </p>
           </CardContent>
         </Card>
       </section>
