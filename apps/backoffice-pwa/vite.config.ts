@@ -125,6 +125,16 @@ export default defineConfig(({ mode }) => {
               return "pdf-vendor";
             }
 
+            if (
+              id.includes("/xlsx/") ||
+              id.includes("/cfb/") ||
+              id.includes("/codepage/") ||
+              id.includes("/ssf/") ||
+              id.includes("/frac/")
+            ) {
+              return "spreadsheet-vendor";
+            }
+
             if (id.includes("/sonner/")) {
               return "feedback-vendor";
             }
