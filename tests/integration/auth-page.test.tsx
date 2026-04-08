@@ -68,7 +68,7 @@ describe("auth page", () => {
       screen.getAllByRole("button", { name: /Crea tu cuenta/i }).length
     ).toBeGreaterThan(0);
     expect(
-      screen.getByRole("button", { name: /^Contrasena$/i })
+      screen.getByRole("button", { name: /^Contraseña$/i })
     ).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /^Magic link$/i })
@@ -145,7 +145,7 @@ describe("auth page", () => {
       screen.getByRole("button", { name: /Enviar enlace para empezar/i })
     ).toBeInTheDocument();
     expect(
-      screen.queryByRole("button", { name: /^Contrasena$/i })
+      screen.queryByRole("button", { name: /^Contraseña$/i })
     ).not.toBeInTheDocument();
   });
 });

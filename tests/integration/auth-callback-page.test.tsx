@@ -171,19 +171,19 @@ describe("auth callback page", () => {
     renderRoute();
 
     expect(
-      await screen.findByRole("heading", { name: /Define una nueva contrasena/i })
+      await screen.findByRole("heading", { name: /Define una nueva contraseña/i })
     ).toBeInTheDocument();
 
     await user.type(
-      screen.getByLabelText(/^Nueva contrasena$/i),
+      screen.getByLabelText(/^Nueva contraseña$/i),
       "NuevaClave123"
     );
     await user.type(
-      screen.getByLabelText(/^Confirmar contrasena$/i),
+      screen.getByLabelText(/^Confirmar contraseña$/i),
       "NuevaClave123"
     );
     await user.click(
-      screen.getByRole("button", { name: /Guardar nueva contrasena/i })
+      screen.getByRole("button", { name: /Guardar nueva contraseña/i })
     );
 
     await waitFor(() => {

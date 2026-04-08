@@ -88,12 +88,16 @@ describe("dashboard page", () => {
   });
 
   it("renders live customer and quote snapshots when data is available", async () => {
+    const now = new Date();
+    const recentIso = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+
     dashboardMocks.useDashboardData.mockReturnValue({
       data: {
         customerCount: 5,
         activeCustomerCount: 4,
         quoteCount: 3,
         openQuoteCount: 2,
+        customerTransactions: [],
         recentCustomers: [
           {
             id: "customer-1",
@@ -108,7 +112,7 @@ describe("dashboard page", () => {
             notes: null,
             source: "manual",
             status: "active",
-            updatedAt: "2026-04-01T00:00:00.000Z"
+            updatedAt: recentIso
           }
         ],
         recentQuotes: [
@@ -133,8 +137,8 @@ describe("dashboard page", () => {
             version: 1,
             validUntil: null,
             notes: null,
-            createdAt: "2026-04-01T00:00:00.000Z",
-            updatedAt: "2026-04-01T00:00:00.000Z"
+            createdAt: recentIso,
+            updatedAt: recentIso
           }
         ]
       },

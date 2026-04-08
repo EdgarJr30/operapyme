@@ -3,6 +3,7 @@ import {
   render,
   screen
 } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { vi } from "vitest";
@@ -29,13 +30,22 @@ vi.mock("@/app/auth-provider", async () => {
 
 function renderRoute() {
   const i18n = setupBackofficeI18n();
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false
+      }
+    }
+  });
 
   return render(
-    <I18nextProvider i18n={i18n}>
-      <MemoryRouter>
-        <ProfilePage />
-      </MemoryRouter>
-    </I18nextProvider>
+    <QueryClientProvider client={queryClient}>
+      <I18nextProvider i18n={i18n}>
+        <MemoryRouter>
+          <ProfilePage />
+        </MemoryRouter>
+      </I18nextProvider>
+    </QueryClientProvider>
   );
 }
 
@@ -74,15 +84,15 @@ describe("profile page", () => {
     renderRoute();
 
     await user.type(
-      await screen.findByLabelText(/^Nueva contrasena$/i),
+      await screen.findByLabelText(/^Nueva contraseña$/i),
       "ClaveSegura123"
     );
     await user.type(
-      screen.getByLabelText(/^Confirmar contrasena$/i),
+      screen.getByLabelText(/^Confirmar contraseña$/i),
       "ClaveSegura123"
     );
     await user.click(
-      screen.getByRole("button", { name: /Guardar contrasena/i })
+      screen.getByRole("button", { name: /Guardar contraseña/i })
     );
 
     expect(setPassword).toHaveBeenCalledWith("ClaveSegura123");

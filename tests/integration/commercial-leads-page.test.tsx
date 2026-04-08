@@ -46,6 +46,29 @@ function createDeferredPromise() {
   };
 }
 
+function buildMutationState(overrides?: {
+  convertLeadToCustomerMutation?: {
+    isPending: boolean;
+    mutateAsync: ReturnType<typeof vi.fn>;
+  };
+}) {
+  return {
+    convertLeadToCustomerMutation:
+      overrides?.convertLeadToCustomerMutation ?? {
+        isPending: false,
+        mutateAsync: vi.fn().mockResolvedValue("customer-1")
+      },
+    createLeadMutation: {
+      isPending: false,
+      mutateAsync: vi.fn().mockResolvedValue(undefined)
+    },
+    updateLeadMutation: {
+      isPending: false,
+      mutateAsync: vi.fn().mockResolvedValue(undefined)
+    }
+  };
+}
+
 function renderPage() {
   const i18n = setupBackofficeI18n();
 
@@ -100,16 +123,7 @@ describe("commercial leads page", () => {
   });
 
   it("keeps already converted leads disabled in the table", async () => {
-    leadsPageMocks.useLeadMutations.mockReturnValue({
-      convertLeadToCustomerMutation: {
-        isPending: false,
-        mutateAsync: vi.fn().mockResolvedValue("customer-1")
-      },
-      createLeadMutation: {
-        isPending: false,
-        mutateAsync: vi.fn().mockResolvedValue(undefined)
-      }
-    });
+    leadsPageMocks.useLeadMutations.mockReturnValue(buildMutationState());
 
     renderPage();
 
@@ -124,16 +138,14 @@ describe("commercial leads page", () => {
   it("converts operational leads once and blocks repeated clicks while pending", async () => {
     const deferred = createDeferredPromise();
     const mutateAsync = vi.fn().mockReturnValue(deferred.promise);
-    leadsPageMocks.useLeadMutations.mockReturnValue({
-      convertLeadToCustomerMutation: {
-        isPending: false,
-        mutateAsync
-      },
-      createLeadMutation: {
-        isPending: false,
-        mutateAsync: vi.fn().mockResolvedValue(undefined)
-      }
-    });
+    leadsPageMocks.useLeadMutations.mockReturnValue(
+      buildMutationState({
+        convertLeadToCustomerMutation: {
+          isPending: false,
+          mutateAsync
+        }
+      })
+    );
     const user = userEvent.setup();
 
     renderPage();

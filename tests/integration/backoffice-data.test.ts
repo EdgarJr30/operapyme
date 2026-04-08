@@ -473,6 +473,7 @@ describe("backoffice data access", () => {
       website_url: null,
       attachment_name: null,
       attachment_path: null,
+      ncf_type_id: null,
       source: "manual",
       status: "active",
       notes: null
