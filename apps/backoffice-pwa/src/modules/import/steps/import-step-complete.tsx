@@ -25,14 +25,19 @@ export function ImportStepComplete({ controls }: ImportStepCompleteProps) {
   const { completeSummary, entityType, validationSummary } = state;
 
   if (!completeSummary) return null;
+  const summary = completeSummary;
 
   async function handleDownloadErrors() {
     if (!validationSummary || !entityType) return;
-    await downloadErrorReport(validationSummary.invalidRows, entityType);
+    await downloadErrorReport(
+      validationSummary.invalidRows,
+      summary.processingErrors,
+      entityType
+    );
   }
 
   const listPath = entityType ? entityListPath[entityType] : "/";
-  const hasErrors = completeSummary.rowsErrored > 0 || (validationSummary?.invalidCount ?? 0) > 0;
+  const hasErrors = summary.rowsErrored > 0 || (validationSummary?.invalidCount ?? 0) > 0;
 
   return (
     <div className="flex flex-col items-center gap-6 py-4">
@@ -50,24 +55,24 @@ export function ImportStepComplete({ controls }: ImportStepCompleteProps) {
         <CardContent>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <SummaryItem
-              value={completeSummary.rowsCreated}
-              label={t("import.complete.created", { count: completeSummary.rowsCreated })}
+              value={summary.rowsCreated}
+              label={t("import.complete.created", { count: summary.rowsCreated })}
               color="green"
             />
             <SummaryItem
-              value={completeSummary.rowsUpdated}
-              label={t("import.complete.updated", { count: completeSummary.rowsUpdated })}
+              value={summary.rowsUpdated}
+              label={t("import.complete.updated", { count: summary.rowsUpdated })}
               color="blue"
             />
             <SummaryItem
-              value={completeSummary.rowsSkipped}
-              label={t("import.complete.skipped", { count: completeSummary.rowsSkipped })}
+              value={summary.rowsSkipped}
+              label={t("import.complete.skipped", { count: summary.rowsSkipped })}
               color="yellow"
             />
             <SummaryItem
-              value={completeSummary.rowsErrored}
-              label={t("import.complete.errored", { count: completeSummary.rowsErrored })}
-              color={completeSummary.rowsErrored > 0 ? "red" : "gray"}
+              value={summary.rowsErrored}
+              label={t("import.complete.errored", { count: summary.rowsErrored })}
+              color={summary.rowsErrored > 0 ? "red" : "gray"}
             />
           </div>
         </CardContent>

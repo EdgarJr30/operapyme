@@ -7,12 +7,21 @@ interface ErrorReportRow {
   valor: string;
 }
 
+interface ProcessingErrorRow {
+  rowNumber: number;
+  field: string | null;
+  code: string;
+  message: string;
+  rowData: Record<string, string> | null;
+}
+
 /**
  * Generates and downloads a CSV error report for rows that failed validation.
  * Uses dynamic import of SheetJS to keep it out of the initial bundle.
  */
 export async function downloadErrorReport(
   invalidRows: ValidatedRow[],
+  processingErrors: ProcessingErrorRow[],
   entityType: string
 ): Promise<void> {
   const XLSX = await import("xlsx");
@@ -28,6 +37,15 @@ export async function downloadErrorReport(
         valor: err.value
       });
     }
+  }
+
+  for (const err of processingErrors) {
+    reportRows.push({
+      fila: err.rowNumber,
+      campo: err.field ?? "(procesamiento)",
+      error: err.message,
+      valor: err.rowData ? JSON.stringify(err.rowData) : ""
+    });
   }
 
   const headers = ["Fila", "Campo", "Error", "Valor Original"];

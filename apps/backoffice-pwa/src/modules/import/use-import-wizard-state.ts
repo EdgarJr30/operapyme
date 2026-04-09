@@ -14,6 +14,13 @@ export interface WizardCompleteSummary {
   rowsUpdated: number;
   rowsSkipped: number;
   rowsErrored: number;
+  processingErrors: Array<{
+    rowNumber: number;
+    field: string | null;
+    code: string;
+    message: string;
+    rowData: Record<string, string> | null;
+  }>;
 }
 
 export interface ImportWizardState {

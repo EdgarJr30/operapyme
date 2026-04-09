@@ -2189,14 +2189,16 @@ const backofficeEn = {
     upload: {
       title: "Select the file",
       description:
-        "Accepts CSV and Excel (.xlsx) files. Maximum 5 MB. The first row must contain column names.",
+        "Accepts CSV and Excel (.xlsx, .xls) files. Maximum 5 MB. The first row must contain column names.",
       dropzoneLabel: "Drag your file here or click to select",
-      dropzoneHint: "CSV or Excel, maximum 5 MB",
+      dropzoneActiveLabel: "Drop the file to upload it",
+      dropzoneHint: "CSV or Excel (.xlsx, .xls), maximum 5 MB",
+      changeFile: "Change",
       fileSelected: "{name} — {count} rows detected",
       downloadTemplate: "Download {entity} template",
       errors: {
         tooLarge: "The file exceeds the 5 MB limit.",
-        invalidFormat: "Only CSV (.csv) and Excel (.xlsx) files are accepted.",
+        invalidFormat: "Only CSV (.csv) and Excel (.xlsx, .xls) files are accepted.",
         noHeaders: "The file does not have a header row.",
         noRows: "The file is empty or only has headers.",
         parseError: "We could not read the file. Please verify it is not corrupted."

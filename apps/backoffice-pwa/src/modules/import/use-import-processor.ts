@@ -148,6 +148,7 @@ export function useImportProcessor(
       let totalUpdated = 0;
       let totalErrored = 0;
       let processedRows = 0;
+      const processingErrors: WizardCompleteSummary["processingErrors"] = [];
 
       const bulkFn = entityType === "customer"
         ? bulkUpsertCustomers
@@ -176,6 +177,16 @@ export function useImportProcessor(
           totalCreated += result.created;
           totalUpdated += result.updated;
           totalErrored += result.errors.length;
+          processingErrors.push(
+            ...result.errors.map((error) => ({
+              rowNumber: error.row_number,
+              field: error.field,
+              code: error.code,
+              message: error.message,
+              rowData:
+                allMappedRows.find((row) => row.row_number === error.row_number)?.mapped_data ?? null
+            }))
+          );
           processedRows += result.created + result.updated + result.errors.length;
 
           setProgress((p) => ({
@@ -214,7 +225,8 @@ export function useImportProcessor(
         rowsCreated: totalCreated,
         rowsUpdated: totalUpdated,
         rowsSkipped: validationResult.invalidCount,
-        rowsErrored: totalErrored
+        rowsErrored: totalErrored,
+        processingErrors
       };
 
       controls.setCompleteSummary(completeSummary);

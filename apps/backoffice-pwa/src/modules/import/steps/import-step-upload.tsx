@@ -26,12 +26,13 @@ export function ImportStepUpload({ controls, onNext }: ImportStepUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [parseError, setParseError] = useState<string | null>(null);
   const [isDownloadingTemplate, setIsDownloadingTemplate] = useState(false);
+  const [isDraggingFile, setIsDraggingFile] = useState(false);
 
-  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
+  async function processFile(file: File | null | undefined) {
     if (!file) return;
 
     setParseError(null);
+    setIsDraggingFile(false);
 
     try {
       const parsed = await parseFile(file);
@@ -43,8 +44,49 @@ export function ImportStepUpload({ controls, onNext }: ImportStepUploadProps) {
         setParseError(t("import.upload.errors.parse_error"));
       }
     }
+  }
+
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    await processFile(file);
 
     // Reset input so re-uploading same file triggers onChange
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
+  function handleFileDragEnter(e: React.DragEvent<HTMLElement>) {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingFile(true);
+  }
+
+  function handleFileDragOver(e: React.DragEvent<HTMLElement>) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isDraggingFile) setIsDraggingFile(true);
+  }
+
+  function handleFileDragLeave(e: React.DragEvent<HTMLElement>) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const relatedTarget = e.relatedTarget;
+    if (relatedTarget instanceof Node && e.currentTarget.contains(relatedTarget)) {
+      return;
+    }
+
+    setIsDraggingFile(false);
+  }
+
+  async function handleFileDrop(e: React.DragEvent<HTMLElement>) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const file = e.dataTransfer.files?.[0];
+    e.dataTransfer.clearData();
+
+    await processFile(file);
+
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
@@ -145,7 +187,18 @@ export function ImportStepUpload({ controls, onNext }: ImportStepUploadProps) {
           />
 
           {state.parsedFile ? (
-            <div className="flex items-center gap-3 rounded-xl border border-line bg-surface p-4">
+            <div
+              className={[
+                "flex items-center gap-3 rounded-xl border p-4 transition-colors",
+                isDraggingFile
+                  ? "border-accent bg-accent/5"
+                  : "border-line bg-surface"
+              ].join(" ")}
+              onDragEnter={handleFileDragEnter}
+              onDragOver={handleFileDragOver}
+              onDragLeave={handleFileDragLeave}
+              onDrop={handleFileDrop}
+            >
               <FileSpreadsheet className="size-5 shrink-0 text-accent" aria-hidden />
               <div className="flex flex-col">
                 <span className="text-sm font-medium text-ink">{state.parsedFile.fileName}</span>
@@ -161,18 +214,33 @@ export function ImportStepUpload({ controls, onNext }: ImportStepUploadProps) {
                 onClick={() => fileInputRef.current?.click()}
                 className="ml-auto cursor-pointer text-xs text-ink-muted underline hover:text-ink"
               >
-                Cambiar
+                {t("import.upload.changeFile")}
               </button>
             </div>
           ) : (
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="flex h-24 w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-line bg-surface text-sm text-ink-soft transition-colors hover:border-accent/50 hover:text-ink"
+              onDragEnter={handleFileDragEnter}
+              onDragOver={handleFileDragOver}
+              onDragLeave={handleFileDragLeave}
+              onDrop={handleFileDrop}
+              className={[
+                "flex h-24 w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed text-sm transition-colors",
+                isDraggingFile
+                  ? "border-accent bg-accent/5 text-ink"
+                  : "border-line bg-surface text-ink-soft hover:border-accent/50 hover:text-ink"
+              ].join(" ")}
             >
               <Upload className="size-5" aria-hidden />
-              <span>{t("import.upload.dropzoneLabel")}</span>
-              <span className="text-xs text-ink-muted">{t("import.upload.dropzoneHint")}</span>
+              <span>
+                {isDraggingFile
+                  ? t("import.upload.dropzoneActiveLabel")
+                  : t("import.upload.dropzoneLabel")}
+              </span>
+              {!isDraggingFile && (
+                <span className="text-xs text-ink-muted">{t("import.upload.dropzoneHint")}</span>
+              )}
             </button>
           )}
 

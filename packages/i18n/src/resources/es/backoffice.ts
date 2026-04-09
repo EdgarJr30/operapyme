@@ -2190,14 +2190,16 @@ const backofficeEs = {
     upload: {
       title: "Selecciona el archivo",
       description:
-        "Acepta archivos CSV y Excel (.xlsx). Maximo 5 MB. La primera fila debe contener los nombres de columnas.",
+        "Acepta archivos CSV y Excel (.xlsx, .xls). Maximo 5 MB. La primera fila debe contener los nombres de columnas.",
       dropzoneLabel: "Arrastra tu archivo aqui o haz clic para seleccionarlo",
-      dropzoneHint: "CSV o Excel, maximo 5 MB",
+      dropzoneActiveLabel: "Suelta el archivo para cargarlo",
+      dropzoneHint: "CSV o Excel (.xlsx, .xls), maximo 5 MB",
+      changeFile: "Cambiar",
       fileSelected: "{name} — {count} filas detectadas",
       downloadTemplate: "Descargar plantilla de {entity}",
       errors: {
         tooLarge: "El archivo supera el limite de 5 MB.",
-        invalidFormat: "Solo se aceptan archivos CSV (.csv) y Excel (.xlsx).",
+        invalidFormat: "Solo se aceptan archivos CSV (.csv) y Excel (.xlsx, .xls).",
         noHeaders: "El archivo no tiene fila de encabezados.",
         noRows: "El archivo esta vacio o solo tiene encabezados.",
         parseError: "No pudimos leer el archivo. Verifica que no este corrupto."
