@@ -13,6 +13,7 @@ import {
   applyMapping
 } from "../lib/column-mapping";
 import { getEntityFields } from "../lib/entity-field-definitions";
+import { normalizeMappedRow } from "../lib/normalize-mapped-row";
 import type { ImportWizardControls } from "../use-import-wizard-state";
 
 interface ImportStepMappingProps {
@@ -50,11 +51,11 @@ export function ImportStepMapping({ controls, onNext, onBack }: ImportStepMappin
   const totalHeaders = parsedFile?.headers.length ?? 0;
 
   const previewRows = useMemo(() => {
-    if (!parsedFile) return [];
+    if (!parsedFile || !entityType) return [];
     return parsedFile.rows
       .slice(0, PREVIEW_ROW_COUNT)
-      .map((row) => applyMapping(row, columnMapping));
-  }, [parsedFile, columnMapping]);
+      .map((row) => normalizeMappedRow(entityType, applyMapping(row, columnMapping)));
+  }, [parsedFile, entityType, columnMapping]);
 
   const mappedFields = fields.filter((f) =>
     Object.values(columnMapping).includes(f.key)

@@ -584,7 +584,7 @@ const backofficeEn = {
         nameMin: "Enter the item display name.",
         nameMax: "Keep the name under 120 characters.",
         categoryMax: "Keep the category under 80 characters.",
-        descriptionMax: "Keep the description under 240 characters.",
+        descriptionMax: "Keep the description under 2000 characters.",
         currencyCode: "Use a 3-letter currency code.",
         unitPriceRequired:
           "Enter a base price or switch the item to on-request pricing.",
@@ -988,7 +988,7 @@ const backofficeEn = {
         lineItemNameMax:
           "Keep the line item name under 160 characters.",
         lineItemDescriptionMax:
-          "Keep the line item description under 500 characters.",
+          "Keep the line item description under 2000 characters.",
         quantity: "Quantity must be greater than zero.",
         unitLabelMax: "Keep the unit label under 40 characters.",
         unitPrice: "Unit price cannot be negative.",

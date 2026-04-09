@@ -20,12 +20,17 @@ vi.mock("xlsx", () => ({
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function makeFile(name: string, sizeBytes: number, content = ""): File {
+function makeFile(
+  name: string,
+  sizeBytes: number,
+  content = "",
+  bufferFactory?: () => ArrayBuffer
+): File {
   const blob = new Blob([content.padEnd(sizeBytes, " ")], { type: "text/plain" });
   const file = new File([blob], name);
   // jsdom does not implement File.arrayBuffer(); provide a minimal stub
   (file as unknown as { arrayBuffer: () => Promise<ArrayBuffer> }).arrayBuffer = () =>
-    Promise.resolve(new ArrayBuffer(sizeBytes));
+    Promise.resolve(bufferFactory ? bufferFactory() : new ArrayBuffer(sizeBytes));
   return file;
 }
 
@@ -65,6 +70,30 @@ describe("parseFile – format validation", () => {
       const file = makeFile(`import${ext}`, 200, "a,b\n1,2");
       await expect(parseFile(file)).resolves.toBeDefined();
     }
+  });
+
+  it("decodes CSV text before handing it to SheetJS", async () => {
+    const csvContent = "nombre,descripcion\nCafe,Servicio con acentos y ñ";
+    const bytes = new TextEncoder().encode(csvContent);
+    const file = makeFile("utf8.csv", bytes.byteLength, csvContent, () => bytes.buffer);
+
+    await parseFile(file);
+
+    expect(mockRead).toHaveBeenCalledWith(
+      csvContent,
+      expect.objectContaining({ type: "string" })
+    );
+  });
+
+  it("keeps binary parsing for Excel workbooks", async () => {
+    const file = makeFile("workbook.xlsx", 200);
+
+    await parseFile(file);
+
+    expect(mockRead).toHaveBeenCalledWith(
+      expect.any(ArrayBuffer),
+      expect.objectContaining({ type: "array" })
+    );
   });
 });
 

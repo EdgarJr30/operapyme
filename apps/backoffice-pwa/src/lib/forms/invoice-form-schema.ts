@@ -25,7 +25,7 @@ export function createInvoiceFormSchema(t: TFunction<"backoffice">) {
       .max(160, t("quotes.form.validation.lineItemNameMax")),
     itemDescription: z
       .string()
-      .max(500, t("quotes.form.validation.lineItemDescriptionMax")),
+      .max(2000, t("quotes.form.validation.lineItemDescriptionMax")),
     quantity: z.number().positive(t("quotes.form.validation.quantity")),
     unitLabel: z
       .string()

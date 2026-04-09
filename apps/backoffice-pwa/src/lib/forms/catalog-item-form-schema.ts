@@ -34,7 +34,7 @@ export function createCatalogItemFormSchema(t: TFunction<"backoffice">) {
       category: z.string().max(80, t("catalog.form.validation.categoryMax")),
       description: z
         .string()
-        .max(240, t("catalog.form.validation.descriptionMax")),
+        .max(2000, t("catalog.form.validation.descriptionMax")),
       kind: z.enum(catalogItemKindValues),
       visibility: z.enum(catalogItemVisibilityValues),
       pricingMode: z.enum(catalogItemPricingModeValues),

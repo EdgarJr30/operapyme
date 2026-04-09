@@ -1,5 +1,6 @@
 import type { EntityFieldDef, ImportEntityType } from "./entity-field-definitions";
 import { entityFieldMap, entityCodeKey } from "./entity-field-definitions";
+import { normalizeMappedRow } from "./normalize-mapped-row";
 
 export interface RowValidationError {
   field: string;
@@ -134,7 +135,7 @@ export function validateRows(
 
   for (let i = 0; i < rows.length; i++) {
     const rowNumber = i + 1;
-    const rowData = rows[i];
+    const rowData = normalizeMappedRow(entityType, rows[i]);
     const errors: RowValidationError[] = [];
 
     // Phase 1: field-level validation

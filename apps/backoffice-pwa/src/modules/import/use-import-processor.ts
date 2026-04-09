@@ -15,6 +15,7 @@ import {
 } from "./import-data";
 import type { ImportWizardControls, WizardCompleteSummary } from "./use-import-wizard-state";
 import { applyMapping } from "./lib/column-mapping";
+import { normalizeMappedRow } from "./lib/normalize-mapped-row";
 import { validateRows, toStagingValidationPayload } from "./lib/validate-rows";
 import type { ImportEntityType } from "./lib/entity-field-definitions";
 
@@ -113,7 +114,7 @@ export function useImportProcessor(
       const allMappedRows = parsedFile.rows.map((row, i) => ({
         row_number: i + 1,
         raw_data: row,
-        mapped_data: applyMapping(row, state.columnMapping)
+        mapped_data: normalizeMappedRow(entityType, applyMapping(row, state.columnMapping))
       }));
 
       await insertStagingRows(tenantId, job.id, allMappedRows);

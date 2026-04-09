@@ -102,6 +102,17 @@ describe("validateRows – enum field", () => {
     expect(validateRows([catalogRow({ kind: "service" })], "catalog_item").validCount).toBe(1);
   });
 
+  it("normalizes Producto/Servicio to canonical catalog kinds", () => {
+    const result = validateRows(
+      [catalogRow({ kind: "Producto" }), catalogRow({ kind: "servicio" })],
+      "catalog_item"
+    );
+
+    expect(result.validCount).toBe(2);
+    expect(result.validRows[0].data.kind).toBe("product");
+    expect(result.validRows[1].data.kind).toBe("service");
+  });
+
   it("rejects invalid catalog_item kind", () => {
     const result = validateRows([catalogRow({ kind: "goods" })], "catalog_item");
     expect(result.invalidCount).toBe(1);
@@ -138,6 +149,12 @@ describe("validateRows – maxLength", () => {
     const result = validateRows([customerRow({ notes: longNotes })], "customer");
     expect(result.invalidCount).toBe(1);
     expect(result.invalidRows[0].errors[0].code).toBe("too_long");
+  });
+
+  it("accepts catalog descriptions up to 2000 characters", () => {
+    const longDescription = "D".repeat(2000);
+    const result = validateRows([catalogRow({ description: longDescription })], "catalog_item");
+    expect(result.validCount).toBe(1);
   });
 });
 

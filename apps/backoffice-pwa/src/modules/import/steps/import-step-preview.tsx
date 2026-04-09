@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { applyMapping } from "../lib/column-mapping";
+import { normalizeMappedRow } from "../lib/normalize-mapped-row";
 import { validateRows } from "../lib/validate-rows";
 import type { RowValidationError } from "../lib/validate-rows";
 import type { ImportWizardControls } from "../use-import-wizard-state";
@@ -26,7 +27,10 @@ export function ImportStepPreview({ controls, onNext, onBack }: ImportStepPrevie
 
   const mappedRows = useMemo(() => {
     if (!state.parsedFile || !state.entityType) return [];
-    return state.parsedFile.rows.map((row) => applyMapping(row, state.columnMapping));
+    const { entityType } = state;
+    return state.parsedFile.rows.map((row) =>
+      normalizeMappedRow(entityType, applyMapping(row, state.columnMapping))
+    );
   }, [state.parsedFile, state.columnMapping, state.entityType]);
 
   // Run validation once on mount or when returning to this step

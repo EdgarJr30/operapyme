@@ -247,7 +247,7 @@ export const catalogItemFields: EntityFieldDef[] = [
     labelEn: "Description",
     type: "text",
     required: false,
-    maxLength: 500,
+    maxLength: 2000,
     exampleEs: "Servicio mensual de mantenimiento preventivo",
     exampleEn: "Monthly preventive maintenance service"
   },

@@ -22,6 +22,39 @@ export class ParseFileException extends Error {
 const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
 const ACCEPTED_EXTENSIONS = [".csv", ".xlsx", ".xls"];
 
+function stripUtf8Bom(value: string): string {
+  return value.replace(/^\uFEFF/, "");
+}
+
+function getMojibakeScore(value: string): number {
+  const replacementCharacters = (value.match(/\uFFFD/g) ?? []).length;
+  const suspiciousSequences = (value.match(/(?:Ã.|Â.|â.|√.)/g) ?? []).length;
+  return replacementCharacters * 10 + suspiciousSequences * 4;
+}
+
+function decodeCsvBuffer(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+
+  if (bytes.length >= 3 && bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf) {
+    return stripUtf8Bom(new TextDecoder("utf-8").decode(bytes));
+  }
+
+  const candidates: Array<{ text: string; score: number }> = [];
+
+  try {
+    const utf8 = stripUtf8Bom(new TextDecoder("utf-8", { fatal: true }).decode(bytes));
+    candidates.push({ text: utf8, score: getMojibakeScore(utf8) });
+  } catch {
+    // Ignore and try the legacy spreadsheet fallback below.
+  }
+
+  const windows1252 = stripUtf8Bom(new TextDecoder("windows-1252").decode(bytes));
+  candidates.push({ text: windows1252, score: getMojibakeScore(windows1252) });
+
+  candidates.sort((left, right) => left.score - right.score);
+  return candidates[0]?.text ?? "";
+}
+
 function getExtension(fileName: string): string {
   const dot = fileName.lastIndexOf(".");
   return dot === -1 ? "" : fileName.slice(dot).toLowerCase();
@@ -49,12 +82,17 @@ export async function parseFile(file: File): Promise<ParsedFile> {
 
   let workbook: ReturnType<typeof XLSX.read>;
   try {
-    workbook = XLSX.read(arrayBuffer, {
-      type: "array",
-      codepage: 65001, // UTF-8
-      raw: false,
-      dateNF: "yyyy-mm-dd"
-    });
+    workbook = ext === ".csv"
+      ? XLSX.read(decodeCsvBuffer(arrayBuffer), {
+          type: "string",
+          raw: false,
+          dateNF: "yyyy-mm-dd"
+        })
+      : XLSX.read(arrayBuffer, {
+          type: "array",
+          raw: false,
+          dateNF: "yyyy-mm-dd"
+        });
   } catch {
     throw new ParseFileException("parse_error");
   }
