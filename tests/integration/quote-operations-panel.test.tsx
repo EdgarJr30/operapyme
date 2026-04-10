@@ -142,6 +142,23 @@ function renderManagePanel() {
   );
 }
 
+async function completeRecipientStepAsCustomer(user: ReturnType<typeof userEvent.setup>) {
+  await user.selectOptions(screen.getByLabelText(/Tipo de receptor/i), "customer");
+  await user.type(screen.getByLabelText(/^Cliente$/i), "Northline");
+  await user.click(await screen.findByRole("button", { name: /Northline Industrial/i }));
+  await user.click(screen.getByRole("button", { name: /^Siguiente paso$/i }));
+}
+
+async function completeRecipientStepAsAdHoc(
+  user: ReturnType<typeof userEvent.setup>,
+  recipient = "Prospecto urgente"
+) {
+  const recipientInput = screen.getByLabelText(/Empresa o referencia/i);
+  await user.clear(recipientInput);
+  await user.type(recipientInput, recipient);
+  await user.click(screen.getByRole("button", { name: /^Siguiente paso$/i }));
+}
+
 describe("quote operations panel", () => {
   it("submits a live quote create mutation", async () => {
     const mutationState = buildMutationState();
@@ -195,7 +212,7 @@ describe("quote operations panel", () => {
 
     renderCreatePanel();
 
-    await user.click(screen.getByRole("button", { name: /^Siguiente paso$/i }));
+    await completeRecipientStepAsCustomer(user);
 
     await user.type(screen.getByLabelText(/Titulo/i), "Propuesta de soporte");
     await user.clear(screen.getByLabelText(/Descuento global %/i));
@@ -240,7 +257,7 @@ describe("quote operations panel", () => {
 
     renderCreatePanel();
 
-    await user.click(screen.getByRole("button", { name: /^Siguiente paso$/i }));
+    await completeRecipientStepAsAdHoc(user, "Prospecto decimal");
     await user.type(screen.getByLabelText(/Titulo/i), "Cotizacion decimal");
     await user.clear(screen.getByLabelText(/Descuento global %/i));
     await user.type(screen.getByLabelText(/Descuento global %/i), "10");
@@ -306,7 +323,7 @@ describe("quote operations panel", () => {
 
     renderCreatePanel();
 
-    await user.click(screen.getByRole("button", { name: /^Siguiente paso$/i }));
+    await completeRecipientStepAsAdHoc(user, "Prospecto dual");
     await user.type(screen.getByLabelText(/Titulo/i), "Cotizacion con descuento dual");
     await user.click(screen.getByRole("button", { name: /^Siguiente paso$/i }));
 
@@ -353,7 +370,7 @@ describe("quote operations panel", () => {
 
     renderCreatePanel();
 
-    await user.click(screen.getByRole("button", { name: /^Siguiente paso$/i }));
+    await completeRecipientStepAsAdHoc(user, "Prospecto global");
     await user.type(
       screen.getByLabelText(/Titulo/i),
       "Cotizacion con descuento global"
@@ -418,9 +435,9 @@ describe("quote operations panel", () => {
 
     await user.click(screen.getByRole("button", { name: /Guardar cotizacion/i }));
 
-    expect(await screen.findByLabelText(/Titulo/i)).toBeInTheDocument();
+    expect(await screen.findByLabelText(/Empresa o referencia/i)).toBeInTheDocument();
     expect(
-      screen.getAllByText(/Ingresa un titulo para la cotizacion/i).length
+      screen.getAllByText(/Ingresa la empresa o referencia del receptor/i).length
     ).toBeGreaterThan(0);
     expect(
       mutationState.createQuoteMutation.mutateAsync
@@ -451,10 +468,10 @@ describe("quote operations panel", () => {
     await user.clear(emailInput);
     await user.type(emailInput, "urgente@test.com");
 
-    await user.click(screen.getAllByRole("button", { name: /Documento/i })[0]!);
+    await user.click(screen.getByRole("button", { name: /^Siguiente paso$/i }));
     await user.type(await screen.findByLabelText(/Titulo/i), "Cotizacion express");
 
-    await user.click(screen.getAllByRole("button", { name: /Lineas/i })[0]!);
+    await user.click(screen.getByRole("button", { name: /^Siguiente paso$/i }));
     await user.type(
       await screen.findByLabelText(/Nombre del servicio o producto/i),
       "Paquete express"
