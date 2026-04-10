@@ -2174,42 +2174,10 @@ function QuoteFormFields({
 }
 
 function buildCreateDefaults(
-  customers: CustomerSummary[],
-  leads: LeadSummary[]
+  _customers: CustomerSummary[],
+  _leads: LeadSummary[]
 ): QuoteFormValues {
-  const firstCustomer = customers[0] ?? null;
-  const firstLead = leads[0] ?? null;
-
-  if (firstCustomer) {
-    return {
-      ...buildEmptyQuoteDefaults(),
-      recipientKind: "customer",
-      customerId: firstCustomer.id,
-      recipientDisplayName: firstCustomer.displayName,
-      recipientContactName: firstCustomer.contactName ?? "",
-      recipientEmail: firstCustomer.email ?? "",
-      recipientWhatsApp: firstCustomer.whatsapp ?? "",
-      recipientPhone: firstCustomer.phone ?? ""
-    };
-  }
-
-  if (firstLead) {
-    return {
-      ...buildEmptyQuoteDefaults(),
-      recipientKind: "lead",
-      leadId: firstLead.id,
-      recipientDisplayName: firstLead.displayName,
-      recipientContactName: firstLead.contactName ?? "",
-      recipientEmail: firstLead.email ?? "",
-      recipientWhatsApp: firstLead.whatsapp ?? "",
-      recipientPhone: firstLead.phone ?? ""
-    };
-  }
-
-  return {
-    ...buildEmptyQuoteDefaults(),
-    recipientKind: "ad_hoc"
-  };
+  return buildEmptyQuoteDefaults();
 }
 
 function buildEmptyLineItem() {
