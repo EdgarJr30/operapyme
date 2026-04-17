@@ -48,6 +48,9 @@ const companyProfileMigrationPath = path.resolve(
 const tenantBankDetailsMigrationPath = path.resolve(
   "supabase/migrations/20260416120000_add_tenant_bank_details.sql"
 );
+const bankAccountsArrayMigrationPath = path.resolve(
+  "supabase/migrations/20260417000001_bank_accounts_array.sql"
+);
 const discountApplicationModeMigrationPath = path.resolve(
   "supabase/migrations/20260416153000_discount_application_mode_for_quotes_and_invoices.sql"
 );
@@ -307,6 +310,16 @@ describe("supabase foundation contracts", () => {
     expect(migration).toContain("next_bank_account text default '__KEEP__'");
     expect(migration).toContain("public.tenants.bank");
     expect(migration).toContain("public.tenants.bank_account");
+  });
+
+  it("migrates bank details to a jsonb array column for multiple accounts", () => {
+    const migration = fs.readFileSync(bankAccountsArrayMigrationPath, "utf8");
+
+    expect(migration).toContain("add column if not exists bank_accounts jsonb");
+    expect(migration).toContain("drop column if exists bank");
+    expect(migration).toContain("drop column if exists bank_account");
+    expect(migration).toContain("next_bank_accounts jsonb default null");
+    expect(migration).toContain("public.tenants.bank_accounts");
   });
 
   it("adds explicit discount application mode to quotes and invoices", () => {

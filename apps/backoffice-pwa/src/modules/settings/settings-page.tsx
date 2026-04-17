@@ -10,7 +10,9 @@ import {
 import {
   AlertTriangle,
   ImageUp,
-  Trash2
+  Plus,
+  Trash2,
+  X
 } from "lucide-react";
 import {
   getPrimaryTenantMembership,
@@ -43,6 +45,7 @@ import { StatusPill } from "@/components/ui/status-pill";
 import { Textarea } from "@/components/ui/textarea";
 import { AccessDeniedPage } from "@/modules/auth/access-denied-page";
 import { TenantPaletteSection } from "@/modules/settings/tenant-palette-section";
+import type { BankAccount } from "@/lib/supabase/settings-data";
 import {
   deleteTenantLogo,
   uploadTenantLogo
@@ -263,8 +266,7 @@ export function SettingsPage() {
     useSettingsMutations();
   const [tenantNameDraft, setTenantNameDraft] = useState("");
   const [companyAddressDraft, setCompanyAddressDraft] = useState("");
-  const [companyBankDraft, setCompanyBankDraft] = useState("");
-  const [companyBankAccountDraft, setCompanyBankAccountDraft] = useState("");
+  const [bankAccountsDraft, setBankAccountsDraft] = useState<BankAccount[]>([]);
   const [companyWebsiteDraft, setCompanyWebsiteDraft] = useState("");
   const [companyEmailDraft, setCompanyEmailDraft] = useState("");
   const [companyPhoneDraft, setCompanyPhoneDraft] = useState("");
@@ -306,8 +308,7 @@ export function SettingsPage() {
 
     setTenantNameDraft(tenantSettingsQuery.data.name);
     setCompanyAddressDraft(tenantSettingsQuery.data.address ?? "");
-    setCompanyBankDraft(tenantSettingsQuery.data.bank ?? "");
-    setCompanyBankAccountDraft(tenantSettingsQuery.data.bankAccount ?? "");
+    setBankAccountsDraft(tenantSettingsQuery.data.bankAccounts);
     setCompanyWebsiteDraft(tenantSettingsQuery.data.websiteUrl ?? "");
     setCompanyEmailDraft(tenantSettingsQuery.data.email ?? "");
     setCompanyPhoneDraft(tenantSettingsQuery.data.phone ?? "");
@@ -337,8 +338,7 @@ export function SettingsPage() {
   }, [
     activeTenantId,
     setCompanyAddressDraft,
-    setCompanyBankAccountDraft,
-    setCompanyBankDraft,
+    setBankAccountsDraft,
     setCompanyEmailDraft,
     setCompanyPhoneDraft,
     setCompanySecondaryPhoneDraft,
@@ -389,8 +389,6 @@ export function SettingsPage() {
   const members = tenantMembersQuery.data ?? [];
   const normalizedTenantNameDraft = normalizeDraft(tenantNameDraft);
   const normalizedCompanyAddressDraft = normalizeDraft(companyAddressDraft);
-  const normalizedCompanyBankDraft = normalizeDraft(companyBankDraft);
-  const normalizedCompanyBankAccountDraft = normalizeDraft(companyBankAccountDraft);
   const normalizedCompanyWebsiteDraft = normalizeDraft(companyWebsiteDraft);
   const normalizedCompanyEmailDraft = normalizeDraft(companyEmailDraft);
   const normalizedCompanyPhoneDraft = normalizeDraft(companyPhoneDraft);
@@ -406,9 +404,7 @@ export function SettingsPage() {
   const isCompanyFieldsDirty = Boolean(
     tenantSettings &&
       (normalizedCompanyAddressDraft !== (tenantSettings.address ?? "") ||
-        normalizedCompanyBankDraft !== (tenantSettings.bank ?? "") ||
-        normalizedCompanyBankAccountDraft !==
-          (tenantSettings.bankAccount ?? "") ||
+        JSON.stringify(bankAccountsDraft) !== JSON.stringify(tenantSettings.bankAccounts) ||
         normalizedCompanyWebsiteDraft !== (tenantSettings.websiteUrl ?? "") ||
         normalizedCompanyEmailDraft !== (tenantSettings.email ?? "") ||
         normalizedCompanyPhoneDraft !== (tenantSettings.phone ?? "") ||
@@ -535,8 +531,7 @@ export function SettingsPage() {
       await updateTenantSettingsMutation.mutateAsync({
         name: normalizedTenantNameDraft,
         address: normalizedCompanyAddressDraft,
-        bank: normalizedCompanyBankDraft || null,
-        bankAccount: normalizedCompanyBankAccountDraft || null,
+        bankAccounts: bankAccountsDraft.filter((e) => e.bank.trim() || e.account.trim()),
         websiteUrl: normalizedCompanyWebsiteDraft || null,
         email: normalizedCompanyEmailDraft || null,
         phone: normalizedCompanyPhoneDraft,
@@ -581,8 +576,7 @@ export function SettingsPage() {
       await updateTenantSettingsMutation.mutateAsync({
         name: tenantSettings.name,
         address: tenantSettings.address,
-        bank: tenantSettings.bank,
-        bankAccount: tenantSettings.bankAccount,
+        bankAccounts: tenantSettings.bankAccounts,
         websiteUrl: tenantSettings.websiteUrl,
         email: tenantSettings.email,
         phone: tenantSettings.phone,
@@ -863,42 +857,104 @@ export function SettingsPage() {
                           />
                         </div>
 
-                        <div className="grid gap-4 sm:grid-cols-2">
-                          <div className="space-y-2">
-                            <label
-                              htmlFor="settings-company-bank"
-                              className="text-sm font-medium text-ink"
-                            >
-                              {t("settings.company.bankLabel")}
-                            </label>
-                            <Input
-                              id="settings-company-bank"
-                              value={companyBankDraft}
-                              disabled={!canEditTenant}
-                              onChange={(event) => {
-                                setCompanyBankDraft(event.target.value);
-                              }}
-                              placeholder={t("settings.company.bankPlaceholder")}
-                            />
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-ink">
+                              {t("settings.company.bankAccountsSectionLabel")}
+                            </span>
+                            {canEditTenant && (
+                              <Button
+                                type="button"
+                                variant="secondary"
+                                size="sm"
+                                className="gap-1.5 cursor-pointer"
+                                onClick={() => {
+                                  setBankAccountsDraft((prev) => [
+                                    ...prev,
+                                    { bank: "", account: "" }
+                                  ]);
+                                }}
+                              >
+                                <Plus className="size-3.5" />
+                                {t("settings.company.addBankAccountButton")}
+                              </Button>
+                            )}
                           </div>
 
-                          <div className="space-y-2">
-                            <label
-                              htmlFor="settings-company-bank-account"
-                              className="text-sm font-medium text-ink"
-                            >
-                              {t("settings.company.bankAccountLabel")}
-                            </label>
-                            <Input
-                              id="settings-company-bank-account"
-                              value={companyBankAccountDraft}
-                              disabled={!canEditTenant}
-                              onChange={(event) => {
-                                setCompanyBankAccountDraft(event.target.value);
-                              }}
-                              placeholder={t("settings.company.bankAccountPlaceholder")}
-                            />
-                          </div>
+                          {bankAccountsDraft.length > 0 && (
+                            <div className="space-y-2">
+                              {bankAccountsDraft.map((entry, index) => (
+                                <div key={index} className="grid gap-2 sm:grid-cols-2 relative">
+                                  <div className="space-y-1">
+                                    <label
+                                      htmlFor={`settings-bank-name-${index}`}
+                                      className="text-xs font-medium text-ink-muted"
+                                    >
+                                      {t("settings.company.bankLabel")}
+                                    </label>
+                                    <Input
+                                      id={`settings-bank-name-${index}`}
+                                      value={entry.bank}
+                                      disabled={!canEditTenant}
+                                      onChange={(event) => {
+                                        setBankAccountsDraft((prev) =>
+                                          prev.map((e, i) =>
+                                            i === index
+                                              ? { ...e, bank: event.target.value }
+                                              : e
+                                          )
+                                        );
+                                      }}
+                                      placeholder={t("settings.company.bankPlaceholder")}
+                                    />
+                                  </div>
+                                  <div className="space-y-1">
+                                    <label
+                                      htmlFor={`settings-bank-account-${index}`}
+                                      className="text-xs font-medium text-ink-muted"
+                                    >
+                                      {t("settings.company.bankAccountLabel")}
+                                    </label>
+                                    <div className="flex gap-2">
+                                      <Input
+                                        id={`settings-bank-account-${index}`}
+                                        value={entry.account}
+                                        disabled={!canEditTenant}
+                                        onChange={(event) => {
+                                          setBankAccountsDraft((prev) =>
+                                            prev.map((e, i) =>
+                                              i === index
+                                                ? { ...e, account: event.target.value }
+                                                : e
+                                            )
+                                          );
+                                        }}
+                                        placeholder={t("settings.company.bankAccountPlaceholder")}
+                                      />
+                                      {canEditTenant && (
+                                        <Button
+                                          type="button"
+                                          variant="ghost"
+                                          className="shrink-0 h-11 w-11 text-ink-muted hover:text-destructive cursor-pointer"
+                                          aria-label={t("settings.company.removeBankAccountButton")}
+                                          onClick={() => {
+                                            setBankAccountsDraft((prev) =>
+                                              prev.filter((_, i) => i !== index)
+                                            );
+                                          }}
+                                        >
+                                          <X className="size-4" />
+                                        </Button>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="grid gap-4 sm:grid-cols-2">
 
                           <div className="space-y-2">
                             <label

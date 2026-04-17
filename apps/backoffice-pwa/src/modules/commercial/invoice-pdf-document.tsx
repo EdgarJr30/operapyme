@@ -21,8 +21,7 @@ import {
 export interface InvoicePdfDocumentProps {
   generatedAt: string;
   issuerAddress?: string | null;
-  issuerBank?: string | null;
-  issuerBankAccount?: string | null;
+  issuerBankAccounts?: Array<{ bank: string; account: string }> | null;
   issuerCedula?: string | null;
   issuerEmail?: string | null;
   issuerName: string;
@@ -39,8 +38,7 @@ export interface InvoicePdfDocumentProps {
 export function InvoicePdfDocument({
   generatedAt,
   issuerAddress,
-  issuerBank,
-  issuerBankAccount,
+  issuerBankAccounts,
   issuerCedula,
   issuerEmail,
   issuerName,
@@ -330,26 +328,24 @@ export function InvoicePdfDocument({
           </View>
         </View>
 
-        {issuerBank || issuerBankAccount ? (
+        {issuerBankAccounts && issuerBankAccounts.length > 0 ? (
           <View style={styles.bankDetailsSection} wrap={false}>
             <Text style={styles.bankDetailsTitle}>
               Cuentas para transferencias bancarias
             </Text>
             <View style={styles.bankDetailsTable}>
-              <View style={styles.bankDetailsRow}>
-                <View style={[styles.bankDetailsCell, styles.bankDetailsBankCell]}>
-                  <Text style={styles.bankDetailsLabel}>Banco</Text>
-                  <Text style={styles.bankDetailsValue}>
-                    {issuerBank ?? "No especificado"}
-                  </Text>
+              {issuerBankAccounts.map((entry, index) => (
+                <View key={index} style={styles.bankDetailsRow}>
+                  <View style={[styles.bankDetailsCell, styles.bankDetailsBankCell]}>
+                    <Text style={styles.bankDetailsLabel}>Banco</Text>
+                    <Text style={styles.bankDetailsValue}>{entry.bank}</Text>
+                  </View>
+                  <View style={styles.bankDetailsCell}>
+                    <Text style={styles.bankDetailsLabel}>Cuenta</Text>
+                    <Text style={styles.bankDetailsValue}>{entry.account}</Text>
+                  </View>
                 </View>
-                <View style={styles.bankDetailsCell}>
-                  <Text style={styles.bankDetailsLabel}>Cuenta</Text>
-                  <Text style={styles.bankDetailsValue}>
-                    {issuerBankAccount ?? "No especificada"}
-                  </Text>
-                </View>
-              </View>
+              ))}
             </View>
           </View>
         ) : null}

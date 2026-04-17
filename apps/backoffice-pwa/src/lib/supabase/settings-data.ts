@@ -21,14 +21,18 @@ export interface SettingsUserProfile {
   updatedAt: string;
 }
 
+export interface BankAccount {
+  bank: string;
+  account: string;
+}
+
 export interface TenantBrandingSettings {
   id: string;
   name: string;
   slug: string;
   status: "active" | "inactive" | "suspended";
   address: string | null;
-  bank: string | null;
-  bankAccount: string | null;
+  bankAccounts: BankAccount[];
   websiteUrl: string | null;
   email: string | null;
   phone: string | null;
@@ -67,8 +71,7 @@ interface RawTenantBrandingSettings {
   slug: string;
   status: "active" | "inactive" | "suspended";
   address: string | null;
-  bank: string | null;
-  bank_account: string | null;
+  bank_accounts: Array<{ bank: string; account: string }>;
   website_url: string | null;
   email: string | null;
   phone: string | null;
@@ -102,8 +105,7 @@ export interface UpdateTenantBrandingSettingsInput {
   tenantId: string;
   name: string;
   address: string | null;
-  bank: string | null;
-  bankAccount: string | null;
+  bankAccounts: BankAccount[];
   websiteUrl: string | null;
   email: string | null;
   phone: string | null;
@@ -235,8 +237,7 @@ async function mapTenantBrandingSettings(
     slug: row.slug,
     status: row.status,
     address: normalizeOptionalText(row.address),
-    bank: normalizeOptionalText(row.bank),
-    bankAccount: normalizeOptionalText(row.bank_account),
+    bankAccounts: Array.isArray(row.bank_accounts) ? row.bank_accounts : [],
     websiteUrl: normalizeOptionalText(row.website_url),
     email: normalizeOptionalText(row.email),
     phone: normalizeOptionalText(row.phone),
@@ -322,7 +323,7 @@ export async function getTenantBrandingSettings(
   const { data, error } = await resolvedClient
     .from("tenants")
     .select(
-      "id, name, slug, status, address, bank, bank_account, website_url, email, phone, secondary_phone, rnc, cedula, logo_path, palette_id, palette_seed_colors, created_at, updated_at"
+      "id, name, slug, status, address, bank_accounts, website_url, email, phone, secondary_phone, rnc, cedula, logo_path, palette_id, palette_seed_colors, created_at, updated_at"
     )
     .eq("id", tenantId)
     .single();
@@ -351,8 +352,7 @@ export async function updateTenantBrandingSettings(
       target_tenant_id: input.tenantId,
       next_name: input.name.trim(),
       next_address: input.address?.trim() ?? "",
-      next_bank: input.bank?.trim() ?? "",
-      next_bank_account: input.bankAccount?.trim() ?? "",
+      next_bank_accounts: input.bankAccounts,
       next_website_url: input.websiteUrl?.trim() ?? "",
       next_email: input.email?.trim() ?? "",
       next_phone: input.phone?.trim() ?? "",

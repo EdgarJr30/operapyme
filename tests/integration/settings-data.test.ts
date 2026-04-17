@@ -56,8 +56,7 @@ describe("settings data access", () => {
         slug: "operapyme-demo",
         status: "active",
         address: "Av. 27 de Febrero 12, Santo Domingo",
-        bank: "Banco Popular Dominicano",
-        bank_account: "001234567890",
+        bank_accounts: [{ bank: "Banco Popular Dominicano", account: "001234567890" }],
         website_url: "operapyme.com",
         email: "hola@operapyme.com",
         phone: "+1 809 555 0140",
@@ -96,8 +95,7 @@ describe("settings data access", () => {
       slug: "operapyme-demo",
       status: "active",
       address: "Av. 27 de Febrero 12, Santo Domingo",
-      bank: "Banco Popular Dominicano",
-      bankAccount: "001234567890",
+      bankAccounts: [{ bank: "Banco Popular Dominicano", account: "001234567890" }],
       websiteUrl: "operapyme.com",
       email: "hola@operapyme.com",
       phone: "+1 809 555 0140",
@@ -122,8 +120,7 @@ describe("settings data access", () => {
           slug: "northline-industrial",
           status: "active",
           address: "Av. Sarasota 10",
-          bank: "Banreservas",
-          bank_account: "1234567890",
+          bank_accounts: [{ bank: "Banreservas", account: "1234567890" }],
           website_url: "northline.do",
           email: "operaciones@northline.do",
           phone: "+1 829 555 0102",
@@ -144,8 +141,7 @@ describe("settings data access", () => {
       tenantId: "tenant-1",
       name: "Northline Industrial",
       address: "Av. Sarasota 10",
-      bank: "Banreservas",
-      bankAccount: "1234567890",
+      bankAccounts: [{ bank: "Banreservas", account: "1234567890" }],
       websiteUrl: "northline.do",
       email: "operaciones@northline.do",
       phone: "+1 829 555 0102",
@@ -163,8 +159,7 @@ describe("settings data access", () => {
         target_tenant_id: "tenant-1",
         next_name: "Northline Industrial",
         next_address: "Av. Sarasota 10",
-        next_bank: "Banreservas",
-        next_bank_account: "1234567890",
+        next_bank_accounts: [{ bank: "Banreservas", account: "1234567890" }],
         next_website_url: "northline.do",
         next_email: "operaciones@northline.do",
         next_phone: "+1 829 555 0102",
@@ -177,8 +172,7 @@ describe("settings data access", () => {
       }
     );
     expect(settings.address).toBe("Av. Sarasota 10");
-    expect(settings.bank).toBe("Banreservas");
-    expect(settings.bankAccount).toBe("1234567890");
+    expect(settings.bankAccounts).toEqual([{ bank: "Banreservas", account: "1234567890" }]);
     expect(settings.websiteUrl).toBe("northline.do");
     expect(settings.email).toBe("operaciones@northline.do");
     expect(settings.phone).toBe("+1 829 555 0102");
