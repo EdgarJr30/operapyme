@@ -120,6 +120,8 @@ export function InvoicePdfDownloadButton({
           generatedAt={new Date().toISOString()}
           invoice={invoice}
           issuerAddress={tenantSettings.address}
+          issuerBank={tenantSettings.bank}
+          issuerBankAccount={tenantSettings.bankAccount}
           issuerCedula={tenantSettings.cedula}
           issuerEmail={tenantSettings.email}
           issuerName={tenantSettings.name || activeTenantName}

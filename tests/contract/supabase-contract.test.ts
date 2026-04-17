@@ -45,6 +45,9 @@ const importModuleMigrationPath = path.resolve(
 const companyProfileMigrationPath = path.resolve(
   "supabase/migrations/20260406110000_company_profile_and_logo_assets.sql"
 );
+const tenantBankDetailsMigrationPath = path.resolve(
+  "supabase/migrations/20260416120000_add_tenant_bank_details.sql"
+);
 
 describe("supabase foundation contracts", () => {
   it("creates the required secure foundation tables", () => {
@@ -290,5 +293,16 @@ describe("supabase foundation contracts", () => {
       "create or replace function public.update_tenant_branding_settings"
     );
     expect(migration).toContain("next_logo_path text default '__KEEP__'");
+  });
+
+  it("adds bank details to tenant settings and document printing data", () => {
+    const migration = fs.readFileSync(tenantBankDetailsMigrationPath, "utf8");
+
+    expect(migration).toContain("add column if not exists bank text");
+    expect(migration).toContain("add column if not exists bank_account text");
+    expect(migration).toContain("next_bank text default '__KEEP__'");
+    expect(migration).toContain("next_bank_account text default '__KEEP__'");
+    expect(migration).toContain("public.tenants.bank");
+    expect(migration).toContain("public.tenants.bank_account");
   });
 });

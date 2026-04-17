@@ -18,6 +18,8 @@ import {
 export interface InvoicePdfDocumentProps {
   generatedAt: string;
   issuerAddress?: string | null;
+  issuerBank?: string | null;
+  issuerBankAccount?: string | null;
   issuerCedula?: string | null;
   issuerEmail?: string | null;
   issuerName: string;
@@ -34,6 +36,8 @@ export interface InvoicePdfDocumentProps {
 export function InvoicePdfDocument({
   generatedAt,
   issuerAddress,
+  issuerBank,
+  issuerBankAccount,
   issuerCedula,
   issuerEmail,
   issuerName,
@@ -93,6 +97,14 @@ export function InvoicePdfDocument({
                 ) : null}
                 {issuerEmail ? (
                   <Text style={styles.issuerMetaFull}>Correo: {issuerEmail}</Text>
+                ) : null}
+                {issuerBank ? (
+                  <Text style={styles.issuerMeta}>Banco: {issuerBank}</Text>
+                ) : null}
+                {issuerBankAccount ? (
+                  <Text style={styles.issuerMetaFull}>
+                    Cuenta bancaria: {issuerBankAccount}
+                  </Text>
                 ) : null}
                 {issuerWebsiteUrl ? (
                   <Text style={styles.issuerMetaFull}>Web: {issuerWebsiteUrl}</Text>

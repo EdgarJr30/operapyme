@@ -58,6 +58,7 @@ Para magic link y recovery en produccion, `VITE_PUBLIC_SITE_URL` debe apuntar a 
 - `dashboard`, `commercial` y `catalog` ya consumen lecturas reales desde Supabase con React Query
 - `commercial` y `catalog` ya incluyen formularios reales de create/update sobre `customers`, `leads`, `quotes`, `invoices`, `catalog_items` y sus line items
 - `customers` ahora genera el codigo del cliente en base de datos con formato `C00001` por tenant, y la ficha comercial ya soporta `RNC / cedula`, pasaporte para extranjeros, sitio web, anexo y saldo en una vista lateral
+- `settings` de empresa ahora tambien guarda `Banco` y `Cuenta bancaria` por tenant, y esos datos viajan a las cotizaciones y facturas documentales impresas en PDF
 - las mutaciones siguen limitadas al tenant activo y dejan auditoria via triggers de base
 - `catalog` ya modela oferta comercial reusable con `product` o `service`, visibilidad `public/private`, pricing `fixed/on_request` y estados `active/draft/archived`
 - `quotes` ya delega la numeracion y el incremento de version a RPCs de Supabase para evitar inconsistencias por concurrencia

@@ -263,6 +263,8 @@ export function SettingsPage() {
     useSettingsMutations();
   const [tenantNameDraft, setTenantNameDraft] = useState("");
   const [companyAddressDraft, setCompanyAddressDraft] = useState("");
+  const [companyBankDraft, setCompanyBankDraft] = useState("");
+  const [companyBankAccountDraft, setCompanyBankAccountDraft] = useState("");
   const [companyWebsiteDraft, setCompanyWebsiteDraft] = useState("");
   const [companyEmailDraft, setCompanyEmailDraft] = useState("");
   const [companyPhoneDraft, setCompanyPhoneDraft] = useState("");
@@ -304,6 +306,8 @@ export function SettingsPage() {
 
     setTenantNameDraft(tenantSettingsQuery.data.name);
     setCompanyAddressDraft(tenantSettingsQuery.data.address ?? "");
+    setCompanyBankDraft(tenantSettingsQuery.data.bank ?? "");
+    setCompanyBankAccountDraft(tenantSettingsQuery.data.bankAccount ?? "");
     setCompanyWebsiteDraft(tenantSettingsQuery.data.websiteUrl ?? "");
     setCompanyEmailDraft(tenantSettingsQuery.data.email ?? "");
     setCompanyPhoneDraft(tenantSettingsQuery.data.phone ?? "");
@@ -333,6 +337,8 @@ export function SettingsPage() {
   }, [
     activeTenantId,
     setCompanyAddressDraft,
+    setCompanyBankAccountDraft,
+    setCompanyBankDraft,
     setCompanyEmailDraft,
     setCompanyPhoneDraft,
     setCompanySecondaryPhoneDraft,
@@ -383,6 +389,8 @@ export function SettingsPage() {
   const members = tenantMembersQuery.data ?? [];
   const normalizedTenantNameDraft = normalizeDraft(tenantNameDraft);
   const normalizedCompanyAddressDraft = normalizeDraft(companyAddressDraft);
+  const normalizedCompanyBankDraft = normalizeDraft(companyBankDraft);
+  const normalizedCompanyBankAccountDraft = normalizeDraft(companyBankAccountDraft);
   const normalizedCompanyWebsiteDraft = normalizeDraft(companyWebsiteDraft);
   const normalizedCompanyEmailDraft = normalizeDraft(companyEmailDraft);
   const normalizedCompanyPhoneDraft = normalizeDraft(companyPhoneDraft);
@@ -398,6 +406,9 @@ export function SettingsPage() {
   const isCompanyFieldsDirty = Boolean(
     tenantSettings &&
       (normalizedCompanyAddressDraft !== (tenantSettings.address ?? "") ||
+        normalizedCompanyBankDraft !== (tenantSettings.bank ?? "") ||
+        normalizedCompanyBankAccountDraft !==
+          (tenantSettings.bankAccount ?? "") ||
         normalizedCompanyWebsiteDraft !== (tenantSettings.websiteUrl ?? "") ||
         normalizedCompanyEmailDraft !== (tenantSettings.email ?? "") ||
         normalizedCompanyPhoneDraft !== (tenantSettings.phone ?? "") ||
@@ -524,6 +535,8 @@ export function SettingsPage() {
       await updateTenantSettingsMutation.mutateAsync({
         name: normalizedTenantNameDraft,
         address: normalizedCompanyAddressDraft,
+        bank: normalizedCompanyBankDraft || null,
+        bankAccount: normalizedCompanyBankAccountDraft || null,
         websiteUrl: normalizedCompanyWebsiteDraft || null,
         email: normalizedCompanyEmailDraft || null,
         phone: normalizedCompanyPhoneDraft,
@@ -568,6 +581,8 @@ export function SettingsPage() {
       await updateTenantSettingsMutation.mutateAsync({
         name: tenantSettings.name,
         address: tenantSettings.address,
+        bank: tenantSettings.bank,
+        bankAccount: tenantSettings.bankAccount,
         websiteUrl: tenantSettings.websiteUrl,
         email: tenantSettings.email,
         phone: tenantSettings.phone,
@@ -849,6 +864,42 @@ export function SettingsPage() {
                         </div>
 
                         <div className="grid gap-4 sm:grid-cols-2">
+                          <div className="space-y-2">
+                            <label
+                              htmlFor="settings-company-bank"
+                              className="text-sm font-medium text-ink"
+                            >
+                              {t("settings.company.bankLabel")}
+                            </label>
+                            <Input
+                              id="settings-company-bank"
+                              value={companyBankDraft}
+                              disabled={!canEditTenant}
+                              onChange={(event) => {
+                                setCompanyBankDraft(event.target.value);
+                              }}
+                              placeholder={t("settings.company.bankPlaceholder")}
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <label
+                              htmlFor="settings-company-bank-account"
+                              className="text-sm font-medium text-ink"
+                            >
+                              {t("settings.company.bankAccountLabel")}
+                            </label>
+                            <Input
+                              id="settings-company-bank-account"
+                              value={companyBankAccountDraft}
+                              disabled={!canEditTenant}
+                              onChange={(event) => {
+                                setCompanyBankAccountDraft(event.target.value);
+                              }}
+                              placeholder={t("settings.company.bankAccountPlaceholder")}
+                            />
+                          </div>
+
                           <div className="space-y-2">
                             <label
                               htmlFor="settings-company-website"
