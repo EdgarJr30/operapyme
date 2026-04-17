@@ -104,6 +104,14 @@ Motivos:
 - soporte para imagenes y SVG, util para logo y branding
 - encaja mejor con React 19 que un enfoque imperativo de canvas o HTML-to-PDF
 
+Criterio visual vigente para documentos comerciales:
+
+- cotizaciones y facturas deben compartir un lenguaje visual consistente
+- el bloque de receptor debe priorizar densidad legible, no cards sobredimensionadas
+- la columna de detalle debe recibir el mayor ancho util de la tabla
+- notas, resumen y total no deben quedar partidos visualmente al final de una pagina si una composicion mas compacta razonable permite mantenerlos juntos
+- el PDF debe sentirse listo para enviar sin rehacer maquetacion manual
+
 Version instalada en el workspace durante esta tarea: `@react-pdf/renderer@^4.3.2`.
 
 ### UX del builder
