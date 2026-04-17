@@ -899,6 +899,17 @@ const backofficeEs = {
       documentDiscountTitle: "Descuento global del documento",
       documentDiscountDescription:
         "Aplica un ajuste general a la cotizacion completa despues de los descuentos por linea.",
+      discountApplicationModeLabel: "Modo de calculo",
+      discountApplicationModes: {
+        before_tax: "Estandar: descuento antes de impuesto",
+        after_tax: "Ajuste comercial: descuento sobre total con impuesto"
+      },
+      discountApplicationModeHints: {
+        before_tax:
+          "Este modo descuenta primero la base y luego recalcula el impuesto sobre el monto restante.",
+        after_tax:
+          "Este modo conserva el impuesto original y aplica el descuento comercial sobre el total con impuesto."
+      },
       documentDiscountPercentLabel: "Descuento global %",
       documentDiscountAmountLabel: "Descuento global fijo",
       documentDiscountHint:
@@ -937,8 +948,12 @@ const backofficeEs = {
       subtotalSummaryLabel: "Subtotal",
       lineDiscountSummaryLabel: "Descuentos por linea",
       documentDiscountSummaryLabel: "Descuento global",
+      commercialDiscountSummaryLabel: "Descuento comercial",
       discountSummaryLabel: "Descuentos",
+      taxableBaseSummaryLabel: "Base imponible",
+      totalBeforeDiscountSummaryLabel: "Total antes de descuento",
       taxSummaryLabel: "Impuestos",
+      totalPayableSummaryLabel: "Total a pagar",
       notesLabel: "Notas",
       notesPlaceholder:
         "Terminos comerciales, condiciones de entrega o aclaraciones internas.",

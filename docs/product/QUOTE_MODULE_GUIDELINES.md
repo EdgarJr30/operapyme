@@ -111,7 +111,11 @@ Criterio visual vigente para documentos comerciales:
 - la columna de detalle debe recibir el mayor ancho util de la tabla
 - notas, resumen y total no deben quedar partidos visualmente al final de una pagina si una composicion mas compacta razonable permite mantenerlos juntos
 - los datos bancarios del emisor deben vivir en un bloque propio al pie del documento, no mezclados dentro del header
-- los descuentos visibles en PDF y en resúmenes operativos deben mostrarse como porcentaje cuando ese porcentaje pueda derivarse del dato persistido
+- los descuentos visibles en PDF y en resúmenes operativos deben mostrarse con monto visible y porcentaje entre parentesis, no solo con porcentaje
+- cotizaciones y facturas deben exponer un `modo de calculo` explicito por documento: `before_tax` o `after_tax`
+- en `before_tax`, el descuento global reduce la base imponible y luego se recalcula el impuesto
+- en `after_tax`, primero se muestra el impuesto completo y luego se aplica el descuento comercial sobre el total con impuesto
+- el PDF no debe imprimir el nombre tecnico del modo; debe imprimir el desglose exacto segun el orden real del calculo
 - el PDF debe sentirse listo para enviar sin rehacer maquetacion manual
 
 Version instalada en el workspace durante esta tarea: `@react-pdf/renderer@^4.3.2`.
@@ -125,7 +129,9 @@ Version instalada en el workspace durante esta tarea: `@react-pdf/renderer@^4.3.
 - cuando se elige cliente o lead, el formulario hidrata el snapshot documental y permite ajustarlo
 - en line items, descuento % y descuento fijo conviven en la misma fila con sincronizacion bidireccional y porcentaje como base operativa
 - el builder permite ademas un descuento global en cabecera para el documento completo, con porcentaje como base y monto fijo sincronizado
-- el descuento global se calcula sobre el subtotal neto despues de los descuentos por linea, antes del total final del documento
+- el descuento global siempre se calcula sobre el subtotal neto despues de los descuentos por linea
+- el usuario debe elegir de forma explicita si ese descuento global se aplica `antes de impuesto` o `sobre total con impuesto`
+- el resumen operativo y el PDF deben cambiar su desglose segun ese modo, sin decisiones silenciosas del sistema
 - el PDF se genera bajo demanda desde una cotizacion ya guardada
 
 ## Alcance de esta iteracion

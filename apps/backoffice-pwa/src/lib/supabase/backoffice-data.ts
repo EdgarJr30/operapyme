@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { supabase } from "@/lib/supabase/client";
+import type { DiscountApplicationMode } from "@/lib/forms/quote-line-discounts";
 
 const CUSTOMER_ATTACHMENTS_BUCKET = "customer-attachments";
 const QUOTE_ATTACHMENTS_BUCKET = "quote-attachments";
@@ -135,6 +136,7 @@ export interface QuoteSummary {
   quoteNumber: string;
   title: string;
   currencyCode: string;
+  discountApplicationMode: DiscountApplicationMode;
   subtotal: number;
   discountTotal: number;
   taxTotal: number;
@@ -170,6 +172,7 @@ export interface InvoiceSummary {
   title: string;
   documentKind: SalesDocumentKind;
   currencyCode: string;
+  discountApplicationMode: DiscountApplicationMode;
   subtotal: number;
   discountTotal: number;
   taxTotal: number;
@@ -331,6 +334,7 @@ interface RawQuoteRow {
   quote_number: string;
   title: string;
   currency_code: string;
+  discount_application_mode: DiscountApplicationMode;
   subtotal: number | string;
   discount_total: number | string;
   tax_total: number | string;
@@ -363,6 +367,7 @@ interface RawInvoiceRow {
   title: string;
   document_kind: SalesDocumentKind;
   currency_code: string;
+  discount_application_mode: DiscountApplicationMode;
   subtotal: number | string;
   discount_total: number | string;
   tax_total: number | string;
@@ -495,6 +500,7 @@ export interface CreateQuoteInput {
   title: string;
   status: QuoteStatus;
   currencyCode: string;
+  discountApplicationMode: DiscountApplicationMode;
   documentDiscountTotal: number;
   issuedOn?: string | null;
   attachmentName?: string | null;
@@ -532,6 +538,7 @@ export interface CreateInvoiceInput {
   documentKind: SalesDocumentKind;
   status: InvoiceStatus;
   currencyCode: string;
+  discountApplicationMode: DiscountApplicationMode;
   documentDiscountTotal: number;
   notes?: string | null;
   issuedOn?: string | null;
@@ -556,6 +563,7 @@ export interface UpdateInvoiceInput {
   title: string;
   documentKind: SalesDocumentKind;
   currencyCode: string;
+  discountApplicationMode: DiscountApplicationMode;
   recipientKind: QuoteRecipientKind;
   customerId?: string | null;
   leadId?: string | null;
@@ -603,12 +611,12 @@ const quoteLineSelectFields =
   "id, catalog_item_id, item_code, sort_order, item_name, item_description, quantity, unit_label, unit_price, discount_total, tax_total, line_subtotal, line_total";
 
 const quoteSelectFields =
-  "id, customer_id, lead_id, recipient_kind, recipient_display_name, recipient_contact_name, recipient_email, recipient_whatsapp, recipient_phone, quote_number, title, currency_code, subtotal, discount_total, tax_total, grand_total, status, version, issued_on, valid_until, attachment_name, attachment_path, cancellation_reason, notes, created_at, updated_at";
+  "id, customer_id, lead_id, recipient_kind, recipient_display_name, recipient_contact_name, recipient_email, recipient_whatsapp, recipient_phone, quote_number, title, currency_code, discount_application_mode, subtotal, discount_total, tax_total, grand_total, status, version, issued_on, valid_until, attachment_name, attachment_path, cancellation_reason, notes, created_at, updated_at";
 
 const quoteDetailSelectFields = `${quoteSelectFields}, line_items:quote_line_items(${quoteLineSelectFields})`;
 
 const invoiceSelectFields =
-  "id, source_quote_id, customer_id, lead_id, recipient_kind, recipient_display_name, recipient_contact_name, recipient_email, recipient_whatsapp, recipient_phone, invoice_number, title, document_kind, currency_code, subtotal, discount_total, tax_total, grand_total, status, issued_on, due_on, void_reason, notes, reversal_of_invoice_id, ncf_type_id, ncf, attachment_name, attachment_path, created_at, updated_at";
+  "id, source_quote_id, customer_id, lead_id, recipient_kind, recipient_display_name, recipient_contact_name, recipient_email, recipient_whatsapp, recipient_phone, invoice_number, title, document_kind, currency_code, discount_application_mode, subtotal, discount_total, tax_total, grand_total, status, issued_on, due_on, void_reason, notes, reversal_of_invoice_id, ncf_type_id, ncf, attachment_name, attachment_path, created_at, updated_at";
 
 const invoiceDetailSelectFields = `${invoiceSelectFields}, line_items:invoice_line_items(${quoteLineSelectFields})`;
 
@@ -825,6 +833,7 @@ function mapQuote(row: RawQuoteRow): QuoteSummary {
     quoteNumber: row.quote_number,
     title: row.title,
     currencyCode: row.currency_code,
+    discountApplicationMode: row.discount_application_mode,
     subtotal: Number(row.subtotal ?? 0),
     discountTotal: Number(row.discount_total ?? 0),
     taxTotal: Number(row.tax_total ?? 0),
@@ -865,6 +874,7 @@ function mapInvoice(row: RawInvoiceRow): InvoiceSummary {
     title: row.title,
     documentKind: row.document_kind,
     currencyCode: row.currency_code,
+    discountApplicationMode: row.discount_application_mode,
     subtotal: Number(row.subtotal ?? 0),
     discountTotal: Number(row.discount_total ?? 0),
     taxTotal: Number(row.tax_total ?? 0),
@@ -1723,6 +1733,7 @@ export async function createQuote(input: CreateQuoteInput) {
     target_recipient_kind: input.recipientKind,
     target_line_items: normalizeQuoteLineItems(input.lineItems),
     target_document_discount_total: input.documentDiscountTotal,
+    target_discount_application_mode: input.discountApplicationMode,
     target_customer_id: normalizedCustomerId,
     target_lead_id: normalizedLeadId,
     target_recipient_display_name: normalizeOptionalValue(
@@ -1797,6 +1808,7 @@ export async function updateQuote(input: UpdateQuoteInput) {
     target_recipient_kind: input.recipientKind,
     target_line_items: normalizeQuoteLineItems(input.lineItems),
     target_document_discount_total: input.documentDiscountTotal,
+    target_discount_application_mode: input.discountApplicationMode,
     target_customer_id: normalizedCustomerId,
     target_lead_id: normalizedLeadId,
     target_recipient_display_name: normalizeOptionalValue(
@@ -1881,6 +1893,7 @@ export async function createInvoice(input: CreateInvoiceInput) {
     target_recipient_kind: input.recipientKind,
     target_line_items: normalizeQuoteLineItems(input.lineItems),
     target_document_discount_total: input.documentDiscountTotal,
+    target_discount_application_mode: input.discountApplicationMode,
     target_source_quote_id: normalizeOptionalValue(input.sourceQuoteId),
     target_customer_id: normalizedCustomerId,
     target_lead_id: normalizedLeadId,
@@ -1934,6 +1947,7 @@ export async function updateInvoice(input: UpdateInvoiceInput): Promise<InvoiceS
     target_recipient_kind: input.recipientKind,
     target_line_items: normalizeQuoteLineItems(input.lineItems),
     target_document_discount_total: input.documentDiscountTotal ?? 0,
+    target_discount_application_mode: input.discountApplicationMode,
     target_customer_id: input.customerId ?? null,
     target_lead_id: input.leadId ?? null,
     target_recipient_display_name: input.recipientDisplayName ?? null,

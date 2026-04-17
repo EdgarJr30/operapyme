@@ -11,6 +11,7 @@ import type { ThemePaletteDefinition } from "@operapyme/ui";
 
 import type { InvoiceDetail } from "@/lib/supabase/backoffice-data";
 import {
+  calculateDocumentCalculationBreakdown,
   calculateQuoteDocumentDiscountPercentFromAmount,
   calculateQuoteLineDiscountPercentFromAmount,
   calculateQuoteDocumentDiscountTotalFromCombinedDiscount,
@@ -61,6 +62,11 @@ export function InvoicePdfDocument({
   const documentDiscountPercent = calculateQuoteDocumentDiscountPercentFromAmount({
     discountTotal: documentDiscountTotal,
     lineItems: invoice.lineItems
+  });
+  const documentCalculation = calculateDocumentCalculationBreakdown({
+    lineItems: invoice.lineItems,
+    documentDiscountTotal,
+    discountApplicationMode: invoice.discountApplicationMode
   });
 
   return (
@@ -251,7 +257,7 @@ export function InvoicePdfDocument({
           <View style={styles.totalsCard}>
             <MetaRow
               label="Subtotal"
-              value={formatCurrency(invoice.subtotal, invoice.currencyCode)}
+              value={formatCurrency(documentCalculation.subtotal, invoice.currencyCode)}
               styles={styles}
             />
             <MetaRow
@@ -259,21 +265,66 @@ export function InvoicePdfDocument({
               value={formatCurrency(lineDiscountTotal, invoice.currencyCode)}
               styles={styles}
             />
-            <MetaRow
-              label="Descuento global"
-              value={formatPercent(documentDiscountPercent)}
-              styles={styles}
-            />
-            <MetaRow
-              label="Impuestos"
-              value={formatCurrency(invoice.taxTotal, invoice.currencyCode)}
-              styles={styles}
-            />
+            {invoice.discountApplicationMode === "before_tax" ? (
+              <>
+                <MetaRow
+                  label={`Descuento global (${formatPercent(documentDiscountPercent)})`}
+                  value={`-${formatCurrency(
+                    documentCalculation.documentDiscountTotal,
+                    invoice.currencyCode
+                  )}`}
+                  styles={styles}
+                />
+                <MetaRow
+                  label="Base imponible"
+                  value={formatCurrency(
+                    documentCalculation.baseImponible,
+                    invoice.currencyCode
+                  )}
+                  styles={styles}
+                />
+                <MetaRow
+                  label="Impuestos"
+                  value={formatCurrency(
+                    documentCalculation.taxTotal,
+                    invoice.currencyCode
+                  )}
+                  styles={styles}
+                />
+              </>
+            ) : (
+              <>
+                <MetaRow
+                  label="Impuestos"
+                  value={formatCurrency(
+                    documentCalculation.taxTotal,
+                    invoice.currencyCode
+                  )}
+                  styles={styles}
+                />
+                <MetaRow
+                  label="Total antes de descuento"
+                  value={formatCurrency(
+                    documentCalculation.totalBeforeDocumentDiscount,
+                    invoice.currencyCode
+                  )}
+                  styles={styles}
+                />
+                <MetaRow
+                  label={`Descuento comercial (${formatPercent(documentDiscountPercent)})`}
+                  value={`-${formatCurrency(
+                    documentCalculation.documentDiscountTotal,
+                    invoice.currencyCode
+                  )}`}
+                  styles={styles}
+                />
+              </>
+            )}
             <View style={styles.totalDivider} />
             <View style={styles.totalRow}>
-              <Text style={styles.totalLabel}>Total</Text>
+              <Text style={styles.totalLabel}>Total a pagar</Text>
               <Text style={styles.totalValue}>
-                {formatCurrency(invoice.grandTotal, invoice.currencyCode)}
+                {formatCurrency(documentCalculation.total, invoice.currencyCode)}
               </Text>
             </View>
           </View>

@@ -53,13 +53,15 @@ import {
   type QuoteFormValues
 } from "@/lib/forms/quote-form-schema";
 import {
+  calculateDocumentCalculationBreakdown,
   calculateQuoteDocumentDiscountAmountFromPercent,
   calculateQuoteDocumentDiscountBase,
   calculateQuoteDocumentDiscountPercentFromAmount,
   calculateQuoteDocumentDiscountTotalFromCombinedDiscount,
   calculateQuoteLineDiscountAmountFromPercent,
   calculateQuoteLineDiscountTotal,
-  calculateQuoteLineDiscountPercentFromAmount
+  calculateQuoteLineDiscountPercentFromAmount,
+  discountApplicationModeValues
 } from "@/lib/forms/quote-line-discounts";
 import { buildOperationalAutofillProps } from "@/lib/forms/autofill";
 import type {
@@ -892,15 +894,12 @@ function QuoteWorkflowLayout({
   );
   const lineDiscountTotal = calculateQuoteLineDiscountTotal(lineItems);
   const documentDiscountPercent = Number(values.documentDiscountPercent) || 0;
-  const documentDiscountTotal = Number(values.documentDiscountTotal) || 0;
-  const discountTotal = Number(
-    (lineDiscountTotal + documentDiscountTotal).toFixed(2)
-  );
-  const taxTotal = lineItems.reduce(
-    (total, item) => total + (Number(item.taxTotal) || 0),
-    0
-  );
-  const grandTotal = Number((subtotal - discountTotal + taxTotal).toFixed(2));
+  const discountApplicationMode = values.discountApplicationMode ?? "before_tax";
+  const documentCalculation = calculateDocumentCalculationBreakdown({
+    lineItems,
+    documentDiscountTotal: values.documentDiscountTotal,
+    discountApplicationMode
+  });
   const currentStepIndex = quoteFormSteps.indexOf(currentStep);
   const issuesByStep = validationIssues.reduce<Record<QuoteFormStepKey, number>>(
     (result, issue) => {
@@ -1095,23 +1094,46 @@ function QuoteWorkflowLayout({
               <div className="mt-3 space-y-2 text-sm text-ink-soft">
                 <p>
                   {t("quotes.form.subtotalSummaryLabel")}:{" "}
-                  {formatCurrency(subtotal, currencyCode)}
+                  {formatCurrency(documentCalculation.subtotal, currencyCode)}
                 </p>
                 <p>
                   {t("quotes.form.lineDiscountSummaryLabel")}:{" "}
-                  {formatLineDiscountPercentSummary(lineItems)}
+                  {formatCurrency(documentCalculation.lineDiscountTotal, currencyCode)} (
+                  {formatLineDiscountPercentSummary(lineItems)})
                 </p>
                 <p>
-                  {t("quotes.form.documentDiscountSummaryLabel")}:{" "}
-                  {formatPercentValue(documentDiscountPercent)}
+                  {formatDocumentDiscountLabel(
+                    t,
+                    documentDiscountPercent,
+                    discountApplicationMode
+                  )}
+                  : -{formatCurrency(documentCalculation.documentDiscountTotal, currencyCode)}
                 </p>
+                {discountApplicationMode === "before_tax" ? (
+                  <p>
+                    {t("quotes.form.taxableBaseSummaryLabel")}:{" "}
+                    {formatCurrency(documentCalculation.baseImponible, currencyCode)}
+                  </p>
+                ) : (
+                  <p>
+                    {t("quotes.form.totalBeforeDiscountSummaryLabel")}:{" "}
+                    {formatCurrency(
+                      documentCalculation.totalBeforeDocumentDiscount,
+                      currencyCode
+                    )}
+                  </p>
+                )}
                 <p>
-                  {t("quotes.form.taxSummaryLabel")}:{" "}
-                  {formatCurrency(taxTotal, currencyCode)}
+                  {formatTaxSummaryLabel(
+                    t,
+                    documentCalculation,
+                    discountApplicationMode
+                  )}
+                  : {formatCurrency(documentCalculation.taxTotal, currencyCode)}
                 </p>
               </div>
               <p className="mt-4 text-xl font-semibold text-ink">
-                {formatCurrency(grandTotal, currencyCode)}
+                {formatCurrency(documentCalculation.total, currencyCode)}
               </p>
             </div>
 
@@ -1817,6 +1839,24 @@ function QuoteFormFields({
 
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <Field
+              label={t("quotes.form.discountApplicationModeLabel")}
+              error={errors.discountApplicationMode?.message}
+              htmlFor={`${idPrefix}-quote-discount-application-mode`}
+            >
+              <Select
+                id={`${idPrefix}-quote-discount-application-mode`}
+                {...buildOperationalAutofillProps("off")}
+                {...register("discountApplicationMode")}
+              >
+                {discountApplicationModeValues.map((mode) => (
+                  <option key={mode} value={mode}>
+                    {t(`quotes.form.discountApplicationModes.${mode}`)}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+
+            <Field
               label={t("quotes.form.documentDiscountPercentLabel")}
               error={errors.documentDiscountPercent?.message}
               htmlFor={`${idPrefix}-quote-document-discount-percent`}
@@ -1854,6 +1894,11 @@ function QuoteFormFields({
             {t("quotes.form.documentDiscountHint", {
               amount: formatCurrency(documentDiscountBase, currencyCode)
             })}
+          </p>
+          <p className="mt-2 text-sm leading-6 text-ink-soft">
+            {t(
+              `quotes.form.discountApplicationModeHints.${watch("discountApplicationMode") ?? "before_tax"}`
+            )}
           </p>
         </div>
       </div>
@@ -2212,6 +2257,7 @@ function buildEmptyQuoteDefaults(): QuoteFormValues {
     issuedOn: buildTodayDateValue(),
     documentDiscountPercent: 0,
     documentDiscountTotal: 0,
+    discountApplicationMode: "before_tax",
     validUntil: "",
     notes: "",
     lineItems: [buildEmptyLineItem()]
@@ -2243,6 +2289,7 @@ function buildUpdateDefaults(quote: QuoteDetail): QuoteFormValues {
       lineItems: quote.lineItems,
       totalDiscount: quote.discountTotal
     }),
+    discountApplicationMode: quote.discountApplicationMode,
     validUntil: quote.validUntil ?? "",
     notes: quote.notes ?? "",
     lineItems:
@@ -2281,6 +2328,7 @@ function toQuotePayload(values: QuoteFormValues) {
     status: values.status,
     currencyCode: values.currencyCode,
     issuedOn: values.issuedOn,
+    discountApplicationMode: values.discountApplicationMode,
     documentDiscountTotal: values.documentDiscountTotal,
     validUntil: values.validUntil,
     notes: values.notes,
@@ -2439,6 +2487,7 @@ function getFieldsForStep(
       "status",
       "currencyCode",
       "issuedOn",
+      "discountApplicationMode",
       "documentDiscountPercent",
       "documentDiscountTotal",
       "validUntil"
@@ -2567,6 +2616,7 @@ function getStepForField(fieldPath: string): QuoteFormStepKey {
     fieldPath === "status" ||
     fieldPath === "currencyCode" ||
     fieldPath === "issuedOn" ||
+    fieldPath === "discountApplicationMode" ||
     fieldPath === "documentDiscountPercent" ||
     fieldPath === "documentDiscountTotal" ||
     fieldPath === "validUntil"
@@ -2621,6 +2671,7 @@ function getFieldLabel(
     status: t("quotes.form.statusLabel"),
     currencyCode: t("quotes.form.currencyCodeLabel"),
     issuedOn: t("quotes.form.issuedOnLabel"),
+    discountApplicationMode: t("quotes.form.discountApplicationModeLabel"),
     documentDiscountPercent: t("quotes.form.documentDiscountPercentLabel"),
     documentDiscountTotal: t("quotes.form.documentDiscountAmountLabel"),
     validUntil: t("quotes.form.validUntilLabel"),
@@ -2664,6 +2715,38 @@ function formatLineDiscountPercentSummary(
   }
 
   return nonZeroDiscounts.join(", ");
+}
+
+function formatDocumentDiscountLabel(
+  t: ReturnType<typeof useTranslation<"backoffice">>["t"],
+  documentDiscountPercent: number,
+  discountApplicationMode: QuoteFormValues["discountApplicationMode"]
+) {
+  const baseLabel =
+    discountApplicationMode === "after_tax"
+      ? t("quotes.form.commercialDiscountSummaryLabel")
+      : t("quotes.form.documentDiscountSummaryLabel");
+
+  return `${baseLabel} (${formatPercentValue(documentDiscountPercent)})`;
+}
+
+function formatTaxSummaryLabel(
+  t: ReturnType<typeof useTranslation<"backoffice">>["t"],
+  documentCalculation: ReturnType<typeof calculateDocumentCalculationBreakdown>,
+  discountApplicationMode: QuoteFormValues["discountApplicationMode"]
+) {
+  const taxBase =
+    discountApplicationMode === "after_tax"
+      ? documentCalculation.documentDiscountBase
+      : documentCalculation.baseImponible;
+
+  if (taxBase <= 0 || documentCalculation.taxTotal <= 0) {
+    return t("quotes.form.taxSummaryLabel");
+  }
+
+  return `${t("quotes.form.taxSummaryLabel")} (${formatPercentValue(
+    (documentCalculation.taxTotal / taxBase) * 100
+  )})`;
 }
 
 function FeedbackBanner({

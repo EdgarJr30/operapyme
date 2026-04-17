@@ -1,10 +1,18 @@
 export const MAX_QUOTE_LINE_DISCOUNT_PERCENT = 100;
+export const discountApplicationModeValues = [
+  "before_tax",
+  "after_tax"
+] as const;
+
+export type DiscountApplicationMode =
+  (typeof discountApplicationModeValues)[number];
 
 interface QuoteLineDiscountShape {
   discountPercent?: number | null;
   discountTotal?: number | null;
   quantity?: number | null;
   unitPrice?: number | null;
+  taxTotal?: number | null;
 }
 
 interface QuoteDocumentDiscountShape {
@@ -19,6 +27,10 @@ function normalizeNumber(value: number | null | undefined) {
 
 function roundToTwoDecimals(value: number) {
   return Number(value.toFixed(2));
+}
+
+function clampToZero(value: number) {
+  return Math.max(0, roundToTwoDecimals(value));
 }
 
 export function calculateQuoteLineSubtotal({
@@ -134,4 +146,165 @@ export function calculateQuoteDocumentDiscountTotalFromCombinedDiscount({
       normalizeNumber(totalDiscount) - calculateQuoteLineDiscountTotal(lineItems)
     )
   );
+}
+
+export function calculateQuoteRawTaxTotal(
+  lineItems: Pick<QuoteLineDiscountShape, "taxTotal">[]
+) {
+  return roundToTwoDecimals(
+    lineItems.reduce(
+      (total, lineItem) => total + normalizeNumber(lineItem.taxTotal),
+      0
+    )
+  );
+}
+
+export function calculateDocumentTaxTotalForMode({
+  lineItems,
+  documentDiscountTotal,
+  discountApplicationMode
+}: {
+  lineItems: Pick<
+    QuoteLineDiscountShape,
+    "discountTotal" | "quantity" | "unitPrice" | "taxTotal"
+  >[];
+  documentDiscountTotal?: number | null;
+  discountApplicationMode: DiscountApplicationMode;
+}) {
+  const rawTaxTotal = calculateQuoteRawTaxTotal(lineItems);
+
+  if (discountApplicationMode === "after_tax") {
+    return rawTaxTotal;
+  }
+
+  const documentBase = calculateQuoteDocumentDiscountBase(lineItems);
+
+  if (documentBase <= 0 || rawTaxTotal <= 0) {
+    return rawTaxTotal;
+  }
+
+  const effectiveBase = clampToZero(
+    documentBase - normalizeNumber(documentDiscountTotal)
+  );
+
+  return roundToTwoDecimals((rawTaxTotal * effectiveBase) / documentBase);
+}
+
+export function calculateDocumentGrandTotalForMode({
+  lineItems,
+  documentDiscountTotal,
+  discountApplicationMode
+}: {
+  lineItems: Pick<
+    QuoteLineDiscountShape,
+    "discountTotal" | "quantity" | "unitPrice" | "taxTotal"
+  >[];
+  documentDiscountTotal?: number | null;
+  discountApplicationMode: DiscountApplicationMode;
+}) {
+  const subtotal = lineItems.reduce(
+    (total, lineItem) =>
+      total +
+      calculateQuoteLineSubtotal({
+        quantity: lineItem.quantity,
+        unitPrice: lineItem.unitPrice
+      }),
+    0
+  );
+  const lineDiscountTotal = calculateQuoteLineDiscountTotal(lineItems);
+  const normalizedDocumentDiscountTotal = clampToZero(
+    normalizeNumber(documentDiscountTotal)
+  );
+  const taxTotal = calculateDocumentTaxTotalForMode({
+    lineItems,
+    documentDiscountTotal: normalizedDocumentDiscountTotal,
+    discountApplicationMode
+  });
+
+  return roundToTwoDecimals(
+    subtotal - lineDiscountTotal - normalizedDocumentDiscountTotal + taxTotal
+  );
+}
+
+export interface DocumentCalculationBreakdown {
+  subtotal: number;
+  lineDiscountTotal: number;
+  documentDiscountBase: number;
+  documentDiscountTotal: number;
+  documentDiscountPercent: number;
+  rawTaxTotal: number;
+  taxTotal: number;
+  baseImponible: number;
+  totalBeforeDocumentDiscount: number;
+  total: number;
+  discountApplicationMode: DiscountApplicationMode;
+}
+
+export function calculateDocumentCalculationBreakdown({
+  lineItems,
+  documentDiscountTotal,
+  discountApplicationMode
+}: {
+  lineItems: Pick<
+    QuoteLineDiscountShape,
+    "discountTotal" | "quantity" | "unitPrice" | "taxTotal"
+  >[];
+  documentDiscountTotal?: number | null;
+  discountApplicationMode: DiscountApplicationMode;
+}) : DocumentCalculationBreakdown {
+  const subtotal = roundToTwoDecimals(
+    lineItems.reduce(
+      (total, lineItem) =>
+        total +
+        calculateQuoteLineSubtotal({
+          quantity: lineItem.quantity,
+          unitPrice: lineItem.unitPrice
+        }),
+      0
+    )
+  );
+  const lineDiscountTotal = calculateQuoteLineDiscountTotal(lineItems);
+  const documentDiscountBase = calculateQuoteDocumentDiscountBase(lineItems);
+  const normalizedDocumentDiscountTotal = clampToZero(
+    Math.min(
+      normalizeNumber(documentDiscountTotal),
+      documentDiscountBase
+    )
+  );
+  const documentDiscountPercent = calculateQuoteDocumentDiscountPercentFromAmount(
+    {
+      discountTotal: normalizedDocumentDiscountTotal,
+      lineItems
+    }
+  );
+  const rawTaxTotal = calculateQuoteRawTaxTotal(lineItems);
+  const taxTotal = calculateDocumentTaxTotalForMode({
+    lineItems,
+    documentDiscountTotal: normalizedDocumentDiscountTotal,
+    discountApplicationMode
+  });
+  const baseImponible = clampToZero(
+    documentDiscountBase - normalizedDocumentDiscountTotal
+  );
+  const totalBeforeDocumentDiscount = roundToTwoDecimals(
+    subtotal - lineDiscountTotal + rawTaxTotal
+  );
+
+  return {
+    subtotal,
+    lineDiscountTotal,
+    documentDiscountBase,
+    documentDiscountTotal: normalizedDocumentDiscountTotal,
+    documentDiscountPercent,
+    rawTaxTotal,
+    taxTotal,
+    baseImponible,
+    totalBeforeDocumentDiscount,
+    total: calculateDocumentGrandTotalForMode({
+      lineItems,
+      documentDiscountTotal: normalizedDocumentDiscountTotal,
+      discountApplicationMode
+    }),
+    discountApplicationMode
+  };
 }

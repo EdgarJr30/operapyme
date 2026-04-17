@@ -4,6 +4,7 @@ import type { TFunction } from "@operapyme/i18n";
 
 import {
   MAX_QUOTE_LINE_DISCOUNT_PERCENT,
+  discountApplicationModeValues,
   calculateQuoteDocumentDiscountBase,
   calculateQuoteLineSubtotal
 } from "@/lib/forms/quote-line-discounts";
@@ -98,6 +99,7 @@ export function createQuoteFormSchema(t: TFunction<"backoffice">) {
       documentDiscountTotal: z
         .number()
         .min(0, t("quotes.form.validation.documentDiscountTotal")),
+      discountApplicationMode: z.enum(discountApplicationModeValues),
       validUntil: z.string().optional(),
       notes: z.string().max(500, t("quotes.form.validation.notesMax")),
       lineItems: z

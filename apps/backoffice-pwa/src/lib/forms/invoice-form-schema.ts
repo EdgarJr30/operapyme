@@ -3,6 +3,8 @@ import { z } from "zod";
 import type { TFunction } from "@operapyme/i18n";
 
 import {
+  MAX_QUOTE_LINE_DISCOUNT_PERCENT,
+  discountApplicationModeValues,
   calculateQuoteDocumentDiscountBase,
   calculateQuoteLineSubtotal
 } from "@/lib/forms/quote-line-discounts";
@@ -74,9 +76,17 @@ export function createInvoiceFormSchema(t: TFunction<"backoffice">) {
         .string()
         .min(3, t("quotes.form.validation.currencyCode"))
         .max(3, t("quotes.form.validation.currencyCode")),
+      documentDiscountPercent: z
+        .number()
+        .min(0, t("quotes.form.validation.documentDiscountPercent"))
+        .max(
+          MAX_QUOTE_LINE_DISCOUNT_PERCENT,
+          t("quotes.form.validation.documentDiscountPercentMax")
+        ),
       documentDiscountTotal: z
         .number()
         .min(0, t("quotes.form.validation.documentDiscountTotal")),
+      discountApplicationMode: z.enum(discountApplicationModeValues),
       issuedOn: z.string().optional(),
       dueOn: z.string().optional(),
       notes: z.string().max(500, t("quotes.form.validation.notesMax")),

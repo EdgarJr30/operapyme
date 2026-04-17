@@ -48,6 +48,9 @@ const companyProfileMigrationPath = path.resolve(
 const tenantBankDetailsMigrationPath = path.resolve(
   "supabase/migrations/20260416120000_add_tenant_bank_details.sql"
 );
+const discountApplicationModeMigrationPath = path.resolve(
+  "supabase/migrations/20260416153000_discount_application_mode_for_quotes_and_invoices.sql"
+);
 
 describe("supabase foundation contracts", () => {
   it("creates the required secure foundation tables", () => {
@@ -304,5 +307,19 @@ describe("supabase foundation contracts", () => {
     expect(migration).toContain("next_bank_account text default '__KEEP__'");
     expect(migration).toContain("public.tenants.bank");
     expect(migration).toContain("public.tenants.bank_account");
+  });
+
+  it("adds explicit discount application mode to quotes and invoices", () => {
+    const migration = fs.readFileSync(discountApplicationModeMigrationPath, "utf8");
+
+    expect(migration).toContain("add column if not exists discount_application_mode text");
+    expect(migration).toContain("quotes_discount_application_mode_check");
+    expect(migration).toContain("invoices_discount_application_mode_check");
+    expect(migration).toContain(
+      "target_discount_application_mode text default 'before_tax'"
+    );
+    expect(migration).toContain("Discount application mode is invalid");
+    expect(migration).toContain("discount_application_mode = normalized_discount_application_mode");
+    expect(migration).toContain("computed_raw_tax_total");
   });
 });

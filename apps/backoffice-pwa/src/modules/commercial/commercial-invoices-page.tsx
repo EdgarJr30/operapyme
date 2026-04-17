@@ -42,7 +42,13 @@ import {
   salesDocumentKindValues,
   type InvoiceFormValues
 } from "@/lib/forms/invoice-form-schema";
-import { calculateQuoteLineDiscountPercentFromAmount } from "@/lib/forms/quote-line-discounts";
+import {
+  calculateDocumentCalculationBreakdown,
+  calculateQuoteDocumentDiscountAmountFromPercent,
+  calculateQuoteDocumentDiscountBase,
+  calculateQuoteDocumentDiscountPercentFromAmount,
+  calculateQuoteLineDiscountPercentFromAmount
+} from "@/lib/forms/quote-line-discounts";
 import { buildOperationalAutofillProps } from "@/lib/forms/autofill";
 import type {
   CatalogItemSummary,
@@ -170,7 +176,9 @@ function buildDefaultValues(): InvoiceFormValues {
     documentKind: "services",
     status: "draft",
     currencyCode: "USD",
+    documentDiscountPercent: 0,
     documentDiscountTotal: 0,
+    discountApplicationMode: "before_tax",
     issuedOn: "",
     dueOn: "",
     notes: "",
@@ -307,6 +315,12 @@ export function CommercialInvoicesPage() {
   const editRecipientKind = editForm.watch("recipientKind");
   const editCustomerId = editForm.watch("customerId");
   const editLeadId = editForm.watch("leadId");
+  const editLineItems = editForm.watch("lineItems");
+  const editDocumentDiscountPercent = editForm.watch("documentDiscountPercent");
+  const editDocumentDiscountTotal = editForm.watch("documentDiscountTotal");
+  const editCurrencyCode = editForm.watch("currencyCode") || "USD";
+  const editDiscountApplicationMode =
+    editForm.watch("discountApplicationMode") ?? "before_tax";
   const editCatalogOptions = useMemo(
     () => getCatalogOptions(catalogItems, editDocumentKind),
     [catalogItems, editDocumentKind]
@@ -317,6 +331,21 @@ export function CommercialInvoicesPage() {
   const recipientKind = form.watch("recipientKind");
   const customerId = form.watch("customerId");
   const leadId = form.watch("leadId");
+  const lineItems = form.watch("lineItems");
+  const documentDiscountPercent = form.watch("documentDiscountPercent");
+  const documentDiscountTotal = form.watch("documentDiscountTotal");
+  const currencyCode = form.watch("currencyCode") || "USD";
+  const discountApplicationMode = form.watch("discountApplicationMode") ?? "before_tax";
+  const createDocumentCalculation = calculateDocumentCalculationBreakdown({
+    lineItems: lineItems ?? [],
+    documentDiscountTotal,
+    discountApplicationMode
+  });
+  const editDocumentCalculation = calculateDocumentCalculationBreakdown({
+    lineItems: editLineItems ?? [],
+    documentDiscountTotal: editDocumentDiscountTotal,
+    discountApplicationMode: editDiscountApplicationMode
+  });
   const requestedSourceQuoteId = searchParams.get("sourceQuoteId")?.trim() ?? "";
   const selectedQuoteDetail = useQuoteDetailData(
     sourceQuoteId?.trim() ? sourceQuoteId : null
@@ -373,6 +402,11 @@ export function CommercialInvoicesPage() {
     }
 
     const quote = selectedQuoteDetail.data;
+    const documentDiscountTotal = Math.max(
+      0,
+      quote.discountTotal -
+        quote.lineItems.reduce((sum, lineItem) => sum + lineItem.discountTotal, 0)
+    );
     form.setValue("recipientKind", quote.recipientKind);
     form.setValue("customerId", quote.customerId ?? "");
     form.setValue("leadId", quote.leadId ?? "");
@@ -384,6 +418,18 @@ export function CommercialInvoicesPage() {
     form.setValue("title", `Factura ${quote.title}`);
     form.setValue("currencyCode", quote.currencyCode);
     form.setValue("documentKind", inferDocumentKindFromQuote(quote, catalogItems));
+    form.setValue("documentDiscountTotal", documentDiscountTotal);
+    form.setValue(
+      "documentDiscountPercent",
+      calculateQuoteDocumentDiscountPercentFromAmount({
+        discountTotal: documentDiscountTotal,
+        lineItems: quote.lineItems
+      })
+    );
+    form.setValue(
+      "discountApplicationMode",
+      quote.discountApplicationMode ?? "before_tax"
+    );
 
     if (importedQuoteIdRef.current !== quote.id) {
       replace(
@@ -401,6 +447,20 @@ export function CommercialInvoicesPage() {
       importedQuoteIdRef.current = quote.id;
     }
   }, [catalogItems, form, replace, selectedQuoteDetail.data]);
+
+  useEffect(() => {
+    const documentDiscountBase = calculateQuoteDocumentDiscountBase(lineItems ?? []);
+
+    form.setValue(
+      "documentDiscountTotal",
+      Number(
+        (((documentDiscountBase * (Number(documentDiscountPercent) || 0)) / 100).toFixed(
+          2
+        ))
+      ),
+      { shouldValidate: true }
+    );
+  }, [documentDiscountPercent, form, lineItems]);
 
   useEffect(() => {
     if (recipientKind !== "customer") {
@@ -502,7 +562,12 @@ export function CommercialInvoicesPage() {
       documentKind: detail.documentKind,
       status: detail.status as "draft" | "issued",
       currencyCode: detail.currencyCode,
+      documentDiscountPercent: calculateQuoteDocumentDiscountPercentFromAmount({
+        discountTotal: documentDiscountTotal,
+        lineItems: detail.lineItems
+      }),
       documentDiscountTotal,
+      discountApplicationMode: detail.discountApplicationMode ?? "before_tax",
       issuedOn: detail.issuedOn ?? "",
       dueOn: detail.dueOn ?? "",
       notes: detail.notes ?? "",
@@ -524,6 +589,23 @@ export function CommercialInvoicesPage() {
     setEditAttachmentDraftFile(null);
     setIsEditAttachmentMarkedForRemoval(false);
   }, [drawerOpen, editForm, invoiceDetail.data]);
+
+  useEffect(() => {
+    const documentDiscountBase = calculateQuoteDocumentDiscountBase(
+      editLineItems ?? []
+    );
+
+    editForm.setValue(
+      "documentDiscountTotal",
+      Number(
+        (
+          (documentDiscountBase * (Number(editDocumentDiscountPercent) || 0)) /
+          100
+        ).toFixed(2)
+      ),
+      { shouldValidate: true }
+    );
+  }, [editDocumentDiscountPercent, editForm, editLineItems]);
 
   useEffect(() => {
     if (editRecipientKind !== "customer") {
@@ -673,6 +755,7 @@ export function CommercialInvoicesPage() {
         recipientEmail: values.recipientEmail,
         recipientWhatsApp: values.recipientWhatsApp,
         recipientPhone: values.recipientPhone,
+        discountApplicationMode: values.discountApplicationMode,
         documentDiscountTotal: values.documentDiscountTotal,
         issuedOn: values.issuedOn,
         dueOn: values.dueOn,
@@ -750,6 +833,7 @@ export function CommercialInvoicesPage() {
         documentKind: values.documentKind,
         status: values.status,
         currencyCode: values.currencyCode,
+        discountApplicationMode: values.discountApplicationMode,
         documentDiscountTotal: values.documentDiscountTotal,
         notes: values.notes,
         issuedOn: values.issuedOn,
@@ -1605,7 +1689,35 @@ export function CommercialInvoicesPage() {
                 ))}
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-[160px_minmax(0,1fr)]">
+              <div className="grid gap-4 sm:grid-cols-3">
+                <Field
+                  label={t("quotes.form.discountApplicationModeLabel")}
+                  htmlFor="invoice-discount-mode"
+                >
+                  <Select id="invoice-discount-mode" {...form.register("discountApplicationMode")}>
+                    <option value="before_tax">
+                      {t("quotes.form.discountApplicationModes.before_tax")}
+                    </option>
+                    <option value="after_tax">
+                      {t("quotes.form.discountApplicationModes.after_tax")}
+                    </option>
+                  </Select>
+                </Field>
+                <Field
+                  label={t("quotes.form.documentDiscountPercentLabel")}
+                  htmlFor="invoice-discount-percent"
+                >
+                  <Input
+                    id="invoice-discount-percent"
+                    type="number"
+                    step="1"
+                    min="0"
+                    max="100"
+                    {...form.register("documentDiscountPercent", {
+                      valueAsNumber: true
+                    })}
+                  />
+                </Field>
                 <Field
                   label={t("quotes.form.documentDiscountAmountLabel")}
                   htmlFor="invoice-discount"
@@ -1619,7 +1731,71 @@ export function CommercialInvoicesPage() {
                     })}
                   />
                 </Field>
+              </div>
 
+              <div className="rounded-2xl border border-line/70 bg-paper/70 p-4 text-sm text-ink-soft">
+                <p>{t(`quotes.form.discountApplicationModeHints.${discountApplicationMode}`)}</p>
+                <div className="mt-3 space-y-2">
+                  <p>
+                    {t("quotes.form.subtotalSummaryLabel")}:{" "}
+                    {formatMoney(createDocumentCalculation.subtotal, currencyCode)}
+                  </p>
+                  <p>
+                    {t("quotes.form.lineDiscountSummaryLabel")}:{" "}
+                    {formatMoney(createDocumentCalculation.lineDiscountTotal, currencyCode)}
+                  </p>
+                  {discountApplicationMode === "before_tax" ? (
+                    <>
+                      <p>
+                        {t("quotes.form.documentDiscountSummaryLabel")} (
+                        {formatPercent(createDocumentCalculation.documentDiscountPercent)}): -
+                        {formatMoney(
+                          createDocumentCalculation.documentDiscountTotal,
+                          currencyCode
+                        )}
+                      </p>
+                      <p>
+                        {t("quotes.form.taxableBaseSummaryLabel")}:{" "}
+                        {formatMoney(createDocumentCalculation.baseImponible, currencyCode)}
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p>
+                        {t("quotes.form.taxSummaryLabel")}:{" "}
+                        {formatMoney(createDocumentCalculation.taxTotal, currencyCode)}
+                      </p>
+                      <p>
+                        {t("quotes.form.totalBeforeDiscountSummaryLabel")}:{" "}
+                        {formatMoney(
+                          createDocumentCalculation.totalBeforeDocumentDiscount,
+                          currencyCode
+                        )}
+                      </p>
+                      <p>
+                        {t("quotes.form.commercialDiscountSummaryLabel")} (
+                        {formatPercent(createDocumentCalculation.documentDiscountPercent)}): -
+                        {formatMoney(
+                          createDocumentCalculation.documentDiscountTotal,
+                          currencyCode
+                        )}
+                      </p>
+                    </>
+                  )}
+                  {discountApplicationMode === "before_tax" ? (
+                    <p>
+                      {t("quotes.form.taxSummaryLabel")}:{" "}
+                      {formatMoney(createDocumentCalculation.taxTotal, currencyCode)}
+                    </p>
+                  ) : null}
+                  <p className="font-semibold text-ink">
+                    {t("quotes.form.totalPayableSummaryLabel")}:{" "}
+                    {formatMoney(createDocumentCalculation.total, currencyCode)}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)]">
                 <Field
                   label={t("quotes.form.notesLabel")}
                   htmlFor="invoice-notes"
@@ -2299,7 +2475,38 @@ export function CommercialInvoicesPage() {
                       ))}
                     </div>
 
-                    <div className="grid gap-4 sm:grid-cols-[160px_minmax(0,1fr)]">
+                    <div className="grid gap-4 sm:grid-cols-3">
+                      <Field
+                        label={t("quotes.form.discountApplicationModeLabel")}
+                        htmlFor="edit-invoice-discount-mode"
+                      >
+                        <Select
+                          id="edit-invoice-discount-mode"
+                          {...editForm.register("discountApplicationMode")}
+                        >
+                          <option value="before_tax">
+                            {t("quotes.form.discountApplicationModes.before_tax")}
+                          </option>
+                          <option value="after_tax">
+                            {t("quotes.form.discountApplicationModes.after_tax")}
+                          </option>
+                        </Select>
+                      </Field>
+                      <Field
+                        label={t("quotes.form.documentDiscountPercentLabel")}
+                        htmlFor="edit-invoice-discount-percent"
+                      >
+                        <Input
+                          id="edit-invoice-discount-percent"
+                          type="number"
+                          step="1"
+                          min="0"
+                          max="100"
+                          {...editForm.register("documentDiscountPercent", {
+                            valueAsNumber: true
+                          })}
+                        />
+                      </Field>
                       <Field
                         label={t("quotes.form.documentDiscountAmountLabel")}
                         htmlFor="edit-invoice-discount"
@@ -2313,7 +2520,87 @@ export function CommercialInvoicesPage() {
                           })}
                         />
                       </Field>
+                    </div>
 
+                    <div className="rounded-2xl border border-line/70 bg-paper/70 p-4 text-sm text-ink-soft">
+                      <p>
+                        {t(
+                          `quotes.form.discountApplicationModeHints.${editDiscountApplicationMode}`
+                        )}
+                      </p>
+                      <div className="mt-3 space-y-2">
+                        <p>
+                          {t("quotes.form.subtotalSummaryLabel")}:{" "}
+                          {formatMoney(editDocumentCalculation.subtotal, editCurrencyCode)}
+                        </p>
+                        <p>
+                          {t("quotes.form.lineDiscountSummaryLabel")}:{" "}
+                          {formatMoney(
+                            editDocumentCalculation.lineDiscountTotal,
+                            editCurrencyCode
+                          )}
+                        </p>
+                        {editDiscountApplicationMode === "before_tax" ? (
+                          <>
+                            <p>
+                              {t("quotes.form.documentDiscountSummaryLabel")} (
+                              {formatPercent(
+                                editDocumentCalculation.documentDiscountPercent
+                              )}
+                              ): -
+                              {formatMoney(
+                                editDocumentCalculation.documentDiscountTotal,
+                                editCurrencyCode
+                              )}
+                            </p>
+                            <p>
+                              {t("quotes.form.taxableBaseSummaryLabel")}:{" "}
+                              {formatMoney(
+                                editDocumentCalculation.baseImponible,
+                                editCurrencyCode
+                              )}
+                            </p>
+                          </>
+                        ) : (
+                          <>
+                            <p>
+                              {t("quotes.form.taxSummaryLabel")}:{" "}
+                              {formatMoney(editDocumentCalculation.taxTotal, editCurrencyCode)}
+                            </p>
+                            <p>
+                              {t("quotes.form.totalBeforeDiscountSummaryLabel")}:{" "}
+                              {formatMoney(
+                                editDocumentCalculation.totalBeforeDocumentDiscount,
+                                editCurrencyCode
+                              )}
+                            </p>
+                            <p>
+                              {t("quotes.form.commercialDiscountSummaryLabel")} (
+                              {formatPercent(
+                                editDocumentCalculation.documentDiscountPercent
+                              )}
+                              ): -
+                              {formatMoney(
+                                editDocumentCalculation.documentDiscountTotal,
+                                editCurrencyCode
+                              )}
+                            </p>
+                          </>
+                        )}
+                        {editDiscountApplicationMode === "before_tax" ? (
+                          <p>
+                            {t("quotes.form.taxSummaryLabel")}:{" "}
+                            {formatMoney(editDocumentCalculation.taxTotal, editCurrencyCode)}
+                          </p>
+                        ) : null}
+                        <p className="font-semibold text-ink">
+                          {t("quotes.form.totalPayableSummaryLabel")}:{" "}
+                          {formatMoney(editDocumentCalculation.total, editCurrencyCode)}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)]">
                       <Field
                         label={t("quotes.form.notesLabel")}
                         htmlFor="edit-invoice-notes"

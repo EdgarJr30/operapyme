@@ -899,6 +899,17 @@ const backofficeEn = {
       documentDiscountTitle: "Document-level discount",
       documentDiscountDescription:
         "Apply a general adjustment to the full quote after line-level discounts.",
+      discountApplicationModeLabel: "Calculation mode",
+      discountApplicationModes: {
+        before_tax: "Standard: discount before tax",
+        after_tax: "Commercial adjustment: discount on taxed total"
+      },
+      discountApplicationModeHints: {
+        before_tax:
+          "This mode discounts the taxable base first and then recalculates tax on the remaining amount.",
+        after_tax:
+          "This mode preserves the original tax and applies the commercial discount over the tax-inclusive total."
+      },
       documentDiscountPercentLabel: "Document discount %",
       documentDiscountAmountLabel: "Fixed document discount",
       documentDiscountHint:
@@ -937,8 +948,12 @@ const backofficeEn = {
       subtotalSummaryLabel: "Subtotal",
       lineDiscountSummaryLabel: "Line discounts",
       documentDiscountSummaryLabel: "Document discount",
+      commercialDiscountSummaryLabel: "Commercial discount",
       discountSummaryLabel: "Discounts",
+      taxableBaseSummaryLabel: "Taxable base",
+      totalBeforeDiscountSummaryLabel: "Total before discount",
       taxSummaryLabel: "Taxes",
+      totalPayableSummaryLabel: "Total payable",
       notesLabel: "Notes",
       notesPlaceholder:
         "Commercial terms, delivery conditions, or internal clarifications.",

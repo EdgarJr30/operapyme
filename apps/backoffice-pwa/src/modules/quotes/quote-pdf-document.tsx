@@ -11,6 +11,7 @@ import type { ThemePaletteDefinition } from "@operapyme/ui";
 
 import type { QuoteDetail } from "@/lib/supabase/backoffice-data";
 import {
+  calculateDocumentCalculationBreakdown,
   calculateQuoteDocumentDiscountPercentFromAmount,
   calculateQuoteLineDiscountPercentFromAmount,
   calculateQuoteDocumentDiscountTotalFromCombinedDiscount,
@@ -61,6 +62,11 @@ export function QuotePdfDocument({
   const documentDiscountPercent = calculateQuoteDocumentDiscountPercentFromAmount({
     discountTotal: documentDiscountTotal,
     lineItems: quote.lineItems
+  });
+  const documentCalculation = calculateDocumentCalculationBreakdown({
+    lineItems: quote.lineItems,
+    documentDiscountTotal,
+    discountApplicationMode: quote.discountApplicationMode
   });
 
   return (
@@ -252,7 +258,7 @@ export function QuotePdfDocument({
           <View style={styles.totalsCard}>
             <MetaRow
               label="Subtotal"
-              value={formatCurrency(quote.subtotal, quote.currencyCode)}
+              value={formatCurrency(documentCalculation.subtotal, quote.currencyCode)}
               styles={styles}
             />
             <MetaRow
@@ -260,21 +266,60 @@ export function QuotePdfDocument({
               value={formatCurrency(lineDiscountTotal, quote.currencyCode)}
               styles={styles}
             />
-            <MetaRow
-              label="Descuento global"
-              value={formatPercent(documentDiscountPercent)}
-              styles={styles}
-            />
-            <MetaRow
-              label="Impuestos"
-              value={formatCurrency(quote.taxTotal, quote.currencyCode)}
-              styles={styles}
-            />
+            {quote.discountApplicationMode === "before_tax" ? (
+              <>
+                <MetaRow
+                  label={`Descuento global (${formatPercent(documentDiscountPercent)})`}
+                  value={`-${formatCurrency(
+                    documentCalculation.documentDiscountTotal,
+                    quote.currencyCode
+                  )}`}
+                  styles={styles}
+                />
+                <MetaRow
+                  label="Base imponible"
+                  value={formatCurrency(
+                    documentCalculation.baseImponible,
+                    quote.currencyCode
+                  )}
+                  styles={styles}
+                />
+                <MetaRow
+                  label="Impuestos"
+                  value={formatCurrency(documentCalculation.taxTotal, quote.currencyCode)}
+                  styles={styles}
+                />
+              </>
+            ) : (
+              <>
+                <MetaRow
+                  label="Impuestos"
+                  value={formatCurrency(documentCalculation.taxTotal, quote.currencyCode)}
+                  styles={styles}
+                />
+                <MetaRow
+                  label="Total antes de descuento"
+                  value={formatCurrency(
+                    documentCalculation.totalBeforeDocumentDiscount,
+                    quote.currencyCode
+                  )}
+                  styles={styles}
+                />
+                <MetaRow
+                  label={`Descuento comercial (${formatPercent(documentDiscountPercent)})`}
+                  value={`-${formatCurrency(
+                    documentCalculation.documentDiscountTotal,
+                    quote.currencyCode
+                  )}`}
+                  styles={styles}
+                />
+              </>
+            )}
             <View style={styles.totalDivider} />
             <View style={styles.totalRow}>
-              <Text style={styles.totalLabel}>Total</Text>
+              <Text style={styles.totalLabel}>Total a pagar</Text>
               <Text style={styles.totalValue}>
-                {formatCurrency(quote.grandTotal, quote.currencyCode)}
+                {formatCurrency(documentCalculation.total, quote.currencyCode)}
               </Text>
             </View>
           </View>
