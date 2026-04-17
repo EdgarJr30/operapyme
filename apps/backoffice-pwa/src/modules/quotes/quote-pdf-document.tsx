@@ -11,6 +11,8 @@ import type { ThemePaletteDefinition } from "@operapyme/ui";
 
 import type { QuoteDetail } from "@/lib/supabase/backoffice-data";
 import {
+  calculateQuoteDocumentDiscountPercentFromAmount,
+  calculateQuoteLineDiscountPercentFromAmount,
   calculateQuoteDocumentDiscountTotalFromCombinedDiscount,
   calculateQuoteLineDiscountTotal
 } from "@/lib/forms/quote-line-discounts";
@@ -56,6 +58,10 @@ export function QuotePdfDocument({
     lineItems: quote.lineItems,
     totalDiscount: quote.discountTotal
   });
+  const documentDiscountPercent = calculateQuoteDocumentDiscountPercentFromAmount({
+    discountTotal: documentDiscountTotal,
+    lineItems: quote.lineItems
+  });
 
   return (
     <Document
@@ -97,14 +103,6 @@ export function QuotePdfDocument({
                 ) : null}
                 {issuerEmail ? (
                   <Text style={styles.issuerMetaFull}>Correo: {issuerEmail}</Text>
-                ) : null}
-                {issuerBank ? (
-                  <Text style={styles.issuerMeta}>Banco: {issuerBank}</Text>
-                ) : null}
-                {issuerBankAccount ? (
-                  <Text style={styles.issuerMetaFull}>
-                    Cuenta bancaria: {issuerBankAccount}
-                  </Text>
                 ) : null}
                 {issuerWebsiteUrl ? (
                   <Text style={styles.issuerMetaFull}>Web: {issuerWebsiteUrl}</Text>
@@ -212,11 +210,17 @@ export function QuotePdfDocument({
                   styles={styles}
                   alt={index % 2 === 1}
                 />
-                <Cell
-                  text={formatCurrency(lineItem.discountTotal, quote.currencyCode)}
-                  flex={0.75}
-                  styles={styles}
-                  alt={index % 2 === 1}
+              <Cell
+                text={formatPercent(
+                  calculateQuoteLineDiscountPercentFromAmount({
+                    discountTotal: lineItem.discountTotal,
+                    quantity: lineItem.quantity,
+                    unitPrice: lineItem.unitPrice
+                  })
+                )}
+                flex={0.75}
+                styles={styles}
+                alt={index % 2 === 1}
                 />
                 <Cell
                   text={formatCurrency(lineItem.taxTotal, quote.currencyCode)}
@@ -258,7 +262,7 @@ export function QuotePdfDocument({
             />
             <MetaRow
               label="Descuento global"
-              value={formatCurrency(documentDiscountTotal, quote.currencyCode)}
+              value={formatPercent(documentDiscountPercent)}
               styles={styles}
             />
             <MetaRow
@@ -275,6 +279,30 @@ export function QuotePdfDocument({
             </View>
           </View>
         </View>
+
+        {issuerBank || issuerBankAccount ? (
+          <View style={styles.bankDetailsSection} wrap={false}>
+            <Text style={styles.bankDetailsTitle}>
+              Cuentas para transferencias bancarias
+            </Text>
+            <View style={styles.bankDetailsTable}>
+              <View style={styles.bankDetailsRow}>
+                <View style={[styles.bankDetailsCell, styles.bankDetailsBankCell]}>
+                  <Text style={styles.bankDetailsLabel}>Banco</Text>
+                  <Text style={styles.bankDetailsValue}>
+                    {issuerBank ?? "No especificado"}
+                  </Text>
+                </View>
+                <View style={styles.bankDetailsCell}>
+                  <Text style={styles.bankDetailsLabel}>Cuenta</Text>
+                  <Text style={styles.bankDetailsValue}>
+                    {issuerBankAccount ?? "No especificada"}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </View>
+        ) : null}
 
         {/* Document footer — always at bottom */}
         <View style={styles.docFooter} fixed>
@@ -578,6 +606,43 @@ function createStyles(palette: ThemePaletteDefinition) {
       fontWeight: 700,
       color: palette.colors.primary400
     },
+    bankDetailsSection: {
+      marginTop: 14,
+      borderLeftWidth: 3,
+      borderLeftColor: palette.colors.primary400,
+      paddingLeft: 10,
+      gap: 6
+    },
+    bankDetailsTitle: {
+      fontSize: 9.2,
+      fontWeight: 700,
+      color: palette.colors.ink
+    },
+    bankDetailsTable: {
+      gap: 4
+    },
+    bankDetailsRow: {
+      flexDirection: "row",
+      gap: 18
+    },
+    bankDetailsCell: {
+      flex: 1,
+      gap: 2
+    },
+    bankDetailsBankCell: {
+      flex: 1.1
+    },
+    bankDetailsLabel: {
+      fontSize: 7.2,
+      color: palette.colors.inkMuted,
+      textTransform: "uppercase",
+      letterSpacing: 0.35
+    },
+    bankDetailsValue: {
+      fontSize: 8.4,
+      color: palette.colors.ink,
+      lineHeight: 1.25
+    },
     docFooter: {
       position: "absolute",
       bottom: 16,
@@ -709,6 +774,10 @@ function formatNumber(value: number) {
   return new Intl.NumberFormat("es-DO", {
     maximumFractionDigits: 2
   }).format(value);
+}
+
+function formatPercent(value: number) {
+  return `${formatNumber(value)}%`;
 }
 
 function formatRecipientKind(kind: QuoteDetail["recipientKind"]) {

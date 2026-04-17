@@ -110,6 +110,8 @@ Criterio visual vigente para documentos comerciales:
 - el bloque de receptor debe priorizar densidad legible, no cards sobredimensionadas
 - la columna de detalle debe recibir el mayor ancho util de la tabla
 - notas, resumen y total no deben quedar partidos visualmente al final de una pagina si una composicion mas compacta razonable permite mantenerlos juntos
+- los datos bancarios del emisor deben vivir en un bloque propio al pie del documento, no mezclados dentro del header
+- los descuentos visibles en PDF y en resúmenes operativos deben mostrarse como porcentaje cuando ese porcentaje pueda derivarse del dato persistido
 - el PDF debe sentirse listo para enviar sin rehacer maquetacion manual
 
 Version instalada en el workspace durante esta tarea: `@react-pdf/renderer@^4.3.2`.

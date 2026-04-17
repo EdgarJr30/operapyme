@@ -42,6 +42,7 @@ import {
   salesDocumentKindValues,
   type InvoiceFormValues
 } from "@/lib/forms/invoice-form-schema";
+import { calculateQuoteLineDiscountPercentFromAmount } from "@/lib/forms/quote-line-discounts";
 import { buildOperationalAutofillProps } from "@/lib/forms/autofill";
 import type {
   CatalogItemSummary,
@@ -113,6 +114,12 @@ function formatMoney(amount: number, currencyCode: string) {
     style: "currency",
     currency: currencyCode
   }).format(amount);
+}
+
+function formatPercent(value: number) {
+  return `${new Intl.NumberFormat("es-DO", {
+    maximumFractionDigits: 2
+  }).format(value)}%`;
 }
 
 function formatDate(value: string | null, locale: string) {
@@ -2574,6 +2581,16 @@ export function CommercialInvoicesPage() {
                                 {li.itemDescription}
                               </p>
                             ) : null}
+                            <p className="text-xs text-ink-soft">
+                              Descuento:{" "}
+                              {formatPercent(
+                                calculateQuoteLineDiscountPercentFromAmount({
+                                  discountTotal: li.discountTotal,
+                                  quantity: li.quantity,
+                                  unitPrice: li.unitPrice
+                                })
+                              )}
+                            </p>
                           </div>
                           <p className="text-sm text-ink whitespace-nowrap">
                             {formatMoney(

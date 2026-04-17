@@ -891,6 +891,7 @@ function QuoteWorkflowLayout({
     0
   );
   const lineDiscountTotal = calculateQuoteLineDiscountTotal(lineItems);
+  const documentDiscountPercent = Number(values.documentDiscountPercent) || 0;
   const documentDiscountTotal = Number(values.documentDiscountTotal) || 0;
   const discountTotal = Number(
     (lineDiscountTotal + documentDiscountTotal).toFixed(2)
@@ -1098,11 +1099,11 @@ function QuoteWorkflowLayout({
                 </p>
                 <p>
                   {t("quotes.form.lineDiscountSummaryLabel")}:{" "}
-                  {formatCurrency(lineDiscountTotal, currencyCode)}
+                  {formatLineDiscountPercentSummary(lineItems)}
                 </p>
                 <p>
                   {t("quotes.form.documentDiscountSummaryLabel")}:{" "}
-                  {formatCurrency(documentDiscountTotal, currencyCode)}
+                  {formatPercentValue(documentDiscountPercent)}
                 </p>
                 <p>
                   {t("quotes.form.taxSummaryLabel")}:{" "}
@@ -2638,6 +2639,31 @@ function SummaryMetric({ label, value }: { label: string; value: string }) {
       <p className="mt-2 text-sm font-semibold text-ink">{value}</p>
     </div>
   );
+}
+
+function formatPercentValue(value: number) {
+  return `${new Intl.NumberFormat("es-DO", {
+    maximumFractionDigits: 2
+  }).format(value)}%`;
+}
+
+function formatLineDiscountPercentSummary(
+  lineItems: Pick<QuoteFormValues["lineItems"][number], "discountPercent">[]
+) {
+  const nonZeroDiscounts = Array.from(
+    new Set(
+      lineItems
+        .map((lineItem) => Number(lineItem.discountPercent) || 0)
+        .filter((discountPercent) => discountPercent > 0)
+        .map((discountPercent) => formatPercentValue(discountPercent))
+    )
+  );
+
+  if (nonZeroDiscounts.length === 0) {
+    return "0%";
+  }
+
+  return nonZeroDiscounts.join(", ");
 }
 
 function FeedbackBanner({
